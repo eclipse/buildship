@@ -8,6 +8,7 @@
 
 package org.eclipse.buildship.core.util.classpath;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.gradle.tooling.model.eclipse.AccessRule;
@@ -20,6 +21,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.JavaCore;
+
+import org.eclipse.buildship.core.util.gradle.ModelUtils;
 
 /**
  * Contains helper methods for JDT classpath manipulation.
@@ -54,7 +57,7 @@ public final class ClasspathUtils {
      * @return the created array of classpath attributes
      */
     public static IClasspathAttribute[] createClasspathAttributes(EclipseClasspathEntry entry) {
-        List<ClasspathAttribute> attributes = Lists.newArrayList(entry.getClasspathAttributes());
+        List<ClasspathAttribute> attributes = Lists.newArrayList(ModelUtils.getClasspathAttributes(entry).or(Collections.<ClasspathAttribute>emptyList()));
         IClasspathAttribute[] classpathAttributes = new IClasspathAttribute[attributes.size()];
         for (int i = 0; i < attributes.size(); i++) {
             ClasspathAttribute attribute = attributes.get(i);

@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-
 import org.eclipse.buildship.ui.wizard.project.WelcomePageContent.PageParagraph;
 
 /**

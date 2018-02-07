@@ -18,7 +18,7 @@ import com.google.common.collect.Ordering;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
-import org.eclipse.buildship.core.util.gradle.ModelUtils;
+import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.ui.view.task.TaskNode.TaskNodeType;
 
 /**
@@ -84,8 +84,8 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
 
             @Override
             public int compare(ProjectNode left, ProjectNode right) {
-                EclipseProject leftRoot = ModelUtils.getRoot(left.getEclipseProject());
-                EclipseProject rightRoot = ModelUtils.getRoot(right.getEclipseProject());
+                EclipseProject leftRoot = HierarchicalElementUtils.getRoot(left.getEclipseProject());
+                EclipseProject rightRoot = HierarchicalElementUtils.getRoot(right.getEclipseProject());
                 if (leftRoot == rightRoot) {
                     // do not change sorting of projects that belong to the same root
                     return 0;

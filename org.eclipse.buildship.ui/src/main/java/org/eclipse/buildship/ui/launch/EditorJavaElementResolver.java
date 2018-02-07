@@ -11,11 +11,9 @@
 
 package org.eclipse.buildship.ui.launch;
 
-import java.util.Collection;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
@@ -28,7 +26,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchSite;
 
-import org.eclipse.buildship.ui.UiPlugin;
+import java.util.Collection;
 
 /**
  * Resolves elements from the Java source editor.

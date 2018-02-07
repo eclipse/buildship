@@ -13,8 +13,6 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.model.CompatEclipseSourceDirectory
-
 import com.google.common.base.Optional
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.file.FileUtils
@@ -31,7 +29,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Model source folders are added"() {
         given:
-        def newModelSourceFolders = gradleSourceFolders(['src'])
+        def newModelSourceFolders = gradleSourceFoldersWithoutAttributes(['src'])
 
         expect:
         javaProject.rawClasspath.length == 0
@@ -48,7 +46,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Duplicate model source folders are merged into one source entry"() {
         given:
-        def newModelSourceFolders = gradleSourceFolders(['src', 'src'])
+        def newModelSourceFolders = gradleSourceFoldersWithoutAttributes(['src', 'src'])
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
@@ -61,7 +59,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "Source folders that don't physically exist are ignored."() {
         given:
-        def newModelSourceFolders = gradleSourceFolders(['src-not-there'])
+        def newModelSourceFolders = gradleSourceFoldersWithoutAttributes(['src-not-there'])
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
@@ -75,7 +73,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         addSourceFolder("src-old", [], [], null)
         def srcNew = javaProject.project.getFolder('src-new')
         srcNew.create(true, true, null)
-        def newModelSourceFolders = gradleSourceFolders([srcNew.name])
+        def newModelSourceFolders = gradleSourceFoldersWithoutAttributes([srcNew.name])
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
@@ -91,7 +89,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         addSourceFolder("src")
         def srcGradle = javaProject.project.getFolder('src-gradle')
         srcGradle.create(true, true, null)
-        def newModelSourceFolders = gradleSourceFolders([srcGradle.name])
+        def newModelSourceFolders = gradleSourceFoldersWithoutAttributes([srcGradle.name])
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
@@ -105,7 +103,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
     def "User-defined attributes are kept if not present in the Gradle model"() {
         given:
         addSourceFolder("src", ['manual-inclusion-pattern'], ['manual-exclusion-pattern'], 'foo', attributes(["foo" : "bar"]))
-        def newModelSourceFolders = gradleSourceFolders(['src'])
+        def newModelSourceFolders = gradleSourceFoldersWithoutAttributes(['src'])
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
@@ -137,7 +135,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
     def "The project root can be a source folder"() {
         given:
-        def newModelSourceFolders = gradleSourceFolders(['.'])
+        def newModelSourceFolders = gradleSourceFoldersWithoutAttributes(['.'])
 
         when:
         SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
@@ -192,16 +190,27 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         'target/classes' | '/project-name/target/classes'
     }
 
-    private List<CompatEclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths, List excludes = null,
-                                                             List includes = null, Map attributes = null,
-                                                             String output = null) {
+
+    private List<EclipseSourceDirectory> gradleSourceFoldersWithoutAttributes(List<String> folderPaths) {
         folderPaths.collect { String folderPath ->
-            CompatEclipseSourceDirectory sourceDirectory = Mock(CompatEclipseSourceDirectory)
+            EclipseSourceDirectory sourceDirectory = Mock(EclipseSourceDirectory)
             sourceDirectory.getPath() >> folderPath
-            sourceDirectory.getClasspathAttributesOrAbsent() >> (attributes ? Optional.of(ImmutableDomainObjectSet.of(gradleClasspathAttributes(attributes))) : Optional.absent())
-            sourceDirectory.getExcludesOrAbsent() >> Optional.fromNullable(excludes)
-            sourceDirectory.getIncludesOrAbsent() >> Optional.fromNullable(includes)
-            sourceDirectory.getOutputMaybe() >> (output ? Maybe.of(output) : Maybe.absent())
+            sourceDirectory.getClasspathAttributes() >> { throw new RuntimeException() }
+            sourceDirectory.getExcludes() >> { throw new RuntimeException() }
+            sourceDirectory.getIncludes() >> { throw new RuntimeException() }
+            sourceDirectory.getOutput() >> { throw new RuntimeException() }
+            sourceDirectory
+        }
+    }
+
+    private List<EclipseSourceDirectory> gradleSourceFolders(List<String> folderPaths, List excludes = null,  List includes = null, Map attributes = [:], String output = null) {
+        folderPaths.collect { String folderPath ->
+            EclipseSourceDirectory sourceDirectory = Mock(EclipseSourceDirectory)
+            sourceDirectory.getPath() >> folderPath
+            sourceDirectory.getClasspathAttributes() >> ImmutableDomainObjectSet.of(gradleClasspathAttributes(attributes))
+            sourceDirectory.getExcludes() >> excludes
+            sourceDirectory.getIncludes() >> includes
+            sourceDirectory.getOutput() >> output
             sourceDirectory
         }
     }

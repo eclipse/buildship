@@ -11,11 +11,17 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import java.io.File;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.UiPluginConstants;
+import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.util.selection.TargetWidgetsInvertingSelectionListener;
+import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -30,16 +36,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.i18n.UiMessages;
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.util.selection.TargetWidgetsInvertingSelectionListener;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import java.io.File;
+import java.util.List;
 
 /**
  * Page on the {@link org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard} declaring the project name and project location.

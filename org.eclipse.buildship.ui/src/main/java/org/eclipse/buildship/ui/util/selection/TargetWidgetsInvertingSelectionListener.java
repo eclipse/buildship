@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.util.selection;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;

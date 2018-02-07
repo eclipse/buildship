@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 
@@ -36,8 +35,8 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.model.CompatEclipseSourceDirectory;
 import org.eclipse.buildship.core.util.gradle.Maybe;
+import org.eclipse.buildship.core.util.gradle.ModelUtils;
 
 /**
  * Updates the source folders of the target project.
@@ -57,12 +56,12 @@ import org.eclipse.buildship.core.util.gradle.Maybe;
 final class SourceFolderUpdater {
 
     private final IJavaProject project;
-    private final Map<IPath, CompatEclipseSourceDirectory> sourceFoldersByPath;
+    private final Map<IPath, EclipseSourceDirectory> sourceFoldersByPath;
 
-    private SourceFolderUpdater(IJavaProject project, List<CompatEclipseSourceDirectory> sourceDirectories) {
+    private SourceFolderUpdater(IJavaProject project, List<EclipseSourceDirectory> sourceDirectories) {
         this.project = Preconditions.checkNotNull(project);
         this.sourceFoldersByPath = Maps.newLinkedHashMap();
-        for (CompatEclipseSourceDirectory sourceFolder : sourceDirectories) {
+        for (EclipseSourceDirectory sourceFolder : sourceDirectories) {
             IPath fullPath = project.getProject().getFullPath().append(sourceFolder.getPath());
             this.sourceFoldersByPath.put(fullPath, sourceFolder);
         }
@@ -81,7 +80,7 @@ final class SourceFolderUpdater {
             IClasspathEntry classpathEntry = iterator.next();
             if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
                 IPath path = classpathEntry.getPath();
-                CompatEclipseSourceDirectory sourceFolder = this.sourceFoldersByPath.get(path);
+                EclipseSourceDirectory sourceFolder = this.sourceFoldersByPath.get(path);
                 if (sourceFolder == null) {
                     iterator.remove();
                 } else {
@@ -92,7 +91,7 @@ final class SourceFolderUpdater {
         }
     }
 
-    private IClasspathEntry toClasspathEntry(CompatEclipseSourceDirectory sourceFolder, IClasspathEntry existingEntry) {
+    private IClasspathEntry toClasspathEntry(EclipseSourceDirectory sourceFolder, IClasspathEntry existingEntry) {
         SourceFolderEntryBuilder builder = new SourceFolderEntryBuilder(this.project, existingEntry.getPath());
         builder.setOutput(existingEntry.getOutputLocation());
         builder.setAttributes(existingEntry.getExtraAttributes());
@@ -102,30 +101,30 @@ final class SourceFolderUpdater {
         return builder.build();
     }
 
-    private void synchronizeAttributesFromModel(SourceFolderEntryBuilder builder, CompatEclipseSourceDirectory sourceFolder) {
-        Maybe<String> output = sourceFolder.getOutputMaybe();
+    private void synchronizeAttributesFromModel(SourceFolderEntryBuilder builder, EclipseSourceDirectory sourceFolder) {
+        Maybe<String> output = ModelUtils.getOutput(sourceFolder);
         if (output.isPresent()) {
             builder.setOutput(output.get());
         }
 
-        Optional<DomainObjectSet<? extends ClasspathAttribute>> attributes = sourceFolder.getClasspathAttributesOrAbsent();
+        Optional<Iterable<? extends ClasspathAttribute>> attributes = ModelUtils.getClasspathAttributes(sourceFolder);
         if (attributes.isPresent()) {
             builder.setAttributes(attributes.get());
         }
 
-        Optional<List<String>> excludes = sourceFolder.getExcludesOrAbsent();
+        Optional<List<String>> excludes = ModelUtils.getExcludes(sourceFolder);
         if (excludes.isPresent()) {
             builder.setExcludes(excludes.get());
         }
 
-        Optional<List<String>> includes = sourceFolder.getIncludesOrAbsent();
+        Optional<List<String>> includes = ModelUtils.getIncludes(sourceFolder);
         if (includes.isPresent()) {
             builder.setIncludes(includes.get());
         }
     }
 
     private void addNewSourceFolders(List<IClasspathEntry> classpath) {
-        for (CompatEclipseSourceDirectory sourceFolder : this.sourceFoldersByPath.values()) {
+        for (EclipseSourceDirectory sourceFolder : this.sourceFoldersByPath.values()) {
             IResource physicalLocation = getUnderlyingDirectory(sourceFolder);
             if (existsInSameLocation(physicalLocation, sourceFolder)) {
                 classpath.add(toClasspathEntry(sourceFolder, physicalLocation));
@@ -156,7 +155,7 @@ final class SourceFolderUpdater {
         return directory.getLocation() != null && directory.getLocation().toFile().equals(sourceFolder.getDirectory());
     }
 
-    private IClasspathEntry toClasspathEntry(CompatEclipseSourceDirectory sourceFolder, IResource physicalLocation) {
+    private IClasspathEntry toClasspathEntry(EclipseSourceDirectory sourceFolder, IResource physicalLocation) {
         IPackageFragmentRoot fragmentRoot = this.project.getPackageFragmentRoot(physicalLocation);
         SourceFolderEntryBuilder builder = new SourceFolderEntryBuilder(this.project, fragmentRoot.getPath());
         synchronizeAttributesFromModel(builder, sourceFolder);
@@ -172,7 +171,7 @@ final class SourceFolderUpdater {
      * @param monitor the monitor to report progress on
      * @throws JavaModelException if the classpath modification fails
      */
-    public static void update(IJavaProject project, List<CompatEclipseSourceDirectory> sourceDirectories, IProgressMonitor monitor) throws JavaModelException {
+    public static void update(IJavaProject project, List<EclipseSourceDirectory> sourceDirectories, IProgressMonitor monitor) throws JavaModelException {
         SourceFolderUpdater updater = new SourceFolderUpdater(project, sourceDirectories);
         updater.updateSourceFolders(monitor);
     }
@@ -222,10 +221,10 @@ final class SourceFolderUpdater {
             this.attributes = attributes;
         }
 
-        public void setAttributes(DomainObjectSet<? extends ClasspathAttribute> attributes) {
-            this.attributes = new IClasspathAttribute[attributes.size()];
+        public void setAttributes(Iterable<? extends ClasspathAttribute> attributes) {
             List<ClasspathAttribute> attributeList = Lists.newArrayList(attributes);
-            for (int i = 0; i < attributes.size(); i++) {
+            this.attributes = new IClasspathAttribute[attributeList.size()];
+            for (int i = 0; i < attributeList.size(); i++) {
                 ClasspathAttribute attribute = attributeList.get(i);
                 this.attributes[i] = JavaCore.newClasspathAttribute(attribute.getName(), attribute.getValue());
             }

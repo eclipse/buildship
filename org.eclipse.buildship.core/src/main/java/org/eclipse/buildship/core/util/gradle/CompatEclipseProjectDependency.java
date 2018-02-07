@@ -6,17 +6,17 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.model;
+package org.eclipse.buildship.core.util.gradle;
 
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
 /**
- * Decorated {@link EclipseProjectDependency} providing some backward compatibility.
+ * Compatibility decorator for {@link EclipseProjectDependency}.
  *
  * @author Donat Csikos
  */
-public class CompatEclipseProjectDependency extends CompatEclipseClasspathEntry<EclipseProjectDependency> implements EclipseProjectDependency {
+class CompatEclipseProjectDependency extends CompatEclipseClasspathEntry<EclipseProjectDependency> implements EclipseProjectDependency {
 
     public CompatEclipseProjectDependency(EclipseProjectDependency delegate) {
         super(delegate);
@@ -24,22 +24,20 @@ public class CompatEclipseProjectDependency extends CompatEclipseClasspathEntry<
 
     @Override
     public String getPath() {
-        return this.delegate.getPath();
+        return getElement().getPath();
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public HierarchicalEclipseProject getTargetProject() {
-        return this.delegate.getTargetProject();
+        return getElement().getTargetProject();
     }
 
-    /**
-     *  Returns true for Gradle versions < 2.5.
-     */
     @Override
     public boolean isExported() {
+        // returns true for Gradle versions < 2.5
         try {
-            return this.delegate.isExported();
+            return getElement().isExported();
         } catch (Exception ignore) {
             return true;
         }

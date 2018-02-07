@@ -29,11 +29,10 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.model.CompatEclipseProject;
 import org.eclipse.buildship.core.operation.ToolingApiJob;
 import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.operation.ToolingApiStatus;
-import org.eclipse.buildship.core.util.gradle.ModelUtils;
+import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -88,10 +87,10 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
     }
 
     private Set<EclipseProject> fetchEclipseGradleProjects(ModelProvider modelProvider, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        Collection<CompatEclipseProject> models = modelProvider.fetchModels(CompatEclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
+        Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
         LinkedHashSet<EclipseProject> projects = Sets.newLinkedHashSet();
         for (EclipseProject model : models) {
-            projects.addAll(ModelUtils.getAll(model));
+            projects.addAll(HierarchicalElementUtils.getAll(model));
         }
         return projects;
     }

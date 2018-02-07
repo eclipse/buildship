@@ -13,7 +13,7 @@ import org.gradle.tooling.model.Task;
 import org.eclipse.buildship.core.util.gradle.Path;
 
 /**
- * TODO This class should be merged with the ProjectNode.
+ * A task that is executed only on a target project.
  *
  * @author Donat Csikos
  */

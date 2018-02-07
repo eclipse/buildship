@@ -1,13 +1,16 @@
 package org.eclipse.buildship.ui.view.task
 
+import org.junit.Rule;
+import org.junit.rules.TemporaryFolder;
+import spock.lang.AutoCleanup;
+
 import com.google.common.base.Optional
-
-import org.eclipse.debug.core.ILaunchConfiguration
-import org.eclipse.jface.viewers.StructuredSelection
-
 import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager
 import org.eclipse.buildship.ui.UiPluginConstants
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection
+import org.eclipse.buildship.ui.test.fixtures.TestEnvironment
+import org.eclipse.debug.core.ILaunchConfiguration
+import org.eclipse.jface.viewers.StructuredSelection
 
 class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 

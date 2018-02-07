@@ -11,16 +11,14 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import org.osgi.service.prefs.BackingStoreException;
-
-import com.google.common.base.Preconditions;
-
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.wizard.Wizard;
+import org.osgi.service.prefs.BackingStoreException;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.ui.UiPlugin;
+import com.google.common.base.Preconditions;
 
 /**
  * Base class for project wizards.

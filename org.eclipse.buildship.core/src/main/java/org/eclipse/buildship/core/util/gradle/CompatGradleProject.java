@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.model;
+package org.eclipse.buildship.core.util.gradle;
 
 import java.io.File;
 
@@ -14,7 +14,6 @@ import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
 import org.gradle.tooling.model.ProjectIdentifier;
-import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.gradle.GradleScript;
 
 import com.google.common.base.Function;
@@ -23,52 +22,46 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
 /**
- * Decorator class for {@link GradleProject} providing sensible defaults for older models.
+ * Compatibility decorator for {@link GradleProject}.
  *
  * @author Donat Csikos
  */
-public final class CompatGradleProject implements GradleProject {
-
-    private final GradleProject delegate;
+class CompatGradleProject extends CompatModelElement<GradleProject> implements GradleProject {
 
     public CompatGradleProject(GradleProject delegate) {
-        this.delegate = delegate;
+        super(delegate);
     }
 
     @Override
     public String getDescription() {
-        return this.delegate.getDescription();
+        return getElement().getDescription();
     }
 
     @Override
     public String getName() {
-        return this.delegate.getName();
+        return getElement().getName();
     }
 
     @Override
     public GradleProject findByPath(String path) {
-        return this.delegate.findByPath(path);
+        return getElement().findByPath(path);
     }
 
-    /**
-     * If Gradle versions < 1.8 then <code>null</code> is returned.
-     */
     @Override
     public File getBuildDirectory() {
+        // If Gradle versions < 1.8 then <code>null</code> is returned
         try {
-            return this.delegate.getBuildDirectory();
+            return getElement().getBuildDirectory();
         } catch (Exception ignore) {
             return null;
         }
     }
 
-    /**
-     * If Gradle versions < 1.8 then <code>null</code> is returned.
-     */
     @Override
-    public GradleScript getBuildScript() throws UnsupportedMethodException {
+    public GradleScript getBuildScript() {
+        // If Gradle versions < 1.8 then <code>null</code> is returned
         try {
-            return this.delegate.getBuildScript();
+            return getElement().getBuildScript();
         } catch (Exception ignore) {
             return null;
         }
@@ -77,30 +70,28 @@ public final class CompatGradleProject implements GradleProject {
     @Override
     public DomainObjectSet<? extends GradleProject> getChildren() {
         Builder<GradleProject> result = ImmutableList.builder();
-        for (GradleProject child : this.delegate.getChildren()) {
+        for (GradleProject child : getElement().getChildren()) {
             result.add(new CompatGradleProject(child));
         }
-        return CompatHelper.asDomainSet(result.build());
+        return ModelUtils.asDomainObjectSet(result.build());
     }
 
     @Override
     public GradleProject getParent() {
-        GradleProject parent  = this.delegate.getParent();
+        GradleProject parent  = getElement().getParent();
         return parent == null ? parent : new CompatGradleProject(parent);
     }
 
     @Override
     public String getPath() {
-        return this.delegate.getPath();
+        return getElement().getPath();
     }
 
-    /**
-     * If Gradle versions < 2.4 then <code>null</code> is returned.
-     */
     @Override
     public File getProjectDirectory() {
+        // If Gradle versions < 2.4 then <code>null</code> is returned.
         try {
-            return this.delegate.getProjectDirectory();
+            return getElement().getProjectDirectory();
         } catch (Exception ignore) {
             return null;
         }
@@ -108,18 +99,18 @@ public final class CompatGradleProject implements GradleProject {
 
     @Override
     public ProjectIdentifier getProjectIdentifier() {
-        return this.delegate.getProjectIdentifier();
+        return getElement().getProjectIdentifier();
     }
 
     @Override
     public DomainObjectSet<? extends GradleTask> getTasks() {
-        ImmutableList<GradleTask> tasks = FluentIterable.from(this.delegate.getTasks()).transform(new Function<GradleTask, GradleTask>() {
+        ImmutableList<GradleTask> tasks = FluentIterable.from(getElement().getTasks()).transform(new Function<GradleTask, GradleTask>() {
 
             @Override
             public GradleTask apply(GradleTask task) {
                 return new CompatTask(task);
             }
         }).toList();
-        return CompatHelper.asDomainSet(tasks);
+        return ModelUtils.asDomainObjectSet(tasks);
     }
 }

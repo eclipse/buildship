@@ -11,7 +11,7 @@ package org.eclipse.buildship.core.util.gradle;
 import org.gradle.api.JavaVersion;
 
 /**
- * Contains utility class to map Gradle {@link JavaVersion} values to the Eclipse domain.
+ * Utility class to map Gradle {@link JavaVersion} values to the Eclipse domain.
  *
  * @author Donat Csikos
  */

@@ -11,20 +11,14 @@
 
 package org.eclipse.buildship.ui.launch;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.*;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Tests if a set of {@link IJavaElement} instances are valid to launch as tests with.

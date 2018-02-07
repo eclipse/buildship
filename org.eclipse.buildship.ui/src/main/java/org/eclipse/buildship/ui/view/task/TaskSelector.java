@@ -15,8 +15,9 @@ import com.google.common.collect.ImmutableSortedSet;
 import org.eclipse.buildship.core.util.gradle.Path;
 
 /**
- * TODO (donat) javadoc.
- * 
+ * A task that is executed on a target project and on all sub-projects where the same task is
+ * peresent.
+ *
  * @author Donat Csikos
  */
 public class TaskSelector {

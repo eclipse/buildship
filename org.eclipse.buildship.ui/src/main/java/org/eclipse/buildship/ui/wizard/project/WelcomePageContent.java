@@ -11,10 +11,10 @@
 
 package org.eclipse.buildship.ui.wizard.project;
 
-import java.util.List;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 /**
  * Describes the content of a welcome page.

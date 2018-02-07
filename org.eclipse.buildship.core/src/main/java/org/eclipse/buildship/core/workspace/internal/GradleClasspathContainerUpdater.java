@@ -64,7 +64,7 @@ final class GradleClasspathContainerUpdater {
     private final EclipseProject gradleProject;
     private final Map<File, EclipseProject> projectDirToProject;
 
-    private GradleClasspathContainerUpdater(IJavaProject eclipseProject, EclipseProject gradleProject, Set<? extends EclipseProject> allGradleProjects) {
+    private GradleClasspathContainerUpdater(IJavaProject eclipseProject, EclipseProject gradleProject, Set<EclipseProject> allGradleProjects) {
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.projectDirToProject = Maps.newHashMap();
@@ -154,7 +154,7 @@ final class GradleClasspathContainerUpdater {
      * container will be persisted so it does not have to be reloaded after the workbench is
      * restarted.
      */
-    public static void updateFromModel(IJavaProject eclipseProject, EclipseProject gradleProject, Set<? extends EclipseProject> allGradleProjects, PersistentModelBuilder persistentModel,
+    public static void updateFromModel(IJavaProject eclipseProject, EclipseProject gradleProject, Set<EclipseProject> allGradleProjects, PersistentModelBuilder persistentModel,
             IProgressMonitor monitor) throws JavaModelException {
         GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects);
         updater.updateClasspathContainer(persistentModel, monitor);

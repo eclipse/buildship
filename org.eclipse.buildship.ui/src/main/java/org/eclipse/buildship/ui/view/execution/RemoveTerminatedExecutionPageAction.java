@@ -22,11 +22,10 @@
 
 package org.eclipse.buildship.ui.view.execution;
 
+import org.eclipse.buildship.ui.view.RemovePageAction;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-
-import org.eclipse.buildship.ui.view.RemovePageAction;
 
 /**
  * Removes the target {@link org.eclipse.buildship.ui.view.execution.ExecutionPage} from the

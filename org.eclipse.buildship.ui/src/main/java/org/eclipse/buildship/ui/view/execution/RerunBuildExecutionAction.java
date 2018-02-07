@@ -12,7 +12,10 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
-
+import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.ui.PluginImage.ImageState;
+import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -20,11 +23,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationListener;
 import org.eclipse.jface.action.Action;
-
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.i18n.UiMessages;
 
 /**
  * Reruns the build represented by the target {@link ExecutionPage}.

@@ -6,18 +6,18 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.model;
+package org.eclipse.buildship.core.util.gradle;
 
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
 import org.gradle.tooling.model.ProjectIdentifier;
 
 /**
- * Decorated {@link GradleTask} providing some backward compatibility.
+ * Compatibility decorator for {@link GradleTask}.
  *
  * @author Donat Csikos
  */
-public final class CompatTask implements GradleTask {
+class CompatTask implements GradleTask {
 
     private static final String DEFAULT_DESCRIPTION = "";
     private static final String DEFAULT_GROUP_NAME = "other";
@@ -77,10 +77,11 @@ public final class CompatTask implements GradleTask {
     }
 
     /**
-     * If Gradle versions < 2.1 then returns {@code true}.
+     *
      */
     @Override
     public boolean isPublic() {
+        // returns true for Gradle versions < 2.1
         try {
             return this.delegate.isPublic();
         } catch (Exception ignore) {

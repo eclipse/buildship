@@ -11,26 +11,20 @@
 
 package org.eclipse.buildship.ui.util.editor;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
-
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.ui.UiPlugin;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.ui.UiPlugin;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Contains helper methods related to interacting with the Eclipse editors.

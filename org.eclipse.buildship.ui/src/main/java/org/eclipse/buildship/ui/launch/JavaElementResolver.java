@@ -11,19 +11,14 @@
 
 package org.eclipse.buildship.ui.launch;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.core.*;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Base class to resolve {@link IMethod} and {@link IType} instances.

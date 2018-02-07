@@ -6,18 +6,18 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.model;
+package org.eclipse.buildship.core.util.gradle;
 
 import org.gradle.api.JavaVersion;
 import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
 import org.gradle.tooling.model.java.InstalledJdk;
 
 /**
- * Decorated {@link EclipseJavaSourceSettings} providing some backward compatibility.
+ * Compatibility decorator for {@link EclipseJavaSourceSettings}.
  *
  * @author Donat Csikos
  */
-public final class CompatSourceSettings implements EclipseJavaSourceSettings {
+class CompatSourceSettings implements EclipseJavaSourceSettings {
 
     private final EclipseJavaSourceSettings delegate;
 
@@ -25,11 +25,9 @@ public final class CompatSourceSettings implements EclipseJavaSourceSettings {
         this.delegate = delegate;
     }
 
-    /**
-     * Returns the JDK hosting the runtimne Eclipse if Gradle versions < 2.11.
-     */
     @Override
     public InstalledJdk getJdk() {
+        // returns the JDK hosting the runtimne Eclipse for Gradle versions < 2.11
         try {
             return this.delegate.getJdk();
         } catch (Exception ignore) {
@@ -43,11 +41,9 @@ public final class CompatSourceSettings implements EclipseJavaSourceSettings {
         return this.delegate.getSourceLanguageLevel();
     }
 
-    /**
-     * Returns the source language level if Gradle version < 2.11.
-     */
     @Override
     public JavaVersion getTargetBytecodeVersion() {
+        // returns the source language level for Gradle version < 2.11
         try {
             return this.delegate.getTargetBytecodeVersion();
         } catch (Exception ignore) {

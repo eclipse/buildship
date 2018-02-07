@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.model;
+package org.eclipse.buildship.core.util.gradle;
 
 import java.io.File;
 import java.util.List;
@@ -15,7 +15,6 @@ import org.gradle.api.JavaVersion;
 import org.gradle.tooling.model.DomainObjectSet;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.ProjectIdentifier;
-import org.gradle.tooling.model.UnsupportedMethodException;
 import org.gradle.tooling.model.eclipse.EclipseBuildCommand;
 import org.gradle.tooling.model.eclipse.EclipseClasspathContainer;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
@@ -33,60 +32,53 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Lists;
 
 /**
- * {@link EclipseProject} decorator that provide default values when the model is returned from
- * older target Gradle version.
+ * Compatibility decorator for {@link EclipseProject}.
  *
  * @author Donat Csikos
  */
-public final class CompatEclipseProject implements EclipseProject {
+class CompatEclipseProject extends CompatModelElement<EclipseProject> implements EclipseProject {
 
     static final EclipseJavaSourceSettings FALLBACK_JAVA_SOURCE_SETTINGS = new FallbackJavaSourceSettings();
     static final EclipseOutputLocation FALLBACK_OUTPUT_LOCATION = new FallbackOutputLocation();
 
-    private final EclipseProject delegate;
-
     public CompatEclipseProject(EclipseProject delegate) {
-        this.delegate = delegate;
+        super(delegate);
     }
 
-    /**
-     * Returns an empty collection for Gradle versions < 2.9.
-     */
     @Override
     public DomainObjectSet<? extends EclipseBuildCommand> getBuildCommands() {
+        // returns an empty collection for Gradle versions < 2.9
         try {
-            return this.delegate.getBuildCommands();
+            return getElement().getBuildCommands();
         } catch (Exception ignore) {
-            return CompatHelper.emptyDomainSet();
+            return ModelUtils.emptyDomainObjectSet();
         }
     }
 
     @Override
     public DomainObjectSet<? extends EclipseProject> getChildren() {
         Builder<EclipseProject> result = ImmutableList.builder();
-        for (EclipseProject child : this.delegate.getChildren()) {
+        for (EclipseProject child : getElement().getChildren()) {
             result.add(new CompatEclipseProject(child));
         }
-        return CompatHelper.asDomainSet(result.build());
+        return ModelUtils.asDomainObjectSet(result.build());
     }
 
     @Override
     public DomainObjectSet<? extends EclipseExternalDependency> getClasspath() {
-        DomainObjectSet<? extends EclipseExternalDependency> dependencies = this.delegate.getClasspath();
+        DomainObjectSet<? extends EclipseExternalDependency> dependencies = getElement().getClasspath();
         List<EclipseExternalDependency> result = Lists.newArrayListWithCapacity(dependencies.size());
         for (EclipseExternalDependency dependency : dependencies) {
             result.add(new CompatEclipseExternalDependency(dependency));
         }
-        return CompatHelper.asDomainSet(result);
+        return ModelUtils.asDomainObjectSet(result);
     }
 
-    /**
-     * Returns null for Gradle versions < 3.0.
-     */
     @Override
     public DomainObjectSet<? extends EclipseClasspathContainer> getClasspathContainers() {
+        // returns null for Gradle versions < 3.0
         try {
-            return this.delegate.getClasspathContainers();
+            return getElement().getClasspathContainers();
         } catch (Exception ignore) {
             return null;
         }
@@ -94,21 +86,19 @@ public final class CompatEclipseProject implements EclipseProject {
 
     @Override
     public String getDescription() {
-        return this.delegate.getDescription();
+        return getElement().getDescription();
     }
 
     @Override
     public GradleProject getGradleProject() {
-        return new CompatGradleProject(this.delegate.getGradleProject());
+        return new CompatGradleProject(getElement().getGradleProject());
     }
 
-    /**
-     * For Java projects with Gradle versions < 2.10 a default result is returned.
-     */
     @Override
     public EclipseJavaSourceSettings getJavaSourceSettings() {
+        // returns fallback settings for Gradle versions < 2.10
         try {
-            EclipseJavaSourceSettings sourceSettings = this.delegate.getJavaSourceSettings();
+            EclipseJavaSourceSettings sourceSettings = getElement().getJavaSourceSettings();
             return sourceSettings == null ? null : new CompatSourceSettings(sourceSettings);
         } catch (Exception e) {
             return getSourceDirectories().isEmpty() ? null : FALLBACK_JAVA_SOURCE_SETTINGS;
@@ -117,21 +107,20 @@ public final class CompatEclipseProject implements EclipseProject {
 
     @Override
     public DomainObjectSet<? extends EclipseLinkedResource> getLinkedResources() {
-        return this.delegate.getLinkedResources();
+        return getElement().getLinkedResources();
     }
 
     @Override
     public String getName() {
-        return this.delegate.getName();
+        return getElement().getName();
     }
 
-    /**
-     * Returns the 'bin' folder for Gradle versions < 3.0.
-     */
     @Override
     public EclipseOutputLocation getOutputLocation() {
+        // returns the 'bin' folder for Gradle versions < 3.0
         try {
-            return this.delegate.getOutputLocation();
+            EclipseOutputLocation outputLocation = getElement().getOutputLocation();
+            return outputLocation != null ? outputLocation : FALLBACK_OUTPUT_LOCATION;
         } catch (Exception ignore) {
             return FALLBACK_OUTPUT_LOCATION;
         }
@@ -139,56 +128,52 @@ public final class CompatEclipseProject implements EclipseProject {
 
     @Override
     public EclipseProject getParent() {
-        EclipseProject parent = this.delegate.getParent();
+        EclipseProject parent = getElement().getParent();
         return parent == null ? parent : new CompatEclipseProject(parent);
     }
 
     @Override
     public DomainObjectSet<? extends EclipseProjectDependency> getProjectDependencies() {
-        DomainObjectSet<? extends EclipseProjectDependency> projectDependencies = this.delegate.getProjectDependencies();
+        DomainObjectSet<? extends EclipseProjectDependency> projectDependencies = getElement().getProjectDependencies();
         List<EclipseProjectDependency> result = Lists.newArrayListWithCapacity(projectDependencies.size());
         for (EclipseProjectDependency dependency : projectDependencies) {
             result.add(new CompatEclipseProjectDependency(dependency));
         }
-        return CompatHelper.asDomainSet(result);
+        return ModelUtils.asDomainObjectSet(result);
     }
 
     @Override
-    public File getProjectDirectory() throws UnsupportedMethodException {
-        return this.delegate.getProjectDirectory();
+    public File getProjectDirectory() {
+        return getElement().getProjectDirectory();
     }
 
     @Override
     public ProjectIdentifier getProjectIdentifier() {
-        return this.delegate.getProjectIdentifier();
+        return getElement().getProjectIdentifier();
     }
 
-    /**
-     * Returns an empty set for Gradle versions < 2.9.
-     */
     @Override
     public DomainObjectSet<? extends EclipseProjectNature> getProjectNatures() {
+        // returns an empty set for Gradle versions < 2.9
         try {
-            return this.delegate.getProjectNatures();
+            return getElement().getProjectNatures();
         } catch (Exception e) {
-            return CompatHelper.emptyDomainSet();
+            return ModelUtils.emptyDomainObjectSet();
         }
     }
 
     @Override
-    public DomainObjectSet<? extends CompatEclipseSourceDirectory> getSourceDirectories() {
-        // TODO (donat) remove duplication; maybe move the creation to a static factory
-        DomainObjectSet<? extends EclipseSourceDirectory> directories = this.delegate.getSourceDirectories();
+    public DomainObjectSet<? extends EclipseSourceDirectory> getSourceDirectories() {
+        DomainObjectSet<? extends EclipseSourceDirectory> directories = getElement().getSourceDirectories();
         List<CompatEclipseSourceDirectory> result = Lists.newArrayListWithCapacity(directories.size());
         for (EclipseSourceDirectory directory : directories) {
             result.add(new CompatEclipseSourceDirectory(directory));
         }
-        return CompatHelper.<CompatEclipseSourceDirectory> asDomainSet(result);
+        return ModelUtils.<CompatEclipseSourceDirectory> asDomainObjectSet(result);
     }
 
     /**
      * Supplies a default output location for older Gradle versions.
-     *
      */
     private static final class FallbackOutputLocation implements EclipseOutputLocation {
 
@@ -204,7 +189,7 @@ public final class CompatEclipseProject implements EclipseProject {
     private static final class FallbackJavaSourceSettings implements EclipseJavaSourceSettings {
 
         @Override
-        public JavaVersion getTargetBytecodeVersion() throws UnsupportedMethodException {
+        public JavaVersion getTargetBytecodeVersion() {
             return JavaVersion.current();
         }
 

@@ -11,19 +11,18 @@
 
 package org.eclipse.buildship.ui.launch;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Resolves elements from the current selection.

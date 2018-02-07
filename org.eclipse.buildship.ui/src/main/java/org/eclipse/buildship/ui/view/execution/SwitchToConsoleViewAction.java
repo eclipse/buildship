@@ -12,15 +12,13 @@
 package org.eclipse.buildship.ui.view.execution;
 
 import com.google.common.base.Preconditions;
-
+import org.eclipse.buildship.ui.PluginImage;
+import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.view.Page;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
-
-import org.eclipse.buildship.ui.PluginImage;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.view.Page;
 
 /**
  * Navigates from the target {@link Page} to the corresponding {@link org.eclipse.ui.console.IConsole} page in the Console View.

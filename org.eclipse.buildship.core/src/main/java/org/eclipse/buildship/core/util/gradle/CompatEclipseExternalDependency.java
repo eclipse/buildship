@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.model;
+package org.eclipse.buildship.core.util.gradle;
 
 import java.io.File;
 
@@ -14,11 +14,11 @@ import org.gradle.tooling.model.GradleModuleVersion;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 
 /**
- * Decorated {@link EclipseExternalDependency} providing some backward compatibility.
+ * Compatibility decorator for {@link EclipseExternalDependency}.
  *
  * @author Donat Csikos
  */
-public class CompatEclipseExternalDependency extends CompatEclipseClasspathEntry<EclipseExternalDependency> implements EclipseExternalDependency {
+class CompatEclipseExternalDependency extends CompatEclipseClasspathEntry<EclipseExternalDependency> implements EclipseExternalDependency {
 
     public CompatEclipseExternalDependency(EclipseExternalDependency delegate) {
         super(delegate);
@@ -26,31 +26,29 @@ public class CompatEclipseExternalDependency extends CompatEclipseClasspathEntry
 
     @Override
     public File getFile() {
-        return this.delegate.getFile();
+        return getElement().getFile();
     }
 
     @Override
     public GradleModuleVersion getGradleModuleVersion() {
-        return this.delegate.getGradleModuleVersion();
+        return getElement().getGradleModuleVersion();
     }
 
     @Override
     public File getJavadoc() {
-        return this.delegate.getJavadoc();
+        return getElement().getJavadoc();
     }
 
     @Override
     public File getSource() {
-        return this.delegate.getSource();
+        return getElement().getSource();
     }
 
-    /**
-     *  Returns true for Gradle versions < 2.5.
-     */
     @Override
     public boolean isExported() {
+        //  returns true for Gradle versions < 2.5
         try {
-            return this.delegate.isExported();
+            return getElement().isExported();
         } catch (Exception ignore) {
             return true;
         }
