@@ -19,8 +19,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jdt.core.IMethod;
@@ -39,6 +37,7 @@ import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
 import org.eclipse.buildship.core.launch.TestMethod;
 import org.eclipse.buildship.core.launch.TestTarget;
 import org.eclipse.buildship.core.launch.TestType;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.

@@ -11,10 +11,10 @@ package org.eclipse.buildship.core.configuration;
 import java.io.File;
 import java.util.List;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
+
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Defines how to access a hierarchy of preferences for the Gradle projects in the workspace.

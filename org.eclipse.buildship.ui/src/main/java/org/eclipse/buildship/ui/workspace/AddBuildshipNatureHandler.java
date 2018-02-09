@@ -13,8 +13,6 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -27,6 +25,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.workspace.SynchronizationJob;

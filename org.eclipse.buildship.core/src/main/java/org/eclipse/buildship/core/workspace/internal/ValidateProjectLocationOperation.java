@@ -13,12 +13,11 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
 
 /**
  * Verifies that none of the modules are located in the Eclipse workspace root.

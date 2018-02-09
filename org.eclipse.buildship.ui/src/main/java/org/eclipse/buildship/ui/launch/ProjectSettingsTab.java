@@ -16,8 +16,6 @@ import java.io.File;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -36,6 +34,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;

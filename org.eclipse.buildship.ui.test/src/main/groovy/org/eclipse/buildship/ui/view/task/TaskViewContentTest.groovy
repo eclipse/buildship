@@ -15,13 +15,13 @@
  */
 package org.eclipse.buildship.ui.view.task
 
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy
-
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.workspace.FetchStrategy
+
 
 class TaskViewContentTest extends BaseTaskViewTest {
 

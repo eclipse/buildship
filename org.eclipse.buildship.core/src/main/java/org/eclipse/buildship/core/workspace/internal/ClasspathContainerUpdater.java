@@ -19,9 +19,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseClasspathContainer;
-import com.gradleware.tooling.toolingmodel.OmniJavaSourceSettings;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,6 +33,8 @@ import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
+import org.eclipse.buildship.core.omnimodel.OmniEclipseClasspathContainer;
+import org.eclipse.buildship.core.omnimodel.OmniJavaSourceSettings;
 import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 

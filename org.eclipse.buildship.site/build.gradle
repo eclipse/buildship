@@ -44,7 +44,7 @@ dependencies {
     }
 
     // include 3rd party dependencies in the update site
-    externalPlugin withEclipseBundle('com.gradleware.tooling.model')
+    externalPlugin withEclipseBundle('org.gradle.toolingapi')
 
     // official 3rd party dependencies from Orbit which are already signed and normalized with pack200
     signedExternalPlugin withEclipseBundle('org.slf4j.api')

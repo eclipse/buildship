@@ -13,8 +13,6 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.events.ModifyEvent;
@@ -25,6 +23,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.util.binding.Property;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 import org.eclipse.buildship.ui.preferences.GradleWorkbenchPreferencePage;
 import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.DistributionChangedListener;

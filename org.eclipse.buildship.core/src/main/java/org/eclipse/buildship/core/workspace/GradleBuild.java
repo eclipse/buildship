@@ -14,13 +14,12 @@ import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.TestLauncher;
 
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 /**
  * A Gradle build.

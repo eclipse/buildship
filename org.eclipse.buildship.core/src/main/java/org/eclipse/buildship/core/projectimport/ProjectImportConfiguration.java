@@ -14,12 +14,11 @@ package org.eclipse.buildship.core.projectimport;
 import java.io.File;
 import java.util.List;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-import com.gradleware.tooling.toolingutils.binding.Validator;
-import com.gradleware.tooling.toolingutils.binding.Validators;
-
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.util.binding.Property;
+import org.eclipse.buildship.core.util.binding.Validator;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
 
 /**

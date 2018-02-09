@@ -10,12 +10,12 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import com.google.common.base.Optional;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseOutputLocation;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
+
+import org.eclipse.buildship.core.omnimodel.OmniEclipseOutputLocation;
 
 /**
  * Updates the output location of the current project.

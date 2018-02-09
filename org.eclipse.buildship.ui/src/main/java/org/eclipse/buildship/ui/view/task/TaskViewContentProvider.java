@@ -21,11 +21,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniGradleProject;
-import com.gradleware.tooling.toolingmodel.OmniProjectTask;
-import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -33,6 +28,10 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
+import org.eclipse.buildship.core.omnimodel.OmniGradleProject;
+import org.eclipse.buildship.core.omnimodel.OmniProjectTask;
+import org.eclipse.buildship.core.omnimodel.OmniTaskSelector;
 
 /**
  * Content provider for the {@link TaskView}.

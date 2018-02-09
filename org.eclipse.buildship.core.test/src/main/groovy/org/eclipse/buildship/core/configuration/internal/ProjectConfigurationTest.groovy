@@ -2,10 +2,6 @@ package org.eclipse.buildship.core.configuration.internal
 
 import spock.lang.Issue
 
-import com.google.common.base.Optional
-
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -15,6 +11,7 @@ import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ProjectConfiguration
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 

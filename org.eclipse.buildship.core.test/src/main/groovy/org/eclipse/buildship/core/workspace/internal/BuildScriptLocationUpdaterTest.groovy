@@ -1,15 +1,14 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject
-import com.gradleware.tooling.toolingmodel.OmniGradleProject
-import com.gradleware.tooling.toolingmodel.OmniGradleScript
-import com.gradleware.tooling.toolingmodel.util.Maybe
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject
+import org.eclipse.buildship.core.omnimodel.OmniGradleProject
+import org.eclipse.buildship.core.omnimodel.OmniGradleScript
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.Maybe
 
 class BuildScriptLocationUpdaterTest extends WorkspaceSpecification {
 

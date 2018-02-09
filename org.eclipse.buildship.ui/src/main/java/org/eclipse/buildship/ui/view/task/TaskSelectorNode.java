@@ -14,7 +14,8 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
+import org.eclipse.buildship.core.omnimodel.OmniTaskSelector;
+
 
 /**
  * Tree node in the {@link TaskView} representing a task selector.

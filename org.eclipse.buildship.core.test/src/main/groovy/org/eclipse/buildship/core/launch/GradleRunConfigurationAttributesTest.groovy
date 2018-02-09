@@ -13,12 +13,11 @@ package org.eclipse.buildship.core.launch
 
 import spock.lang.Shared
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.debug.core.ILaunchConfiguration
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 
 class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {

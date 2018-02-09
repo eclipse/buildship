@@ -3,13 +3,12 @@ package org.eclipse.buildship.core.configuration.internal
 import spock.lang.Shared
 import spock.lang.Subject
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
 

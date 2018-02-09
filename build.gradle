@@ -12,14 +12,10 @@ buildScan {
 
 apply plugin: eclipsebuild.BuildDefinitionPlugin
 
-ext.toolingCommonsBundleVersion = getBundleVersion(toolingCommonsVersion)
 ext.toolingApiBundleVersion = getBundleVersion(toolingApiVersion)
 
 // define version mapping for the 3rd-party dependencies that are not specific to a particular Eclipse version
 def eclipseVersionAgnosticDependencies = [
-    'com.gradleware.tooling.utils'      : toolingCommonsBundleVersion,
-    'com.gradleware.tooling.client'     : toolingCommonsBundleVersion,
-    'com.gradleware.tooling.model'      : toolingCommonsBundleVersion,
     'org.gradle.toolingapi'             : toolingApiBundleVersion,
     'org.slf4j.api'                     : '1.7.2',
     'org.slf4j.simple'                  : '1.7.2',
@@ -275,9 +271,6 @@ subprojects {
             compile "org.codehaus.groovy:groovy-all:$groovyLibVersion"
             bundled "org.spockframework:spock-core:$spockLibVersion"
             bundled "cglib:cglib-nodep:$cglibLibVersion"
-            bundled ("com.gradleware.tooling:testing-junit:$toolingCommonsVersion") {
-                exclude module: "junit-dep"
-            }
             bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
         }
     }
@@ -371,54 +364,6 @@ task incrementVersion {
         }
         exec { commandLine 'git', 'commit', '-a', '-m', "Increment version from $oldVersion to $newVersion" }
         exec { commandLine 'git', 'push', githubAuthenticatedHost, 'master' }
-    }
-}
-
-// updates tooling-commons in the target definition files and in the Oomph setup model
-task updateToolingCommons {
-    doLast {
-        // determine download url for tooling-commons p2 repository
-        def isSnapshot = toolingCommonsVersion.contains('-')
-        def toolingCommonsRepo = "https://repo.gradle.org/gradle/tooling-libs-${isSnapshot ? 'snapshots' : 'releases'}-local/com/gradleware/tooling/p2-repository/${toolingCommonsVersion}/p2-repository-${toolingCommonsVersion}.zip"
-    
-        // query p2 repository content with the p2 director application
-        def repositoryContent = new ByteArrayOutputStream()
-        exec {
-            standardOutput = repositoryContent
-            errorOutput = new LogOutputStream(project.logger, LogLevel.INFO)
-    
-            commandLine(Config.on(project).eclipseSdkExe.path,
-                    '-application', 'org.eclipse.equinox.p2.director',
-                    '-repository', "${toolingCommonsRepo}!/",
-                    '-list',
-                    '-nosplash')
-        }
-        repositoryContent = repositoryContent.toString()
-    
-        // collect qualified versions for Tooling API and tooling-commons
-        def toolingApiVersionMatcher = repositoryContent =~ /(?s).*org.gradle.toolingapi.(\d+.\d+.\d+.v\d+).*/
-        def toolingCommonsVersionMatcher = repositoryContent =~ /(?s).*com.gradleware.tooling.model.(\d+.\d+.\d+.v\d+).*/
-        if (!toolingApiVersionMatcher.matches() || !toolingCommonsVersionMatcher.matches()) {
-            throw new RuntimeException("Cannot determine Tooling API and tooling-commons versions from ${repositoryContent}")
-        }
-        String qualifiedToolingApiBundleVersion = toolingApiVersionMatcher.group(1)
-        String qualifiedToolingCommonsBundleVersion = toolingCommonsVersionMatcher.group(1)
-    
-        // update target definition files
-        Pattern toolingApiPattern = Pattern.compile('(?<=<unit id="org.gradle.toolingapi" version=")[^"]+(?="/>)')
-        Pattern toolingCommmonsPattern = Pattern.compile('(?<=<unit id="com.gradleware.tooling.(utils|client|model)" version=")[^"]+(?="/>)')
-        Pattern p2RepositoryPattern = Pattern.compile('(?<=<repository location="jar:)https://repo.gradle.org[^"]+p2-repository-[^"]+.zip(?=!/"/>)')
-        file('.').eachFileMatch(~/.*\.target/) { targetDefinitionFile ->
-            replacePatternsInFile(targetDefinitionFile, [(toolingApiPattern)      : qualifiedToolingApiBundleVersion,
-                                                         (toolingCommmonsPattern) : qualifiedToolingCommonsBundleVersion,
-                                                         (p2RepositoryPattern)    : toolingCommonsRepo])
-        }
-    
-        // update Oomph setup definition
-        toolingCommmonsPattern = Pattern.compile('(?<=<requirement\\r?\\n? {10}name="com.gradleware.tooling.(utils|client|model)"\\r?\\n? {10}versionRange=")[^"]+(?="/>)')
-        p2RepositoryPattern = Pattern.compile('(?<=url="jar:)https://repo.gradle.org[^"]+p2-repository-[^"]+.zip(?=!/"/>)')
-        replacePatternsInFile(file('buildship.setup'), [(toolingCommmonsPattern) : toolingCommonsBundleVersion,
-                                                        (p2RepositoryPattern)    : toolingCommonsRepo])
     }
 }
 

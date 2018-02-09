@@ -10,7 +10,6 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.gradle.tooling.BuildActionExecuter;
@@ -18,25 +17,15 @@ import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.gradle.GradleBuild;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-import com.gradleware.tooling.toolingmodel.OmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniGradleBuild;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniBuildEnvironment;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniGradleBuild;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -46,6 +35,7 @@ import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
 /**
@@ -80,28 +70,6 @@ final class DefaultModelProvider implements ModelProvider {
             ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), transientAttributes);
             return ImmutableList.of(executeModelBuilder(builder, strategy, model));
         }
-    }
-
-    @Override
-    public OmniBuildEnvironment fetchBuildEnvironment(FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        BuildEnvironment model = fetchModel(BuildEnvironment.class, strategy, tokenSource, monitor);
-        return DefaultOmniBuildEnvironment.from(model);
-    }
-
-    @Override
-    public OmniGradleBuild fetchGradleBuild(FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        GradleBuild model = fetchModel(GradleBuild.class, strategy, tokenSource, monitor);
-        return DefaultOmniGradleBuild.from(model);
-    }
-
-    @Override
-    public Set<OmniEclipseProject> fetchEclipseGradleProjects(FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        Collection<EclipseProject> models = fetchModels(EclipseProject.class, strategy, tokenSource, monitor);
-        ImmutableSet.Builder<OmniEclipseProject> result = ImmutableSet.builder();
-        for (EclipseProject model : models) {
-            result.addAll(DefaultOmniEclipseProject.from(model).getAll());
-        }
-        return result.build();
     }
 
     private <T> T executeBuildActionExecuter(final BuildActionExecuter<T> executer, FetchStrategy fetchStrategy, Class<?> cacheKey) {

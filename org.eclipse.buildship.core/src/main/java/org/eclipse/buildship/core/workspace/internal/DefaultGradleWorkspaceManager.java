@@ -18,7 +18,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.FluentIterable;
 
-import com.gradleware.tooling.toolingmodel.repository.FixedRequestAttributes;
+import org.eclipse.buildship.core.util.gradle.FixedRequestAttributes;
 
 import org.eclipse.core.resources.IProject;
 

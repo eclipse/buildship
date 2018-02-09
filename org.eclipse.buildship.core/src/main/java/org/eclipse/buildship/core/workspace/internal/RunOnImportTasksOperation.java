@@ -23,10 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharStreams;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature;
-import com.gradleware.tooling.toolingmodel.OmniProjectTask;
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -35,6 +32,9 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProjectNature;
+import org.eclipse.buildship.core.omnimodel.OmniProjectTask;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 
 /**

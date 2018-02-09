@@ -22,10 +22,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-import com.gradleware.tooling.toolingmodel.repository.internal.DefaultOmniEclipseProject;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -33,9 +29,12 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProjectFactory;
 import org.eclipse.buildship.core.operation.ToolingApiJob;
 import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
@@ -63,18 +62,18 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         List<OmniEclipseProject> projects = Lists.newArrayList();
         Map<String, IProject> faultyProjects = allGradleWorkspaceProjects();
 
-         for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
-             try {
-                 Set<OmniEclipseProject> eclipseProjects = fetchEclipseGradleProjects(gradleBuild.getModelProvider(), tokenSource, monitor);
-                 for (OmniEclipseProject eclipseProject : eclipseProjects) {
-                     faultyProjects.remove(eclipseProject.getName());
-                 }
-                 projects.addAll(eclipseProjects);
-             } catch (RuntimeException e) {
-                 // faulty projects will be represented as empty nodes
-                 CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath(), e);
-             }
-         }
+        for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
+            try {
+                Set<OmniEclipseProject> eclipseProjects = fetchEclipseGradleProjects(gradleBuild.getModelProvider(), tokenSource, monitor);
+                for (OmniEclipseProject eclipseProject : eclipseProjects) {
+                    faultyProjects.remove(eclipseProject.getName());
+                }
+                projects.addAll(eclipseProjects);
+            } catch (RuntimeException e) {
+                // faulty projects will be represented as empty nodes
+                CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath(), e);
+            }
+        }
         return new TaskViewContent(projects, Lists.newArrayList(faultyProjects.values()));
     }
 
@@ -92,7 +91,7 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
         LinkedHashSet<OmniEclipseProject> projects = Sets.newLinkedHashSet();
         for (EclipseProject model : models) {
-            projects.addAll(DefaultOmniEclipseProject.from(model).getAll());
+            projects.addAll(OmniEclipseProjectFactory.create(model).getAll());
         }
         return projects;
     }

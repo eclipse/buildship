@@ -11,10 +11,6 @@
 
 package org.eclipse.buildship.core.launch
 
-import spock.lang.Specification
-
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.Status
@@ -27,6 +23,7 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.launch.internal.DefaultGradleLaunchConfigurationManager
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 
 class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {

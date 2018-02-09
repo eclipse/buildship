@@ -11,12 +11,13 @@
 
 package org.eclipse.buildship.ui.view.task;
 
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.handlers.HandlerUtil;
+
+import org.eclipse.buildship.core.workspace.FetchStrategy;
 
 /**
  * A command handler on the {@link TaskView} to reload/refresh the content of the task view.

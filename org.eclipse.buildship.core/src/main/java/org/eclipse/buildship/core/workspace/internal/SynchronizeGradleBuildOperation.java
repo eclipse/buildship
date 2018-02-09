@@ -22,8 +22,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -41,6 +39,7 @@ import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 
 /**

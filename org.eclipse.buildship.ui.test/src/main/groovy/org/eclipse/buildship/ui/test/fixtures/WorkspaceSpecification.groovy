@@ -18,8 +18,6 @@ import spock.lang.Specification
 
 import com.google.common.io.Files
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspace
@@ -37,6 +35,7 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.buildship.ui.view.execution.ExecutionsView
 

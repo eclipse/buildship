@@ -21,6 +21,4 @@ Require-Bundle: org.eclipse.core.runtime,
  org.jetbrains.kotlin.ui;bundle-version="[0.8.2,0.9.0)",
  org.jetbrains.kotlin.core;bundle-version="[0.8.2,0.9.0)",
  com.google.guava;bundle-version="[15.0.0,16.0.0)",
- com.gradleware.tooling.model;bundle-version="[0.19.3,0.20.0)",
- com.gradleware.tooling.client;bundle-version="[0.19.3,0.20.0)",
- com.gradleware.tooling.utils;bundle-version="[0.19.3,0.20.0)"
+ org.gradle.toolingapi;bundle-version="[4.3.0,4.4.0)"

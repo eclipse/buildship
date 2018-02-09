@@ -13,11 +13,10 @@ import java.util.List;
 
 import com.google.common.base.Objects;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import org.eclipse.buildship.core.configuration.GradleArguments;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Default implementation for {@link RunConfiguration}.

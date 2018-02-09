@@ -9,8 +9,6 @@ class CorePluginTest extends Specification {
         CorePlugin.getInstance() != null
         CorePlugin.logger() != null
         CorePlugin.publishedGradleVersions() != null
-        CorePlugin.toolingClient() != null
-        CorePlugin.modelRepositoryProvider() != null
         CorePlugin.workspaceOperations() != null
         CorePlugin.configurationManager() != null
         CorePlugin.processStreamsProvider() != null

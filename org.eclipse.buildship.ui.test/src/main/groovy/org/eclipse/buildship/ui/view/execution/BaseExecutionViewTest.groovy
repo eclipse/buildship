@@ -1,7 +1,5 @@
 package org.eclipse.buildship.ui.view.execution
 
-import com.gradleware.tooling.toolingclient.GradleDistribution
-
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchManager
@@ -11,6 +9,7 @@ import org.eclipse.ui.IWorkbenchPage
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 import org.eclipse.buildship.ui.external.viewer.FilteredTree
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification

@@ -14,14 +14,13 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 
 

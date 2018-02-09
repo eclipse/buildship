@@ -13,11 +13,10 @@ package org.eclipse.buildship.ui.view.task;
 
 import com.google.common.collect.Ordering;
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
 import org.eclipse.buildship.ui.view.task.TaskNode.TaskNodeType;
 
 /**

@@ -13,14 +13,13 @@ package org.eclipse.buildship.ui.wizard.project;
 
 import java.io.File;
 
-import com.gradleware.tooling.toolingutils.binding.Property;
-import com.gradleware.tooling.toolingutils.binding.ValidationListener;
-
 import com.google.common.base.Optional;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.ui.INewWizard;
 
+import org.eclipse.buildship.core.util.binding.Property;
+import org.eclipse.buildship.core.util.binding.ValidationListener;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.file.FileUtils;
 

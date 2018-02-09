@@ -16,9 +16,6 @@ import java.io.File;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
-import com.gradleware.tooling.toolingutils.binding.Validator;
-
-import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -40,9 +37,11 @@ import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.util.binding.Validator;
+import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
-import org.eclipse.buildship.core.util.binding.Validators;
+import org.eclipse.buildship.ui.i18n.UiMessages;
 import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.util.font.FontUtils;
 import org.eclipse.buildship.ui.util.widget.UiBuilder;

@@ -1,18 +1,14 @@
 package org.eclipse.buildship.ui.view.task
 
-import spock.lang.Specification
-
 import com.google.common.base.Optional
-
-import com.gradleware.tooling.toolingclient.GradleDistribution
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject
-import com.gradleware.tooling.toolingmodel.OmniGradleProject
-import com.gradleware.tooling.toolingmodel.OmniProjectTask
-import com.gradleware.tooling.toolingmodel.OmniTaskSelector
-import com.gradleware.tooling.toolingmodel.Path
 
 import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProject
+import org.eclipse.buildship.core.omnimodel.OmniGradleProject
+import org.eclipse.buildship.core.omnimodel.OmniProjectTask
+import org.eclipse.buildship.core.omnimodel.OmniTaskSelector
+import org.eclipse.buildship.core.util.gradle.Path
 import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 
 /**

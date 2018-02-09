@@ -2,13 +2,12 @@ package org.eclipse.buildship.core.workspace.internal
 
 import com.google.common.base.Optional
 
-import com.gradleware.tooling.toolingmodel.OmniEclipseProjectNature
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.configuration.GradleProjectNature
+import org.eclipse.buildship.core.omnimodel.OmniEclipseProjectNature
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
 
 class ProjectNatureUpdaterTest extends WorkspaceSpecification {

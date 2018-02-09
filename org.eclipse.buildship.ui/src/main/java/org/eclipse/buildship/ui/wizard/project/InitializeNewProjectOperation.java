@@ -17,8 +17,6 @@ import org.gradle.tooling.ProgressListener;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -26,6 +24,7 @@ import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 import org.eclipse.buildship.core.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.GradleBuild;

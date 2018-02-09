@@ -13,9 +13,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
-import com.gradleware.tooling.toolingmodel.OmniProjectTask;
-import com.gradleware.tooling.toolingmodel.OmniTaskSelector;
-import com.gradleware.tooling.toolingmodel.util.Maybe;
+import org.eclipse.buildship.core.omnimodel.OmniProjectTask;
+import org.eclipse.buildship.core.omnimodel.OmniTaskSelector;
+import org.eclipse.buildship.core.util.gradle.Maybe;
 
 /**
  * Tree node in the {@link TaskView} representing a task group.

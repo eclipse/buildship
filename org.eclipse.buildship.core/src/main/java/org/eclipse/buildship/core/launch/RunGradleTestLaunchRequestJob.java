@@ -33,7 +33,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-import com.gradleware.tooling.toolingmodel.repository.TransientRequestAttributes;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.console.ProcessDescription;

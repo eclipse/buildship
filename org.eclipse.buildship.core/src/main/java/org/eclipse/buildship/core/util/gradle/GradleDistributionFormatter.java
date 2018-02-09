@@ -13,8 +13,6 @@ package org.eclipse.buildship.core.util.gradle;
 
 import com.google.common.base.Preconditions;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
-
 import org.eclipse.osgi.util.NLS;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;

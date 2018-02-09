@@ -13,7 +13,7 @@ import org.gradle.api.Nullable;
 
 import com.google.common.base.Objects;
 
-import com.gradleware.tooling.toolingclient.GradleDistribution;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Encapsulates settings that are the same for all Gradle projects in the workspace.
