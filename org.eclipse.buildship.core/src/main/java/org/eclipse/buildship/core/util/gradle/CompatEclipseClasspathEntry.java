@@ -13,8 +13,6 @@ import org.gradle.tooling.model.eclipse.AccessRule;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseClasspathEntry;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-
 /**
  * Compatibility decorator for {@link EclipseClasspathEntry}.
  *
@@ -23,9 +21,11 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
  * @author Donat Csikos
  *
  */
-abstract class CompatEclipseClasspathEntry<T extends EclipseClasspathEntry> extends CompatModelElement<T> implements EclipseClasspathEntry {
+public abstract class CompatEclipseClasspathEntry<T extends EclipseClasspathEntry> extends CompatModelElement<T> implements EclipseClasspathEntry {
 
-    public CompatEclipseClasspathEntry(T delegate) {
+    private static final DomainObjectSet<? extends ClasspathAttribute> UNSUPPORTED_ATTRIBUTES = ModelUtils.emptyDomainObjectSet();
+
+    CompatEclipseClasspathEntry(T delegate) {
         super(delegate);
     }
 
@@ -40,7 +40,14 @@ abstract class CompatEclipseClasspathEntry<T extends EclipseClasspathEntry> exte
 
     @Override
     public DomainObjectSet<? extends ClasspathAttribute> getClasspathAttributes() {
-        throw new GradlePluginsRuntimeException(ModelUtils.unsupportedMessage("getClasspathAttributes"));
+        try {
+            return getElement().getClasspathAttributes();
+        } catch (Exception ignore) {
+            return UNSUPPORTED_ATTRIBUTES;
+        }
     }
 
+    public static boolean supportsAttributes(EclipseClasspathEntry entry) {
+        return entry.getClasspathAttributes() != UNSUPPORTED_ATTRIBUTES;
+    }
 }

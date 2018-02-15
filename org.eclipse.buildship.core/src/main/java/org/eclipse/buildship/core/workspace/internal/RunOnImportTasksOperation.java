@@ -33,6 +33,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.gradle.CompatEclipseProject;
 import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 
@@ -87,7 +88,7 @@ public class RunOnImportTasksOperation {
     }
 
     private boolean isGradle30(EclipseProject eclipseProject) {
-        return eclipseProject.getClasspathContainers() != null;
+        return CompatEclipseProject.supportsClasspathContainers(eclipseProject);
     }
 
     private boolean isWtpProject(EclipseProject eclipseProject) {

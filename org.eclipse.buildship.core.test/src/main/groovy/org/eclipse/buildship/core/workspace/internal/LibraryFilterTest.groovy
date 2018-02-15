@@ -12,6 +12,8 @@ import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
+import org.eclipse.buildship.core.util.gradle.CompatEclipseProject
+
 class LibraryFilterTest extends WorkspaceSpecification {
 
     def "Deletes custom lib entries"() {
@@ -39,7 +41,7 @@ class LibraryFilterTest extends WorkspaceSpecification {
 
         when:
         EclipseProject model = Mock(EclipseProject)
-        model.classpathContainers >> null
+        model.classpathContainers >> CompatEclipseProject.UNSUPPORTED_CONTAINERS
         LibraryFilter.update(project, model, new NullProgressMonitor())
 
         then:

@@ -9,7 +9,6 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -17,6 +16,7 @@ import java.util.Map;
 
 import org.gradle.tooling.model.eclipse.EclipseClasspathContainer;
 import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -37,6 +37,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
 import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
+import org.eclipse.buildship.core.util.gradle.CompatEclipseProject;
 import org.eclipse.buildship.core.util.gradle.JavaVersionUtil;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
@@ -62,14 +63,14 @@ final class ClasspathContainerUpdater {
 
     private final IJavaProject project;
     private final boolean gradleSupportsContainers;
-    private final List<EclipseClasspathContainer> containers;
+    private final Iterable<? extends EclipseClasspathContainer> containers;
     private final EclipseJavaSourceSettings sourceSettings;
 
-    private ClasspathContainerUpdater(IJavaProject project, List<EclipseClasspathContainer> classpathContainers, EclipseJavaSourceSettings eclipseJavaSourceSettings) {
+    private ClasspathContainerUpdater(IJavaProject project, EclipseProject eclipseProject) {
         this.project = project;
-        this.gradleSupportsContainers = (classpathContainers != null);
-        this.containers =  classpathContainers != null ? classpathContainers : Collections.<EclipseClasspathContainer> emptyList();
-        this.sourceSettings = eclipseJavaSourceSettings;
+        this.gradleSupportsContainers = CompatEclipseProject.supportsClasspathContainers(eclipseProject);
+        this.containers = eclipseProject.getClasspathContainers();
+        this.sourceSettings = eclipseProject.getJavaSourceSettings();
     }
 
     private void updateContainers(IProgressMonitor monitor) throws CoreException {
@@ -166,9 +167,9 @@ final class ClasspathContainerUpdater {
         return JavaCore.newContainerEntry(path);
     }
 
-    public static void update(IJavaProject project, List<EclipseClasspathContainer> classpathContainers, EclipseJavaSourceSettings eclipseJavaSourceSettings,
+    public static void update(IJavaProject project, EclipseProject eclipseProject,
             IProgressMonitor monitor) throws CoreException {
-        new ClasspathContainerUpdater(project, classpathContainers, eclipseJavaSourceSettings).updateContainers(monitor);
+        new ClasspathContainerUpdater(project, eclipseProject).updateContainers(monitor);
     }
 
 }

@@ -18,7 +18,6 @@ import java.util.Map;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,8 +34,8 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.util.gradle.Maybe;
-import org.eclipse.buildship.core.util.gradle.ModelUtils;
+import org.eclipse.buildship.core.util.gradle.CompatEclipseClasspathEntry;
+import org.eclipse.buildship.core.util.gradle.CompatEclipseSourceDirectory;
 
 /**
  * Updates the source folders of the target project.
@@ -102,24 +101,20 @@ final class SourceFolderUpdater {
     }
 
     private void synchronizeAttributesFromModel(SourceFolderEntryBuilder builder, EclipseSourceDirectory sourceFolder) {
-        Maybe<String> output = ModelUtils.getOutput(sourceFolder);
-        if (output.isPresent()) {
-            builder.setOutput(output.get());
+        if (CompatEclipseSourceDirectory.supportsOutput(sourceFolder)) {
+            builder.setOutput(sourceFolder.getOutput());
         }
 
-        Optional<Iterable<? extends ClasspathAttribute>> attributes = ModelUtils.getClasspathAttributes(sourceFolder);
-        if (attributes.isPresent()) {
-            builder.setAttributes(attributes.get());
+        if (CompatEclipseClasspathEntry.supportsAttributes(sourceFolder)) {
+            builder.setAttributes(sourceFolder.getClasspathAttributes());
         }
 
-        Optional<List<String>> excludes = ModelUtils.getExcludes(sourceFolder);
-        if (excludes.isPresent()) {
-            builder.setExcludes(excludes.get());
+        if (CompatEclipseSourceDirectory.supportsExcludes(sourceFolder)) {
+            builder.setExcludes(sourceFolder.getExcludes());
         }
 
-        Optional<List<String>> includes = ModelUtils.getIncludes(sourceFolder);
-        if (includes.isPresent()) {
-            builder.setIncludes(includes.get());
+        if (CompatEclipseSourceDirectory.supportsIncludes(sourceFolder)) {
+            builder.setIncludes(sourceFolder.getIncludes());
         }
     }
 

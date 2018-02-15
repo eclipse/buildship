@@ -16,8 +16,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import org.gradle.tooling.model.DomainObjectSet;
-import org.gradle.tooling.model.eclipse.EclipseClasspathContainer;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Function;
@@ -246,9 +244,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         OutputLocationUpdater.update(javaProject, project.getOutputLocation(), progress.newChild(1));
         SourceFolderUpdater.update(javaProject, ImmutableList.copyOf(project.getSourceDirectories()), progress.newChild(1));
         LibraryFilter.update(javaProject, project, progress.newChild(1));
-        DomainObjectSet<? extends EclipseClasspathContainer> containers = project.getClasspathContainers();
-        List<EclipseClasspathContainer> containerList = containers == null ? null : ImmutableList.copyOf(containers);
-        ClasspathContainerUpdater.update(javaProject, containerList, project.getJavaSourceSettings(), progress.newChild(1));
+        ClasspathContainerUpdater.update(javaProject, project, progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, project, progress.newChild(1));
         GradleClasspathContainerUpdater.updateFromModel(javaProject, project, SynchronizeGradleBuildOperation.this.allProjects, persistentModel, progress.newChild(1));
         WtpClasspathUpdater.update(javaProject, project, progress.newChild(1));

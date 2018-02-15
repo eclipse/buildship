@@ -8,7 +8,6 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -26,7 +25,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
-import org.eclipse.buildship.core.util.gradle.ModelUtils;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
@@ -55,7 +53,7 @@ final class WtpClasspathUpdater {
     private static String getDeploymentPath(List<EclipseExternalDependency> dependencies) {
         String deploymentPath = null;
         for (EclipseExternalDependency dependency : dependencies) {
-            for (ClasspathAttribute attribute : ModelUtils.getClasspathAttributes(dependency).or(Collections.<ClasspathAttribute>emptyList())) {
+            for (ClasspathAttribute attribute : dependency.getClasspathAttributes()) {
                 if (attribute.getName().equals(DEPLOYMENT_ATTRIBUTE)) {
                     if (deploymentPath != null && !deploymentPath.equals(attribute.getValue())) {
                         throw new UnsupportedConfigurationException("WTP currently does not support mixed deployment paths.");
@@ -69,7 +67,7 @@ final class WtpClasspathUpdater {
 
     private static boolean hasNonDeploymentAttributes(List<EclipseExternalDependency> dependencies) {
         for (EclipseExternalDependency dependency : dependencies) {
-            for (ClasspathAttribute attribute : ModelUtils.getClasspathAttributes(dependency).or(Collections.<ClasspathAttribute>emptyList())) {
+            for (ClasspathAttribute attribute : dependency.getClasspathAttributes()) {
                 if (attribute.getName().equals(NON_DEPLOYMENT_ATTRIBUTE)) {
                     return true;
                 }

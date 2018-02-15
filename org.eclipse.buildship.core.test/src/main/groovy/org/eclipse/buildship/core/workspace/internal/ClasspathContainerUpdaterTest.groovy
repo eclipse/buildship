@@ -5,6 +5,7 @@ import org.gradle.tooling.model.eclipse.AccessRule
 import org.gradle.tooling.model.eclipse.ClasspathAttribute
 import org.gradle.tooling.model.eclipse.EclipseClasspathContainer
 import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings
+import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 import org.gradle.tooling.model.java.InstalledJdk
 
@@ -19,6 +20,8 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.CompatEclipseProject
+import org.eclipse.buildship.core.util.gradle.ModelUtils
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
@@ -306,11 +309,17 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
     }
 
     private def executeContainerUpdateWithOldGradle(IJavaProject project) {
-        ClasspathContainerUpdater.update(project, null, sourceSettings('1.6', '1.6'), new NullProgressMonitor())
+        EclipseProject eclipseProject = Mock(EclipseProject)
+        eclipseProject.getClasspathContainers() >> CompatEclipseProject.UNSUPPORTED_CONTAINERS
+        eclipseProject.getJavaSourceSettings() >> sourceSettings('1.6', '1.6')
+        ClasspathContainerUpdater.update(project, eclipseProject, new NullProgressMonitor())
     }
 
     private def executeContainerUpdate(IJavaProject project, EclipseClasspathContainer... containers) {
-        ClasspathContainerUpdater.update(project, Arrays.asList(containers), sourceSettings('1.6', '1.6'), new NullProgressMonitor())
+        EclipseProject eclipseProject = Mock(EclipseProject)
+        eclipseProject.getClasspathContainers() >> ModelUtils.asDomainObjectSet(containers as List)
+        eclipseProject.getJavaSourceSettings() >> sourceSettings('1.6', '1.6')
+        ClasspathContainerUpdater.update(project, eclipseProject, new NullProgressMonitor())
     }
 
     private EclipseJavaSourceSettings sourceSettings(String sourceVersion, String targetVersion) {

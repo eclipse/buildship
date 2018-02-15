@@ -20,6 +20,8 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.buildship.core.util.gradle.CompatEclipseProject;
+
 /**
  * Updater responsible for adjusting the project's raw classpath.
  *
@@ -49,6 +51,6 @@ final class LibraryFilter {
 
     private static boolean supportsClasspathCustomization(EclipseProject modelProject) {
         // classpath customization was introduced in Gradle 3.0 along with classpath containers
-        return modelProject.getClasspathContainers() != null;
+        return CompatEclipseProject.supportsClasspathContainers(modelProject);
     }
 }

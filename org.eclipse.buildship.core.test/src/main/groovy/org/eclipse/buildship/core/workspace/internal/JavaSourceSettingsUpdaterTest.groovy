@@ -6,8 +6,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.tooling.model.java.InstalledJdk
 import spock.lang.Ignore
 
-import com.google.common.base.Optional
-
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.jobs.IJobChangeEvent
@@ -20,6 +18,8 @@ import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.CompatEclipseProject
+import org.eclipse.buildship.core.util.gradle.ModelUtils
 
 class JavaSourceSettingsUpdaterTest extends WorkspaceSpecification {
 
@@ -138,7 +138,7 @@ class JavaSourceSettingsUpdaterTest extends WorkspaceSpecification {
     private EclipseProject modelProject(String sourceVersion, String targetVersion, List classpathContainers = null) {
         EclipseProject project = Mock(EclipseProject)
         project.getJavaSourceSettings() >> sourceSettings(sourceVersion, targetVersion)
-        project.getClasspathContainers() >> classpathContainers
+        project.getClasspathContainers() >> (classpathContainers == null ? CompatEclipseProject.UNSUPPORTED_CONTAINERS : ModelUtils.asDomainObjectSet(classpathContainers))
         project
     }
 

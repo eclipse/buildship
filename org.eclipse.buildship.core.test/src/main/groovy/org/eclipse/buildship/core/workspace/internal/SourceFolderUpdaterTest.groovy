@@ -2,7 +2,6 @@ package org.eclipse.buildship.core.workspace.internal
 
 import org.gradle.tooling.model.eclipse.ClasspathAttribute
 import org.gradle.tooling.model.eclipse.EclipseSourceDirectory
-import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.runtime.IPath
@@ -13,10 +12,11 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import com.google.common.base.Optional
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.file.FileUtils
-import org.eclipse.buildship.core.util.gradle.Maybe
+import org.eclipse.buildship.core.util.gradle.CompatEclipseClasspathEntry
+import org.eclipse.buildship.core.util.gradle.CompatEclipseSourceDirectory
+import org.eclipse.buildship.core.util.gradle.ModelUtils
 
 class SourceFolderUpdaterTest extends WorkspaceSpecification {
 
@@ -195,10 +195,10 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         folderPaths.collect { String folderPath ->
             EclipseSourceDirectory sourceDirectory = Mock(EclipseSourceDirectory)
             sourceDirectory.getPath() >> folderPath
-            sourceDirectory.getClasspathAttributes() >> { throw new RuntimeException() }
-            sourceDirectory.getExcludes() >> { throw new RuntimeException() }
-            sourceDirectory.getIncludes() >> { throw new RuntimeException() }
-            sourceDirectory.getOutput() >> { throw new RuntimeException() }
+            sourceDirectory.getClasspathAttributes() >> { CompatEclipseClasspathEntry.UNSUPPORTED_ATTRIBUTES }
+            sourceDirectory.getExcludes() >> { CompatEclipseSourceDirectory.UNSUPPORTED_EXCLUDES }
+            sourceDirectory.getIncludes() >> { CompatEclipseSourceDirectory.UNSUPPORTED_INCLUDES }
+            sourceDirectory.getOutput() >> { CompatEclipseSourceDirectory.UNSUPPORTED_OUTPUT }
             sourceDirectory
         }
     }
@@ -207,7 +207,7 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         folderPaths.collect { String folderPath ->
             EclipseSourceDirectory sourceDirectory = Mock(EclipseSourceDirectory)
             sourceDirectory.getPath() >> folderPath
-            sourceDirectory.getClasspathAttributes() >> ImmutableDomainObjectSet.of(gradleClasspathAttributes(attributes))
+            sourceDirectory.getClasspathAttributes() >> ModelUtils.asDomainObjectSet(gradleClasspathAttributes(attributes))
             sourceDirectory.getExcludes() >> excludes
             sourceDirectory.getIncludes() >> includes
             sourceDirectory.getOutput() >> output

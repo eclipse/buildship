@@ -36,12 +36,14 @@ import com.google.common.collect.Lists;
  *
  * @author Donat Csikos
  */
-class CompatEclipseProject extends CompatModelElement<EclipseProject> implements EclipseProject {
+public class CompatEclipseProject extends CompatModelElement<EclipseProject> implements EclipseProject {
+
+    private static final DomainObjectSet<? extends EclipseClasspathContainer> UNSUPPORTED_CONTAINERS = ModelUtils.emptyDomainObjectSet();
 
     static final EclipseJavaSourceSettings FALLBACK_JAVA_SOURCE_SETTINGS = new FallbackJavaSourceSettings();
     static final EclipseOutputLocation FALLBACK_OUTPUT_LOCATION = new FallbackOutputLocation();
 
-    public CompatEclipseProject(EclipseProject delegate) {
+    CompatEclipseProject(EclipseProject delegate) {
         super(delegate);
     }
 
@@ -76,11 +78,10 @@ class CompatEclipseProject extends CompatModelElement<EclipseProject> implements
 
     @Override
     public DomainObjectSet<? extends EclipseClasspathContainer> getClasspathContainers() {
-        // returns null for Gradle versions < 3.0
         try {
             return getElement().getClasspathContainers();
         } catch (Exception ignore) {
-            return null;
+            return UNSUPPORTED_CONTAINERS;
         }
     }
 
@@ -213,5 +214,9 @@ class CompatEclipseProject extends CompatModelElement<EclipseProject> implements
                 }
             };
         }
+    }
+
+    public static boolean supportsClasspathContainers(EclipseProject project) {
+        return project.getClasspathContainers() != UNSUPPORTED_CONTAINERS;
     }
 }
