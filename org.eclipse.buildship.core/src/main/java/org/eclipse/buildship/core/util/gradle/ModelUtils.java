@@ -88,11 +88,11 @@ public final class ModelUtils {
         return model;
     }
 
-    public static <T> DomainObjectSet<? extends T> asDomainObjectSet(Iterable<? extends T> result) {
+    static <T> DomainObjectSet<? extends T> asDomainObjectSet(Iterable<? extends T> result) {
         return ImmutableDomainObjectSet.of(result);
     }
 
-    public static <T> DomainObjectSet<? extends T> emptyDomainObjectSet() {
+    static <T> DomainObjectSet<? extends T> emptyDomainObjectSet() {
         return ImmutableDomainObjectSet.of(Collections.<T> emptyList());
     }
 
