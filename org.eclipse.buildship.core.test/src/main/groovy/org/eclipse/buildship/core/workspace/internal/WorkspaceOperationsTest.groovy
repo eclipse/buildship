@@ -11,9 +11,6 @@
 
 package org.eclipse.buildship.core.workspace.internal
 
-import org.gradle.tooling.model.GradleProject
-import org.gradle.tooling.model.eclipse.EclipseProject
-
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.JavaCore
@@ -24,7 +21,6 @@ import org.eclipse.buildship.core.UnsupportedConfigurationException
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.util.gradle.Maybe
 
 class WorkspaceOperationsTest extends WorkspaceSpecification {
 
@@ -431,13 +427,5 @@ class WorkspaceOperationsTest extends WorkspaceSpecification {
 
     private IProject createSampleProjectInWorkspace() {
         EclipseProjects.newProject("sample-project")
-    }
-
-    private def model(IProject project, String buildDir = 'build') {
-        EclipseProject eclipseProject = Mock(EclipseProject)
-        GradleProject gradleProject = Mock(GradleProject)
-        gradleProject.buildDirectory >> Maybe.of(new File(project.location.toFile(), buildDir))
-        eclipseProject.gradleProject >> gradleProject
-        eclipseProject
     }
 }
