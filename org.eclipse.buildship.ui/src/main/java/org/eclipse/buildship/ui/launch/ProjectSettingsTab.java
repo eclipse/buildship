@@ -36,8 +36,7 @@ import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionValidator;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.preferences.GradleProjectPreferencePage;
@@ -49,14 +48,14 @@ import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
  */
 public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
-    private final Validator<GradleDistributionWrapper> gradleDistributionValidator;
+    private final Validator<GradleDistributionInfo> distributionInfoValidator;
     private final Validator<File> gradleUserHomeValidator;
 
     private GradleRunConfigurationAttributes attributes;
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     public ProjectSettingsTab() {
-        this.gradleDistributionValidator = GradleDistributionValidator.gradleDistributionValidator();
+        this.distributionInfoValidator = GradleDistributionInfo.validator();
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
     }
 
@@ -95,7 +94,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     public void initializeFrom(ILaunchConfiguration configuration) {
         this.attributes = GradleRunConfigurationAttributes.from(configuration);
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(this.attributes.isOverrideBuildSettings());
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setGradleDistribution(GradleDistributionWrapper.from(this.attributes.getGradleDistribution()));
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(this.attributes.getGradleDistribution().getDistributionInfo());
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(this.attributes.getGradleUserHomeHomeExpression()));
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(this.attributes.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(this.attributes.isBuildScansEnabled());
@@ -105,7 +104,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         GradleRunConfigurationAttributes.applyOverrideBuildSettings(this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(), configuration);
-        GradleRunConfigurationAttributes.applyGradleDistribution(this.gradleProjectSettingsComposite.getGradleDistributionGroup().getGradleDistribution().toGradleDistribution(), configuration);
+        GradleRunConfigurationAttributes.applyGradleDistribution(this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistributionInfo().toGradleDistribution(), configuration);
         GradleRunConfigurationAttributes.applyGradleUserHomeExpression(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().getText(), configuration);
         GradleRunConfigurationAttributes.applyOfflineMode(this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(), configuration);
         GradleRunConfigurationAttributes.applyBuildScansEnabled(this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(), configuration);
@@ -114,8 +113,8 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
     @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
-        GradleDistributionWrapper gradleDistribution = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getGradleDistribution();
-        Optional<String> error = this.gradleDistributionValidator.validate(gradleDistribution);
+        GradleDistributionInfo distributionInfo = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistributionInfo();
+        Optional<String> error = this.distributionInfoValidator.validate(distributionInfo);
         if (!error.isPresent()) {
             error = this.gradleUserHomeValidator.validate(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome());
         }
@@ -144,7 +143,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         }
 
         @Override
-        public void distributionUpdated(GradleDistributionWrapper distribution) {
+        public void distributionUpdated(GradleDistributionInfo distributionInfo) {
             updateLaunchConfigurationDialog();
         }
     }

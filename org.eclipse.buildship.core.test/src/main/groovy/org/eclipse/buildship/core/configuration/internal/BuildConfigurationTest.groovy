@@ -103,14 +103,19 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         when:
         def projectDir = dir('project-dir'){
             dir('.settings') {
-                file "${CorePlugin.PLUGIN_ID}.prefs", """override.workspace.settings=true
-connection.gradle.distribution=INVALID_GRADLE_DISTRO"""
+                file "${CorePlugin.PLUGIN_ID}.prefs", """override.workspace.settings=not_true_nor_false
+connection.gradle.distribution=MODIFIED_DISTRO"""
             }
         }.canonicalFile
-        configurationManager.loadBuildConfiguration(projectDir)
+        BuildConfiguration configuration = configurationManager.loadBuildConfiguration(projectDir)
 
         then:
-        thrown RuntimeException
+        configuration.gradleDistribution == GradleDistribution.fromBuild()
+        configuration.gradleUserHome == null
+        configuration.overrideWorkspaceSettings == false
+        configuration.buildScansEnabled == false
+        configuration.offlineMode == false
+        configuration.autoSync == false
     }
 
     def "can save and load build configuration"() {

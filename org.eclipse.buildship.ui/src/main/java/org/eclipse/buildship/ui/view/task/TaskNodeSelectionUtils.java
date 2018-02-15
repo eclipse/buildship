@@ -25,7 +25,6 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
 import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
@@ -110,7 +109,7 @@ public final class TaskNodeSelectionUtils {
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadBuildConfiguration(rootDir);
         return new GradleRunConfigurationAttributes(tasks,
                                                     projectDirectoryExpression(workingDir),
-                                                    GradleDistributionSerializer.INSTANCE.serializeToString(buildConfig.getGradleDistribution()),
+                                                    buildConfig.getGradleDistribution().serializeToString(),
                                                     gradleUserHomeExpression(buildConfig.getGradleUserHome()),
                                                     null,
                                                     Collections.<String>emptyList(),

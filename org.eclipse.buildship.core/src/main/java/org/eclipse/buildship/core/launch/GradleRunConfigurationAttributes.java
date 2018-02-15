@@ -27,7 +27,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 
 /**
@@ -96,7 +96,7 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public GradleDistribution getGradleDistribution() {
-        return this.gradleDistribution != null ? GradleDistributionSerializer.INSTANCE.deserializeFromString(this.gradleDistribution) : GradleDistribution.fromBuild();
+        return GradleDistributionInfo.deserializeFromString(this.gradleDistribution).toGradleDistributionOrDefault();
     }
 
     public String getGradleUserHomeHomeExpression() {
@@ -220,7 +220,7 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public static void applyGradleDistribution(GradleDistribution gradleDistribution, ILaunchConfigurationWorkingCopy launchConfiguration) {
-        launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, Preconditions.checkNotNull(GradleDistributionSerializer.INSTANCE.serializeToString(gradleDistribution)));
+        launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, gradleDistribution.serializeToString());
     }
 
     public static void applyGradleUserHomeExpression(String gradleUserHomeExpression, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -263,7 +263,7 @@ public final class GradleRunConfigurationAttributes {
         Preconditions.checkNotNull(launchConfiguration);
         List<String> tasks = getListAttribute(TASKS, launchConfiguration);
         String workingDirExpression = getStringAttribute(WORKING_DIR, "", launchConfiguration);
-        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()), launchConfiguration);
+        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, GradleDistribution.fromBuild().serializeToString(), launchConfiguration);
         String gradleUserHomeExpression = getStringAttribute(GRADLE_USER_HOME, null, launchConfiguration);
         String javaHomeExpression = getStringAttribute(JAVA_HOME, null, launchConfiguration);
         List<String> jvmArgumentExpressions = getListAttribute(JVM_ARGUMENTS, launchConfiguration);

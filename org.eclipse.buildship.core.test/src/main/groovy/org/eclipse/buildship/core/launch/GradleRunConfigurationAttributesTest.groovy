@@ -18,14 +18,14 @@ import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.buildship.core.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.util.gradle.GradleDistribution
-import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
+import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo
 
 class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
 
     @Shared def Attributes validAttributes = new Attributes (
         tasks : ['clean'],
         workingDir : "/home/user/workspace",
-        gradleDistr : GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()),
+        gradleDistr : GradleDistribution.fromBuild().serializeToString(),
         gradleUserHome: '/.gradlehome',
         javaHome : "/.java",
         arguments : ["-q"],
@@ -82,7 +82,7 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
         configuration.getJvmArgumentExpressions() == validAttributes.jvmArguments
         configuration.getWorkingDir().getAbsolutePath() == new File(validAttributes.workingDir).getAbsolutePath()
         configuration.getJavaHome().getAbsolutePath() == new File(validAttributes.javaHome).getAbsolutePath()
-        configuration.getGradleDistribution() == GradleDistributionSerializer.INSTANCE.deserializeFromString(validAttributes.gradleDistr)
+        configuration.getGradleDistribution() == GradleDistributionInfo.deserializeFromString(validAttributes.gradleDistr).toGradleDistribution()
         configuration.getGradleUserHome().getAbsolutePath() == new File(validAttributes.gradleUserHome).getAbsolutePath()
     }
 

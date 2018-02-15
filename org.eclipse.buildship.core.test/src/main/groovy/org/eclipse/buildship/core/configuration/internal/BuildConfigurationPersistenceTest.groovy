@@ -108,25 +108,35 @@ class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
         properties.autoSync == false
     }
 
-    def "Reading broken build configuration results in runtime exception"() {
+    def "Reading broken build configuration results in using default settings"() {
         setup:
-        String prefsFileContent = """override.workspace.settings=true
-connection.gradle.distribution=INVALID_GRADLE_DISTRO"""
+        String prefsFileContent = """override.workspace.settings=not_true_nor_false
+connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
         fileTree(project.location.toFile()) { dir('.settings') { file "${CorePlugin.PLUGIN_ID}.prefs", prefsFileContent } }
         fileTree(projectDir) { dir('.settings') { file "${CorePlugin.PLUGIN_ID}.prefs", prefsFileContent } }
         project.refreshLocal(IResource.DEPTH_INFINITE, null)
 
         when:
-        persistence.readBuildConfiguratonProperties(project)
+        DefaultBuildConfigurationProperties properties = persistence.readBuildConfiguratonProperties(project)
 
         then:
-        thrown RuntimeException
+        properties.overrideWorkspaceSettings == false
+        properties.gradleDistribution == GradleDistribution.fromBuild()
+        properties.gradleUserHome == null
+        properties.buildScansEnabled == false
+        properties.offlineMode == false
+        properties.autoSync == false
 
         when:
-        persistence.readBuildConfiguratonProperties(projectDir)
+        properties = persistence.readBuildConfiguratonProperties(projectDir)
 
         then:
-        thrown RuntimeException
+        properties.overrideWorkspaceSettings == false
+        properties.gradleDistribution == GradleDistribution.fromBuild()
+        properties.gradleUserHome == null
+        properties.buildScansEnabled == false
+        properties.offlineMode == false
+        properties.autoSync == false
     }
 
     def "If workspace override is not set then overridden configuration properties are ignored"() {

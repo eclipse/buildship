@@ -27,8 +27,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.buildship.core.util.gradle.Pair;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -64,8 +62,8 @@ import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusType;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.binding.Property;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.core.util.gradle.Pair;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 import org.eclipse.buildship.ui.util.font.FontUtils;
@@ -210,8 +208,8 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
     private void updatePreviewLabels(ProjectImportConfiguration configuration) {
         updateFileLabel(this.projectDirLabel, configuration.getProjectDir(), CoreMessages.Value_UseGradleDefault);
-        updateGradleDistributionLabel(this.gradleDistributionLabel, configuration.getGradleDistribution(), CoreMessages.Value_UseGradleDefault);
-        updateGradleVersionLabel(this.gradleVersionLabel, configuration.getGradleDistribution(), CoreMessages.Value_Unknown);
+        updateGradleDistributionLabel(this.gradleDistributionLabel, configuration.getDistributionInfo(), CoreMessages.Value_UseGradleDefault);
+        updateGradleVersionLabel(this.gradleVersionLabel, configuration.getDistributionInfo(), CoreMessages.Value_Unknown);
         this.gradleUserHomeLabel.setText(CoreMessages.Value_Unknown);
         this.javaHomeLabel.setText(CoreMessages.Value_Unknown);
         updateGradleVersionWarningLabel();
@@ -222,32 +220,33 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
         target.setText(file != null ? file.getAbsolutePath() : defaultMessage);
     }
 
-    private void updateGradleDistributionLabel(Label target, Property<GradleDistributionWrapper> gradleDistribution, String defaultMessage) {
-        GradleDistributionWrapper gradleDistributionWrapper = gradleDistribution.getValue();
-        target.setText(gradleDistributionWrapper != null ? GradleDistributionFormatter.toString(gradleDistributionWrapper) : defaultMessage);
+    private void updateGradleDistributionLabel(Label target, Property<GradleDistributionInfo> distributionInfoProperty, String defaultMessage) {
+        GradleDistributionInfo distributionInfo = distributionInfoProperty.getValue();
+        target.setText(distributionInfo != null ? distributionInfo.toString() : defaultMessage);
     }
 
-    private void updateGradleVersionLabel(Label target, Property<GradleDistributionWrapper> gradleDistribution, String defaultMessage) {
+    private void updateGradleVersionLabel(Label target, Property<GradleDistributionInfo> gradleDistribution, String defaultMessage) {
         // set the version to 'unknown' until the effective version is
         // available from the BuildEnvironment model
 
-        GradleDistributionWrapper gradleDistributionWrapper = gradleDistribution.getValue();
-        if (gradleDistributionWrapper == null) {
+        GradleDistributionInfo distributionInfo = gradleDistribution.getValue();
+        if (distributionInfo == null) {
             target.setText(defaultMessage);
             return;
         }
 
-        switch (gradleDistributionWrapper.getType()) {
+        switch (distributionInfo.getType()) {
+            case INVALID:
             case WRAPPER:
             case LOCAL_INSTALLATION:
             case REMOTE_DISTRIBUTION:
                 target.setText(defaultMessage);
                 break;
             case VERSION:
-                target.setText(gradleDistributionWrapper.getConfiguration());
+                target.setText(distributionInfo.getConfiguration());
                 break;
             default:
-                throw new GradlePluginsRuntimeException("Unrecognized Gradle distribution type: " + gradleDistributionWrapper.getType()); //$NON-NLS-1$
+                throw new GradlePluginsRuntimeException("Unrecognized Gradle distribution type: " + distributionInfo.getType()); //$NON-NLS-1$
         }
 
         // if the length of the text is changed and the version warning is visible then we have to
