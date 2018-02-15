@@ -14,6 +14,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.gradle.tooling.model.GradleProject;
+import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -27,12 +31,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseLinkedResource;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
-import org.eclipse.buildship.core.omnimodel.OmniGradleProject;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
-import org.eclipse.buildship.core.util.gradle.Maybe;
+import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
 
 /**
  * Updates the derived resource markers on a project. Stores the last state in the preferences, so
@@ -45,9 +46,9 @@ final class GradleFolderUpdater {
     private static final String DEFAULT_BUILD_DIR_NAME = "build";
 
     private final IProject workspaceProject;
-    private final OmniEclipseProject modelProject;
+    private final EclipseProject modelProject;
 
-    private GradleFolderUpdater(IProject workspaceProject, OmniEclipseProject modelProject) {
+    private GradleFolderUpdater(IProject workspaceProject, EclipseProject modelProject) {
         this.workspaceProject = Preconditions.checkNotNull(workspaceProject);
         this.modelProject = Preconditions.checkNotNull(modelProject);
     }
@@ -78,8 +79,9 @@ final class GradleFolderUpdater {
         List<IPath> nestedProjectPaths = Lists.newArrayList();
         List<IPath> nestedBuildDirPaths = Lists.newArrayList();
 
-        for (OmniEclipseProject project : this.modelProject.getAll()) {
-            OmniGradleProject gradleProject = project.getGradleProject();
+
+        for (EclipseProject project : HierarchicalElementUtils.getAll(this.modelProject)) {
+            GradleProject gradleProject = project.getGradleProject();
             IPath projectPath = Path.fromOSString(project.getProjectDirectory().getPath());
             if (currentProjectPath.isPrefixOf(projectPath)) {
                 IPath relativePath = RelativePathUtils.getRelativePath(currentProjectPath, projectPath);
@@ -130,10 +132,10 @@ final class GradleFolderUpdater {
      * physically contained in the project, use that folder. If build directory is a linked
      * resource, use the linked folder. Optional.absent() if all of the above fail.
      */
-    private IPath getBuildDirectoryPath(Maybe<File> buildDirectory, IPath prefix) {
+    private IPath getBuildDirectoryPath(File file, IPath prefix) {
         IPath buildDirPath = null;
-        if (buildDirectory.isPresent() && buildDirectory.get() != null) {
-            buildDirPath = normalizeBuildDirectoryPath(new Path(buildDirectory.get().getPath()));
+        if (file != null) {
+            buildDirPath = normalizeBuildDirectoryPath(new Path(file.getPath()));
         }
         return buildDirPath != null ? buildDirPath : prefix.append(DEFAULT_BUILD_DIR_NAME);
     }
@@ -144,7 +146,7 @@ final class GradleFolderUpdater {
             IPath relativePath = RelativePathUtils.getRelativePath(projectLocation, buildDirLocation);
             return relativePath;
         } else {
-            for (OmniEclipseLinkedResource linkedResource : this.modelProject.getLinkedResources()) {
+            for (EclipseLinkedResource linkedResource : this.modelProject.getLinkedResources()) {
                 if (buildDirLocation.toString().equals(linkedResource.getLocation())) {
                     return new Path(linkedResource.getName());
                 }
@@ -154,7 +156,7 @@ final class GradleFolderUpdater {
         }
     }
 
-    static void update(IProject workspaceProject, OmniEclipseProject project, PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
+    static void update(IProject workspaceProject, EclipseProject project, PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
         new GradleFolderUpdater(workspaceProject, project).update(persistentModel, monitor);
     }
 

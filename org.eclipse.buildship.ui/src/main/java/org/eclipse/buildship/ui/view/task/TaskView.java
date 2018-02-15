@@ -14,6 +14,8 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
 
+import org.gradle.tooling.model.eclipse.EclipseProject;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
@@ -40,7 +42,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.wizards.IWizardDescriptor;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.ui.UiPluginConstants;
 import org.eclipse.buildship.ui.external.viewer.FilteredTree;
@@ -184,7 +185,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
      */
     public void setContent(TaskViewContent content) {
         if (!this.pages.isDisposed() && !this.treeViewer.getControl().isDisposed()) {
-            List<OmniEclipseProject> models = content.getProjects();
+            List<EclipseProject> models = content.getProjects();
             List<IProject> faultyProjects = content.getFaultyProjects();
             this.pages.showPage((models.isEmpty() && faultyProjects.isEmpty()) ? this.emptyInputPage : this.nonEmptyInputPage);
             this.treeViewer.setInput(content);

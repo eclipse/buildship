@@ -14,6 +14,8 @@ package org.eclipse.buildship.core.workspace.internal;
 import java.io.File;
 import java.util.Set;
 
+import org.gradle.tooling.model.eclipse.EclipseProject;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -24,7 +26,6 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
 
 /**
  * Updates project names to match the Gradle model. Moves other projects out of the way if necessary.
@@ -40,7 +41,7 @@ final class ProjectNameUpdater {
      * @param monitor          the monitor to report progress on
      * @return the new project reference in case the project name has changed, the incoming project instance otherwise
      */
-    static IProject updateProjectName(IProject workspaceProject, OmniEclipseProject project, Set<OmniEclipseProject> allProjects, IProgressMonitor monitor) {
+    static IProject updateProjectName(IProject workspaceProject, EclipseProject project, Set<? extends EclipseProject> allProjects, IProgressMonitor monitor) {
         String newName = checkProjectName(project);
         SubMonitor progress = SubMonitor.convert(monitor, 2);
         if (newName.equals(workspaceProject.getName())) {
@@ -67,12 +68,12 @@ final class ProjectNameUpdater {
      * @param workspaceModel the workspace model to which the project belongs
      * @param monitor     the monitor to report progress on
      */
-    static void ensureProjectNameIsFree(OmniEclipseProject project, Set<OmniEclipseProject> allProjects, IProgressMonitor monitor) {
+    static void ensureProjectNameIsFree(EclipseProject project, Set<? extends EclipseProject> allProjects, IProgressMonitor monitor) {
         String name = checkProjectName(project);
         ensureProjectNameIsFree(name, allProjects, monitor);
     }
 
-    private static void ensureProjectNameIsFree(String normalizedProjectName, Set<OmniEclipseProject> allProjects, IProgressMonitor monitor) {
+    private static void ensureProjectNameIsFree(String normalizedProjectName, Set<? extends EclipseProject> allProjects, IProgressMonitor monitor) {
         Optional<IProject> possibleDuplicate = CorePlugin.workspaceOperations().findProjectByName(normalizedProjectName);
         if (possibleDuplicate.isPresent()) {
             IProject duplicate = possibleDuplicate.get();
@@ -85,12 +86,12 @@ final class ProjectNameUpdater {
         }
     }
 
-    private static boolean isScheduledForRenaming(IProject duplicate, Set<OmniEclipseProject> allProjects) {
+    private static boolean isScheduledForRenaming(IProject duplicate, Set<? extends EclipseProject> allProjects) {
         if (!duplicate.isOpen()) {
             return false;
         }
 
-        Optional<OmniEclipseProject> duplicateEclipseProject = Iterables.tryFind(allProjects, eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
+        Optional<? extends EclipseProject> duplicateEclipseProject = Iterables.tryFind(allProjects, eclipseProjectMatchesProjectDir(duplicate.getLocation().toFile()));
         if (!duplicateEclipseProject.isPresent()) {
             return false;
         }
@@ -103,16 +104,16 @@ final class ProjectNameUpdater {
         CorePlugin.workspaceOperations().renameProject(duplicate, duplicate.getName() + "-" + duplicate.getName().hashCode(), monitor);
     }
 
-    private static String checkProjectName(OmniEclipseProject project) {
+    private static String checkProjectName(EclipseProject project) {
         CorePlugin.workspaceOperations().validateProjectName(project.getName(), project.getProjectDirectory());
         return project.getName();
     }
 
-    private static Predicate<OmniEclipseProject> eclipseProjectMatchesProjectDir(final File projectDir) {
-        return new Predicate<OmniEclipseProject>() {
+    private static Predicate<EclipseProject> eclipseProjectMatchesProjectDir(final File projectDir) {
+        return new Predicate<EclipseProject>() {
 
             @Override
-            public boolean apply(OmniEclipseProject candidate) {
+            public boolean apply(EclipseProject candidate) {
                 return candidate.getProjectDirectory().equals(projectDir);
             }
         };

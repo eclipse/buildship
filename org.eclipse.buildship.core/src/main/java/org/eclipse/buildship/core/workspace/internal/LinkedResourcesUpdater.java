@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
+
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -32,7 +34,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseLinkedResource;
 import org.eclipse.buildship.core.preferences.PersistentModel;
 import org.eclipse.buildship.core.util.file.FileUtils;
 
@@ -44,14 +45,14 @@ import org.eclipse.buildship.core.util.file.FileUtils;
 final class LinkedResourcesUpdater {
 
     private final IProject project;
-    private final ImmutableList<OmniEclipseLinkedResource> resources;
+    private final ImmutableList<EclipseLinkedResource> resources;
     private final ImmutableSet<IPath> resourcePaths;
 
-    private LinkedResourcesUpdater(IProject project, List<OmniEclipseLinkedResource> linkedResources) {
+    private LinkedResourcesUpdater(IProject project, List<EclipseLinkedResource> list) {
         this.project = Preconditions.checkNotNull(project);
-        ImmutableList.Builder<OmniEclipseLinkedResource> resources = ImmutableList.builder();
+        ImmutableList.Builder<EclipseLinkedResource> resources = ImmutableList.builder();
         ImmutableSet.Builder<IPath> resourcePaths = ImmutableSet.builder();
-        for (OmniEclipseLinkedResource linkedResource : linkedResources) {
+        for (EclipseLinkedResource linkedResource : list) {
             if (isSupportedLinkedResource(linkedResource)) {
                 resources.add(linkedResource);
                 resourcePaths.add(new Path(linkedResource.getLocation()));
@@ -61,7 +62,7 @@ final class LinkedResourcesUpdater {
         this.resourcePaths = resourcePaths.build();
     }
 
-    private static boolean isSupportedLinkedResource(OmniEclipseLinkedResource linkedResource) {
+    private static boolean isSupportedLinkedResource(EclipseLinkedResource linkedResource) {
         // linked resources with locationUri set are not supported
         return linkedResource.getLocation() != null;
     }
@@ -100,7 +101,7 @@ final class LinkedResourcesUpdater {
     private void createLinkedResources(PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(this.resources.size());
         Set<IPath> linkedPaths = Sets.newHashSet();
-        for (OmniEclipseLinkedResource linkedFile : this.resources) {
+        for (EclipseLinkedResource linkedFile : this.resources) {
             SubMonitor childProgress = progress.newChild(1);
             IResource file = createLinkedResource(linkedFile, childProgress);
             linkedPaths.add(file.getProjectRelativePath());
@@ -108,7 +109,7 @@ final class LinkedResourcesUpdater {
         persistentModel.linkedResources(linkedPaths);
     }
 
-    private IResource createLinkedResource(OmniEclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {
+    private IResource createLinkedResource(EclipseLinkedResource linkedResource, SubMonitor progress) throws CoreException {
         String name = linkedResource.getName();
         String type = linkedResource.getType();
         IPath path = new Path(linkedResource.getLocation());
@@ -127,7 +128,7 @@ final class LinkedResourcesUpdater {
         }
     }
 
-    public static void update(IProject project, List<OmniEclipseLinkedResource> linkedResources, PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
+    public static void update(IProject project, List<EclipseLinkedResource> linkedResources, PersistentModelBuilder persistentModel, IProgressMonitor monitor) throws CoreException {
         LinkedResourcesUpdater updater = new LinkedResourcesUpdater(project, linkedResources);
         updater.updateLinkedResources(persistentModel, monitor);
     }

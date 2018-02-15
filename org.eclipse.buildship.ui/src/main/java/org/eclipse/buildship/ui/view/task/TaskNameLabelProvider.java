@@ -77,11 +77,11 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
     }
 
     private StyledString getTaskSelectorText(TaskSelectorNode taskSelector) {
-        return new StyledString(taskSelector.getTaskSelector().getName());
+        return new StyledString(taskSelector.getName());
     }
 
     private StyledString getProjectTaskText(ProjectTaskNode projectTask) {
-        return new StyledString(projectTask.getProjectTask().getName());
+        return new StyledString(projectTask.getName());
     }
 
     private StyledString getGroupText(TaskGroupNode group) {

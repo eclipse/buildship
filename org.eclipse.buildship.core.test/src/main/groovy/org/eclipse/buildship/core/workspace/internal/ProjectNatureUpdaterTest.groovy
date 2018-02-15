@@ -1,14 +1,13 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.google.common.base.Optional
+import org.gradle.tooling.model.eclipse.EclipseProjectNature
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProjectNature
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification;
+import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
 
 class ProjectNatureUpdaterTest extends WorkspaceSpecification {
 
@@ -110,16 +109,16 @@ class ProjectNatureUpdaterTest extends WorkspaceSpecification {
     }
 
     private void executeProjectNatureUpdaterWithAbsentModel(IProject project) {
-        ProjectNatureUpdater.update(project, Optional.absent(), persistentModelBuilder(project), new NullProgressMonitor())
+        ProjectNatureUpdater.update(project, [], persistentModelBuilder(project), new NullProgressMonitor())
     }
 
     private void executeProjectNatureUpdater(IProject project, PersistentModelBuilder persistentModel, String... natures) {
-        List<OmniEclipseProjectNature> modelNatures = natures.collect { String natureId ->
-            OmniEclipseProjectNature nature = Mock(OmniEclipseProjectNature)
+        List<EclipseProjectNature> modelNatures = natures.collect { String natureId ->
+            EclipseProjectNature nature = Mock(EclipseProjectNature)
             nature.id >> natureId
             nature
         }
-        ProjectNatureUpdater.update(project, Optional.of(modelNatures), persistentModel, new NullProgressMonitor())
+        ProjectNatureUpdater.update(project, modelNatures, persistentModel, new NullProgressMonitor())
     }
 
     private List<String> naturesOf(IProject project) {
@@ -129,17 +128,4 @@ class ProjectNatureUpdaterTest extends WorkspaceSpecification {
     private boolean hasNature(IProject project, String natureId) {
         project.description.natureIds.find { it == natureId }
     }
-
-    private Optional<OmniEclipseProjectNature> absentModelNatures() {
-        Optional.absent()
-    }
-
-    private Optional<OmniEclipseProjectNature> modelNatures(String... natureIds) {
-        Optional.of(natureIds.collect { String natureId ->
-            OmniEclipseProjectNature nature = Mock(OmniEclipseProjectNature)
-            nature.id >> natureId
-            nature
-        })
-    }
-
 }

@@ -1,12 +1,13 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.tooling.model.GradleProject
+import org.gradle.tooling.model.eclipse.EclipseProject
+import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
+
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject
-import org.eclipse.buildship.core.omnimodel.OmniGradleProject
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.util.gradle.Maybe
 
 class GradleFolderUpdaterTest extends WorkspaceSpecification {
     IProject project
@@ -82,12 +83,12 @@ class GradleFolderUpdaterTest extends WorkspaceSpecification {
     }
 
     private def model(String buildDir = 'build') {
-        OmniEclipseProject eclipseProject = Mock(OmniEclipseProject)
-        OmniGradleProject gradleProject = Mock(OmniGradleProject)
-        gradleProject.buildDirectory >> Maybe.of(new File(project.location.toFile(), buildDir))
+        EclipseProject eclipseProject = Mock(EclipseProject)
+        GradleProject gradleProject = Mock(GradleProject)
+        gradleProject.buildDirectory >> new File(project.location.toFile(), buildDir)
         eclipseProject.gradleProject >> gradleProject
         eclipseProject.projectDirectory >> project.location.toFile()
-        eclipseProject.all >> [eclipseProject]
+        eclipseProject.children >> ImmutableDomainObjectSet.of([])
         eclipseProject
     }
 }

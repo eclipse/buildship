@@ -14,17 +14,15 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.omnimodel.OmniProjectTask;
-
 /**
  * Tree node in the {@link TaskView} representing a project task.
  */
 public final class ProjectTaskNode implements TaskNode {
 
     private final ProjectNode parentProjectNode;
-    private final OmniProjectTask projectTask;
+    private final ProjectTask projectTask;
 
-    public ProjectTaskNode(ProjectNode parentProjectNode, OmniProjectTask projectTask) {
+    public ProjectTaskNode(ProjectNode parentProjectNode, ProjectTask projectTask) {
         this.parentProjectNode = Preconditions.checkNotNull(parentProjectNode);
         this.projectTask = Preconditions.checkNotNull(projectTask);
     }
@@ -32,10 +30,6 @@ public final class ProjectTaskNode implements TaskNode {
     @Override
     public ProjectNode getParentProjectNode() {
         return this.parentProjectNode;
-    }
-
-    public OmniProjectTask getProjectTask() {
-        return this.projectTask;
     }
 
     @Override
@@ -68,7 +62,8 @@ public final class ProjectTaskNode implements TaskNode {
         }
 
         ProjectTaskNode that = (ProjectTaskNode) other;
-        return Objects.equal(this.parentProjectNode, that.parentProjectNode) && Objects.equal(this.projectTask, that.projectTask);
+        return Objects.equal(this.parentProjectNode, that.parentProjectNode)
+                && Objects.equal(this.projectTask, that.projectTask);
     }
 
     @Override
@@ -76,4 +71,11 @@ public final class ProjectTaskNode implements TaskNode {
         return Objects.hashCode(this.parentProjectNode, this.projectTask);
     }
 
+    public String getDescription() {
+        return this.projectTask.getDescription();
+    }
+
+    public String getPath() {
+        return this.projectTask.getPath().getPath();
+    }
 }

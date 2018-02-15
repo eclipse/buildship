@@ -13,6 +13,9 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collections;
 
+import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -24,18 +27,17 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
-import org.eclipse.buildship.core.omnimodel.OmniJavaSourceSettings;
+import org.eclipse.buildship.core.util.gradle.JavaVersionUtil;
 
 /**
  * Updates the Java source settings on the target project.
  */
 final class JavaSourceSettingsUpdater {
 
-    public static void update(IJavaProject project, OmniEclipseProject modelProject, IProgressMonitor monitor) throws CoreException {
-        OmniJavaSourceSettings sourceSettings = modelProject.getJavaSourceSettings().get();
-        String sourceVersion = sourceSettings.getSourceLanguageLevel().getName();
-        String targetVersion = sourceSettings.getTargetBytecodeLevel().getName();
+    public static void update(IJavaProject project, EclipseProject modelProject, IProgressMonitor monitor) throws CoreException {
+        EclipseJavaSourceSettings sourceSettings = modelProject.getJavaSourceSettings();
+        String sourceVersion = JavaVersionUtil.adaptVersionToEclipseNamingConversions(sourceSettings.getSourceLanguageLevel());
+        String targetVersion = JavaVersionUtil.adaptVersionToEclipseNamingConversions(sourceSettings.getTargetBytecodeVersion());
 
         boolean compilerOptionChanged = false;
         compilerOptionChanged |= updateJavaProjectOptionIfNeeded(project, JavaCore.COMPILER_COMPLIANCE, sourceVersion);

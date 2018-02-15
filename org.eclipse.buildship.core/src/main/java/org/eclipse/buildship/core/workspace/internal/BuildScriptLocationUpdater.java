@@ -10,14 +10,14 @@ package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
 
+import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.tooling.model.gradle.GradleScript;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
-import org.eclipse.buildship.core.omnimodel.OmniGradleScript;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
-import org.eclipse.buildship.core.util.gradle.Maybe;
 
 /**
  * Updates the build script location in the persistent model.
@@ -26,13 +26,14 @@ import org.eclipse.buildship.core.util.gradle.Maybe;
  */
 final class BuildScriptLocationUpdater {
 
-    public static void update(OmniEclipseProject eclipseProject, PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
-        Maybe<OmniGradleScript> buildScript = eclipseProject.getGradleProject().getBuildScript();
-        if (buildScript.isPresent() && buildScript.get() != null) {
+    public static void update(EclipseProject eclipseProject, PersistentModelBuilder persistentModel, IProgressMonitor monitor) {
+        GradleScript buildScript = eclipseProject.getGradleProject().getBuildScript();
+        if (buildScript != null) {
             IPath projectPath = new Path(eclipseProject.getProjectDirectory().getAbsolutePath());
             IPath buildScriptPath;
-            if (buildScript.get().getSourceFile() != null) {
-                buildScriptPath = new Path(buildScript.get().getSourceFile().getAbsolutePath());
+            File sourceFile = buildScript.getSourceFile();
+            if (sourceFile != null) {
+                buildScriptPath = new Path(sourceFile.getAbsolutePath());
             } else {
                 buildScriptPath = new Path(new File("build.gradle").getAbsolutePath());
             }

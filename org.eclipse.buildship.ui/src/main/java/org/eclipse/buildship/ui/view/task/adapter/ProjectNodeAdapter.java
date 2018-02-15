@@ -13,16 +13,16 @@ package org.eclipse.buildship.ui.view.task.adapter;
 
 import java.io.File;
 
+import org.gradle.tooling.model.GradleProject;
+import org.gradle.tooling.model.gradle.GradleScript;
+
 import com.google.common.base.Preconditions;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import org.eclipse.buildship.core.omnimodel.OmniGradleProject;
-import org.eclipse.buildship.core.omnimodel.OmniGradleScript;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.Maybe;
 import org.eclipse.buildship.ui.view.task.ProjectNode;
 
 /**
@@ -38,7 +38,7 @@ final class ProjectNodeAdapter implements IPropertySource {
     private static final String PROPERTY_BUILD_OUTPUT_DIRECTORY = "project.buildOutputDirectory";
     private static final String PROPERTY_BUILD_SCRIPT_LOCATION = "project.buildScriptLocation";
 
-    private final OmniGradleProject project;
+    private final GradleProject project;
 
     ProjectNodeAdapter(ProjectNode projectNode) {
         this.project = Preconditions.checkNotNull(projectNode).getGradleProject();
@@ -71,18 +71,18 @@ final class ProjectNodeAdapter implements IPropertySource {
         } else if (id.equals(PROPERTY_DESCRIPTION)) {
             return this.project.getDescription();
         } else if (id.equals(PROPERTY_PATH)) {
-            return this.project.getPath().getPath();
+            return this.project.getPath();
         } else if (id.equals(PROPERTY_TYPE)) {
             return "Gradle Project";
         } else if (id.equals(PROPERTY_PROJECT_DIRECTORY)) {
-            Maybe<File> maybe = this.project.getProjectDirectory();
-            return !maybe.isPresent() ? "unknown" : FileUtils.getAbsolutePath(maybe.get()).or("none");
+            File projectDir = this.project.getProjectDirectory();
+            return FileUtils.getAbsolutePath(projectDir).or("unknown");
         } else if (id.equals(PROPERTY_BUILD_OUTPUT_DIRECTORY)) {
-            Maybe<File> maybe = this.project.getBuildDirectory();
-            return !maybe.isPresent() ? "unknown" : FileUtils.getAbsolutePath(maybe.get()).or("none");
+            File buildDir = this.project.getBuildDirectory();
+            return buildDir == null ? "unknown" : buildDir;
         } else if (id.equals(PROPERTY_BUILD_SCRIPT_LOCATION)) {
-            Maybe<OmniGradleScript> maybe = this.project.getBuildScript();
-            return !maybe.isPresent() ? "unknown" : FileUtils.getAbsolutePath(maybe.get().getSourceFile()).or("none");
+            GradleScript script = this.project.getBuildScript();
+            return script == null ? "unknown" : FileUtils.getAbsolutePath(script.getSourceFile()).or("none");
         } else {
             throw new IllegalStateException("Unsupported project property: " + id);
         }

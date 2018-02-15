@@ -8,6 +8,7 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -15,15 +16,15 @@ import java.util.Set;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.model.GradleTask;
+import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.tooling.model.eclipse.EclipseProjectNature;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.io.CharStreams;
-
-import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,9 +33,8 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProjectNature;
-import org.eclipse.buildship.core.omnimodel.OmniProjectTask;
+import org.eclipse.buildship.core.util.gradle.CompatEclipseProject;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 
 /**
@@ -51,9 +51,9 @@ public class RunOnImportTasksOperation {
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
 
     private final BuildConfiguration buildConfig;
-    private final Set<OmniEclipseProject> allprojects;
+    private final Set<EclipseProject> allprojects;
 
-    public RunOnImportTasksOperation(Set<OmniEclipseProject> allProjects, BuildConfiguration buildConfig) {
+    public RunOnImportTasksOperation(Set<? extends EclipseProject> allProjects, BuildConfiguration buildConfig) {
         this.allprojects = ImmutableSet.copyOf(allProjects);
         this.buildConfig = Preconditions.checkNotNull(buildConfig);
     }
@@ -72,14 +72,14 @@ public class RunOnImportTasksOperation {
         Set<String> cleanWtpTasks = Sets.newHashSet();
         Set<String> wtpTasks = Sets.newHashSet();
 
-        for (OmniEclipseProject eclipseProject : this.allprojects) {
+        for (EclipseProject eclipseProject : this.allprojects) {
             if (isGradle30(eclipseProject) && isWtpProject(eclipseProject) && !isIncludedProject(eclipseProject)) {
-                List<OmniProjectTask> tasks = eclipseProject.getGradleProject().getProjectTasks();
-                for (OmniProjectTask task : tasks) {
+                Collection<? extends GradleTask> tasks = eclipseProject.getGradleProject().getTasks();
+                for (GradleTask task : tasks) {
                     if (WTP_TASK.equals(task.getName())) {
-                        wtpTasks.add(task.getPath().getPath());
+                        wtpTasks.add(task.getPath());
                     } else if (CLEAN_WTP_TASK.equals(task.getName())) {
-                       cleanWtpTasks.add(task.getPath().getPath());
+                       cleanWtpTasks.add(task.getPath());
                     }
                 }
             }
@@ -87,23 +87,20 @@ public class RunOnImportTasksOperation {
         return ImmutableList.<String>builder().addAll(cleanWtpTasks).addAll(wtpTasks).build();
     }
 
-    private boolean isGradle30(OmniEclipseProject eclipseProject) {
-        return eclipseProject.getClasspathContainers().isPresent();
+    private boolean isGradle30(EclipseProject eclipseProject) {
+        return CompatEclipseProject.supportsClasspathContainers(eclipseProject);
     }
 
-    private boolean isWtpProject(OmniEclipseProject eclipseProject) {
-        Optional<List<OmniEclipseProjectNature>> natures = eclipseProject.getProjectNatures();
-        if (natures.isPresent()) {
-            for (OmniEclipseProjectNature nature : natures.get()) {
-                if (nature.getId().equals(WTP_COMPONENT_NATURE)) {
-                    return true;
-                }
+    private boolean isWtpProject(EclipseProject eclipseProject) {
+        for (EclipseProjectNature nature : eclipseProject.getProjectNatures()) {
+            if (nature.getId().equals(WTP_COMPONENT_NATURE)) {
+                return true;
             }
         }
         return false;
     }
 
-    private boolean isIncludedProject(OmniEclipseProject eclipseProject) {
+    private boolean isIncludedProject(EclipseProject eclipseProject) {
         File buildRoot = this.buildConfig.getRootProjectDirectory();
         File projectRoot = eclipseProject.getProjectIdentifier().getBuildIdentifier().getRootDir();
         return !buildRoot.equals(projectRoot);

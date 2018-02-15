@@ -13,24 +13,24 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
+import org.eclipse.core.resources.IProject;
 
 /**
  * Encapsulates the content backing the {@link TaskView}.
  */
 public final class TaskViewContent {
 
-    private final List<OmniEclipseProject> projects;
+    private final List<EclipseProject> projects;
     private final List<IProject> faultyProjects;
 
-    public TaskViewContent(List<OmniEclipseProject> projects, List<IProject> faultyProjects) {
+    public TaskViewContent(List<EclipseProject> projects, List<IProject> faultyProjects) {
         this.projects = projects;
         this.faultyProjects = faultyProjects;
     }
 
-    public List<OmniEclipseProject> getProjects() {
+    public List<EclipseProject> getProjects() {
         return this.projects;
     }
 

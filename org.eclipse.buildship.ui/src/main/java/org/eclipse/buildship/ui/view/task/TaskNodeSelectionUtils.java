@@ -26,6 +26,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
+import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
@@ -84,7 +85,7 @@ public final class TaskNodeSelectionUtils {
 
     private static GradleRunConfigurationAttributes runConfigAttributesForTask(NodeSelection selection, List<String> tasks) {
         TaskNode taskNode = selection.getFirstElement(TaskNode.class);
-        File rootDir = taskNode.getParentProjectNode().getEclipseProject().getRoot().getProjectDirectory();
+        File rootDir = HierarchicalElementUtils.getRoot(taskNode.getParentProjectNode().getEclipseProject()).getProjectDirectory();
         File workingDir = workingDirForTask(taskNode, rootDir);
         return createARunConfigAttributes(rootDir, workingDir, tasks);
     }
@@ -101,7 +102,7 @@ public final class TaskNodeSelectionUtils {
 
     private static GradleRunConfigurationAttributes runConfigAttributesForProject(NodeSelection selection, List<String> tasks) {
         ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
-        File rootDir = projectNode.getEclipseProject().getRoot().getProjectDirectory();
+        File rootDir = HierarchicalElementUtils.getRoot(projectNode.getEclipseProject()).getProjectDirectory();
         return createARunConfigAttributes(rootDir, rootDir, tasks);
     }
 
@@ -144,10 +145,10 @@ public final class TaskNodeSelectionUtils {
                 TaskNode.TaskNodeType type = node.getType();
                 switch (type) {
                     case PROJECT_TASK_NODE:
-                        taskStrings.add(((ProjectTaskNode) node).getProjectTask().getPath().getPath());
+                        taskStrings.add(((ProjectTaskNode) node).getPath());
                         break;
                     case TASK_SELECTOR_NODE:
-                        taskStrings.add(((TaskSelectorNode) node).getTaskSelector().getName());
+                        taskStrings.add(((TaskSelectorNode) node).getName());
                         break;
                     default:
                         throw new IllegalStateException("Unsupported Task node type: " + type);

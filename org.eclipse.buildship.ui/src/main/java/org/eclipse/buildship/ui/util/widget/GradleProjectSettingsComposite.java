@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.ui.util.widget;
 
+import com.google.common.base.Optional;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -21,7 +23,6 @@ import org.eclipse.swt.widgets.Link;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.util.gradle.Maybe;
 import org.eclipse.buildship.core.util.gradle.Pair;
 
 /**
@@ -196,14 +197,14 @@ public final class GradleProjectSettingsComposite extends Composite {
      *
      */
     public static class GradleProjectSettingsCompositeBuilder {
-        private Maybe<Pair<String, String>> overrideCheckbox = Maybe.absent();
+        private Optional<Pair<String, String>> overrideCheckbox = Optional.absent();
         private boolean autoSyncCheckbox = false;
         private Composite parent;
         private GradleProjectSettingsCompositeBuilder(Composite parent) {
             this.parent = parent;
         }
         public GradleProjectSettingsCompositeBuilder withOverrideCheckbox(String overrideCheckboxLabel, String configureParentPrefsLinkLabel) {
-            this.overrideCheckbox = Maybe.of(new Pair<>(overrideCheckboxLabel, configureParentPrefsLinkLabel));
+            this.overrideCheckbox = Optional.of(new Pair<>(overrideCheckboxLabel, configureParentPrefsLinkLabel));
             return this;
         }
         public GradleProjectSettingsCompositeBuilder withAutoSyncCheckbox() {

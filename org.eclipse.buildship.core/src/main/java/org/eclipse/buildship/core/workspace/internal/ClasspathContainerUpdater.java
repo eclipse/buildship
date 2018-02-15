@@ -9,11 +9,14 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+
+import org.gradle.tooling.model.eclipse.EclipseClasspathContainer;
+import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -33,9 +36,9 @@ import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseClasspathContainer;
-import org.eclipse.buildship.core.omnimodel.OmniJavaSourceSettings;
 import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
+import org.eclipse.buildship.core.util.gradle.CompatEclipseProject;
+import org.eclipse.buildship.core.util.gradle.JavaVersionUtil;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
 /**
@@ -60,14 +63,14 @@ final class ClasspathContainerUpdater {
 
     private final IJavaProject project;
     private final boolean gradleSupportsContainers;
-    private final List<OmniEclipseClasspathContainer> containers;
-    private final OmniJavaSourceSettings sourceSettings;
+    private final Iterable<? extends EclipseClasspathContainer> containers;
+    private final EclipseJavaSourceSettings sourceSettings;
 
-    private ClasspathContainerUpdater(IJavaProject project, Optional<List<OmniEclipseClasspathContainer>> containers, OmniJavaSourceSettings sourceSettings) {
+    private ClasspathContainerUpdater(IJavaProject project, EclipseProject eclipseProject) {
         this.project = project;
-        this.gradleSupportsContainers = containers.isPresent();
-        this.containers = containers.or(Collections.<OmniEclipseClasspathContainer> emptyList());
-        this.sourceSettings = sourceSettings;
+        this.gradleSupportsContainers = CompatEclipseProject.supportsClasspathContainers(eclipseProject);
+        this.containers = eclipseProject.getClasspathContainers();
+        this.sourceSettings = eclipseProject.getJavaSourceSettings();
     }
 
     private void updateContainers(IProgressMonitor monitor) throws CoreException {
@@ -88,7 +91,7 @@ final class ClasspathContainerUpdater {
         removeOldContainers(classpath);
 
         LinkedHashMap<IPath, IClasspathEntry> containersToAdd = Maps.newLinkedHashMap();
-        for (OmniEclipseClasspathContainer container : this.containers) {
+        for (EclipseClasspathContainer container : this.containers) {
             IClasspathEntry entry = createContainerEntry(container);
             containersToAdd.put(entry.getPath(), entry);
         }
@@ -135,8 +138,8 @@ final class ClasspathContainerUpdater {
     }
 
     private IPath getJrePathFromSourceSettings() {
-        String targetVersion = this.sourceSettings.getTargetBytecodeLevel().getName();
-        File vmLocation = this.sourceSettings.getTargetRuntime().getHomeDirectory();
+        String targetVersion = JavaVersionUtil.adaptVersionToEclipseNamingConversions(this.sourceSettings.getTargetBytecodeVersion());
+        File vmLocation = this.sourceSettings.getJdk().getJavaHome();
         IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(targetVersion, vmLocation);
         Optional<IExecutionEnvironment> executionEnvironment = EclipseVmUtil.findExecutionEnvironment(targetVersion);
         return executionEnvironment.isPresent() ? JavaRuntime.newJREContainerPath(executionEnvironment.get()) : JavaRuntime.newJREContainerPath(vm);
@@ -152,7 +155,7 @@ final class ClasspathContainerUpdater {
         return index;
     }
 
-    private static IClasspathEntry createContainerEntry(OmniEclipseClasspathContainer container) {
+    private static IClasspathEntry createContainerEntry(EclipseClasspathContainer container) {
         IPath containerPath = new Path(container.getPath());
         boolean isExported = container.isExported();
         IAccessRule[] accessRules = ClasspathUtils.createAccessRules(container);
@@ -164,9 +167,9 @@ final class ClasspathContainerUpdater {
         return JavaCore.newContainerEntry(path);
     }
 
-    public static void update(IJavaProject project, Optional<List<OmniEclipseClasspathContainer>> containers, OmniJavaSourceSettings omniJavaSourceSettings,
+    public static void update(IJavaProject project, EclipseProject eclipseProject,
             IProgressMonitor monitor) throws CoreException {
-        new ClasspathContainerUpdater(project, containers, omniJavaSourceSettings).updateContainers(monitor);
+        new ClasspathContainerUpdater(project, eclipseProject).updateContainers(monitor);
     }
 
 }

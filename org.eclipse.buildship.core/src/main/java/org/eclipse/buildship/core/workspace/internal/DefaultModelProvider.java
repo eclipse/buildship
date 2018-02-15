@@ -17,15 +17,15 @@ import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-
-import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -33,6 +33,8 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.util.gradle.ModelUtils;
+import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 import org.eclipse.buildship.core.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
@@ -56,7 +58,7 @@ final class DefaultModelProvider implements ModelProvider {
     public <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         TransientRequestAttributes transientAttributes = getTransientRequestAttributes(tokenSource, monitor);
         ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), transientAttributes);
-        return executeModelBuilder(builder, strategy, model);
+        return injectCompatibilityModel(executeModelBuilder(builder, strategy, model));
     }
 
     @Override
@@ -65,11 +67,35 @@ final class DefaultModelProvider implements ModelProvider {
         if (supportsCompositeBuilds(tokenSource, monitor)) {
             final BuildActionExecuter<Collection<T>> executer = ConnectionAwareLauncherProxy
                     .newCompositeModelQueryExecuter(model, DefaultModelProvider.this.buildConfiguration.toGradleArguments(), transientAttributes);
-            return executeBuildActionExecuter(executer, strategy, model);
+            Collection<T> result = executeBuildActionExecuter(executer, strategy, model);
+            return injectCompatibilityModel(model, result);
         } else {
             ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), transientAttributes);
-            return ImmutableList.of(executeModelBuilder(builder, strategy, model));
+            Collection<T> result = ImmutableList.of(executeModelBuilder(builder, strategy, model));
+            return injectCompatibilityModel(model, result);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T injectCompatibilityModel(T model) {
+        if (model instanceof EclipseProject) {
+            return (T) ModelUtils.createCompatibilityModel((EclipseProject) model);
+        }
+
+        return model;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Collection<T> injectCompatibilityModel(Class<T> modelClass, Collection<T> models) {
+        if (modelClass == EclipseProject.class) {
+            Builder<EclipseProject> result = ImmutableList.builder();
+            for (T model : models) {
+                result.add(ModelUtils.createCompatibilityModel((EclipseProject) model));
+            }
+            return (Collection<T>) result.build();
+        }
+
+        return models;
     }
 
     private <T> T executeBuildActionExecuter(final BuildActionExecuter<T> executer, FetchStrategy fetchStrategy, Class<?> cacheKey) {

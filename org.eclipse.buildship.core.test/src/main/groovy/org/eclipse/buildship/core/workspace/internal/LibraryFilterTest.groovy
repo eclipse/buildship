@@ -7,9 +7,12 @@ import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
+import org.gradle.tooling.model.eclipse.EclipseProject
+import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+
+import org.eclipse.buildship.core.util.gradle.CompatEclipseProject
 
 class LibraryFilterTest extends WorkspaceSpecification {
 
@@ -21,8 +24,8 @@ class LibraryFilterTest extends WorkspaceSpecification {
         hasLibsInClasspath(project)
 
         when:
-        OmniEclipseProject model = Mock(OmniEclipseProject)
-        model.classpathContainers >> Optional.of(Mock(List))
+        EclipseProject model = Mock(EclipseProject)
+        model.classpathContainers >> ImmutableDomainObjectSet.of([])
         LibraryFilter.update(project, model, new NullProgressMonitor())
 
         then:
@@ -37,8 +40,8 @@ class LibraryFilterTest extends WorkspaceSpecification {
         hasLibsInClasspath(project)
 
         when:
-        OmniEclipseProject model = Mock(OmniEclipseProject)
-        model.classpathContainers >> Optional.absent()
+        EclipseProject model = Mock(EclipseProject)
+        model.classpathContainers >> CompatEclipseProject.UNSUPPORTED_CONTAINERS
         LibraryFilter.update(project, model, new NullProgressMonitor())
 
         then:

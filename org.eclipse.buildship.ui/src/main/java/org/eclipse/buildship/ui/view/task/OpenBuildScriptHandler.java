@@ -13,12 +13,12 @@ package org.eclipse.buildship.ui.view.task;
 
 import java.io.File;
 
+import org.gradle.tooling.model.gradle.GradleScript;
+
 import com.google.common.base.Optional;
 
 import org.eclipse.core.commands.ExecutionEvent;
 
-import org.eclipse.buildship.core.omnimodel.OmniGradleScript;
-import org.eclipse.buildship.core.util.gradle.Maybe;
 import org.eclipse.buildship.ui.util.editor.EditorUtils;
 import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
 
@@ -45,8 +45,8 @@ public final class OpenBuildScriptHandler extends SelectionDependentHandler {
     }
 
     private Optional<File> getBuildScriptFor(ProjectNode projectNode) {
-        Maybe<OmniGradleScript> buildScript = projectNode.getGradleProject().getBuildScript();
-        return buildScript.isPresent() ? Optional.fromNullable(buildScript.get().getSourceFile()) : Optional.<File>absent();
+        GradleScript buildScript = projectNode.getGradleProject().getBuildScript();
+        return buildScript != null ? Optional.fromNullable(buildScript.getSourceFile()) : Optional.<File>absent();
     }
 
 }

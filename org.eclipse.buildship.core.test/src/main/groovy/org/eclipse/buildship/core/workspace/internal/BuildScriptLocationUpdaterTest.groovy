@@ -1,22 +1,22 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.tooling.model.GradleProject
+import org.gradle.tooling.model.eclipse.EclipseProject
+import org.gradle.tooling.model.gradle.GradleScript
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject
-import org.eclipse.buildship.core.omnimodel.OmniGradleProject
-import org.eclipse.buildship.core.omnimodel.OmniGradleScript
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.util.gradle.Maybe
 
 class BuildScriptLocationUpdaterTest extends WorkspaceSpecification {
 
-    def "Updates build script location in persistent model"(Maybe<File> buildScriptPathInModel, String expectedBuildScriptPath) {
+    def "Updates build script location in persistent model"(File buildScriptFileInModel, String expectedBuildScriptPath) {
         setup:
         IProject project = newProject('sample-project')
         PersistentModelBuilder persistentModel = persistentModelBuilder(project)
-        OmniEclipseProject eclipseProject = createEclipseModel(new File('.'), buildScriptPathInModel)
+        EclipseProject eclipseProject = createEclipseModel(new File('.'), buildScriptFileInModel)
 
         when:
         BuildScriptLocationUpdater.update(eclipseProject, persistentModel, new NullProgressMonitor())
@@ -25,22 +25,19 @@ class BuildScriptLocationUpdaterTest extends WorkspaceSpecification {
         persistentModel.buildScriptPath == new Path(expectedBuildScriptPath)
 
         where:
-        buildScriptPathInModel                          | expectedBuildScriptPath
-        Maybe.of(new File('.', 'build.gradle'))         | 'build.gradle'
-        Maybe.of(new File('.', 'subdir/custom.gradle')) | 'subdir/custom.gradle'
-        Maybe.of(null)                                  | 'build.gradle'
-        Maybe.absent()                                  | 'build.gradle'
+        buildScriptFileInModel                | expectedBuildScriptPath
+        new File('.', 'build.gradle')         | 'build.gradle'
+        new File('.', 'subdir/custom.gradle') | 'subdir/custom.gradle'
+        null                                  | 'build.gradle'
     }
 
-    OmniEclipseProject createEclipseModel(File projectDir, Maybe<File> buildScriptFile) {
-
-        return Stub(OmniEclipseProject) {
-
+    EclipseProject createEclipseModel(File projectDir, File buildScriptFile) {
+        Stub(EclipseProject) {
             getProjectDirectory() >> projectDir
-            getGradleProject() >> Stub(OmniGradleProject) {
-                getBuildScript() >> Maybe.of(Stub(OmniGradleScript) {
-                    getSourceFile() >> (buildScriptFile.present ? buildScriptFile.get() : null)
-                })
+            getGradleProject() >> Stub(GradleProject) {
+                getBuildScript() >> Stub(GradleScript) {
+                    getSourceFile() >> buildScriptFile
+                }
             }
         }
    }

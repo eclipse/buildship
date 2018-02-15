@@ -14,18 +14,15 @@ package org.eclipse.buildship.ui.view.task;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.omnimodel.OmniTaskSelector;
-
-
 /**
  * Tree node in the {@link TaskView} representing a task selector.
  */
 public final class TaskSelectorNode implements TaskNode {
 
     private final ProjectNode parentProjectNode;
-    private final OmniTaskSelector taskSelector;
+    private final TaskSelector taskSelector;
 
-    public TaskSelectorNode(ProjectNode parentProjectNode, OmniTaskSelector taskSelector) {
+    public TaskSelectorNode(ProjectNode parentProjectNode, TaskSelector taskSelector) {
         this.parentProjectNode = Preconditions.checkNotNull(parentProjectNode);
         this.taskSelector = Preconditions.checkNotNull(taskSelector);
     }
@@ -35,13 +32,13 @@ public final class TaskSelectorNode implements TaskNode {
         return this.parentProjectNode;
     }
 
-    public OmniTaskSelector getTaskSelector() {
-        return this.taskSelector;
-    }
-
     @Override
     public String getName() {
         return this.taskSelector.getName();
+    }
+
+    public String getDescription() {
+        return this.taskSelector.getDescription();
     }
 
     @Override
@@ -74,7 +71,11 @@ public final class TaskSelectorNode implements TaskNode {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.parentProjectNode, this.taskSelector);
+        return Objects.hashCode(this.parentProjectNode, this.taskSelector, this.taskSelector);
+    }
+
+    public String getProjectPath() {
+        return this.taskSelector.getProjectPath().getPath();
     }
 
 }

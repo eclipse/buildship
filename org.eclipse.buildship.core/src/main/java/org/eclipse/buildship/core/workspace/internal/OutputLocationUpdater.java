@@ -8,14 +8,12 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import com.google.common.base.Optional;
+import org.gradle.tooling.model.eclipse.EclipseOutputLocation;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
-
-import org.eclipse.buildship.core.omnimodel.OmniEclipseOutputLocation;
 
 /**
  * Updates the output location of the current project.
@@ -24,11 +22,9 @@ import org.eclipse.buildship.core.omnimodel.OmniEclipseOutputLocation;
  */
 final class OutputLocationUpdater {
 
-    public static void update(IJavaProject project, Optional<OmniEclipseOutputLocation> outputLocation, IProgressMonitor monitor) throws CoreException {
-        if (outputLocation.isPresent()) {
-            IPath projectPath = project.getProject().getFullPath();
-            String outputPath = outputLocation.get().getPath();
-            project.setOutputLocation(projectPath.append(outputPath), monitor);
-        }
+    public static void update(IJavaProject project, EclipseOutputLocation eclipseOutputLocation, IProgressMonitor monitor) throws CoreException {
+        IPath projectPath = project.getProject().getFullPath();
+        String outputPath = eclipseOutputLocation.getPath();
+        project.setOutputLocation(projectPath.append(outputPath), monitor);
     }
 }

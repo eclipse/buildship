@@ -29,11 +29,10 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProject;
-import org.eclipse.buildship.core.omnimodel.OmniEclipseProjectFactory;
 import org.eclipse.buildship.core.operation.ToolingApiJob;
 import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.ModelProvider;
@@ -59,13 +58,13 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
     }
 
     private TaskViewContent loadContent(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        List<OmniEclipseProject> projects = Lists.newArrayList();
+        List<EclipseProject> projects = Lists.newArrayList();
         Map<String, IProject> faultyProjects = allGradleWorkspaceProjects();
 
         for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
             try {
-                Set<OmniEclipseProject> eclipseProjects = fetchEclipseGradleProjects(gradleBuild.getModelProvider(), tokenSource, monitor);
-                for (OmniEclipseProject eclipseProject : eclipseProjects) {
+                Set<EclipseProject> eclipseProjects = fetchEclipseGradleProjects(gradleBuild.getModelProvider(), tokenSource, monitor);
+                for (EclipseProject eclipseProject : eclipseProjects) {
                     faultyProjects.remove(eclipseProject.getName());
                 }
                 projects.addAll(eclipseProjects);
@@ -87,11 +86,11 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         return result;
     }
 
-    private Set<OmniEclipseProject> fetchEclipseGradleProjects(ModelProvider modelProvider, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+    private Set<EclipseProject> fetchEclipseGradleProjects(ModelProvider modelProvider, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
-        LinkedHashSet<OmniEclipseProject> projects = Sets.newLinkedHashSet();
+        LinkedHashSet<EclipseProject> projects = Sets.newLinkedHashSet();
         for (EclipseProject model : models) {
-            projects.addAll(OmniEclipseProjectFactory.create(model).getAll());
+            projects.addAll(HierarchicalElementUtils.getAll(model));
         }
         return projects;
     }
