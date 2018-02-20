@@ -12,9 +12,6 @@
 package org.eclipse.buildship.core.launch;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
@@ -25,8 +22,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
-import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -35,6 +30,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.workspace.GradleBuild;
@@ -75,8 +71,8 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected BuildLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, Writer configWriter, ProcessDescription processDescription) {
-        BuildLauncher launcher = gradleBuild.newBuildLauncher(runConfiguration, configWriter, transientAttributes);
+    protected BuildLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
+        BuildLauncher launcher = gradleBuild.newBuildLauncher(runConfiguration, progressAttributes);
         launcher.forTasks(RunGradleBuildLaunchRequestJob.this.runConfig.getTasks().toArray(new String[0]));
         return launcher;
     }
@@ -87,10 +83,10 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException {
+    protected void writeExtraConfigInfo(GradleProgressAttributes progressAttributes) {
         String taskNames = Strings.emptyToNull(CollectionsUtils.joinWithSpace(this.runConfig.getTasks()));
         taskNames = taskNames != null ? taskNames : CoreMessages.RunConfiguration_Value_RunDefaultTasks;
-        writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, taskNames));
+        progressAttributes.writeConfig(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, taskNames));
     }
 
     /**

@@ -8,8 +8,6 @@
  */
 package org.eclipse.buildship.core.workspace.internal;
 
-import java.io.Writer;
-
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.TestLauncher;
@@ -17,14 +15,13 @@ import org.gradle.tooling.TestLauncher;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.marker.GradleMarkerManager;
 import org.eclipse.buildship.core.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.workspace.GradleBuild;
@@ -72,15 +69,15 @@ public class DefaultGradleBuild implements GradleBuild {
     }
 
     @Override
-    public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, Writer configWriter, TransientRequestAttributes transientAttributes) {
+    public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes) {
         // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
-        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toGradleArguments(), configWriter, transientAttributes);
+        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toGradleArguments(), progressAttributes);
     }
 
     @Override
-    public TestLauncher newTestLauncher(RunConfiguration runConfiguration, Writer configWriter, TransientRequestAttributes transientAttributes) {
+    public TestLauncher newTestLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes) {
         // TODO (donat) once GradleWorkspaceManager#getGradleBuild(FixedRequestAttributes) is removed then we should only allow run config that contain the same build config
-        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration.toGradleArguments(), configWriter, transientAttributes);
+        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration.toGradleArguments(), progressAttributes);
     }
 
     @Override

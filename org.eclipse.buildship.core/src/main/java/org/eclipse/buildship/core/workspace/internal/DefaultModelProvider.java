@@ -9,13 +9,11 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.ModelBuilder;
-import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.util.GradleVersion;
@@ -29,14 +27,10 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.util.gradle.ModelUtils;
-import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
-import org.eclipse.buildship.core.util.progress.CancellationForwardingListener;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.ModelProvider;
 
@@ -56,24 +50,31 @@ final class DefaultModelProvider implements ModelProvider {
 
     @Override
     public <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        TransientRequestAttributes transientAttributes = getTransientRequestAttributes(tokenSource, monitor);
-        ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), transientAttributes);
+        GradleProgressAttributes progressAttributes = createProgressAttributes(tokenSource, monitor);
+        ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), progressAttributes);
         return injectCompatibilityModel(executeModelBuilder(builder, strategy, model));
     }
 
     @Override
     public <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        TransientRequestAttributes transientAttributes = getTransientRequestAttributes(tokenSource, monitor);
+        GradleProgressAttributes attributes = createProgressAttributes(tokenSource, monitor);
         if (supportsCompositeBuilds(tokenSource, monitor)) {
             final BuildActionExecuter<Collection<T>> executer = ConnectionAwareLauncherProxy
-                    .newCompositeModelQueryExecuter(model, DefaultModelProvider.this.buildConfiguration.toGradleArguments(), transientAttributes);
+                    .newCompositeModelQueryExecuter(model, DefaultModelProvider.this.buildConfiguration.toGradleArguments(), attributes);
             Collection<T> result = executeBuildActionExecuter(executer, strategy, model);
             return injectCompatibilityModel(model, result);
         } else {
-            ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), transientAttributes);
+            ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), attributes);
             Collection<T> result = ImmutableList.of(executeModelBuilder(builder, strategy, model));
             return injectCompatibilityModel(model, result);
         }
+    }
+
+    private GradleProgressAttributes createProgressAttributes(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        return GradleProgressAttributes.builder(tokenSource, monitor)
+                .forBackgroundProcess()
+                .withFilteredProgress()
+                .build();
     }
 
     @SuppressWarnings("unchecked")
@@ -159,15 +160,5 @@ final class DefaultModelProvider implements ModelProvider {
         BuildEnvironment buildEnvironment = fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("3.3")) >= 0;
-    }
-
-    private static TransientRequestAttributes getTransientRequestAttributes(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        ProgressListener delegatingProgressListener = DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor);
-        CancellationForwardingListener cancellationListener = new CancellationForwardingListener(monitor, tokenSource);
-
-        List<ProgressListener> progressListeners = ImmutableList.<ProgressListener>of(delegatingProgressListener, cancellationListener);
-        ImmutableList<org.gradle.tooling.events.ProgressListener> eventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener>of(cancellationListener);
-        return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, eventListeners, tokenSource.token());
     }
 }

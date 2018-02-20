@@ -9,7 +9,6 @@
 package org.eclipse.buildship.core.workspace.internal;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,6 +16,7 @@ import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
+import java.util.List;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
@@ -31,14 +31,13 @@ import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.model.build.BuildEnvironment;
 
-import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.GradleArguments;
+import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
 
 /**
  * Provides long-running TAPI operation instances that close their project connection after the execution is
@@ -58,35 +57,35 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         this.launcher = target;
     }
 
-    static <T> ModelBuilder<T> newModelBuilder(Class<T> model, GradleArguments gradleArguments, TransientRequestAttributes transientAttributes) {
+    static <T> ModelBuilder<T> newModelBuilder(Class<T> model, GradleArguments gradleArguments, GradleProgressAttributes progressAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
         ModelBuilder<T> builder = connection.model(model);
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
-        applyConfiguration(builder, gradleArguments, buildEnvironment, transientAttributes);
+        applyConfiguration(builder, gradleArguments, buildEnvironment, progressAttributes);
         return (ModelBuilder<T>) newProxyInstance(connection, builder);
     }
 
-    static <T> BuildActionExecuter<Collection<T>> newCompositeModelQueryExecuter(Class<T> model, GradleArguments gradleArguments, TransientRequestAttributes transientAttributes) {
+    static <T> BuildActionExecuter<Collection<T>> newCompositeModelQueryExecuter(Class<T> model, GradleArguments gradleArguments, GradleProgressAttributes progressAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         BuildActionExecuter<Collection<T>> executer = connection.action(compositeModelQuery(model));
-        applyConfiguration(executer, gradleArguments, buildEnvironment, transientAttributes);
+        applyConfiguration(executer, gradleArguments, buildEnvironment, progressAttributes);
         return (BuildActionExecuter<Collection<T>>) newProxyInstance(connection, executer);
     }
 
-    static BuildLauncher newBuildLauncher(GradleArguments gradleArguments, Writer configWriter, TransientRequestAttributes transientAttributes) {
+    static BuildLauncher newBuildLauncher(GradleArguments gradleArguments, GradleProgressAttributes progressAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         BuildLauncher launcher = connection.newBuild();
-        applyConfiguration(launcher, gradleArguments, buildEnvironment, configWriter, transientAttributes);
+        describeAndApplyConfiguration(launcher, gradleArguments, buildEnvironment, progressAttributes);
         return (BuildLauncher) newProxyInstance(connection, launcher);
     }
 
-    static TestLauncher newTestLauncher(GradleArguments gradleArguments, Writer configWriter, TransientRequestAttributes transientAttributes) {
+    static TestLauncher newTestLauncher(GradleArguments gradleArguments, GradleProgressAttributes progressAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         TestLauncher launcher = connection.newTestLauncher();
-        applyConfiguration(launcher, gradleArguments, buildEnvironment, configWriter, transientAttributes);
+        describeAndApplyConfiguration(launcher, gradleArguments, buildEnvironment, progressAttributes);
         return (TestLauncher) newProxyInstance(connection, launcher);
     }
 
@@ -97,26 +96,30 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
     }
 
     private static void applyConfiguration(LongRunningOperation operation, GradleArguments gradleArguments, BuildEnvironment buildEnvironment,
-            TransientRequestAttributes transientAttributes) {
+            GradleProgressAttributes attributes) {
         gradleArguments.applyTo(operation, buildEnvironment);
-        applyTransientAttributes(operation, transientAttributes);
+        applyProgressAttributes(operation, attributes);
     }
 
-    private static void applyConfiguration(LongRunningOperation operation, GradleArguments gradleArguments, BuildEnvironment buildEnvironment,
-            Writer configWriter, TransientRequestAttributes transientAttributes) {
+    private static void describeAndApplyConfiguration(LongRunningOperation operation, GradleArguments gradleArguments, BuildEnvironment buildEnvironment,
+            GradleProgressAttributes progressAttributes) {
         gradleArguments.applyTo(operation, buildEnvironment);
-        gradleArguments.describe(configWriter, buildEnvironment);
-        applyTransientAttributes(operation, transientAttributes);
+        gradleArguments.describe(progressAttributes, buildEnvironment);
+        applyProgressAttributes(operation, progressAttributes);
     }
 
-    private static void applyTransientAttributes(LongRunningOperation operation, TransientRequestAttributes transientAttributes) {
-        operation.setStandardOutput(transientAttributes.getStandardOutput());
-        operation.setStandardError(transientAttributes.getStandardError());
-        operation.setStandardInput(transientAttributes.getStandardInput());
-        for (ProgressListener listener : transientAttributes.getProgressListeners()) {
+    private static void applyProgressAttributes(LongRunningOperation operation, GradleProgressAttributes progressAttributes) {
+        operation.setStandardOutput(progressAttributes.getOutput());
+        operation.setStandardError(progressAttributes.getError());
+        operation.setStandardInput(progressAttributes.getInput());
+        for (ProgressListener listener : progressAttributes.getProgressListeners()) {
             operation.addProgressListener(listener);
         }
-        operation.withCancellationToken(transientAttributes.getCancellationToken());
+        List<org.gradle.tooling.events.ProgressListener> progressEventListeners = progressAttributes.getProgressEventListeners();
+        for (org.gradle.tooling.events.ProgressListener listener : progressEventListeners) {
+            operation.addProgressListener(listener);
+        }
+        operation.withCancellationToken(progressAttributes.getCancellationToken());
     }
 
     private static <T> BuildAction<Collection<T>> compositeModelQuery(Class<T> model) {
