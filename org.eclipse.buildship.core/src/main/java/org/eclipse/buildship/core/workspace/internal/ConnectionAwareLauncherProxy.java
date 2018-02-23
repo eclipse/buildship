@@ -16,7 +16,6 @@ import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.List;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
@@ -25,7 +24,6 @@ import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ModelBuilder;
-import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.TestLauncher;
@@ -98,28 +96,14 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
     private static void applyConfiguration(LongRunningOperation operation, GradleArguments gradleArguments, BuildEnvironment buildEnvironment,
             GradleProgressAttributes attributes) {
         gradleArguments.applyTo(operation, buildEnvironment);
-        applyProgressAttributes(operation, attributes);
+        attributes.applyTo(operation);
     }
 
     private static void describeAndApplyConfiguration(LongRunningOperation operation, GradleArguments gradleArguments, BuildEnvironment buildEnvironment,
             GradleProgressAttributes progressAttributes) {
         gradleArguments.applyTo(operation, buildEnvironment);
         gradleArguments.describe(progressAttributes, buildEnvironment);
-        applyProgressAttributes(operation, progressAttributes);
-    }
-
-    private static void applyProgressAttributes(LongRunningOperation operation, GradleProgressAttributes progressAttributes) {
-        operation.setStandardOutput(progressAttributes.getOutput());
-        operation.setStandardError(progressAttributes.getError());
-        operation.setStandardInput(progressAttributes.getInput());
-        for (ProgressListener listener : progressAttributes.getProgressListeners()) {
-            operation.addProgressListener(listener);
-        }
-        List<org.gradle.tooling.events.ProgressListener> progressEventListeners = progressAttributes.getProgressEventListeners();
-        for (org.gradle.tooling.events.ProgressListener listener : progressEventListeners) {
-            operation.addProgressListener(listener);
-        }
-        operation.withCancellationToken(progressAttributes.getCancellationToken());
+        progressAttributes.applyTo(operation);
     }
 
     private static <T> BuildAction<Collection<T>> compositeModelQuery(Class<T> model) {

@@ -9,12 +9,12 @@
 package org.eclipse.buildship.core.gradle;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Preconditions;
@@ -52,54 +52,21 @@ public final class GradleProgressAttributes {
     }
 
     /**
-     * Returns the default output stream.
+     * Sets the attributes on the target operation.
      *
-     * @return the default output stream
+     * @param operation the operation to configure
      */
-    public OutputStream getOutput() {
-        return this.streams.getOutput();
-    }
-
-    /**
-     * Returns the error stream.
-     *
-     * @return the error stream
-     */
-    public OutputStream getError() {
-        return this.streams.getError();
-    }
-
-    /**
-     * Returns the input stream.
-     *
-     * @return the input stream
-     */
-    public InputStream getInput() {
-        return this.streams.getInput();
-    }
-
-    /**
-     * Closes all input and output streams.
-     */
-    public void close() {
-        this.streams.close();
-    }
-
-    public List<ProgressListener> getProgressListeners() {
-        return this.progressListeners;
-    }
-
-    public List<org.gradle.tooling.events.ProgressListener> getProgressEventListeners() {
-        return this.progressEventListeners;
-    }
-
-    /**
-     * Returns the cancellation token associated to this instance.
-     *
-     * @return the cancellation token
-     */
-    public CancellationToken getCancellationToken() {
-        return this.cancellationToken;
+    public void applyTo(LongRunningOperation operation) {
+        operation.setStandardOutput(this.streams.getOutput());
+        operation.setStandardError(this.streams.getError());
+        operation.setStandardInput(this.streams.getInput());
+        for (ProgressListener listener : this.progressListeners) {
+            operation.addProgressListener(listener);
+        }
+        for (org.gradle.tooling.events.ProgressListener listener : this.progressEventListeners) {
+            operation.addProgressListener(listener);
+        }
+        operation.withCancellationToken(this.cancellationToken);
     }
 
     /**
@@ -116,6 +83,13 @@ public final class GradleProgressAttributes {
         } catch (IOException e) {
             CorePlugin.logger().debug(String.format("Failed to write configuration %s to stream", line), e);
         }
+    }
+
+    /**
+     * Closes all input and output streams.
+     */
+    public void close() {
+        this.streams.close();
     }
 
     public static final GradleProgressAttributesBuilder builder(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
