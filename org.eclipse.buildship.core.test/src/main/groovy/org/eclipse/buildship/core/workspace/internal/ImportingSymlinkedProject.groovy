@@ -31,10 +31,9 @@ class ImportingSymlinkedProject extends ProjectSynchronizationSpecification {
 
     def "Can import projects in symlinked locations"() {
         setup:
-        def childDir
         def rootDir = dir('users/name/projects/sample') {
             file 'settings.gradle', "rootProject.name ='root'\ninclude 'child'"
-            childDir = dir 'child'
+            dir 'child'
         }
         when:
         importAndWait(rootDir)
@@ -44,7 +43,7 @@ class ImportingSymlinkedProject extends ProjectSynchronizationSpecification {
         IProject child = findProject("child")
         root.location.toFile() == new File(testDir, 'projects/sample').canonicalFile
         child.location.toFile() == new File(testDir, 'projects/sample/child').canonicalFile
-        new BuildConfigurationPersistence().readPathToRoot(rootDir) == ''
-        new BuildConfigurationPersistence().readPathToRoot(childDir) == '..'
+        new ProjectScope(root).getNode(CorePlugin.PLUGIN_ID).get(BuildConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ""
+        new ProjectScope(child).getNode(CorePlugin.PLUGIN_ID).get(BuildConfigurationPersistence.PREF_KEY_CONNECTION_PROJECT_DIR, null) == ".."
     }
 }
