@@ -31,7 +31,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionWrapper;
+import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Contributes the Gradle Kotlin Script template to the Kotlin Eclipse
@@ -121,7 +121,7 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
         environment.put(GSK_OPTIONS, Collections.<String>emptyList());
         environment.put(GSK_JVM_OPTIONS, Collections.<String>emptyList());
 
-        GradleDistributionWrapper gradleDistribution = GradleDistributionWrapper.from(buildConfig.getGradleDistribution());
+        GradleDistribution gradleDistribution = buildConfig.getGradleDistribution();
         switch (gradleDistribution.getType()) {
         case LOCAL_INSTALLATION:
             environment.put(GSK_INSTALLATION_LOCAL, new File(gradleDistribution.getConfiguration()));

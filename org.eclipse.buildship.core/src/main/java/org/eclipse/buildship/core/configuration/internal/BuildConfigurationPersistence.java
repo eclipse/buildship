@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
 /**
  * Provides capability to read and save configuration properties on a target project.
@@ -114,9 +114,7 @@ final class BuildConfigurationPersistence {
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
 
         String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
-        GradleDistribution distribution = distributionString == null
-                ? GradleDistribution.fromBuild()
-                : GradleDistributionSerializer.INSTANCE.deserializeFromString(distributionString);
+        GradleDistribution distribution = GradleDistributionInfo.deserializeFromString(distributionString).toGradleDistributionOrDefault();
 
         String gradleUserHomeString = preferences.readString(PREF_KEY_GRADLE_USER_HOME, "");
         File gradleUserHome = gradleUserHomeString.isEmpty()
@@ -132,7 +130,7 @@ final class BuildConfigurationPersistence {
 
     private static void savePreferences(DefaultBuildConfigurationProperties properties, PreferenceStore preferences) {
         if (properties.isOverrideWorkspaceSettings()) {
-            String gradleDistribution = GradleDistributionSerializer.INSTANCE.serializeToString(properties.getGradleDistribution());
+            String gradleDistribution = properties.getGradleDistribution().serializeToString();
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
             preferences.write(PREF_KEY_GRADLE_USER_HOME, toPortableString(properties.getGradleUserHome()));
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());

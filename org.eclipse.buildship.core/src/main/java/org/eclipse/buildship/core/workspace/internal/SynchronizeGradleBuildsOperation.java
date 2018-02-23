@@ -48,7 +48,7 @@ public final class SynchronizeGradleBuildsOperation {
         new ImportRootProjectOperation(buildConfig, this.newProjectHandler).run(progress.newChild(1));
         Set<EclipseProject> allProjects = fetchEclipseProjects(this.build, tokenSource, progress.newChild(1));
         new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
-        new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource.token());
+        new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource);
         new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler).run(progress.newChild(1));
     }
 

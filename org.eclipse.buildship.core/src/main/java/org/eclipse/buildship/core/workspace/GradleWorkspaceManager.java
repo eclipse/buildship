@@ -12,8 +12,6 @@ import java.util.Set;
 
 import com.google.common.base.Optional;
 
-import org.eclipse.buildship.core.util.gradle.FixedRequestAttributes;
-
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
@@ -24,16 +22,6 @@ import org.eclipse.buildship.core.configuration.BuildConfiguration;
  * @author Stefan Oehme
  */
 public interface GradleWorkspaceManager {
-
-    /**
-     * Returns the {@link GradleBuild} represented by the given request attributes.
-     *
-     * @param attributes the request attributes, must not be null
-     * @return the Gradle build, never null
-     * @deprecated This method is scheduled for removal in Buildship 3.0. Use {@link #getGradleBuild(BuildConfiguration)} instead.
-     */
-    @Deprecated
-    public GradleBuild getGradleBuild(FixedRequestAttributes attributes);
 
     /**
      * Returns the {@link GradleBuild} represented by the given request attributes.

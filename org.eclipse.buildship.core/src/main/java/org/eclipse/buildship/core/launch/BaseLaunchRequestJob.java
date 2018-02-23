@@ -11,21 +11,11 @@
 
 package org.eclipse.buildship.core.launch;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.Collections;
-import java.util.List;
-
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.LongRunningOperation;
-import org.gradle.tooling.ProgressListener;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-
-import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -33,12 +23,11 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.console.ProcessStreams;
 import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
 import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
 import org.eclipse.buildship.core.operation.ToolingApiJob;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 
 /**
@@ -65,22 +54,15 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         monitor.beginTask(getJobTaskName(), IProgressMonitor.UNKNOWN);
 
         ProcessDescription processDescription = createProcessDescription();
-        ProcessStreams processStreams = CorePlugin.processStreamsProvider().createProcessStreams(processDescription);
-
         RunConfiguration runConfig = getRunConfig();
-        List<ProgressListener> listeners = ImmutableList.<ProgressListener>of(DelegatingProgressListener.withFullOutput(monitor));
-        TransientRequestAttributes transientAttributes = new TransientRequestAttributes(false, processStreams.getOutput(), processStreams.getError(), processStreams.getInput(),
-                listeners, Collections.<org.gradle.tooling.events.ProgressListener>emptyList(), tokenSource.token());
-
-        // TODO (donat) configWriter and TransientRequestAttributes should be merged into a new type
-        OutputStreamWriter configWriter = new OutputStreamWriter(processStreams.getConfiguration());
-
         GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getProjectConfiguration().getBuildConfiguration());
-        T launcher = createLaunch(gradleBuild, runConfig, transientAttributes, configWriter, processDescription);
+        GradleProgressAttributes attributes = GradleProgressAttributes.builder(tokenSource, monitor)
+                .forDedicatedProcess(processDescription)
+                .withFullProgress()
+                .build();
+        T launcher = createLaunch(gradleBuild, runConfig, attributes, processDescription);
 
-        writeExtraConfigInfo(configWriter);
-        configWriter.write('\n');
-        configWriter.flush();
+        writeExtraConfigInfo(attributes);
 
         Event event = new DefaultExecuteLaunchRequestEvent(processDescription, launcher);
         CorePlugin.listenerRegistry().dispatch(event);
@@ -114,7 +96,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
      *
      * @return the new launcher
      */
-    protected abstract T createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, TransientRequestAttributes transientAttributes, Writer configWriter, ProcessDescription processDescription);
+    protected abstract T createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes, ProcessDescription processDescription);
 
     /**
      * Execute the launcher created by {@code #createLaunch()}.
@@ -126,10 +108,9 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
     /**
      * Writes extra information on the configuration console.
      *
-     * @param writer the writer to print messages with
-     * @throws IOException if an exception happens when writing a message
+     * @param progressAttributes the object used for displaying the configuration information
      */
-    protected abstract void writeExtraConfigInfo(OutputStreamWriter writer) throws IOException;
+    protected abstract void writeExtraConfigInfo(GradleProgressAttributes progressAttributes);
 
     /**
      * Convenience implementation of the ProcessDescription interface.

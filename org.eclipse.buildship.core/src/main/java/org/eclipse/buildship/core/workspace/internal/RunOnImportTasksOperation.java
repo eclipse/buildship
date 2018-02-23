@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.CancellationToken;
-import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.model.GradleTask;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectNature;
@@ -24,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.common.io.CharStreams;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,10 +30,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.console.ProcessStreams;
+import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.util.gradle.CompatEclipseProject;
-import org.eclipse.buildship.core.util.gradle.TransientRequestAttributes;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
 
 /**
  * Runs extra tasks that set up the project so it can be used in Eclipse.
@@ -58,10 +54,10 @@ public class RunOnImportTasksOperation {
         this.buildConfig = Preconditions.checkNotNull(buildConfig);
     }
 
-    public void run(IProgressMonitor monitor, CancellationToken token) throws CoreException {
+    public void run(IProgressMonitor monitor, CancellationTokenSource tokenSource) throws CoreException {
         List<String> tasksToRun = findWtpTasks();
         if (!tasksToRun.isEmpty()) {
-            runTasks(tasksToRun, monitor, token);
+            runTasks(tasksToRun, monitor, tokenSource);
         }
     }
 
@@ -106,18 +102,13 @@ public class RunOnImportTasksOperation {
         return !buildRoot.equals(projectRoot);
     }
 
-    private void runTasks(final List<String> tasksToRun, IProgressMonitor monitor, CancellationToken token) {
+    private void runTasks(final List<String> tasksToRun, IProgressMonitor monitor, CancellationTokenSource tokenSource) {
         RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
-
-        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration, CharStreams.nullWriter(), getTransientRequestAttributes(token, monitor));
+        GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
+                .forBackgroundProcess()
+                .withFilteredProgress()
+                .build();
+        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration, progressAttributes);
         launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()])).run();
     }
-
-    private TransientRequestAttributes getTransientRequestAttributes(CancellationToken token, IProgressMonitor monitor) {
-        ProcessStreams streams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
-        List<ProgressListener> progressListeners = ImmutableList.<ProgressListener> of(DelegatingProgressListener.withoutDuplicateLifecycleEvents(monitor));
-        ImmutableList<org.gradle.tooling.events.ProgressListener> noEventListeners = ImmutableList.<org.gradle.tooling.events.ProgressListener> of();
-        return new TransientRequestAttributes(false, streams.getOutput(), streams.getError(), streams.getInput(), progressListeners, noEventListeners, token);
-    }
-
 }

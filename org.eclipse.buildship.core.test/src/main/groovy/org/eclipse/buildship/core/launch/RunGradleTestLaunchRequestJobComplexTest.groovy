@@ -16,7 +16,6 @@ import org.eclipse.buildship.core.event.Event
 import org.eclipse.buildship.core.event.EventListener
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 import org.eclipse.buildship.core.util.gradle.GradleDistribution
-import org.eclipse.buildship.core.util.gradle.GradleDistributionSerializer
 
 class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpecification {
 
@@ -34,7 +33,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
             ['clean', 'test'],
             project.getLocation().toFile().absolutePath,
-            GradleDistributionSerializer.INSTANCE.serializeToString(GradleDistribution.fromBuild()),
+            GradleDistribution.fromBuild().serializeToString(),
             "",
             null,
             [],
@@ -103,7 +102,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
             runConfig.tasks,
             runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory.absolutePath,
-            GradleDistributionSerializer.INSTANCE.serializeToString(runConfig.projectConfiguration.buildConfiguration.gradleDistribution),
+            runConfig.projectConfiguration.buildConfiguration.gradleDistribution.serializeToString(),
             runConfig.gradleUserHome,
             runConfig.javaHome,
             runConfig.jvmArguments,

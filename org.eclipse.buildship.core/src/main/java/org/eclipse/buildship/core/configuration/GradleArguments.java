@@ -9,8 +9,6 @@
 package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 import org.gradle.tooling.GradleConnector;
@@ -26,11 +24,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionFormatter;
 
 /**
  * Holds configuration values to apply on Tooling API objects.
@@ -59,23 +57,19 @@ public final class GradleArguments {
         this.jvmArguments = ImmutableList.copyOf(jvmArguments);
     }
 
-    public void describe(Writer writer, BuildEnvironment buildEnvironment) {
-        try {
-            GradleEnvironment gradleEnv = buildEnvironment.getGradle();
-            JavaEnvironment javaEnv = buildEnvironment.getJava();
+    public void describe(GradleProgressAttributes progressAttributes, BuildEnvironment buildEnvironment) {
+        GradleEnvironment gradleEnv = buildEnvironment.getGradle();
+        JavaEnvironment javaEnv = buildEnvironment.getJava();
 
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_WorkingDirectory, this.rootDir));
-            writer.write(String.format("%s: %s%n", CoreMessages.Preference_Label_GradleUserHome, toNonEmpty(this.gradleUserHome != null ? this.gradleUserHome : getGradleUserHome(gradleEnv), CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleDistribution, GradleDistributionFormatter.toString(this.gradleDistribution)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleVersion, gradleEnv.getGradleVersion()));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(this.javaHome != null ? this.javaHome :  javaEnv.getJavaHome(), CoreMessages.Value_UseGradleDefault)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(this.jvmArguments, CoreMessages.Value_None)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(this.arguments, CoreMessages.Value_None)));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_BuildScansEnabled, this.buildScansEnabled));
-            writer.write(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_OfflineModeEnabled, this.offlineMode));
-        } catch (IOException e) {
-            CorePlugin.logger().warn("Cannot write Gradle arguments", e);
-        }
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_WorkingDirectory, this.rootDir));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.Preference_Label_GradleUserHome, toNonEmpty(this.gradleUserHome != null ? this.gradleUserHome : getGradleUserHome(gradleEnv), CoreMessages.Value_UseGradleDefault)));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_GradleDistribution, this.gradleDistribution.toString()));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_GradleVersion, gradleEnv.getGradleVersion()));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(this.javaHome != null ? this.javaHome :  javaEnv.getJavaHome(), CoreMessages.Value_UseGradleDefault)));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(this.jvmArguments, CoreMessages.Value_None)));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(this.arguments, CoreMessages.Value_None)));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_BuildScansEnabled, this.buildScansEnabled));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_OfflineModeEnabled, this.offlineMode));
     }
 
     private static File getGradleUserHome(GradleEnvironment gradleEnvironment) {
