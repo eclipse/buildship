@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import org.gradle.api.JavaVersion
+import spock.lang.Unroll
+
 import org.eclipse.core.runtime.IPath
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IAccessRule
@@ -12,6 +15,8 @@ import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.BuildConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.util.gradle.JavaVersionUtil
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 
 abstract class SingleProjectSynchronizationSpecification extends ProjectSynchronizationSpecification {
@@ -35,7 +40,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         project.hasNature(GradleProjectNature.ID)
     }
 
-    def "Natures and build commands are set"() {
+    @Unroll
+    def "Natures and build commands are updated for Gradle #distribution.configuration"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -51,12 +57,15 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir, distribution)
 
         then:
         def project = findProject('sample-project')
-        project.description.natureIds.find{ it == 'org.eclipse.pde.UpdateSiteNature' }
-        project.description.buildSpec.find{ it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
+        project.description.natureIds.find { it == 'org.eclipse.pde.UpdateSiteNature' }
+        project.description.buildSpec.find { it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
+
+        where:
+        distribution << supportedGradleDistributions
     }
 
     def "The Gradle settings file is written"() {
@@ -154,7 +163,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         project.getFolder('src').isLinked()
     }
 
-    def "Source settings are updated"() {
+    @Unroll
+    def "Source settings are updated for #distribution.configuration"(GradleDistribution distribution) {
         setup:
         prepareJavaProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -167,32 +177,68 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir, distribution)
+        IJavaProject javaProject = findJavaProject('sample-project')
+        String sourceCompliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)
+        String sourceCompatibility = javaProject.getOption(JavaCore.COMPILER_SOURCE, true)
+        String targetCompatibility = javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true)
+        String currentJavaVersion = JavaVersionUtil.adaptVersionToEclipseNamingConversions(JavaVersion.current())
 
         then:
-        def javaProject = findJavaProject('sample-project')
-        javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true) == JavaCore.VERSION_1_2
-        javaProject.getOption(JavaCore.COMPILER_SOURCE, true) == JavaCore.VERSION_1_2
-        javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true) == JavaCore.VERSION_1_3
+        if(higherOrEqual('2.11', distribution)) {
+            assert sourceCompliance == JavaCore.VERSION_1_2
+            assert sourceCompatibility == JavaCore.VERSION_1_2
+            assert targetCompatibility == JavaCore.VERSION_1_3
+        } else if (higherOrEqual('2.10', distribution)) {
+            assert sourceCompliance == JavaCore.VERSION_1_2
+            assert sourceCompatibility == JavaCore.VERSION_1_2
+            assert targetCompatibility == JavaCore.VERSION_1_2
+        } else {
+            assert sourceCompliance == currentJavaVersion
+            assert sourceCompatibility == currentJavaVersion
+            assert targetCompatibility == currentJavaVersion
+        }
+
+        where:
+        distribution << supportedGradleDistributions
     }
 
-    def "Source folders are updated"() {
+    @Unroll
+    def "Source folders are updated for #distribution.configuration"(GradleDistribution distribution) {
         setup:
         prepareJavaProject('sample-project')
         def projectDir = dir('sample-project') {
-            file 'build.gradle', 'apply plugin: "java"'
+            file 'build.gradle', '''
+                apply plugin: 'java'
+
+                sourceSets {
+                    main {
+                        java {
+                            exclude 'excludePattern'
+                            include 'includePattern'
+                        }
+                    }
+                }
+            '''
             dir 'src/main/java'
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir, distribution)
+        IJavaProject javaProject = findJavaProject('sample-project')
+        IClasspathEntry sourceDir = javaProject.rawClasspath.find { it.entryKind == IClasspathEntry.CPE_SOURCE && it.path.toPortableString() == '/sample-project/src/main/java' }
 
         then:
-        def javaProject = findJavaProject('sample-project')
-        javaProject.rawClasspath.find{
-            it.entryKind == IClasspathEntry.CPE_SOURCE &&
-            it.path.toPortableString() == '/sample-project/src/main/java'
+        if (higherOrEqual('3.0', distribution)) {
+            assert sourceDir.exclusionPatterns.collect { it.toPortableString() } == ['excludePattern']
+            assert sourceDir.inclusionPatterns.collect { it.toPortableString() } == ['includePattern']
+        } else {
+            assert sourceDir.exclusionPatterns.length == 0
+            assert sourceDir.inclusionPatterns.length == 0
         }
+
+        where:
+        distribution << supportedGradleDistributions
     }
 
     def "If the project applies the java plugin, then it's converted to a Java project"() {
@@ -232,7 +278,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         containers[1].path == GradleClasspathContainer.CONTAINER_PATH
     }
 
-    def "Custom containers are set"() {
+    @Unroll
+    def "Custom classpath containers are updated for #distribution.configuration"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -241,20 +288,30 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 apply plugin: 'eclipse'
                 eclipse {
                     classpath {
-                        containers 'custom.container'
+                        containers 'custom.container', 'second.container'
                     }
                 }
             """
+            dir 'src/main/java'
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir, distribution)
+        List containers = findJavaProject('sample-project').rawClasspath.findAll { it.entryKind == IClasspathEntry.CPE_CONTAINER }.collect { it.path.segment(0) }
 
         then:
-        findJavaProject('sample-project').rawClasspath.find { IClasspathEntry entry -> entry.entryKind == IClasspathEntry.CPE_CONTAINER  && entry.path.toPortableString() == 'custom.container' }
+        if (higherOrEqual('3.0', distribution)) {
+            assert containers == [JavaRuntime.JRE_CONTAINER] + 'custom.container' + 'second.container' + GradleClasspathContainer.CONTAINER_PATH.toPortableString()
+        } else {
+            assert containers == [JavaRuntime.JRE_CONTAINER] + GradleClasspathContainer.CONTAINER_PATH.toPortableString()
+        }
+
+        where:
+        distribution << supportedGradleDistributions
     }
 
-    def "Custom project output location is set"() {
+    @Unroll
+    def "Custom project output location is updated for #distribution.configuration"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -270,16 +327,28 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir, distribution)
+        String outputLocation = findJavaProject('sample-project').outputLocation?.toPortableString()
 
         then:
-        findJavaProject('sample-project').getOutputLocation().toPortableString() == '/sample-project/target/bin'
+        if (higherOrEqual('3.0', distribution)) {
+            assert outputLocation == '/sample-project/target/bin'
+        } else {
+            assert outputLocation == '/sample-project/bin'
+        }
+
+        where:
+        distribution << supportedGradleDistributions
     }
 
-    def "Custom access rules are set"() {
+    @Unroll
+    def "Custom access rules are updated for #distribution.configuration"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
+            dir('api')
+            dir('src/main/java')
+
             file 'settings.gradle', 'include "api"'
 
             file 'build.gradle', """
@@ -316,19 +385,28 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
            }
 
            when:
-           synchronizeAndWait(projectDir)
-
-           then:
+           importAndWait(projectDir, distribution)
            IJavaProject project = findJavaProject('sample-project')
            IClasspathEntry container = project.rawClasspath.find { it.path.toPortableString() == 'containerPath' }
            IClasspathEntry projectDep = project.getResolvedClasspath(true).find { it.path.toPortableString() == '/api' }
            IClasspathEntry libraryDep = project.getResolvedClasspath(true).find { it.path.toPortableString().endsWith 'guava-18.0.jar' }
-           assertAccessRules(container, IAccessRule.K_ACCESSIBLE, 'container-pattern')
-           assertAccessRules(projectDep, IAccessRule.K_NON_ACCESSIBLE, 'project-pattern')
-           assertAccessRules(libraryDep, IAccessRule.K_DISCOURAGED, 'library-pattern')
+
+           then:
+           if (higherOrEqual('3.0', distribution)) {
+               assertAccessRules(container, IAccessRule.K_ACCESSIBLE, 'container-pattern')
+               assertAccessRules(projectDep, IAccessRule.K_NON_ACCESSIBLE, 'project-pattern')
+               assertAccessRules(libraryDep, IAccessRule.K_DISCOURAGED, 'library-pattern')
+           } else {
+               assertNoAccessRules(projectDep)
+               assertNoAccessRules(libraryDep)
+           }
+
+           where:
+           distribution << supportedGradleDistributions
     }
 
-    def "Custom output folder is set"() {
+    @Unroll
+    def "Custom source folder output location is updated for #distribution.configuration"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -350,14 +428,24 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir, distribution)
+        IJavaProject project = findJavaProject('sample-project')
+        IClasspathEntry sourceDir = project.rawClasspath.find { it.path.toPortableString() == '/sample-project/src/main/java' }
+        String outputLocation = sourceDir.outputLocation?.toPortableString()
 
         then:
-        IJavaProject project = findJavaProject('sample-project')
-        project.rawClasspath.find { it.path.toPortableString() == '/sample-project/src/main/java' }.outputLocation.toPortableString() == '/sample-project/target/classes'
+        if (higherOrEqual('3.0', distribution)) {
+            assert outputLocation == '/sample-project/target/classes'
+        } else {
+            assert !outputLocation
+        }
+
+        where:
+        distribution << supportedGradleDistributions
     }
 
-    def "Custom classpath attributes are set"() {
+    @Unroll
+    def "Classpath attributes are updated for #distribution.configuration"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -377,6 +465,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
                 eclipse {
                     classpath {
+                        downloadSources = false
+                        downloadJavadoc = true
                         containers 'containerPath'
 
                         file {
@@ -397,18 +487,36 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
            }
 
            when:
-           synchronizeAndWait(projectDir)
-
-           then:
+           importAndWait(projectDir, distribution)
            IJavaProject project = findJavaProject('sample-project')
            IClasspathEntry source = project.rawClasspath.find { it.path.toPortableString() == '/sample-project/src/main/java' }
            IClasspathEntry container = project.rawClasspath.find { it.path.toPortableString() == 'containerPath' }
            IClasspathEntry projectDep = project.getResolvedClasspath(true).find { it.path.toPortableString() == '/api' }
            IClasspathEntry libraryDep = project.getResolvedClasspath(true).find { it.path.toPortableString().endsWith 'guava-18.0.jar' }
-           assertClasspathAttributes(source, 'sourceKey', 'sourceValue')
-           assertClasspathAttributes(container, 'containerKey', 'containerValue')
-           assertClasspathAttributes(projectDep, 'projectKey', 'projectValue')
-           assertClasspathAttributes(libraryDep, 'libraryKey', 'libraryValue')
+
+           then:
+           if (higherOrEqual('4.4', distribution)) {
+               assertClasspathAttributes(source, 'sourceKey', 'sourceValue')
+               assertClasspathAttributes(container, 'containerKey', 'containerValue')
+               assertClasspathAttributes(projectDep, 'projectKey', 'projectValue')
+               assertClasspathAttributes(libraryDep, 'javadoc_location')
+               assertClasspathAttributes(libraryDep, 'libraryKey', 'libraryValue')
+               assertClasspathAttributes(libraryDep, 'gradle_used_by_scope', 'main,test')
+           } else if (higherOrEqual('3.0', distribution)) {
+               assertClasspathAttributes(source, 'sourceKey', 'sourceValue')
+               assertClasspathAttributes(container, 'containerKey', 'containerValue')
+               assertClasspathAttributes(projectDep, 'projectKey', 'projectValue')
+               assertClasspathAttributes(libraryDep, 'libraryKey', 'libraryValue')
+               assertClasspathAttributes(libraryDep, 'javadoc_location')
+               assertNoClasspathAttributes(libraryDep, 'gradle_used_by_scope')
+           } else {
+               assertNoClasspathAttributes(source)
+               assertNoClasspathAttributes(projectDep)
+               assertNoClasspathAttributes(libraryDep)
+           }
+
+           where:
+           distribution << supportedGradleDistributions
     }
 
     def "Custom java runtime name"() {
@@ -450,7 +558,23 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         assert entry.accessRules[0].pattern.toPortableString() == pattern
     }
 
+    protected void assertNoAccessRules(IClasspathEntry entry) {
+        assert entry.accessRules.length == 0
+    }
+
+    protected void assertClasspathAttributes(IClasspathEntry entry, String name) {
+        assert entry.extraAttributes.find { it.name == name && it.value != null }
+    }
+
     protected void assertClasspathAttributes(IClasspathEntry entry, String name, String value) {
         assert entry.extraAttributes.find { it.name == name && it.value == value }
+    }
+
+    protected void assertNoClasspathAttributes(IClasspathEntry entry) {
+        assert entry.extraAttributes.length == 0
+    }
+
+    protected void assertNoClasspathAttributes(IClasspathEntry entry, String name) {
+       assert !entry.extraAttributes.find { it.name == name }
     }
 }

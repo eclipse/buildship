@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import eclipsebuild.Config;
 import eclipsebuild.Constants;
 import eclipsebuild.TestBundlePlugin;
 import org.gradle.api.GradleException;
@@ -54,10 +55,12 @@ public final class EclipseTestExecuter implements TestExecuter {
     private static final Logger LOGGER = Logging.getLogger(EclipseTestExecuter.class);
 
     private final Project project;
+    private final Config config;
     private final BuildOperationExecutor executor;
 
-    public EclipseTestExecuter(Project project, BuildOperationExecutor executor) {
+    public EclipseTestExecuter(Project project, Config config, BuildOperationExecutor executor) {
         this.project = project;
+        this.config = config;
         this.executor = executor;
     }
 
@@ -177,6 +180,10 @@ public final class EclipseTestExecuter implements TestExecuter {
         if (Constants.getOs().equals("macosx")) {
             jvmArgs.add("-XstartOnFirstThread");
         }
+
+        // forward cross-version test property
+        jvmArgs.add("-Dintegtest.versions=" + config.getIntegtestVersions());
+
         javaExecHandleBuilder.setJvmArgs(jvmArgs);
         javaExecHandleBuilder.setWorkingDir(this.project.getBuildDir());
 

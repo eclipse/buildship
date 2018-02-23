@@ -16,27 +16,10 @@ class PublishedGradleVersionsTest extends Specification {
 
     def "Can parse valid version info file"() {
         setup:
-        def json = PublishedGradleVersions.class.getResource("versions_20150202.json")
-        PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(json.text)
+        PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(publishedGradleVersionJson)
         assert publishedVersions.versions == [
             '2.3-rc-1',
             '2.2.1',
-            '2.2',
-            '2.1',
-            '2.0',
-            '1.12',
-            '1.11',
-            '1.10',
-            '1.9',
-            '1.8',
-            '1.7',
-            '1.6',
-            '1.5',
-            '1.4',
-            '1.3',
-            '1.2',
-            '1.1',
-            '1.0'
         ].collect { GradleVersion.version(it) }
     }
 
@@ -76,5 +59,34 @@ class PublishedGradleVersionsTest extends Specification {
         PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(LookupStrategy.CACHED_ONLY)
         then:
         thrown IllegalStateException
+    }
+
+    private String getPublishedGradleVersionJson() {
+        '''
+[
+  {
+    "version": "2.3-rc-1",
+    "buildTime": "20150127140232+0000",
+    "current": false,
+    "snapshot": false,
+    "nightly": false,
+    "activeRc": true,
+    "rcFor": "2.3",
+    "broken": false,
+    "downloadUrl": "https:\\/\\/services.gradle.org\\/distributions\\/gradle-2.3-rc-1-bin.zip"
+  },
+  {
+    "version": "2.2.1",
+    "buildTime": "20141124094535+0000",
+    "current": true,
+    "snapshot": false,
+    "nightly": false,
+    "activeRc": false,
+    "rcFor": "",
+    "broken": false,
+    "downloadUrl": "https:\\/\\/services.gradle.org\\/distributions\\/gradle-2.2.1-bin.zip"
+  }
+]
+        '''
     }
 }

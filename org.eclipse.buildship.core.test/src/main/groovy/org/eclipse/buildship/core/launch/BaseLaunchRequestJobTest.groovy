@@ -5,6 +5,7 @@ import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.buildship.core.console.ProcessStreams
 import org.eclipse.buildship.core.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class BaseLaunchRequestJobTest extends WorkspaceSpecification {
 
@@ -34,12 +35,13 @@ class BaseLaunchRequestJobTest extends WorkspaceSpecification {
         buildConfigurationStream.toString()
     }
 
-    ILaunchConfiguration createLaunchConfiguration(File projectDir, tasks = ['clean', 'build']) {
+    ILaunchConfiguration createLaunchConfiguration(File projectDir, tasks = ['clean', 'build'], GradleDistribution distribution = GradleDistribution.fromBuild()) {
         ILaunchConfiguration launchConfiguration = Mock(ILaunchConfiguration)
         launchConfiguration.getName() >> 'name'
+        launchConfiguration.getAttribute('override_workspace_settings', _) >> 'true'
         launchConfiguration.getAttribute('tasks', _) >> tasks
         launchConfiguration.getAttribute('working_dir', _) >> projectDir
-        launchConfiguration.getAttribute('gradle_distribution', _) >> 'GRADLE_DISTRIBUTION(WRAPPER)'
+        launchConfiguration.getAttribute('gradle_distribution', _) >> distribution.serializeToString()
         launchConfiguration.getAttribute('arguments', _) >> []
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
         launchConfiguration
