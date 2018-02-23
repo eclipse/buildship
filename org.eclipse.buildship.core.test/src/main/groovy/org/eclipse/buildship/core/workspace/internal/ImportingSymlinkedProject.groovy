@@ -1,8 +1,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import org.junit.rules.TemporaryFolder
-import spock.lang.IgnoreIf
-import spock.util.environment.OperatingSystem
+import spock.lang.Ignore
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.ProjectScope
@@ -11,7 +9,8 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.internal.BuildConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
 
-@IgnoreIf({OperatingSystem.current.isWindows()})
+@Ignore // see https://github.com/eclipse/buildship/issues/661
+//@IgnoreIf({OperatingSystem.current.isWindows()})
 class ImportingSymlinkedProject extends ProjectSynchronizationSpecification {
 
     /*
