@@ -1,4 +1,6 @@
 apply plugin: eclipsebuild.jar.ExistingJarBundlePlugin
+apply plugin: 'java'
+apply plugin: 'eclipse'
 
 dependencies {
     plugin "org.gradle:gradle-tooling-api:$toolingApiVersion"
@@ -7,7 +9,7 @@ dependencies {
 // TODO (donat) move buildship.gradle file from gradle/gradle here to properly set up the IDE 
 
 bundleInfo {
-    bundleName =  'org.gradle:gradle-tooling-api'
+    bundleName = 'org.gradle.toolingapi'
     bundleVersion = getBundleVersion(toolingApiVersion)
     qualifier = versionQualifier
     template = file('resources/gradle-tooling-api/manifest-template.txt').text

@@ -1,67 +1,33 @@
 package eclipsebuild.jar
 
-import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.ResolvedDependency
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
 
 import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
-abstract class BaseJarBundleTask extends DefaultTask {
+class JarBundleUtils {
 
-    @Input
-    Property<String> bundleName
-
-    @Input
-    Property<String> bundleVersion
-
-    @Input
-    Property<String> packageFilter
-
-    @Input
-    Property<String> qualifier
-
-    @Input
-    Property<String> template
-
-    @Input
-    Configuration pluginConfiguration
-
-    protected File getDependencyJar() {
-        ResolvedArtifact jarArtifact = findJarArtifact(getResolvedDependency())
-        if (jarArtifact == null) {
-            throw new RuntimeException("Project $project.name does not have dependency jar")
-        }
+    static File firstDependencyJar(Configuration configuration) {
+        ResolvedArtifact jarArtifact = findJarArtifact(getResolvedDependency(configuration))
         jarArtifact.file
     }
 
-    private ResolvedDependency getResolvedDependency() {
-        List dependencies = pluginConfiguration.resolvedConfiguration.firstLevelModuleDependencies as List
-        if (dependencies.size() != 1) {
-            throw new RuntimeException("Project $project.name has more than one dependency")
-        }
-        dependencies[0]
+    private static ResolvedDependency getResolvedDependency(Configuration configuration) {
+        configuration.resolvedConfiguration.firstLevelModuleDependencies.first()
     }
 
-    private ResolvedArtifact findJarArtifact(ResolvedDependency dependency) {
+    private static ResolvedArtifact findJarArtifact(ResolvedDependency dependency) {
         dependency.moduleArtifacts.find { it.extension == 'jar' }
     }
 
-
-    private static String manifestFor() {
-
-    }
-
-
-    protected String manifestContent(File jar) {
-        List<String> packageNames = packageNames(jar, this.packageFilter.get()) as List
+    static String manifestContent(File jar, String template, String packageFilter, String bundleVersion, String qualifier) {
+        List<String> packageNames = packageNames(jar, packageFilter) as List
         packageNames.sort()
-        String fullVersion = "${this.bundleVersion.get()}.${this.qualifier.get()}"
-        manifestFor(this.template.get(), packageNames, this.bundleVersion.get(), fullVersion)
+        String fullVersion = "${bundleVersion}.${qualifier}"
+        manifestFor(template, packageNames, bundleVersion, fullVersion)
     }
 
     private static Set<String> packageNames(File jar, String filteredPackagesPattern) {
