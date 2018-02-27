@@ -58,7 +58,11 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
     private void addGenerateEclipseProjectTask(project) {
         project.tasks.create(TASK_NAME_GENERATE_ECLIPSE_PROJECT, ExistingJarBundleEclipseProjectTask) {
             group = Constants.gradleTaskGroupName
+            bundleName = project.extensions.bundleInfo.bundleName
             bundleVersion = project.extensions.bundleInfo.bundleVersion
+            qualifier = project.extensions.bundleInfo.qualifier
+            template = project.extensions.bundleInfo.template
+            packageFilter = project.extensions.bundleInfo.packageFilter
             qualifier = project.extensions.bundleInfo.qualifier
             pluginConfiguration = project.configurations.getByName(ExistingJarBundlePlugin.PLUGIN_CONFIGURATION_NAME)
         }

@@ -3,9 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gradle Tooling API
 Bundle-Vendor: Gradle Inc.
 Bundle-SymbolicName: org.gradle.toolingapi
-Bundle-Version: 4.3.0.vv20180227-s
-Bundle-ClassPath: gradle-tooling-api-4.3.jar
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: .
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
 Export-Package: org.gradle;version="4.3.0",
  org.gradle.api;version="4.3.0",
  org.gradle.api.artifacts;version="4.3.0",
@@ -29,24 +29,6 @@ Export-Package: org.gradle;version="4.3.0",
  org.gradle.internal.exceptions;version="4.3.0",
  org.gradle.internal.featurelifecycle;version="4.3.0",
  org.gradle.internal.hash;version="4.3.0",
- org.gradle.internal.impldep.com.google.common.annotations;version="4.3.0",
- org.gradle.internal.impldep.com.google.common.base;version="4.3.0",
- org.gradle.internal.impldep.com.google.common.collect;version="4.3.0",
- org.gradle.internal.impldep.com.google.common.math;version="4.3.0",
- org.gradle.internal.impldep.com.google.common.primitives;version="4.3.0",
- org.gradle.internal.impldep.javax.annotation;version="4.3.0",
- org.gradle.internal.impldep.javax.annotation.concurrent;version="4.3.0",
- org.gradle.internal.impldep.javax.annotation.meta;version="4.3.0",
- org.gradle.internal.impldep.net.jcip.annotations;version="4.3.0",
- org.gradle.internal.impldep.org.apache.commons.io;version="4.3.0",
- org.gradle.internal.impldep.org.apache.commons.io.input;version="4.3.0",
- org.gradle.internal.impldep.org.apache.commons.io.output;version="4.3.0",
- org.gradle.internal.impldep.org.apache.commons.lang;version="4.3.0",
- org.gradle.internal.impldep.org.apache.commons.lang.builder;version="4.3.0",
- org.gradle.internal.impldep.org.apache.commons.lang.exception;version="4.3.0",
- org.gradle.internal.impldep.org.apache.commons.lang.math;version="4.3.0",
- org.gradle.internal.impldep.org.apache.commons.lang.reflect;version="4.3.0",
- org.gradle.internal.impldep.org.apache.commons.lang.text;version="4.3.0",
  org.gradle.internal.installation;version="4.3.0",
  org.gradle.internal.io;version="4.3.0",
  org.gradle.internal.jvm;version="4.3.0",
@@ -93,4 +75,4 @@ Export-Package: org.gradle;version="4.3.0",
  org.gradle.tooling.model.java;version="4.3.0",
  org.gradle.util;version="4.3.0",
  org.gradle.wrapper;version="4.3.0"
-Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
+Bundle-Version: 4.3.0.v20180227-s

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-  <name>org.gradle.toolingapi</name><comment/><projects/>
+  <name>org.gradle:gradle-tooling-api</name><comment/><projects/>
   <buildSpec>
     <buildCommand><name>org.eclipse.jdt.core.javabuilder</name><arguments/></buildCommand>
     <buildCommand><name>org.eclipse.pde.ManifestBuilder</name><arguments/></buildCommand>

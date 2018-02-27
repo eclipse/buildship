@@ -1,23 +1,12 @@
 package eclipsebuild.jar
 
 import org.gradle.api.GradleException
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
-
-class ExistingJarBundleEclipseProjectTask extends SingleDependencyProjectTask {
-
-    @Input
-    Property<String> bundleVersion
-
-    @Input
-    Property<String> qualifier
+class ExistingJarBundleEclipseProjectTask extends BaseJarBundleTask {
 
     @TaskAction
-    void generateBuildshipProject() {
+    void generateEclipseProject() {
         File jarFile = dependencyJar
 
         // create manifest and place it in the META-INF folder
@@ -28,7 +17,7 @@ class ExistingJarBundleEclipseProjectTask extends SingleDependencyProjectTask {
                 throw new GradleException("Unable to create directory ${manifestFile.parentFile.absolutePath}")
             }
         }
-        manifestFile.text = calculateManifest(project.version, jarFile)
+        manifestFile.text = manifestContent(jarFile)
 
         // copy the jar to the project location
         project.copy {
@@ -41,51 +30,10 @@ class ExistingJarBundleEclipseProjectTask extends SingleDependencyProjectTask {
         new File(project.projectDir, '.classpath').text = getDotClasspathText(jarFile.name)
     }
 
-    private String calculateManifest(String projectVersion, File jar) {
-        def packageNames = getPackageNames(jar)
-        def packageExports = getPackageExports(packageNames, bundleVersion.get())
-     """Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Gradle Tooling API
-Bundle-Vendor: Gradle Inc.
-Bundle-SymbolicName: org.gradle.toolingapi
-Bundle-Version: ${bundleVersion.get()}.v${qualifier.get()}
-Bundle-ClassPath: ${jar.name}
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: ${packageExports}
-Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
-"""
-}
-
-    private Set<String> getPackageNames(File jar) {
-        def result = [] as Set
-        new ZipInputStream(new FileInputStream(jar)).withCloseable { zip ->
-            ZipEntry e
-            while (e = zip.nextEntry) {
-                if (!e.directory && e.name.endsWith(".class")) {
-                    int index = e.name.lastIndexOf('/')
-                    if (index < 0) index = e.name.length()
-                    String packageName = e.name.substring(0, index).replace('/', '.')
-                    result.add(packageName)
-                }
-            }
-        }
-        result
-    }
-
-    private String getPackageExports(Set<String> packageNames, String bundleVersion) {
-        // the Tooling API has more than two packages
-        StringBuilder exportedPackages = new StringBuilder("${packageNames[0]};version=\"${bundleVersion}\"")
-        for (i in 1..< packageNames.size()) {
-            exportedPackages.append ",\n ${packageNames[i]};version=\"${bundleVersion}\""
-        }
-        exportedPackages.toString()
-    }
-
     private String getDotProjectText() {
         """<?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-  <name>org.gradle.toolingapi</name><comment/><projects/>
+  <name>${bundleName.get()}</name><comment/><projects/>
   <buildSpec>
     <buildCommand><name>org.eclipse.jdt.core.javabuilder</name><arguments/></buildCommand>
     <buildCommand><name>org.eclipse.pde.ManifestBuilder</name><arguments/></buildCommand>
@@ -107,6 +55,4 @@ Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
 </classpath>
 """
     }
-
-
 }
