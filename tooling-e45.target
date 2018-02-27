@@ -7,10 +7,6 @@
 <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-mars/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.gradle.toolingapi" version="4.3.0.v20171108133209"/>
-<repository location="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.jetbrains.kotlin.feature.feature.group" version="0.8.2.v20170906-0933"/>
 <repository location="https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_EclipsePlugin/1160530:id/"/>
 </location>
