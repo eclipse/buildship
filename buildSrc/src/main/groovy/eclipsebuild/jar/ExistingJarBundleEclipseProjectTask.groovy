@@ -1,4 +1,4 @@
-package eclipsebuild
+package eclipsebuild.jar
 
 import java.util.Set
 import java.util.regex.Matcher

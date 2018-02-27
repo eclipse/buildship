@@ -11,10 +11,10 @@
 
 package eclipsebuild
 
+import eclipsebuild.jar.ExistingJarBundlePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
-import org.gradle.internal.os.OperatingSystem
 import eclipsebuild.mavenize.BundleMavenDeployer
 
 /**

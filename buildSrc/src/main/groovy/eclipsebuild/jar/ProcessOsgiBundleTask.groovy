@@ -1,4 +1,4 @@
-package eclipsebuild
+package eclipsebuild.jar
 
 import java.util.regex.Pattern
 import java.util.zip.*

@@ -1,4 +1,4 @@
-apply plugin: eclipsebuild.ExistingJarBundlePlugin
+apply plugin: eclipsebuild.jar.ExistingJarBundlePlugin
 
 dependencies {
     plugin "org.gradle:gradle-tooling-api:$toolingApiVersion"
