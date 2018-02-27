@@ -13,7 +13,7 @@ import org.gradle.plugins.ide.eclipse.model.Library
 
 class ExistingJarBundlePlugin implements Plugin<Project> {
 
-    static final String TASK_NAME_PROCESS_BUNDLE = 'processBundle'
+    static final String TASK_NAME_CONVERT_TO_BUNDLE = 'convertToOsgiBundle'
     static final String TASK_NAME_CREATE_P2_REPOSITORY = 'createP2Repository'
     static final String PLUGIN_CONFIGURATION_NAME = 'plugin'
     static final String BUNDLES_STAGING_FOLDER = 'tmp/bundles'
@@ -50,7 +50,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
         configureConfigurations(project)
 
         addGenerateEclipseProjectTask(project)
-        addProcessBundlesTask(project)
+        addConvertOsgiBundleTask(project)
         addCreateP2RepositoryTask(project)
     }
 
@@ -61,6 +61,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
             project.eclipse.project.buildCommand 'org.eclipse.pde.ManifestBuilder'
             project.eclipse.project.buildCommand 'org.eclipse.pde.SchemaBuilder'
 
+            // add jar file to the Eclipse project's classpath
             project.eclipse.classpath.file.whenMerged {
                 def lib = new Library(fileReference(jarName(project)))
                 lib.exported = true
@@ -86,11 +87,10 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
                 project.file('META-INF/MANIFEST.MF').text = JarBundleUtils.manifestContent(jar, template, packageFilter, bundleVersion, qualifier)
             }
         }
-
     }
 
-    private void addProcessBundlesTask(Project project) {
-        project.tasks.create(TASK_NAME_PROCESS_BUNDLE, ProcessOsgiBundleTask) {
+    private void addConvertOsgiBundleTask(Project project) {
+        project.tasks.create(TASK_NAME_CONVERT_TO_BUNDLE, ConvertOsgiBundleTask) {
             group = Constants.gradleTaskGroupName
             dependsOn project.getConfigurations().getByName(PLUGIN_CONFIGURATION_NAME)
 
@@ -109,7 +109,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
          def task = project.tasks.create(TASK_NAME_CREATE_P2_REPOSITORY, CreateP2RepositoryTask) {
             group = Constants.gradleTaskGroupName
             dependsOn ":${BuildDefinitionPlugin.TASK_NAME_DOWNLOAD_ECLIPSE_SDK}"
-            dependsOn TASK_NAME_PROCESS_BUNDLE
+            dependsOn TASK_NAME_CONVERT_TO_BUNDLE
 
             bundleSourceDir = new File(project.buildDir, BUNDLES_STAGING_FOLDER)
             targetRepositoryDir = new File(project.buildDir, P2_REPOSITORY_FOLDER)
