@@ -251,6 +251,9 @@
             pattern="org\.eclipse\.buildship\.ROOT"/>
         <operand
             xsi:type="predicates:NamePredicate"
+            pattern="org\.gradle\.toolingapi"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
             pattern="org\.eclipse\.buildship\.branding"/>
         <operand
             xsi:type="predicates:NamePredicate"
