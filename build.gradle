@@ -183,7 +183,8 @@ eclipseBuild {
 
 // read the current version from an external file and add a timestamp suffix if requested by the caller
 ext.baseVersion = file('version.txt').text.trim()
-version = getVersion(baseVersion)
+ext.versionQualifier = getVersionQualifier()
+version = baseVersion + '.' + versionQualifier
 
 // ensure that the assembleTargetPlatform is executed when the gradle.properties file is changed
 project.assembleTargetPlatform.inputs.file file('gradle.properties')
@@ -425,7 +426,7 @@ void killProcess(String pid) {
     }
 }
 
-String getVersion(def baseVersion) {
+String getVersionQualifier() {
     def config = BuildshipConfig.on(project)
 
     // determine suffix for snapshot and milestone builds
@@ -443,13 +444,13 @@ String getVersion(def baseVersion) {
     // use full timestamp on CI vs. date-only for local builds
     if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
         // note that for Eclipse plugin versions, the '-' and '.' character are invalid in front of the build id
-        baseVersion + '.v' + new Date().format('yyyyMMdd-kkmm', TimeZone.getTimeZone('GMT')) + suffix
+        'v' + new Date().format('yyyyMMdd-kkmm', TimeZone.getTimeZone('GMT')) + suffix
     } else {
-        baseVersion + '.v' + new Date().format('yyyyMMdd', TimeZone.getTimeZone('GMT')) + suffix
+        'v' + new Date().format('yyyyMMdd', TimeZone.getTimeZone('GMT')) + suffix
     }
 }
 
-def getBundleVersion(String version) {
+String getBundleVersion(String version) {
   def matcher = version =~ /(\d+)\.(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
   if (matcher.matches()) {
     def major = matcher.group(1)

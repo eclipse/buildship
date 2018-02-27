@@ -187,6 +187,16 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             description = "Assembles an Eclipse distribution based on the target platform definition."
             project.afterEvaluate { inputs.file config.targetPlatform.targetDefinition }
             project.afterEvaluate { outputs.dir config.nonMavenizedTargetPlatformDir }
+
+            // automatically install all existing jar bundles
+            project.rootProject.allprojects.each { Project p ->
+                p.afterEvaluate {
+                    if (p.plugins.hasPlugin(ExistingJarBundlePlugin)) {
+                        dependsOn p.tasks[ExistingJarBundlePlugin.TASK_NAME_CREATE_P2_REPOSITORY]
+                    }
+                }
+            }
+
             doLast { assembleTargetPlatform(project, config) }
         }
     }

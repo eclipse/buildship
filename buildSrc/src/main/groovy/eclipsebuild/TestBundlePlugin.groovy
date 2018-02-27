@@ -139,7 +139,6 @@ class TestBundlePlugin implements Plugin<Project> {
         project.tasks.check.dependsOn eclipseTest
     }
 
-
     static void beforeEclipseTest(Project project, Config config, File testDistributionDir, File additionalPluginsDir) {
         // before testing, create a fresh eclipse IDE with all dependent plugins installed
         // first delete the test eclipse distribution and the original plugins.
