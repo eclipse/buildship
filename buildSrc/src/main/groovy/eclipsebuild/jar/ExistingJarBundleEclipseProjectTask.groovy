@@ -1,23 +1,14 @@
 package eclipsebuild.jar
 
-import java.util.Set
-import java.util.regex.Matcher
+import org.gradle.api.GradleException
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskAction
+
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
-import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ResolvedArtifact
-import org.gradle.api.artifacts.ResolvedDependency
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
-
-
-class ExistingJarBundleEclipseProjectTask extends DefaultTask {
+class ExistingJarBundleEclipseProjectTask extends SingleDependencyProjectTask {
 
     @Input
     Property<String> bundleVersion
@@ -25,22 +16,9 @@ class ExistingJarBundleEclipseProjectTask extends DefaultTask {
     @Input
     Property<String> qualifier
 
-    @Input
-    Configuration pluginConfiguration
-
-    // TODO (donat) merge duplicate code found in ProcessOsgiBundleTask
-
-    Set<ResolvedDependency> pluginDependencies() {
-        pluginConfiguration.resolvedConfiguration.firstLevelModuleDependencies
-    }
-
-    ResolvedArtifact findJarArtifact(ResolvedDependency dependency) {
-        dependency.moduleArtifacts.find { it.extension == 'jar' }
-   }
-
     @TaskAction
     void generateBuildshipProject() {
-        File jarFile = findJarArtifact(pluginDependencies()[0]).file
+        File jarFile = dependencyJar
 
         // create manifest and place it in the META-INF folder
         def manifestFile = new File(project.projectDir, "META-INF/MANIFEST.MF")

@@ -11,10 +11,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.util.ConfigureUtil
 
-class ProcessOsgiBundleTask extends DefaultTask {
-
-    @Input
-    Configuration pluginConfiguration
+class ProcessOsgiBundleTask extends SingleDependencyProjectTask {
 
     @Input
     Property<String> bundleName
@@ -38,20 +35,11 @@ class ProcessOsgiBundleTask extends DefaultTask {
 
     @TaskAction
     void processOsgiBundles() {
-        pluginDependencies().each { ResolvedDependency dependency ->
-            ResolvedArtifact jarArtifact = findJarArtifact(dependency)
-            if (jarArtifact) {
-                createNewBundle(jarArtifact)
-            }
-        }
+        createNewBundle(dependencyJar)
     }
 
-    Set<ResolvedDependency> pluginDependencies() {
-        pluginConfiguration.resolvedConfiguration.firstLevelModuleDependencies
-    }
-
-    void createNewBundle(ResolvedArtifact jar) {
-        List<String> packageNames = packageNames(jar.file, this.packageFilter.get()) as List
+    void createNewBundle(File jar) {
+        List<String> packageNames = packageNames(jar, this.packageFilter.get()) as List
         packageNames.sort()
         String fullVersion = "${this.bundleVersion.get()}.${this.qualifier.get()}"
         String manifest = manifestFor(this.template.get(), packageNames, this.bundleVersion.get(), fullVersion)
@@ -66,17 +54,13 @@ class ProcessOsgiBundleTask extends DefaultTask {
             into extraResources
         }
 
-        File osgiJar = new File(target, "osgi_${jar.file.name}")
+        File osgiJar = new File(target, "osgi_${jar.name}")
         project.ant.zip(destfile: osgiJar) {
-            zipfileset(src: jar.file, excludes: 'META-INF/MANIFEST.MF')
+            zipfileset(src: jar, excludes: 'META-INF/MANIFEST.MF')
         }
         project.ant.zip(update: 'true', destfile: osgiJar) {
             fileset(dir: extraResources)
         }
-    }
-
-    ResolvedArtifact findJarArtifact(ResolvedDependency dependency) {
-         dependency.moduleArtifacts.find { it.extension == 'jar' }
     }
 
     Set<String> packageNames(File jar, String filteredPackagesPattern) {
