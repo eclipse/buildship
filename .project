@@ -10,7 +10,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1429025690130</id>
+			<id>1519726969537</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
@@ -19,7 +19,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1429025690160</id>
+			<id>1519726969538</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
@@ -28,12 +28,21 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1429025690244</id>
+			<id>1519726969540</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-.git</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1519726969542</id>
+			<name></name>
+			<type>10</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-org.gradle.toolingapi</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>
