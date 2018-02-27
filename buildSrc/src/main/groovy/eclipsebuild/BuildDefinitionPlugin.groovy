@@ -188,7 +188,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             project.afterEvaluate { inputs.file config.targetPlatform.targetDefinition }
             project.afterEvaluate { outputs.dir config.nonMavenizedTargetPlatformDir }
 
-            // automatically install all existing jar bundles
+            // install existing jar bundles
             project.rootProject.allprojects.each { Project p ->
                 p.afterEvaluate {
                     if (p.plugins.hasPlugin(ExistingJarBundlePlugin)) {

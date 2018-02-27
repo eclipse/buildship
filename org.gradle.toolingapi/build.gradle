@@ -6,8 +6,6 @@ dependencies {
     plugin "org.gradle:gradle-tooling-api:$toolingApiVersion"
 }
 
-// TODO (donat) move buildship.gradle file from gradle/gradle here to properly set up the IDE 
-
 bundleInfo {
     bundleName = 'org.gradle.toolingapi'
     bundleVersion = getBundleVersion(toolingApiVersion)
