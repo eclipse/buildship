@@ -7,6 +7,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.plugins.ide.eclipse.EclipsePlugin
 import org.gradle.plugins.ide.eclipse.model.Library
@@ -26,7 +27,8 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
         Property<String> qualifier
         Property<String> template
         Property<String> packageFilter
-        Closure resources = {}
+        ListProperty<File> fileList
+        private FileListBuilder listBuilder
 
         BundleInfoExtension(Project project) {
             this.project = project
@@ -35,10 +37,40 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
             qualifier = project.objects.property(String)
             template = project.objects.property(String)
             packageFilter = project.objects.property(String)
+            fileList = project.objects.listProperty(File)
+            fileList.set([])
         }
 
         void resources(Closure resources) {
-            this.resources = resources
+            getFileListBuilder().call(resources)
+        }
+
+        private FileListBuilder getFileListBuilder() {
+            if (!listBuilder) {
+                listBuilder = new FileListBuilder(this)
+            }
+            listBuilder
+        }
+    }
+
+    private static class FileListBuilder {
+        private final BundleInfoExtension bundleInfoExtension
+
+        FileListBuilder(BundleInfoExtension bundleInfoExtension) {
+            this.bundleInfoExtension = bundleInfoExtension
+        }
+
+        void call(@DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure spec) {
+            def clone = (Closure) spec.clone()
+            clone.delegate = this
+            clone.resolveStrategy = Closure.DELEGATE_FIRST
+            clone.call()
+        }
+
+        void from(File file) {
+            List files = new ArrayList(bundleInfoExtension.fileList.get())
+            files.add(file)
+            bundleInfoExtension.fileList.set(files)
         }
     }
 
@@ -99,7 +131,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
             qualifier = project.extensions.bundleInfo.qualifier
             template = project.extensions.bundleInfo.template
             packageFilter = project.extensions.bundleInfo.packageFilter
-            resources = project.extensions.bundleInfo.resources
+            fileList = project.extensions.bundleInfo.fileList
             target = new File(project.buildDir, "$BUNDLES_STAGING_FOLDER/plugins")
             pluginConfiguration = getPluginConfiguration(project)
         }
@@ -135,8 +167,6 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
     private static String jarName(Project project) {
         String bundleName = project.extensions.bundleInfo.bundleName.get()
         String bundleVersion = project.extensions.bundleInfo.bundleVersion.get()
-        String qualifier = project.extensions.bundleInfo.qualifier.get()
         "${bundleName}_${bundleVersion}.jar"
     }
-
 }

@@ -2,11 +2,11 @@ package eclipsebuild.jar
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.util.ConfigureUtil
 
 class ConvertOsgiBundleTask extends DefaultTask {
 
@@ -28,7 +28,8 @@ class ConvertOsgiBundleTask extends DefaultTask {
     @Input
     Configuration pluginConfiguration
 
-    Closure resources = {}
+    @Input
+    ListProperty<File> fileList
 
     @OutputDirectory
     File target
@@ -41,13 +42,13 @@ class ConvertOsgiBundleTask extends DefaultTask {
     void createNewBundle(File jar) {
         String manifest = JarBundleUtils.manifestContent(jar, template.get(), packageFilter.get(), bundleVersion.get(), qualifier.get())
 
-        File extraResources = project.file("${project.buildDir}/tmp/bundle-resources/${this.bundleName.get().replace(':', '.')}")
+        File extraResources = project.file("${project.buildDir}/tmp/bundle-resources")
         File manifestFile = new File(extraResources, '/META-INF/MANIFEST.MF')
         manifestFile.parentFile.mkdirs()
         manifestFile.text = manifest
 
         project.copy {
-            with ConfigureUtil.configure(this.resources, project.copySpec())
+            fileList.get().each { from it }
             into extraResources
         }
 
