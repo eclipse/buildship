@@ -181,9 +181,6 @@ public final class EclipseTestExecuter implements TestExecuter {
             jvmArgs.add("-XstartOnFirstThread");
         }
 
-        // forward cross-version test property
-        jvmArgs.add("-Dintegtest.versions=" + config.getIntegtestVersions());
-
         javaExecHandleBuilder.setJvmArgs(jvmArgs);
         javaExecHandleBuilder.setWorkingDir(this.project.getBuildDir());
 

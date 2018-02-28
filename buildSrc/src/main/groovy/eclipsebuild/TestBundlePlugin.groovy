@@ -11,6 +11,8 @@
 
 package eclipsebuild
 
+import org.gradle.api.Task
+
 import javax.inject.Inject
 
 import eclipsebuild.testing.EclipseTestExecuter
@@ -57,6 +59,8 @@ class TestBundlePlugin implements Plugin<Project> {
     // task names
     static final TASK_NAME_ECLIPSE_TEST = 'eclipseTest'
 
+    static final TASK_NAME_CROSS_VERSION_ECLIPSE_TEST = 'crossVersionEclipseTest'
+
     public final FileResolver fileResolver
 
     @Inject
@@ -100,9 +104,19 @@ class TestBundlePlugin implements Plugin<Project> {
 
     static void addTaskCreateEclipseTest(Project project) {
         Config config = Config.on(project)
-        def eclipseTest = project.task(TASK_NAME_ECLIPSE_TEST, type: Test) {
+
+        String taskDescription = 'Executes all Eclipse integration tests using PDE test runner'
+        def eclipseTest = defineEclipseTestTask(project, config, TASK_NAME_ECLIPSE_TEST, taskDescription, "latest")
+        project.tasks.check.dependsOn eclipseTest
+
+        taskDescription = 'Executes all Eclipse integration tests including the cross-version coverage using PDE Test runner'
+        defineEclipseTestTask(project, config, TASK_NAME_CROSS_VERSION_ECLIPSE_TEST, taskDescription, "all")
+    }
+
+    static Task defineEclipseTestTask(Project project, Config config, String testTaskName, String taskDescription, String integTestVersions) {
+        Test testTask = project.task(testTaskName, type: Test) {
             group = Constants.gradleTaskGroupName
-            description = 'Installs all dependencies into a fresh Eclipse, runs the IDE and executes the test classes with the PDE Test Runner'
+            description = taskDescription
 
             // configure the test runner to execute all classes from the project
             testExecuter = new EclipseTestExecuter(project, config, services.get(BuildOperationExecutor.class))
@@ -114,6 +128,7 @@ class TestBundlePlugin implements Plugin<Project> {
             systemProperty('osgi.requiredJavaVersion','1.6')
             systemProperty('eclipse.pde.launch','true')
             systemProperty('eclipse.p2.data.area','@config.dir/p2')
+            systemProperty('integtest.versions', integTestVersions)
 
             // set the task outputs
             def testDistributionDir = project.file("$project.buildDir/eclipseTest/eclipse")
@@ -133,12 +148,9 @@ class TestBundlePlugin implements Plugin<Project> {
             doFirst { beforeEclipseTest(project, config, testDistributionDir, additionalPluginsDir) }
         }
 
-        // Make sure that every time the testing is running the 'eclipseTest' task is also gets executed.
-        eclipseTest.dependsOn 'test'
-        eclipseTest.dependsOn 'jar'
-        project.tasks.check.dependsOn eclipseTest
+        testTask.dependsOn 'test'
+        testTask.dependsOn 'jar'
     }
-
 
     static void beforeEclipseTest(Project project, Config config, File testDistributionDir, File additionalPluginsDir) {
         // before testing, create a fresh eclipse IDE with all dependent plugins installed

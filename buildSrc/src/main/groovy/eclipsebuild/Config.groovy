@@ -93,9 +93,4 @@ class Config {
     File getJarProcessorJar() {
         new File(eclipseSdkDir.path, '/eclipse/plugins').listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
     }
-
-    String getIntegtestVersions() {
-        project.hasProperty('integtest.versions') ? project.property('integtest.versions') : 'latest'
-    }
-
 }
