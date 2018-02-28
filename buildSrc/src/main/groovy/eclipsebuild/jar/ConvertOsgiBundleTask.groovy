@@ -2,7 +2,7 @@ package eclipsebuild.jar
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.provider.ListProperty
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
@@ -29,7 +29,7 @@ class ConvertOsgiBundleTask extends DefaultTask {
     Configuration pluginConfiguration
 
     @Input
-    ListProperty<File> fileList
+    ConfigurableFileCollection resources
 
     @OutputDirectory
     File target
@@ -47,17 +47,19 @@ class ConvertOsgiBundleTask extends DefaultTask {
         manifestFile.parentFile.mkdirs()
         manifestFile.text = manifest
 
-        project.copy {
-            fileList.get().each { from it }
-            into extraResources
-        }
-
         File osgiJar = new File(target, "osgi_${jar.name}")
         project.ant.zip(destfile: osgiJar) {
             zipfileset(src: jar, excludes: 'META-INF/MANIFEST.MF')
         }
+
         project.ant.zip(update: 'true', destfile: osgiJar) {
             fileset(dir: extraResources)
+        }
+
+        resources.files.each { File resource ->
+            project.ant.zip(update: 'true', destfile: osgiJar) {
+                fileset(dir: resource)
+            }
         }
     }
 }

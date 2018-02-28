@@ -10,10 +10,7 @@ bundleInfo {
     bundleName = 'org.gradle.toolingapi'
     bundleVersion = getBundleVersion(toolingApiVersion)
     qualifier = versionQualifier
-    template = file('resources/gradle-tooling-api/manifest-template.txt').text
+    template = file('resources/template/manifest-template.txt').text
     packageFilter = ".c*jarjar.*|.*impldep.*"
-    resources {
-        from file('resources/gradle-tooling-api/about')
-        from rootProject.file('gradle/license')
-    }
+    resources = files('resources/extra_resources')
 }
