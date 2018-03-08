@@ -262,4 +262,8 @@ abstract class WorkspaceSpecification extends Specification {
             ImmutableList.copyOf(entries)
         }
     }
+
+    protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern = '>=1.2') {
+        GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
+    }
 }

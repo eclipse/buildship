@@ -1,7 +1,11 @@
 package org.eclipse.buildship.core.launch
 
+import spock.lang.Unroll
+
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
+
+import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
@@ -22,7 +26,7 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         job.join()
 
         then:
-            job.getResult().isOK()
+        job.getResult().isOK()
         buildOutput.contains 'BUILD SUCCESSFUL'
     }
 
@@ -40,8 +44,25 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         buildConfig.contains 'Gradle Tasks: clean build'
     }
 
-    ILaunch createLaunch(File projectDir) {
-        ILaunchConfiguration launchConfiguration = createLaunchConfiguration(projectDir)
+    @Unroll
+    def "Can launch task with Gradle #distribution.configuration"(GradleDistribution distribution) {
+        setup:
+        def job = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, distribution))
+
+        when:
+        job.schedule()
+        job.join()
+
+        then:
+        job.getResult().isOK()
+        buildConfig.contains "Gradle Version: $distribution.configuration"
+
+        where:
+        distribution << supportedGradleDistributions
+    }
+
+    ILaunch createLaunch(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild()) {
+        ILaunchConfiguration launchConfiguration = createLaunchConfiguration(projectDir, ['clean', 'build'], distribution)
         ILaunch launch = Mock(ILaunch)
         launch.launchConfiguration >> launchConfiguration
         launch

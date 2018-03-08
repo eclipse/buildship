@@ -10,6 +10,16 @@ class ValidatorsTest extends Specification {
     @Rule
     TemporaryFolder tempFolder
 
+    def "noOp never invalidates a value"() {
+        setup:
+        def op = Validators.noOp()
+
+        expect:
+        !op.validate(null).present
+        !op.validate("something").present
+        !op.validate(new File("somewhere")).present
+    }
+
     def "Required directory validator passes only existing directory"() {
         given:
         def nullFolder = null
@@ -56,5 +66,4 @@ class ValidatorsTest extends Specification {
         !result.isPresent()
         0 * target._ // no method was called on the target
     }
-
 }
