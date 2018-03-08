@@ -10,10 +10,10 @@ import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchronizationSpecification {
 
-    @Unroll
-    def "Can import a multi-project build with Gradle #distribution.configuration"(GradleDistribution distribution) {
-        setup:
-        def projectDir = dir('multi-project-build') {
+    File projectDir
+
+    def setup() {
+        projectDir = dir('multi-project-build') {
             file 'settings.gradle', '''
                 rootProject.name = 'root'
                 include 'api'
@@ -48,37 +48,77 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
                 dir('src/main/java')
             }
         }
+    }
 
+    @Unroll
+    def "Dependencies are not exported for #distribution.configuration"(GradleDistribution distribution) {
         when:
         importAndWait(projectDir, distribution)
-        IJavaProject apiProject = findJavaProject('api')
-        IJavaProject implProject = findJavaProject('impl')
-        IClasspathEntry apiProjectDependency = implProject.getResolvedClasspath(true).find { it.entryKind == IClasspathEntry.CPE_PROJECT && it.path.toPortableString() == '/api' }
-        IClasspathEntry guavaDependency = apiProject.getResolvedClasspath(true).find { it.entryKind == IClasspathEntry.CPE_LIBRARY && it.path.toPortableString().contains('guava') }
 
         then:
-        apiProjectDependency.exported == higherOrEqual('2.5', distribution) ? false : true
+        !apiProjectDependency.exported
+        !guavaDependency.exported
 
-        and:
+        where:
+        distribution << getSupportedGradleDistributions('>=2.5')
+    }
+
+    @Unroll
+    def "Dependenies have no access rules for #distribution.configuration"(GradleDistribution distribution) {
+        when:
+        importAndWait(projectDir, distribution)
+
+        then:
         apiProjectDependency.accessRules == []
         guavaDependency.accessRules == []
 
-        and:
+        where:
+        distribution << supportedGradleDistributions
+    }
+
+    @Unroll
+    def "Binary dependencies can define javadoc location for #distribution.configuration"(GradleDistribution distribution) {
+        when:
+        importAndWait(projectDir, distribution)
+
+        then:
         guavaDependency.sourceAttachmentPath != null
         guavaDependency.extraAttributes.find { it.name == 'javadoc_location' } == null
-        guavaDependency.exported == higherOrEqual('2.5', distribution) ? false : true
-
-        and:
-        if (higherOrEqual('4.4', distribution)) {
-            assert guavaDependency.extraAttributes.size() == 1
-            assert guavaDependency.extraAttributes[0].name == 'gradle_used_by_scope'
-            assert guavaDependency.extraAttributes[0].value == 'main,test'
-        } else {
-            assert guavaDependency.extraAttributes.size() == 0
-        }
 
         where:
         distribution << supportedGradleDistributions
+    }
+
+    def "Binary dependencies define classpath scopes for #distribution.configuration"(GradleDistribution distribution) {
+        when:
+        importAndWait(projectDir, distribution)
+
+        then:
+        guavaDependency.extraAttributes.size() == 1
+        guavaDependency.extraAttributes[0].name == 'gradle_used_by_scope'
+        guavaDependency.extraAttributes[0].value == 'main,test'
+
+        where:
+        distribution << getSupportedGradleDistributions('>=4.4')
+    }
+
+    def "Binary dependencies does not define classpath scopes for #distribution.configuration"(GradleDistribution distribution) {
+        when:
+        importAndWait(projectDir, distribution)
+
+        then:
+        guavaDependency.extraAttributes.length == 0
+
+        where:
+        distribution << getSupportedGradleDistributions('<4.4')
+    }
+
+    private IClasspathEntry getApiProjectDependency() {
+        findJavaProject('impl').getResolvedClasspath(true).find { it.entryKind == IClasspathEntry.CPE_PROJECT && it.path.toPortableString() == '/api' }
+    }
+
+    private IClasspathEntry getGuavaDependency() {
+        findJavaProject('api').getResolvedClasspath(true).find { it.entryKind == IClasspathEntry.CPE_LIBRARY && it.path.toPortableString().contains('guava') }
     }
 }
 

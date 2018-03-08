@@ -1,5 +1,6 @@
 package org.eclipse.buildship.core.workspace.internal
 
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
@@ -7,10 +8,11 @@ import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecification {
 
-    @Unroll
-    def "Can import a multi-project build with Gradle #distribution.configuration"(GradleDistribution distribution) {
-        setup:
-        def projectDir = dir('multi-project-build') {
+    File multiProjectDir
+    File compositeProjectDir
+
+    def setup() {
+        multiProjectDir = dir('multi-project-build') {
             file 'settings.gradle', '''
                 rootProject.name = 'root'
                 include 'sub1'
@@ -66,26 +68,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
             }
         }
 
-
-        when:
-        importAndWait(projectDir, distribution)
-
-        then:
-        allProjects().size() == 4
-        numOfGradleErrorMarkers == 0
-        findProject('root')
-        findProject('sub1')
-        findProject('sub2')
-        findProject('subSub1')
-
-        where:
-        distribution << supportedGradleDistributions
-    }
-
-    @Unroll
-    def "Gradle #distribution.configuration can import composite builds"(GradleDistribution distribution) {
-        setup:
-        def projectDir = dir('composite-build') {
+        compositeProjectDir = dir('composite-build') {
             file 'settings.gradle', '''
                 rootProject.name='root'
                 includeBuild 'included1'
@@ -108,40 +91,75 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
                 '''
             }
         }
+    }
 
+    @Unroll
+    def "Can import a multi-project build with Gradle #distribution.configuration"(GradleDistribution distribution) {
         when:
-        // TODO (donat) Buildship doesn't de-duplicate project names which makes the synchronization fail for versions 3.3 <= v < 4.0
-        if (higherOrEqual('4.0', distribution) || !higherOrEqual('3.3', distribution)) {
-            importAndWait(projectDir, distribution)
-        }
+        importAndWait(multiProjectDir, distribution)
 
         then:
+        allProjects().size() == 4
         numOfGradleErrorMarkers == 0
-        if (higherOrEqual('4.0', distribution)) {
-            assert allProjects().size() == 7
-            assert findProject('root')
-            assert findProject('included1')
-            assert findProject('included2')
-            assert findProject('included1-sub1')
-            assert findProject('included1-sub2')
-            assert findProject('included2-sub1')
-            assert findProject('included2-sub2')
-        } else if (higherOrEqual('3.3', distribution)) {
-            // assert allProjects().size() == 7
-            // assert findProject('root')
-            // assert findProject('included1')
-            // assert findProject('included2')
-            // assert findProject('included1-sub1')
-            // assert findProject('included1-sub2')
-            // assert findProject('included2-sub1')
-            // assert findProject('included2-sub2')
-        } else {
-            assert allProjects().size() == 1
-            assert findProject('root')
-        }
+        findProject('root')
+        findProject('sub1')
+        findProject('sub2')
+        findProject('subSub1')
 
         where:
-        distribution << getSupportedGradleDistributions('>=3.1')
+        distribution << supportedGradleDistributions
+    }
+
+    @Unroll
+    def "Included builds imported with de-duplicated names for #distribution.configuration"(GradleDistribution distribution) {
+        when:
+        importAndWait(compositeProjectDir, distribution)
+
+        then:
+        allProjects().size() == 7
+        findProject('root')
+        findProject('included1')
+        findProject('included2')
+        findProject('included1-sub1')
+        findProject('included1-sub2')
+        findProject('included2-sub1')
+        findProject('included2-sub2')
+
+        where:
+        distribution << getSupportedGradleDistributions('>=4.0')
+    }
+
+    @Ignore("TODO Buildship doesn't de-duplicate project names which makes the synchronization fail")
+    @Unroll
+    def "Included builds imported but not de-duplicated names for #distribution.configuration"(GradleDistribution distribution) {
+        when:
+        importAndWait(compositeProjectDir, distribution)
+
+        then:
+        allProjects().size() == 7
+        findProject('root')
+        findProject('included1')
+        findProject('included2')
+        findProject('included1-sub1')
+        findProject('included1-sub2')
+        findProject('included2-sub1')
+        findProject('included2-sub2')
+
+        where:
+        distribution << getSupportedGradleDistributions('<4.0 >=3.3')
+    }
+
+    @Unroll
+    def "Included builds ignored for #distribution.configuration"(GradleDistribution distribution) {
+        when:
+        importAndWait(compositeProjectDir, distribution)
+
+        then:
+        allProjects().size() == 1
+        findProject('root')
+
+        where:
+        distribution << getSupportedGradleDistributions('<3.3 >=3.1')
     }
 }
 

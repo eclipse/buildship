@@ -16,6 +16,7 @@ import org.gradle.util.DistributionLocator;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
@@ -110,6 +111,9 @@ public abstract class GradleVersionParameterization {
     /**
      * Returns a list of {@code GradleVersion} that match the given Gradle version pattern, where
      * the matching Gradle versions also fall into the supplied version range.
+     * <p>
+     * If none of the configured Gradle versions matches the pattern then the most recent version
+     * is returned that matches the pattern.
      *
      * @param gradleVersionPattern the pattern of Gradle versions to match, must not be null
      * @return the matching Gradle versions falling into the configured range, never null
@@ -119,20 +123,31 @@ public abstract class GradleVersionParameterization {
 
         final Spec<GradleVersion> versionSpec = GradleVersionSpec.toSpec(gradleVersionPattern);
         final Spec<GradleVersion> toolingApiConstraint = GradleVersionSpec.toSpec(">=2.9");
-
-        ImmutableList<GradleVersion> configuredGradleVersions = this.gradleVersionProvider.getConfiguredGradleVersions();
-        return FluentIterable.from(configuredGradleVersions).filter(new Predicate<GradleVersion>() {
+        Predicate<GradleVersion> matchingVersions = new Predicate<GradleVersion>() {
 
             @Override
             public boolean apply(GradleVersion input) {
                 return toolingApiConstraint.isSatisfiedBy(input) && versionSpec.isSatisfiedBy(input);
             }
-        }).toList();
+        };
+
+        ImmutableList<GradleVersion> configuredGradleVersions = this.gradleVersionProvider.getConfiguredGradleVersions();
+        ImmutableList<GradleVersion> result = FluentIterable.from(configuredGradleVersions).filter(matchingVersions).toList();
+
+        if (!result.isEmpty()) {
+            return result;
+        }
+
+        Optional<GradleVersion> singleVersion = FluentIterable.from(this.gradleVersionProvider.getConfiguredGradleVersions(GradleVersionProvider.ALL)).filter(matchingVersions).last();
+        if (!singleVersion.isPresent()) {
+            throw new RuntimeException("No released Gradle version matches to the pattern " + gradleVersionPattern);
+        }
+        return ImmutableList.of(singleVersion.get());
     }
 
     /**
      * Provides a default implementation that derives the Gradle version range from the system
-     * property <i>org.eclipse.buildship.integtest.versions</i>.
+     * property <i>integtest.versions</i>.
      * <p>
      * Implemented as an inner class to defer instantiation until the first time the class is
      * referenced at runtime.

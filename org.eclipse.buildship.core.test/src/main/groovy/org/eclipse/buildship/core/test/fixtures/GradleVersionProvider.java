@@ -44,13 +44,11 @@ public abstract class GradleVersionProvider {
         this.versionRangePattern = versionRangePattern;
     }
 
-    /**
-     * Returns a list of {@code GradleVersion} that fall into the range covered by this provider.
-     *
-     * @return the matching Gradle versions falling into the covered range, never null
-     */
     public ImmutableList<GradleVersion> getConfiguredGradleVersions() {
-        String pattern = this.versionRangePattern.get();
+        return getConfiguredGradleVersions(this.versionRangePattern.get());
+    }
+
+    public ImmutableList<GradleVersion> getConfiguredGradleVersions(String pattern) {
         LOG.debug("Applying version range pattern '{}'", pattern);
 
         // add matching versions to set to avoid potential duplicates (e.g. when current == latest)

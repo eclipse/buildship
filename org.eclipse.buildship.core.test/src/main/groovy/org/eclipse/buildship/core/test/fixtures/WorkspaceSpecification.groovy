@@ -11,7 +11,6 @@
 
 package org.eclipse.buildship.core.test.fixtures
 
-import org.gradle.util.GradleVersion
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
@@ -43,7 +42,6 @@ import org.eclipse.buildship.core.marker.GradleErrorMarker
 import org.eclipse.buildship.core.preferences.PersistentModel
 import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.util.gradle.GradleDistribution
-import org.eclipse.buildship.core.util.gradle.GradleDistributionType
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.buildship.core.workspace.internal.PersistentModelBuilder
 
@@ -267,14 +265,5 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern = '>=1.2') {
         GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
-    }
-
-    protected static boolean higherOrEqual(String minVersion, GradleDistribution distribution) {
-        if (distribution.type != GradleDistributionType.VERSION) {
-            throw new RuntimeException("Invalid distribution type")
-        }
-
-        def gradleVersion = GradleVersion.version(distribution.configuration)
-        gradleVersion.baseVersion.compareTo(GradleVersion.version(minVersion)) >= 0
     }
 }
