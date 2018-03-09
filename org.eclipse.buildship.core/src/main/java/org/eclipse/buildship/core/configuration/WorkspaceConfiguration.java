@@ -9,8 +9,6 @@ package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
 
-import org.gradle.api.Nullable;
-
 import com.google.common.base.Objects;
 
 import org.eclipse.buildship.core.util.gradle.GradleDistribution;
@@ -41,7 +39,6 @@ public final class WorkspaceConfiguration {
         return this.gradleDistribution;
     }
 
-    @Nullable
     public File getGradleUserHome() {
         return this.gradleUserHome;
     }

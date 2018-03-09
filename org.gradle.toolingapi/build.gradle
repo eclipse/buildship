@@ -11,6 +11,6 @@ bundleInfo {
     bundleVersion = getBundleVersion(toolingApiVersion)
     qualifier = versionQualifier
     template = file('resources/template/manifest-template.txt').text
-    packageFilter = ".c*jarjar.*|.*impldep.*|.*internal.*"
+    packageFilter = ".c*jarjar.*|.*impldep.*|.*internal.*|org.gradle.(concurrent.*|groovy.*|initialization.*|api.+|wrapper)"
     resources = files('resources/extra_resources')
 }

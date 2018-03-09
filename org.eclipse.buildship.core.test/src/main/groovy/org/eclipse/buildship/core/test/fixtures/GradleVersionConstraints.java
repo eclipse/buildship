@@ -11,17 +11,17 @@ package org.eclipse.buildship.core.test.fixtures;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.gradle.api.specs.Spec;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 
 /**
  * A specification that matches against Gradle version patterns.
  *
  * @author Etienne Studer
  */
-public abstract class GradleVersionSpec {
+public abstract class GradleVersionConstraints {
 
     private static final String CURRENT = "current";
     private static final String NOT_CURRENT = "!current";
@@ -32,16 +32,16 @@ public abstract class GradleVersionSpec {
     private static final String SMALLER_THAN_OR_EQUALS = "<=";
     private static final String SMALLER_THAN = "<";
 
-    private GradleVersionSpec() {
+    private GradleVersionConstraints() {
     }
 
     /**
-     * Creates a spec from the given version constraint.
+     * Creates a predicate from the given version constraint.
      *
      * @param constraint the version constraint, must not be null
-     * @return the spec representing the version constraint, never null
+     * @return the predicate representing the version constraint, never null
      */
-    public static Spec<GradleVersion> toSpec(String constraint) {
+    public static Predicate<GradleVersion> toPredicate(String constraint) {
         Preconditions.checkNotNull(constraint);
 
         String trimmed = constraint.trim();
@@ -49,91 +49,91 @@ public abstract class GradleVersionSpec {
         // exclusive patterns
         if (trimmed.equals(CURRENT)) {
             final GradleVersion current = GradleVersion.current();
-            return new Spec<GradleVersion>() {
+            return new Predicate<GradleVersion>() {
 
                 @Override
-                public boolean isSatisfiedBy(GradleVersion element) {
+                public boolean apply(GradleVersion element) {
                     return element.equals(current);
                 }
             };
         }
         if (trimmed.equals(NOT_CURRENT)) {
             final GradleVersion current = GradleVersion.current();
-            return new Spec<GradleVersion>() {
+            return new Predicate<GradleVersion>() {
 
                 @Override
-                public boolean isSatisfiedBy(GradleVersion element) {
+                public boolean apply(GradleVersion element) {
                     return !element.equals(current);
                 }
             };
         }
         if (trimmed.startsWith(EQUALS)) {
             final GradleVersion target = GradleVersion.version(trimmed.substring(1)).getBaseVersion();
-            return new Spec<GradleVersion>() {
+            return new Predicate<GradleVersion>() {
 
                 @Override
-                public boolean isSatisfiedBy(GradleVersion element) {
+                public boolean apply(GradleVersion element) {
                     return element.getBaseVersion().equals(target);
                 }
             };
         }
         if (trimmed.startsWith(NOT_EQUALS)) {
             final GradleVersion target = GradleVersion.version(trimmed.substring(2)).getBaseVersion();
-            return new Spec<GradleVersion>() {
+            return new Predicate<GradleVersion>() {
 
                 @Override
-                public boolean isSatisfiedBy(GradleVersion element) {
+                public boolean apply(GradleVersion element) {
                     return !element.getBaseVersion().equals(target);
                 }
             };
         }
 
         // AND-combined patterns
-        final List<Spec<GradleVersion>> specs = new ArrayList<Spec<GradleVersion>>();
+        final List<Predicate<GradleVersion>> predicates = new ArrayList<Predicate<GradleVersion>>();
         String[] patterns = trimmed.split("\\s+");
         for (String value : patterns) {
             if (value.startsWith(NOT_EQUALS)) {
                 final GradleVersion version = GradleVersion.version(value.substring(2));
-                specs.add(new Spec<GradleVersion>() {
+                predicates.add(new Predicate<GradleVersion>() {
 
                     @Override
-                    public boolean isSatisfiedBy(GradleVersion element) {
+                    public boolean apply(GradleVersion element) {
                         return !element.getBaseVersion().equals(version);
                     }
                 });
             } else if (value.startsWith(GREATER_THAN_OR_EQUALS)) {
                 final GradleVersion minVersion = GradleVersion.version(value.substring(2));
-                specs.add(new Spec<GradleVersion>() {
+                predicates.add(new Predicate<GradleVersion>() {
 
                     @Override
-                    public boolean isSatisfiedBy(GradleVersion element) {
+                    public boolean apply(GradleVersion element) {
                         return element.getBaseVersion().compareTo(minVersion) >= 0;
                     }
                 });
             } else if (value.startsWith(GREATER_THAN)) {
                 final GradleVersion minVersion = GradleVersion.version(value.substring(1));
-                specs.add(new Spec<GradleVersion>() {
+                predicates.add(new Predicate<GradleVersion>() {
 
                     @Override
-                    public boolean isSatisfiedBy(GradleVersion element) {
+                    public boolean apply(GradleVersion element) {
                         return element.getBaseVersion().compareTo(minVersion) > 0;
                     }
                 });
             } else if (value.startsWith(SMALLER_THAN_OR_EQUALS)) {
                 final GradleVersion maxVersion = GradleVersion.version(value.substring(2));
-                specs.add(new Spec<GradleVersion>() {
+                predicates.add(new Predicate<GradleVersion>() {
 
                     @Override
-                    public boolean isSatisfiedBy(GradleVersion element) {
+                    public boolean apply(GradleVersion element) {
                         return element.getBaseVersion().compareTo(maxVersion) <= 0;
                     }
                 });
             } else if (value.startsWith(SMALLER_THAN)) {
                 final GradleVersion maxVersion = GradleVersion.version(value.substring(1));
-                specs.add(new Spec<GradleVersion>() {
+                predicates.add(new Predicate<GradleVersion>() {
 
                     @Override
-                    public boolean isSatisfiedBy(GradleVersion element) {
+                    public boolean apply(GradleVersion element) {
                         return element.getBaseVersion().compareTo(maxVersion) < 0;
                     }
                 });
@@ -143,12 +143,12 @@ public abstract class GradleVersionSpec {
             }
         }
 
-        return new Spec<GradleVersion>() {
+        return new Predicate<GradleVersion>() {
 
             @Override
-            public boolean isSatisfiedBy(GradleVersion element) {
-                for (Spec<GradleVersion> spec : specs) {
-                    if (!spec.isSatisfiedBy(element)) {
+            public boolean apply(GradleVersion element) {
+                for (Predicate<GradleVersion> predicate : predicates) {
+                    if (!predicate.apply(element)) {
                         return false;
                     }
                 }
