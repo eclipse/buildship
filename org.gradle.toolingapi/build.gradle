@@ -1,0 +1,16 @@
+apply plugin: eclipsebuild.jar.ExistingJarBundlePlugin
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+dependencies {
+    plugin "org.gradle:gradle-tooling-api:$toolingApiVersion"
+}
+
+bundleInfo {
+    bundleName = 'org.gradle.toolingapi'
+    bundleVersion = getBundleVersion(toolingApiVersion)
+    qualifier = versionQualifier
+    template = file('resources/template/manifest-template.txt').text
+    packageFilter = ".c*jarjar.*|.*impldep.*"
+    resources = files('resources/extra_resources')
+}

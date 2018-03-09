@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gradle Tooling API
+Bundle-Vendor: Gradle Inc.
+Bundle-SymbolicName: org.gradle.toolingapi
+Bundle-ClassPath: .
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.slf4j.api;bundle-version="1.7.2"

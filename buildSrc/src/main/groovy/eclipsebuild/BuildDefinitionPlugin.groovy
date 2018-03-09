@@ -11,10 +11,10 @@
 
 package eclipsebuild
 
+import eclipsebuild.jar.ExistingJarBundlePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
-import org.gradle.internal.os.OperatingSystem
 import eclipsebuild.mavenize.BundleMavenDeployer
 
 /**
@@ -187,6 +187,16 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             description = "Assembles an Eclipse distribution based on the target platform definition."
             project.afterEvaluate { inputs.file config.targetPlatform.targetDefinition }
             project.afterEvaluate { outputs.dir config.nonMavenizedTargetPlatformDir }
+
+            // install existing jar bundles
+            project.rootProject.allprojects.each { Project p ->
+                p.afterEvaluate {
+                    if (p.plugins.hasPlugin(ExistingJarBundlePlugin)) {
+                        dependsOn p.tasks[ExistingJarBundlePlugin.TASK_NAME_CREATE_P2_REPOSITORY]
+                    }
+                }
+            }
+
             doLast { assembleTargetPlatform(project, config) }
         }
     }
@@ -222,6 +232,17 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         // invoke the P2 director application to assemble install all features from the target
         // definition file to the target platform: http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.platform.doc.isv%2Fguide%2Fp2_director.html
         project.logger.info("Assemble target platfrom in '${config.nonMavenizedTargetPlatformDir.absolutePath}'.\n    Update sites: '${updateSites.join(' ')}'\n    Features: '${features.join(' ')}'")
+
+        executeP2Director(project, config, updateSites.join(','), features.join(','))
+        project.rootProject.allprojects.each { Project p ->
+            if (p.plugins.hasPlugin(ExistingJarBundlePlugin)) {
+                String repo = new File(p.buildDir, ExistingJarBundlePlugin.P2_REPOSITORY_FOLDER).toURI().toURL().toString()
+                executeP2Director(p, config, repo, p.extensions.bundleInfo.bundleName.get())
+            }
+        }
+    }
+
+    private static void executeP2Director(Project project, Config config, String repositoryUrl, String installIU) {
         project.exec {
 
             // redirect the external process output to the logging
@@ -230,8 +251,8 @@ class BuildDefinitionPlugin implements Plugin<Project> {
 
             commandLine(config.eclipseSdkExe.path,
                     '-application', 'org.eclipse.equinox.p2.director',
-                    '-repository', updateSites.join(','),
-                    '-installIU', features.join(','),
+                    '-repository', repositoryUrl,
+                    '-installIU', installIU,
                     '-tag', 'target-platform',
                     '-destination', config.nonMavenizedTargetPlatformDir.path,
                     '-profile', 'SDKProfile',

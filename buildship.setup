@@ -251,6 +251,9 @@
             pattern="org\.eclipse\.buildship\.ROOT"/>
         <operand
             xsi:type="predicates:NamePredicate"
+            pattern="org\.gradle\.toolingapi"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
             pattern="org\.eclipse\.buildship\.branding"/>
         <operand
             xsi:type="predicates:NamePredicate"
@@ -300,9 +303,6 @@
           name="com.google.guava"
           versionRange="15.0.0"/>
       <requirement
-          name="org.gradle.toolingapi"
-          versionRange="4.3.0"/>
-      <requirement
           name="org.jetbrains.kotlin.feature.feature.group"
           versionRange="0.8.2"/>
       <repositoryList
@@ -313,8 +313,6 @@
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
-        <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Neon">
@@ -324,8 +322,6 @@
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
-        <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Mars">
@@ -335,8 +331,6 @@
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
-        <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Luna">
@@ -346,8 +340,6 @@
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
-        <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
@@ -357,8 +349,6 @@
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
-        <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Juno">
@@ -368,8 +358,6 @@
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
-        <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
     </targlet>
     <targlet

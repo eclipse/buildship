@@ -1,3 +1,4 @@
+include ':org.gradle.toolingapi'
 include ':org.eclipse.buildship.core'
 include ':org.eclipse.buildship.ui'
 include ':org.eclipse.buildship.feature'
