@@ -1,18 +1,16 @@
 package org.eclipse.buildship.core.workspace.internal
 
-import com.google.common.base.Optional
+import org.gradle.tooling.model.eclipse.EclipseProject
 
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
-import org.gradle.tooling.model.eclipse.EclipseProject
-import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-
 import org.eclipse.buildship.core.util.gradle.CompatEclipseProject
+import org.eclipse.buildship.core.util.gradle.ModelUtils
 
 class LibraryFilterTest extends WorkspaceSpecification {
 
@@ -25,7 +23,7 @@ class LibraryFilterTest extends WorkspaceSpecification {
 
         when:
         EclipseProject model = Mock(EclipseProject)
-        model.classpathContainers >> ImmutableDomainObjectSet.of([])
+        model.classpathContainers >> ModelUtils.asDomainObjectSet([])
         LibraryFilter.update(project, model, new NullProgressMonitor())
 
         then:

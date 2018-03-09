@@ -22,8 +22,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
-import org.gradle.internal.UncheckedException;
-
 import com.google.common.base.Charsets;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -92,7 +90,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
                 persistAllProjectPrefs();
             }
         } catch (IOException e) {
-            throw new UncheckedException(e);
+            throw new RuntimeException(e);
         }
     }
 

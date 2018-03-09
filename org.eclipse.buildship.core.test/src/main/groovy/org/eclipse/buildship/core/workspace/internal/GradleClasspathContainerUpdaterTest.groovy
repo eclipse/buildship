@@ -3,7 +3,6 @@ package org.eclipse.buildship.core.workspace.internal
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency
-import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -133,8 +132,8 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     EclipseProject gradleProjectWithClasspath(Object... dependencies) {
         Stub(EclipseProject) {
-            getClasspath() >> ImmutableDomainObjectSet.of(dependencies.findAll { it instanceof EclipseExternalDependency })
-            getProjectDependencies() >> ImmutableDomainObjectSet.of(dependencies.findAll { it instanceof EclipseProjectDependency })
+            getClasspath() >> ModelUtils.asDomainObjectSet(dependencies.findAll { it instanceof EclipseExternalDependency })
+            getProjectDependencies() >> ModelUtils.asDomainObjectSet(dependencies.findAll { it instanceof EclipseProjectDependency })
         }
     }
 
@@ -146,8 +145,8 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
             getSource() >> sources
             getJavadoc() >> javaDoc
             isExported() >> exported
-            getClasspathAttributes() >> ImmutableDomainObjectSet.of(attributes)
-            getAccessRules() >> ImmutableDomainObjectSet.of(rules)
+            getClasspathAttributes() >> ModelUtils.asDomainObjectSet(attributes)
+            getAccessRules() >> ModelUtils.asDomainObjectSet(rules)
         }
     }
 

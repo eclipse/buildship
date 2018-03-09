@@ -17,7 +17,6 @@
 package org.eclipse.buildship.core.util.gradle
 
 import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.internal.consumer.DefaultGradleConnector
 import spock.lang.Specification
 
 class GradleDistributionTest extends Specification {
@@ -63,7 +62,7 @@ class GradleDistributionTest extends Specification {
 
     def "fromBuild"() {
         setup:
-        DefaultGradleConnector connector = Mock(DefaultGradleConnector.class)
+        GradleConnector connector = Mock(GradleConnector.class)
         def distribution = GradleDistribution.fromBuild()
 
         when:
@@ -73,7 +72,7 @@ class GradleDistributionTest extends Specification {
         1 * connector.useBuildDistribution()
     }
 
-    def "toString"() {
+    def "_toString"() {
         when:
         def file = new File('.')
         def distribution = GradleDistribution.forLocalInstallation(file)
