@@ -6,8 +6,7 @@ Bundle-SymbolicName: org.gradle.toolingapi
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.slf4j.api;bundle-version="1.7.2"
-Export-Package: org.gradle;version="4.3.0",
- org.gradle.api;version="4.3.0",
+Export-Package: org.gradle.api;version="4.3.0",
  org.gradle.tooling;version="4.3.0",
  org.gradle.tooling.events;version="4.3.0",
  org.gradle.tooling.events.task;version="4.3.0",

@@ -21,7 +21,7 @@ import spock.lang.Specification
 
 class GradleDistributionTest extends Specification {
 
-    def "forLocalInstallation"() {
+    def "GradleDistrubution configures GradleConnector to use local installation"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
         def file = new File('.')
@@ -34,7 +34,7 @@ class GradleDistributionTest extends Specification {
         1 * connector.useInstallation(_)
     }
 
-    def "forRemoteDistribution"() {
+    def "GradleDistrubution configures GradleConnector to use remote distribution"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
         def uri = new File('.').toURI()
@@ -47,7 +47,7 @@ class GradleDistributionTest extends Specification {
         1 * connector.useDistribution(uri)
     }
 
-    def "forVersion"() {
+    def "GradleDistrubution configures GradleConnector to use version number"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
         def version = '2.0'
@@ -60,7 +60,7 @@ class GradleDistributionTest extends Specification {
         1 * connector.useGradleVersion(version)
     }
 
-    def "fromBuild"() {
+    def "GradleDistrubution configures GradleConnector to use default distibution defined by the Tooling API library"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
         def distribution = GradleDistribution.fromBuild()
@@ -72,7 +72,7 @@ class GradleDistributionTest extends Specification {
         1 * connector.useBuildDistribution()
     }
 
-    def "_toString"() {
+    def "GradleDistrubution has human-readable toString() implementation"() {
         when:
         def file = new File('.')
         def distribution = GradleDistribution.forLocalInstallation(file)
