@@ -11,6 +11,6 @@ bundleInfo {
     bundleVersion = getBundleVersion(toolingApiVersion)
     qualifier = versionQualifier
     template = file('resources/template/manifest-template.txt').text
-    packageFilter = ".c*jarjar.*|.*impldep.*"
+    packageFilter = ".c*jarjar.*|.*impldep.*|.*internal.*"
     resources = files('resources/extra_resources')
 }
