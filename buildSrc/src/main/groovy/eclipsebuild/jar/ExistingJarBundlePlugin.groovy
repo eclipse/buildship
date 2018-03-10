@@ -85,7 +85,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
                 String template = project.extensions.bundleInfo.template.get()
                 String packageFilter = project.extensions.bundleInfo.packageFilter.get()
                 String bundleVersion = project.extensions.bundleInfo.bundleVersion.get()
-                String qualifier = project.extensions.bundleInfo.qualifier.get()
+                String qualifier = 'qualifier'
                 project.file('META-INF').mkdirs()
                 project.file('META-INF/MANIFEST.MF').text = JarBundleUtils.manifestContent(jar, template, packageFilter, bundleVersion, qualifier)
             }
