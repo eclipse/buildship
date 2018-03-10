@@ -17,6 +17,5 @@ Export-Package: org.gradle.api;version="4.3.0",
  org.gradle.tooling.model.eclipse;version="4.3.0",
  org.gradle.tooling.model.gradle;version="4.3.0",
  org.gradle.tooling.model.idea;version="4.3.0",
- org.gradle.tooling.model.java;version="4.3.0",
- org.gradle.util;version="4.3.0"
-Bundle-Version: 4.3.0.v20180309-s
+ org.gradle.tooling.model.java;version="4.3.0"
+Bundle-Version: 4.3.0.v20180310-s

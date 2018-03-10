@@ -13,10 +13,9 @@ package org.eclipse.buildship.core.gradle;
 
 import java.util.List;
 
-import org.gradle.util.GradleVersion;
-
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.buildship.core.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.util.gradle.Pair;
 
 /**

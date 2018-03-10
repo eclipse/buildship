@@ -19,7 +19,6 @@ import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.build.GradleEnvironment;
 import org.gradle.tooling.model.gradle.BasicGradleProject;
 import org.gradle.tooling.model.gradle.GradleBuild;
-import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -63,6 +62,7 @@ import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusTyp
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.binding.Property;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.core.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.util.gradle.Pair;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.ModelProvider;

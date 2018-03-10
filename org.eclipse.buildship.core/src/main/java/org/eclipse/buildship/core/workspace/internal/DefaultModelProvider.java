@@ -16,7 +16,6 @@ import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
@@ -30,6 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.util.gradle.ModelUtils;
 import org.eclipse.buildship.core.workspace.FetchStrategy;
 import org.eclipse.buildship.core.workspace.ModelProvider;

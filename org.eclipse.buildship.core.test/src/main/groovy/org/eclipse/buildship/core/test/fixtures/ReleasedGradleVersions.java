@@ -10,8 +10,6 @@ package org.eclipse.buildship.core.test.fixtures;
 
 import java.util.Set;
 
-import org.gradle.util.GradleVersion;
-
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -20,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 
+import org.eclipse.buildship.core.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.util.gradle.PublishedGradleVersions;
 
 /**

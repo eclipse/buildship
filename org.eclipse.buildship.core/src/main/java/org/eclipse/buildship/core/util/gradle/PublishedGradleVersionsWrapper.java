@@ -14,8 +14,6 @@ package org.eclipse.buildship.core.util.gradle;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.gradle.util.GradleVersion;
-
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.runtime.IProgressMonitor;

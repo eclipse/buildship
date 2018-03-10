@@ -11,10 +11,10 @@ package org.eclipse.buildship.core.test.fixtures;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.gradle.util.GradleVersion;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+
+import org.eclipse.buildship.core.util.gradle.GradleVersion;
 
 /**
  * A specification that matches against Gradle version patterns.

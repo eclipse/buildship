@@ -9,10 +9,8 @@
 package org.eclipse.buildship.core.test.fixtures;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
-
-import org.gradle.util.DistributionLocator;
-import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -24,6 +22,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.buildship.core.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.util.gradle.GradleVersion;
 
 /**
  * Provides parameterization for Spock that includes one or more Gradle distributions on the first
@@ -174,4 +173,34 @@ public abstract class GradleVersionParameterization {
         };
     }
 
+
+    public class DistributionLocator {
+        private static final String RELEASE_REPOSITORY = "https://services.gradle.org/distributions";
+        private static final String SNAPSHOT_REPOSITORY = "https://services.gradle.org/distributions-snapshots";
+
+        public URI getDistributionFor(GradleVersion version) {
+            return getDistributionFor(version, "bin");
+        }
+
+        public URI getDistributionFor(GradleVersion version, String type) {
+            return getDistribution(getDistributionRepository(version), version, "gradle", type);
+        }
+
+        private String getDistributionRepository(GradleVersion version) {
+            if (version.isSnapshot()) {
+                return SNAPSHOT_REPOSITORY;
+            } else {
+                return RELEASE_REPOSITORY;
+            }
+        }
+
+        private URI getDistribution(String repositoryUrl, GradleVersion version, String archiveName,
+                                       String archiveClassifier) {
+            try {
+                return new URI(repositoryUrl + "/" + archiveName + "-" + version.getVersion() + "-" + archiveClassifier + ".zip");
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
