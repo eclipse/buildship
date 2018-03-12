@@ -6,7 +6,6 @@ import org.gradle.tooling.model.eclipse.ClasspathAttribute
 import org.gradle.tooling.model.eclipse.EclipseClasspathContainer
 import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings
 import org.gradle.tooling.model.eclipse.EclipseProject
-import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 import org.gradle.tooling.model.java.InstalledJdk
 
 import org.eclipse.core.runtime.IPath
@@ -339,8 +338,9 @@ class ClasspathContainerUpdaterTest extends WorkspaceSpecification {
         EclipseClasspathContainer container = Mock(EclipseClasspathContainer)
         container.getPath() >> path.toPortableString()
         container.exported >> exported
-        container.getClasspathAttributes() >> ImmutableDomainObjectSet.of(attributes)
-        container.getAccessRules() >> ImmutableDomainObjectSet.of(rules)
+
+        container.getClasspathAttributes() >> ModelUtils.asDomainObjectSet(attributes)
+        container.getAccessRules() >> ModelUtils.asDomainObjectSet(rules)
         container
     }
 

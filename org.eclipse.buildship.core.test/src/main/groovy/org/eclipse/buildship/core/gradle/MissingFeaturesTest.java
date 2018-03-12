@@ -16,9 +16,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.gradle.util.GradleVersion;
 import org.junit.Test;
 
+import org.eclipse.buildship.core.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.util.gradle.Pair;
 
 /**

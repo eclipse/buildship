@@ -16,7 +16,6 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.build.GradleEnvironment;
 import org.gradle.tooling.model.build.JavaEnvironment;
-import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -29,6 +28,7 @@ import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.util.gradle.GradleVersion;
 
 /**
  * Holds configuration values to apply on Tooling API objects.

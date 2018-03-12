@@ -17,12 +17,11 @@
 package org.eclipse.buildship.core.util.gradle
 
 import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.internal.consumer.DefaultGradleConnector
 import spock.lang.Specification
 
 class GradleDistributionTest extends Specification {
 
-    def "forLocalInstallation"() {
+    def "GradleDistrubution configures GradleConnector to use local installation"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
         def file = new File('.')
@@ -35,7 +34,7 @@ class GradleDistributionTest extends Specification {
         1 * connector.useInstallation(_)
     }
 
-    def "forRemoteDistribution"() {
+    def "GradleDistrubution configures GradleConnector to use remote distribution"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
         def uri = new File('.').toURI()
@@ -48,7 +47,7 @@ class GradleDistributionTest extends Specification {
         1 * connector.useDistribution(uri)
     }
 
-    def "forVersion"() {
+    def "GradleDistrubution configures GradleConnector to use version number"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
         def version = '2.0'
@@ -61,9 +60,9 @@ class GradleDistributionTest extends Specification {
         1 * connector.useGradleVersion(version)
     }
 
-    def "fromBuild"() {
+    def "GradleDistrubution configures GradleConnector to use default distibution defined by the Tooling API library"() {
         setup:
-        DefaultGradleConnector connector = Mock(DefaultGradleConnector.class)
+        GradleConnector connector = Mock(GradleConnector.class)
         def distribution = GradleDistribution.fromBuild()
 
         when:
@@ -73,7 +72,7 @@ class GradleDistributionTest extends Specification {
         1 * connector.useBuildDistribution()
     }
 
-    def "toString"() {
+    def "GradleDistrubution has human-readable toString() implementation"() {
         when:
         def file = new File('.')
         def distribution = GradleDistribution.forLocalInstallation(file)

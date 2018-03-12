@@ -1,6 +1,5 @@
 package org.eclipse.buildship.core.util.gradle
 
-import org.gradle.util.GradleVersion
 import spock.lang.Shared;
 import spock.lang.Specification
 

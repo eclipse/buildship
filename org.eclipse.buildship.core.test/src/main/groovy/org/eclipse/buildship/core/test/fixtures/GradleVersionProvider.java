@@ -8,6 +8,9 @@
 
 package org.eclipse.buildship.core.test.fixtures;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
@@ -15,12 +18,11 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
-import org.gradle.util.GradleVersion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.eclipse.buildship.core.util.gradle.GradleVersion;
 
 /**
- * Provides {@link org.gradle.util.GradleVersion} instances that match the supplied Gradle version
+ * Provides {@link GradleVersion} instances that match the supplied Gradle version
  * range pattern.
  *
  * @author Etienne Studer

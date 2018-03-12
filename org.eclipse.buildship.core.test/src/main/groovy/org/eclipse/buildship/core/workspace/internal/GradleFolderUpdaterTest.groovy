@@ -2,12 +2,12 @@ package org.eclipse.buildship.core.workspace.internal
 
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.eclipse.EclipseProject
-import org.gradle.tooling.model.internal.ImmutableDomainObjectSet
 
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.util.gradle.ModelUtils
 
 class GradleFolderUpdaterTest extends WorkspaceSpecification {
     IProject project
@@ -88,7 +88,7 @@ class GradleFolderUpdaterTest extends WorkspaceSpecification {
         gradleProject.buildDirectory >> new File(project.location.toFile(), buildDir)
         eclipseProject.gradleProject >> gradleProject
         eclipseProject.projectDirectory >> project.location.toFile()
-        eclipseProject.children >> ImmutableDomainObjectSet.of([])
+        eclipseProject.children >> ModelUtils.asDomainObjectSet([])
         eclipseProject
     }
 }
