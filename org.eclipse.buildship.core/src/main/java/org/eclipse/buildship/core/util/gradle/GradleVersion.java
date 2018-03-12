@@ -39,7 +39,6 @@ public final class GradleVersion implements Comparable<GradleVersion> {
     private static final int STAGE_MILESTONE = 0;
 
     private final String version;
-    private final int majorPart;
     private final Long snapshot;
     private final String versionPart;
     private final Stage stage;
@@ -99,7 +98,6 @@ public final class GradleVersion implements Comparable<GradleVersion> {
         }
 
         this.versionPart = matcher.group(1);
-        this.majorPart = Integer.parseInt(matcher.group(2), 10);
 
         if (matcher.group(4) != null) {
             int stageNumber;

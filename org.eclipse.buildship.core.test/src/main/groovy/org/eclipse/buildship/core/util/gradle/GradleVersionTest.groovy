@@ -27,7 +27,6 @@ class GradleVersionTest extends Specification {
     def "current version has non-null parts"() {
         expect:
         version.version
-        version.nextMajor
         version.baseVersion
     }
 
@@ -199,31 +198,5 @@ class GradleVersionTest extends Specification {
         '3.0-snapshot-1'                      | "3.0"
         '3.0-milestone-3'                     | "3.0"
         '3.0-milestone-3-20121012100000+1000' | "3.0"
-    }
-
-    def "can get next major version"(v, major) {
-        expect:
-        GradleVersion.version(v).nextMajor == GradleVersion.version(major)
-
-        where:
-        v                                     | major
-        "1.0"                                 | "2.0"
-        "1.0-rc-1"                            | "2.0"
-        '0.9-20101220100000+1000'             | "1.0"
-        '0.9-20101220100000'                  | "1.0"
-        '20.17-20101220100000+1000'           | "21.0"
-        '0.9-SNAPSHOT'                        | "1.0"
-        '3.0-snapshot-1'                      | "4.0"
-    }
-
-    def "milestones are part of previous major version"(v, major) {
-        expect:
-        GradleVersion.version(v).nextMajor == GradleVersion.version(major)
-
-        where:
-        v                                     | major
-        '1.0-milestone-3'                     | "1.0"
-        '1.0-milestone-3-20121012100000+1000' | "1.0"
-        '2.0-milestone-3'                     | "2.0" // not that we're planning to do this
     }
 }
