@@ -166,13 +166,6 @@ public final class GradleVersion implements Comparable<GradleVersion> {
         return version(this.versionPart);
     }
 
-    public GradleVersion getNextMajor() {
-        if (this.stage != null && this.stage.stage == STAGE_MILESTONE) {
-            return version(this.majorPart + ".0");
-        }
-        return version((this.majorPart + 1) + ".0");
-    }
-
     @Override
     public int compareTo(GradleVersion gradleVersion) {
         String[] majorVersionParts = this.versionPart.split("\\.");
