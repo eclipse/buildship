@@ -35,7 +35,6 @@ import java.net.URLConnection;
  */
 public final class GradleVersion implements Comparable<GradleVersion> {
 
-    public static final String URL = "http://www.gradle.org";
     private static final Pattern VERSION_PATTERN = Pattern.compile("((\\d+)(\\.\\d+)+)(-(\\p{Alpha}+)-(\\d+[a-z]?))?(-(SNAPSHOT|\\d{14}([-+]\\d{4})?))?");
     private static final int STAGE_MILESTONE = 0;
 
