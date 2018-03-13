@@ -18,6 +18,7 @@ import spock.lang.Specification
 
 import com.google.common.io.Files
 
+import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspace
@@ -28,6 +29,7 @@ import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore
 import org.eclipse.ui.IWorkbenchWindow
 import org.eclipse.ui.PlatformUI
 
@@ -35,6 +37,7 @@ import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
+import org.eclipse.buildship.core.marker.GradleErrorMarker
 import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.buildship.ui.view.execution.ExecutionsView
@@ -174,6 +177,11 @@ abstract class WorkspaceSpecification extends Specification {
         CorePlugin.workspaceOperations().findProjectByName(name).orNull()
     }
 
+    protected IJavaProject findJavaProject(String name) {
+        IProject project = findProject(name)
+        return project == null ? null : JavaCore.create(project)
+    }
+
     protected WorkspaceOperations getWorkspaceOperations() {
         CorePlugin.workspaceOperations()
     }
@@ -223,5 +231,13 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected ILaunchConfigurationWorkingCopy createGradleLaunchConfig(String name = 'launch-config') {
         createLaunchConfig(GradleRunConfigurationDelegate.ID, name)
+    }
+
+    protected int getNumOfGradleErrorMarkers() {
+        gradleErrorMarkers.size()
+    }
+
+    protected List<IMarker> getGradleErrorMarkers(IResource rootResource = workspace.root) {
+        rootResource.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List
     }
 }

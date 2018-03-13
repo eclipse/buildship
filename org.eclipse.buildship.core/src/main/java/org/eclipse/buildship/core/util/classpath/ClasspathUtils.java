@@ -9,16 +9,20 @@
 package org.eclipse.buildship.core.util.classpath;
 
 import java.util.List;
+import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.AccessRule;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseClasspathEntry;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 
 /**
@@ -62,4 +66,39 @@ public final class ClasspathUtils {
         }
         return classpathAttributes;
     }
+
+    /**
+     * Returns the list of Gradle scopes that is defined on the target classpath entry.
+     * <p>
+     * If the scope information is not available then {@link Optional#absent()} is returned.
+     *
+     * @param entry the target entry
+     * @return the set of scopes
+     */
+    public static Optional<Set<String>> scopesFor(IClasspathEntry entry) {
+        for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
+            if (attribute.getName().equals("gradle_scope")) {
+                return Optional.<Set<String>>of(Sets.newHashSet(attribute.getValue().split(",")));
+            }
+        }
+        return Optional.absent();
+    }
+
+    /**
+     * Returns the list of Gradle used-by scopes that is defined on the target classpath entry.
+     * <p>
+     * If the scope information is not available then {@link Optional#absent()} is returned.
+     *
+     * @param entry the target entry
+     * @return the set of used-by scopes
+     */
+    public static Optional<Set<String>> usedByScopesFor(IClasspathEntry entry) {
+        for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
+            if (attribute.getName().equals("gradle_used_by_scope")) {
+                return Optional.<Set<String>>of(Sets.newHashSet(attribute.getValue().split(",")));
+            }
+        }
+        return Optional.absent();
+    }
+
 }
