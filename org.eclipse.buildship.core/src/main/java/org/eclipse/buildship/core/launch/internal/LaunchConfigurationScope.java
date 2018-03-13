@@ -10,15 +10,16 @@ package org.eclipse.buildship.core.launch.internal;
 
 import java.util.Set;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 
 /**
  * Represents the scope associated with the current launch configuration.
@@ -54,11 +55,11 @@ public abstract class LaunchConfigurationScope {
         try {
             Set<IPackageFragmentRoot> soureFolders = SupportedLaunchConfigType.collectSourceFolders(configuration);
             for (IPackageFragmentRoot sourceFolder : soureFolders) {
-                Set<String> scope = scopesFor(sourceFolder.getRawClasspathEntry());
-                if (scope == null) {
+                Optional<Set<String>> scope = ClasspathUtils.scopesFor(sourceFolder.getRawClasspathEntry());
+                if (!scope.isPresent()) {
                     return INCLUDE_ALL;
                 }
-                result.addAll(scope);
+                result.addAll(scope.get());
             }
             return new FilteringLaunchConfigurationScope(result);
         } catch (CoreException e) {
@@ -67,23 +68,6 @@ public abstract class LaunchConfigurationScope {
         }
     }
 
-    private static Set<String> scopesFor(IClasspathEntry entry) {
-        for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
-            if (attribute.getName().equals("gradle_scope")) {
-                return Sets.newHashSet(attribute.getValue().split(","));
-            }
-        }
-        return null;
-    }
-
-    private static Set<String> usedByScopesFor(IClasspathEntry entry) {
-        for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
-            if (attribute.getName().equals("gradle_used_by_scope")) {
-                return Sets.newHashSet(attribute.getValue().split(","));
-            }
-        }
-        return null;
-    }
 
     /**
      * Doesn't filter any entries.
@@ -113,12 +97,12 @@ public abstract class LaunchConfigurationScope {
                 return true;
             }
 
-            Set<String> entryUsedByScopes = usedByScopesFor(entry);
-            if (entryUsedByScopes == null || entryUsedByScopes.isEmpty()) {
+            Optional<Set<String>> entryUsedByScopes = ClasspathUtils.usedByScopesFor(entry);
+            if (!entryUsedByScopes.isPresent() || entryUsedByScopes.get().isEmpty()) {
                 return true;
             }
 
-            return !Sets.intersection(this.scopes, entryUsedByScopes).isEmpty();
+            return !Sets.intersection(this.scopes, entryUsedByScopes.get()).isEmpty();
         }
     }
 }

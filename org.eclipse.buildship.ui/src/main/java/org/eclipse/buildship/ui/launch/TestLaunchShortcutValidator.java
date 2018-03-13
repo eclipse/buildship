@@ -11,14 +11,25 @@
 
 package org.eclipse.buildship.ui.launch;
 
-import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.core.*;
-
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
+
+import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
 
 /**
  * Tests if a set of {@link IJavaElement} instances are valid to launch as tests with.
@@ -46,6 +57,13 @@ public final class TestLaunchShortcutValidator {
                 return false;
             }
         }
+
+        for (IType type : types) {
+            if (!isTestType(type)) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -62,17 +80,25 @@ public final class TestLaunchShortcutValidator {
     private static boolean isInSourceFolder(IType type) {
         // if the type is not defined in a source folder or the source folder
         // type can't be determined, then return false
-        IJavaElement fragmentRoot = type.getPackageFragment().getParent();
-        if (fragmentRoot instanceof IPackageFragmentRoot) {
-            IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) fragmentRoot;
+        IPackageFragmentRoot packageFragmentRoot = getPackageFragmentRoot(type);
+        if (packageFragmentRoot != null) {
             try {
-                return packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE;
+                return packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE && packageFragmentRoot.getRawClasspathEntry() != null;
             } catch (JavaModelException e) {
                 return false;
             }
-        } else {
-            return false;
         }
+
+        return false;
+    }
+
+    private static IPackageFragmentRoot getPackageFragmentRoot(IType type) {
+        IJavaElement fragmentRoot = type.getPackageFragment().getParent();
+        if (fragmentRoot instanceof IPackageFragmentRoot) {
+            return (IPackageFragmentRoot) fragmentRoot;
+        }
+
+        return null;
     }
 
     private static boolean validateJavaElements(List<? extends IJavaElement> elements) {
@@ -103,6 +129,35 @@ public final class TestLaunchShortcutValidator {
 
         // otherwise the collection is valid
         return true;
+    }
+
+    private static boolean isTestType(IType type) {
+        IClasspathEntry fragmentRootEntry = null;
+        try {
+            fragmentRootEntry = getPackageFragmentRoot(type).getRawClasspathEntry();
+        } catch (JavaModelException e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
+
+        Optional<Set<String>> scopes = ClasspathUtils.scopesFor(fragmentRootEntry);
+        if (scopes.isPresent()) {
+            return hasElementContainingTheWordTest(scopes.get());
+        } else {
+            return hasElementContainingTheWordTest(projectRelativePathSegments(type));
+        }
+    }
+
+    private static List<String> projectRelativePathSegments(IType type) {
+        return Arrays.asList(type.getPath().makeRelativeTo(type.getJavaProject().getProject().getFullPath()).segments());
+    }
+
+    private static boolean hasElementContainingTheWordTest(Collection<String> elements) {
+        for (String element : elements) {
+            if (element.toLowerCase().contains("test")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
