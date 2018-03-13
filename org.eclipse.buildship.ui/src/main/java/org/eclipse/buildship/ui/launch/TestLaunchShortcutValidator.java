@@ -136,16 +136,14 @@ public final class TestLaunchShortcutValidator {
         try {
             fragmentRootEntry = getPackageFragmentRoot(type).getRawClasspathEntry();
         } catch (JavaModelException e) {
-            throw new GradlePluginsRuntimeException(e); // raw classpath entry checked in `isInSourceFolder()`
+            throw new GradlePluginsRuntimeException(e);
         }
 
         Optional<Set<String>> scopes = ClasspathUtils.scopesFor(fragmentRootEntry);
         if (scopes.isPresent()) {
-            // if source folder provides source set information then check if the source set name contains the word `test`
-            return containsTheWordTest(scopes.get());
+            return hasElementContainingTheWordTest(scopes.get());
         } else {
-            // otherwise check if the project-relative path contains the word `test`
-            return containsTheWordTest(projectRelativePathSegments(type));
+            return hasElementContainingTheWordTest(projectRelativePathSegments(type));
         }
     }
 
@@ -153,7 +151,7 @@ public final class TestLaunchShortcutValidator {
         return Arrays.asList(type.getPath().makeRelativeTo(type.getJavaProject().getProject().getFullPath()).segments());
     }
 
-    private static boolean containsTheWordTest(Collection<String> elements) {
+    private static boolean hasElementContainingTheWordTest(Collection<String> elements) {
         for (String element : elements) {
             if (element.toLowerCase().contains("test")) {
                 return true;
