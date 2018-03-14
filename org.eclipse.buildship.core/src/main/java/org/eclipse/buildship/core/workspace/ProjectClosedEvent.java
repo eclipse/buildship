@@ -13,7 +13,7 @@ import org.eclipse.core.resources.IProject;
 /**
  * Project closed event.
  *
- * @author Prashanth Parameshwara
+ * @author Prashanth Rao
  */
 public class ProjectClosedEvent extends BaseProjectChangedEvent {
 
