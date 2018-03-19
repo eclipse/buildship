@@ -96,7 +96,7 @@ class Constants {
         def currentOs = getOs() == 'win32' ? 'windows' : getOs()
         def currentArch = getArch() == "x86_64" ? "64" : "32";
         def fileFormat = getOs() == 'win32' ? 'zip' : 'tar.gz'
-        return "http://dev19.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-${currentOs}-${currentArch}.${fileFormat}"
+        return "http://builds.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-${currentOs}-${currentArch}.${fileFormat}"
     }
 
     /**

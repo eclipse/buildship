@@ -326,11 +326,11 @@ tasks.withType(eclipsebuild.DownloadEclipseSdkTask) {
     def os = org.gradle.internal.os.OperatingSystem.current()
     def arch = System.getProperty("os.arch").contains("64") ? "64" : "32"
     if (os.windows) {
-        downloadUrl = "http://dev19.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-windows-${arch}.zip"
+        downloadUrl = "http://builds.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-windows-${arch}.zip"
     } else if (os.macOsX) {
-        downloadUrl = "http://dev19.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-macosx-${arch}.tar.gz"
+        downloadUrl = "http://builds.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-macosx-${arch}.tar.gz"
     } else if (os.linux) {
-        downloadUrl = "http://dev19.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-linux-${arch}.tar.gz"
+        downloadUrl = "http://builds.gradle.org:8000/eclipse/sdk/eclipse-sdk-4.4.2-linux-${arch}.tar.gz"
     }
 }
 
