@@ -314,66 +314,66 @@
       <repositoryList
           name="Oxygen">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Neon">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-neon"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/releases-neon"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Mars">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-mars"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/releases-mars"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Luna">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-luna"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/releases-luna"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-kepler"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/releases-kepler"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Juno">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-juno"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/releases-juno"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
@@ -390,44 +390,44 @@
       <repositoryList
           name="Oxygen">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
       </repositoryList>
       <repositoryList
           name="Neon">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
       </repositoryList>
       <repositoryList
           name="Mars">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
       <repositoryList
           name="Luna">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
       <repositoryList
           name="Juno">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://dev19.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
       </repositoryList>
     </targlet>
     <targlet
