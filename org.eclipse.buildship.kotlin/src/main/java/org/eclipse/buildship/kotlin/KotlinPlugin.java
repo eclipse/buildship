@@ -10,12 +10,12 @@ package org.eclipse.buildship.kotlin;
 
 import org.osgi.framework.BundleContext;
 
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.core.runtime.Plugin;
 
 /**
  * The activator class controls the plug-in life cycle.
  */
-public class KotlinPlugin extends AbstractUIPlugin {
+public class KotlinPlugin extends Plugin {
     public static final String PLUGIN_ID = "org.eclipse.buildship.kotlin"; //$NON-NLS-1$
 
     private static KotlinPlugin plugin;

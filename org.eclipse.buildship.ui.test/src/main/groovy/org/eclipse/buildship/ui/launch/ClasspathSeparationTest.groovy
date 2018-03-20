@@ -244,6 +244,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
     private void launchAndWait(ILaunchConfiguration configuration) {
         ILaunch launch = configuration.launch(ILaunchManager.RUN_MODE, new NullProgressMonitor(), true)
         waitFor { launch.terminated }
+        waitFor { !consoles.activeConsoleContent.isEmpty() }
     }
 
     private void assertConsoleOutputContains(String text) {
