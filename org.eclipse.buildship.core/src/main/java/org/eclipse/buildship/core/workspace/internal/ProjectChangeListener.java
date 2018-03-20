@@ -82,7 +82,7 @@ public final class ProjectChangeListener implements IResourceChangeListener {
             } else if (delta.getFlags() == IResourceDelta.OPEN) {
             	if (project.isOpen()) {
             		CorePlugin.listenerRegistry().dispatch(new ProjectOpenedEvent(project));
-            	} else if (!project.isOpen()) {
+            	} else {
             		CorePlugin.listenerRegistry().dispatch(new ProjectClosedEvent(project));
             	}
             }
