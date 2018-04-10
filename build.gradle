@@ -17,17 +17,19 @@ ext.toolingApiBundleVersion = getBundleVersion(toolingApiVersion)
 
 // define version mapping for the 3rd-party dependencies that are not specific to a particular Eclipse version
 def eclipseVersionAgnosticDependencies = [
-    'com.gradleware.tooling.utils'      : toolingCommonsBundleVersion,
-    'com.gradleware.tooling.client'     : toolingCommonsBundleVersion,
-    'com.gradleware.tooling.model'      : toolingCommonsBundleVersion,
-    'org.gradle.toolingapi'             : toolingApiBundleVersion,
-    'org.slf4j.api'                     : '1.7.2',
-    'org.slf4j.simple'                  : '1.7.2',
-    'com.google.guava'                  : '15.0.0',
-    'com.google.gson'                   : '2.7.0',
-    'org.apache.log4j'                  : '1.2.15',
-    'org.eclipse.swtbot.eclipse.finder' : '2.2.1',
-    'org.eclipse.swtbot.junit4_x'       : '2.2.1',
+    'com.gradleware.tooling.utils'          : toolingCommonsBundleVersion,
+    'com.gradleware.tooling.client'         : toolingCommonsBundleVersion,
+    'com.gradleware.tooling.model'          : toolingCommonsBundleVersion,
+    'org.gradle.toolingapi'                 : toolingApiBundleVersion,
+    'org.slf4j.api'                         : '1.7.2',
+    'org.slf4j.simple'                      : '1.7.2',
+    'com.google.guava'                      : '15.0.0',
+    'com.google.gson'                       : '2.7.0',
+    'org.apache.log4j'                      : '1.2.15',
+    'org.eclipse.swtbot.eclipse.finder'     : '2.2.1',
+    'org.eclipse.swtbot.junit4_x'           : '2.2.1',
+    'org.jetbrains.kotlin.bundled-compiler' : '0.8.2',
+    'org.jetbrains.kotlin.core'             : '0.8.2'
 ]
 
 // target platform definition for all major Eclipse releases between version 4.2 and 4.6
@@ -42,32 +44,31 @@ eclipseBuild {
         eclipseVersion = '42'
         targetDefinition = file('tooling-e42.target')
         versionMapping = [
+            "$swtPluginId"                          : '3.100.1',
+            'com.ibm.icu'                           : '4.4.2',
             'org.eclipse.core.expressions'          : '3.4.401',
-            'org.eclipse.core.runtime'              : '3.8.0',
-            'org.eclipse.core.resources'            : '3.8.1',
-            'org.eclipse.core.variables'            : '3.2.600',
             'org.eclipse.core.filesystem'           : '1.3.200',
             'org.eclipse.core.net'                  : '1.2.200',
+            'org.eclipse.core.resources'            : '3.8.1',
+            'org.eclipse.core.runtime'              : '3.8.0',
+            'org.eclipse.core.variables'            : '3.2.600',
+            'org.eclipse.debug.core'                : '3.7.100',
+            'org.eclipse.debug.ui'                  : '3.8.2',
+            'org.eclipse.help'                      : '3.6.0',
             'org.eclipse.jdt.core'                  : '3.8.3',
             'org.eclipse.jdt.junit.core'            : '3.7.100',
             'org.eclipse.jdt.launching'             : '3.6.101',
-            'org.eclipse.debug.core'                : '3.7.100',
-            'org.eclipse.core.databinding'          : '1.4.1',
-            'org.eclipse.core.databinding.beans'    : '1.2.200',
-            'org.eclipse.core.databinding.property' : '1.4.100',
-            'org.eclipse.help'                      : '3.6.0',
-            'org.eclipse.ui'                        : '3.104.0',
-            'org.eclipse.ui.ide'                    : '3.8.2',
-            'org.eclipse.ui.console'                : '3.5.100',
-            'org.eclipse.ui.editors'                : '3.8.0',
-            'org.eclipse.ui.views'                  : '3.6.100',
-            'org.eclipse.debug.ui'                  : '3.8.2',
             'org.eclipse.jdt.ui'                    : '3.8.2',
-            'com.ibm.icu'                           : '4.4.2',
             'org.eclipse.jface.databinding'         : '1.6.0',
             'org.eclipse.jface.text'                : '3.8.2',
-            'org.junit'                             : '4.12.0',
-            "$swtPluginId"                          : '3.100.1'
+            'org.eclipse.ui'                        : '3.104.0',
+            'org.eclipse.ui.console'                : '3.5.100',
+            'org.eclipse.ui.editors'                : '3.8.0',
+            'org.eclipse.ui.ide'                    : '3.8.2',
+            'org.eclipse.ui.navigator'              : '3.4.200',
+            'org.eclipse.ui.views'                  : '3.6.100',
+            'org.eclipse.ui.workbench.texteditor'   : '3.8.0',
+            'org.junit'                             : '4.12.0'
         ] + eclipseVersionAgnosticDependencies
     }
 
@@ -75,32 +76,31 @@ eclipseBuild {
         eclipseVersion = '43'
         targetDefinition = file('tooling-e43.target')
         versionMapping = [
+            "$swtPluginId"                          : '3.102.1',
+            'com.ibm.icu'                           : '50.1.1',
             'org.eclipse.core.expressions'          : '3.4.501',
-            'org.eclipse.core.runtime'              : '3.9.100',
-            'org.eclipse.core.resources'            : '3.8.101',
-            'org.eclipse.core.variables'            : '3.2.700',
             'org.eclipse.core.filesystem'           : '1.4.0',
             'org.eclipse.core.net'                  : '1.2.200',
+            'org.eclipse.core.resources'            : '3.8.101',
+            'org.eclipse.core.runtime'              : '3.9.100',
+            'org.eclipse.core.variables'            : '3.2.700',
+            'org.eclipse.debug.core'                : '3.8.0',
+            'org.eclipse.debug.ui'                  : '3.9.0',
+            'org.eclipse.help'                      : '3.6.0',
             'org.eclipse.jdt.core'                  : '3.9.2',
             'org.eclipse.jdt.junit.core'            : '3.7.200',
             'org.eclipse.jdt.launching'             : '3.7.1',
-            'org.eclipse.debug.core'                : '3.8.0',
-            'org.eclipse.core.databinding'          : '1.4.1',
-            'org.eclipse.core.databinding.beans'    : '1.2.200',
-            'org.eclipse.core.databinding.property' : '1.4.200',
-            'org.eclipse.help'                      : '3.6.0',
-            'org.eclipse.ui'                        : '3.105.0',
-            'org.eclipse.ui.ide'                    : '3.9.2',
-            'org.eclipse.ui.console'                : '3.5.200',
-            'org.eclipse.ui.editors'                : '3.8.100',
-            'org.eclipse.ui.views'                  : '3.6.100',
-            'org.eclipse.debug.ui'                  : '3.9.0',
             'org.eclipse.jdt.ui'                    : '3.9.2',
-            'com.ibm.icu'                           : '50.1.1',
             'org.eclipse.jface.databinding'         : '1.6.200',
             'org.eclipse.jface.text'                : '3.8.101',
-            'org.junit'                             : '4.12.0',
-            "$swtPluginId"                          : '3.102.1'
+            'org.eclipse.ui'                        : '3.105.0',
+            'org.eclipse.ui.console'                : '3.5.200',
+            'org.eclipse.ui.editors'                : '3.8.100',
+            'org.eclipse.ui.ide'                    : '3.9.2',
+            'org.eclipse.ui.navigator'              : '3.5.300',
+            'org.eclipse.ui.views'                  : '3.6.100',
+            'org.eclipse.ui.workbench.texteditor'   : '3.8.101',
+            'org.junit'                             : '4.12.0'
         ] + eclipseVersionAgnosticDependencies
     }
 
@@ -108,32 +108,31 @@ eclipseBuild {
         eclipseVersion = '44'
         targetDefinition = file('tooling-e44.target')
         versionMapping = [
+            "$swtPluginId"                          : '3.103.2',
+            'com.ibm.icu'                           : '52.1.1',
             'org.eclipse.core.expressions'          : '3.4.600',
-            'org.eclipse.core.runtime'              : '3.10.0',
-            'org.eclipse.core.resources'            : '3.9.1',
-            'org.eclipse.core.variables'            : '3.2.800',
             'org.eclipse.core.filesystem'           : '1.4.100',
             'org.eclipse.core.net'                  : '1.2.200',
+            'org.eclipse.core.resources'            : '3.9.1',
+            'org.eclipse.core.runtime'              : '3.10.0',
+            'org.eclipse.core.variables'            : '3.2.800',
+            'org.eclipse.debug.core'                : '3.9.1',
+            'org.eclipse.debug.ui'                  : '3.10.2',
+            'org.eclipse.help'                      : '3.6.0',
             'org.eclipse.jdt.core'                  : '3.10.2',
             'org.eclipse.jdt.junit.core'            : '3.7.300',
             'org.eclipse.jdt.launching'             : '3.7.102',
-            'org.eclipse.debug.core'                : '3.9.1',
-            'org.eclipse.core.databinding'          : '1.4.2',
-            'org.eclipse.core.databinding.beans'    : '1.2.200',
-            'org.eclipse.core.databinding.property' : '1.4.200',
-            'org.eclipse.help'                      : '3.6.0',
-            'org.eclipse.ui'                        : '3.106.1',
-            'org.eclipse.ui.ide'                    : '3.10.2',
-            'org.eclipse.ui.console'                : '3.5.300',
-            'org.eclipse.ui.editors'                : '3.8.200',
-            'org.eclipse.ui.views'                  : '3.7.0',
-            'org.eclipse.debug.ui'                  : '3.10.2',
             'org.eclipse.jdt.ui'                    : '3.10.2',
-            'com.ibm.icu'                           : '52.1.1',
             'org.eclipse.jface.databinding'         : '1.6.200',
             'org.eclipse.jface.text'                : '3.9.2',
-            'org.junit'                             : '4.12.0',
-            "$swtPluginId"                          : '3.103.2'
+            'org.eclipse.ui'                        : '3.106.1',
+            'org.eclipse.ui.console'                : '3.5.300',
+            'org.eclipse.ui.editors'                : '3.8.200',
+            'org.eclipse.ui.ide'                    : '3.10.2',
+            'org.eclipse.ui.navigator'              : '3.5.401',
+            'org.eclipse.ui.views'                  : '3.7.0',
+            'org.eclipse.ui.workbench.texteditor'   : '3.9.0',
+            'org.junit'                             : '4.12.0'
         ] + eclipseVersionAgnosticDependencies
     }
 
@@ -141,47 +140,96 @@ eclipseBuild {
         eclipseVersion = '45'
         targetDefinition = file('tooling-e45.target')
         versionMapping = [
+            "$swtPluginId"                          : '3.104.0',
+            'com.ibm.icu'                           : '54.1.1',
             'org.eclipse.core.expressions'          : '3.5.0',
-            'org.eclipse.core.runtime'              : '3.11.0',
-            'org.eclipse.core.resources'            : '3.10.0',
-            'org.eclipse.core.variables'            : '3.2.800',
             'org.eclipse.core.filesystem'           : '1.5.0',
             'org.eclipse.core.net'                  : '1.2.300',
+            'org.eclipse.core.resources'            : '3.10.0',
+            'org.eclipse.core.runtime'              : '3.11.0',
+            'org.eclipse.core.variables'            : '3.2.800',
+            'org.eclipse.debug.core'                : '3.10.0',
+            'org.eclipse.debug.ui'                  : '3.11.0',
+            'org.eclipse.help'                      : '3.6.0',
             'org.eclipse.jdt.core'                  : '3.11.0',
             'org.eclipse.jdt.junit.core'            : '3.7.400',
             'org.eclipse.jdt.launching'             : '3.8.0',
-            'org.eclipse.debug.core'                : '3.10.0',
-            'org.eclipse.core.databinding'          : '1.5.0',
-            'org.eclipse.core.databinding.beans'    : '1.3.0',
-            'org.eclipse.core.databinding.property' : '1.5.0',
-            'org.eclipse.help'                      : '3.6.0',
-            'org.eclipse.ui'                        : '3.107.0',
-            'org.eclipse.ui.ide'                    : '3.11.0',
-            'org.eclipse.ui.console'                : '3.6.0',
-            'org.eclipse.ui.editors'                : '3.9.0',
-            'org.eclipse.ui.views'                  : '3.8.0',
-            'org.eclipse.debug.ui'                  : '3.11.0',
             'org.eclipse.jdt.ui'                    : '3.11.0',
             'org.eclipse.jface.databinding'         : '1.7.0',
             'org.eclipse.jface.text'                : '3.10.0',
-            'com.ibm.icu'                           : '54.1.1',
-            'org.junit'                             : '4.12.0',
-            "$swtPluginId"                          : "3.104.0"
+            'org.eclipse.ui'                        : '3.107.0',
+            'org.eclipse.ui.console'                : '3.6.0',
+            'org.eclipse.ui.editors'                : '3.9.0',
+            'org.eclipse.ui.ide'                    : '3.11.0',
+            'org.eclipse.ui.navigator'              : '3.6.0',
+            'org.eclipse.ui.views'                  : '3.8.0',
+            'org.eclipse.ui.workbench.texteditor'   : '3.9.100',
+            'org.junit'                             : '4.12.0'
         ] + eclipseVersionAgnosticDependencies
     }
 
     targetPlatform {
         eclipseVersion = '46'
-        targetDefinition = file('tooling-e46.target')
-        // TODO define version mapping similarly as above; it makes dependency resolution faster
-        versionMapping = eclipseVersionAgnosticDependencies
+        targetDefinition = file('tooling-e46.target')        
+        versionMapping = [
+            "$swtPluginId"                          : '3.105.0',
+            'com.ibm.icu'                           : '56.1.0',
+            'org.eclipse.core.expressions'          : '3.5.100',
+            'org.eclipse.core.filesystem'           : '1.6.0',
+            'org.eclipse.core.net'                  : '1.3.0',
+            'org.eclipse.core.resources'            : '3.11.0',
+            'org.eclipse.core.runtime'              : '3.12.0',
+            'org.eclipse.core.variables'            : '3.3.0',
+            'org.eclipse.debug.core'                : '3.10.100',
+            'org.eclipse.debug.ui'                  : '3.11.200',
+            'org.eclipse.help'                      : '3.7.0',
+            'org.eclipse.jdt.core'                  : '3.12.0',
+            'org.eclipse.jdt.junit.core'            : '3.8.0',
+            'org.eclipse.jdt.launching'             : '3.8.100',
+            'org.eclipse.jdt.ui'                    : '3.12.0',
+            'org.eclipse.jface.databinding'         : '1.8.0',
+            'org.eclipse.jface.text'                : '3.11.0',
+            'org.eclipse.ui'                        : '3.108.0',
+            'org.eclipse.ui.console'                : '3.6.200',
+            'org.eclipse.ui.editors'                : '3.10.0',
+            'org.eclipse.ui.ide'                    : '3.12.0',
+            'org.eclipse.ui.navigator'              : '3.6.100',
+            'org.eclipse.ui.views'                  : '3.8.100',
+            'org.eclipse.ui.workbench.texteditor'   : '3.10.0',
+            'org.junit'                             : '4.12.0'
+        ] + eclipseVersionAgnosticDependencies
     }
 
     targetPlatform {
         eclipseVersion = '47'
         targetDefinition = file('tooling-e47.target')
-        // TODO define version mapping similarly as above; it makes dependency resolution faster
-        versionMapping = eclipseVersionAgnosticDependencies
+        versionMapping = [
+            "$swtPluginId"                          : '3.106.1',
+            'com.ibm.icu'                           : '58.2.0',
+            'org.eclipse.core.expressions'          : '3.6.0',
+            'org.eclipse.core.filesystem'           : '1.7.0',
+            'org.eclipse.core.net'                  : '1.3.100',
+            'org.eclipse.core.resources'            : '3.12.0',
+            'org.eclipse.core.runtime'              : '3.13.0',
+            'org.eclipse.core.variables'            : '3.4.0',
+            'org.eclipse.debug.core'                : '3.11.0',
+            'org.eclipse.debug.ui'                  : '3.12.50',
+            'org.eclipse.help'                      : '3.8.1',
+            'org.eclipse.jdt.core'                  : '3.11.0',
+            'org.eclipse.jdt.junit.core'            : '3.9.50',
+            'org.eclipse.jdt.launching'             : '3.9.50',
+            'org.eclipse.jdt.ui'                    : '3.13.50',
+            'org.eclipse.jface.databinding'         : '1.8.100',
+            'org.eclipse.jface.text'                : '3.12.0',
+            'org.eclipse.ui'                        : '3.109.0',
+            'org.eclipse.ui.console'                : '3.7.1',
+            'org.eclipse.ui.editors'                : '3.11.0',
+            'org.eclipse.ui.ide'                    : '3.13.1',
+            'org.eclipse.ui.navigator'              : '3.7.0',
+            'org.eclipse.ui.views'                  : '3.9.0',
+            'org.eclipse.ui.workbench.texteditor'   : '3.10.100',
+            'org.junit'                             : '4.12.0'
+        ] + eclipseVersionAgnosticDependencies
     }
 }
 
