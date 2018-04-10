@@ -558,4 +558,13 @@
          </enabledWhen>
        </page>
     </extension>
+    <extension
+          point="org.eclipse.e4.ui.css.swt.theme">
+       <stylesheet
+             uri="css/dark-theme.css">
+          <themeid
+                refid="org.eclipse.e4.ui.css.theme.e4_dark">
+          </themeid>
+       </stylesheet>
+    </extension>
 </plugin>
