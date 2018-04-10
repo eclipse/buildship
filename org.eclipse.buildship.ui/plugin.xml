@@ -558,6 +558,8 @@
          </enabledWhen>
        </page>
     </extension>
+
+    <!-- Adjust styling when dark theme is used -->
     <extension
           point="org.eclipse.e4.ui.css.swt.theme">
        <stylesheet
