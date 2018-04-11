@@ -52,15 +52,6 @@ dependencies {
     signedExternalPlugin withEclipseBundle('com.google.guava')
 }
 
-// tooling-commons would bring in Guava 15.0 by default
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if (eclipsebuild.Config.on(project).targetPlatform.eclipseVersion >= '47' && details.requested.name == 'com.google.guava') {
-            details.useVersion '21.0.0'
-        }
-    }
-}
-
 task uploadUpdateSite(dependsOn : createP2Repository) {
     description = "Uploads the generated update site to the eclipse.org server."
 

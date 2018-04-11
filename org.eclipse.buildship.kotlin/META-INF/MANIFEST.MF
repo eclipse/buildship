@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - Kotlin script support
 Bundle-SymbolicName: org.eclipse.buildship.kotlin;singleton:=true
-Bundle-Version: 2.2.1.qualifier
+Bundle-Version: 2.2.2.qualifier
 Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Activator: org.eclipse.buildship.kotlin.KotlinPlugin
@@ -12,13 +12,9 @@ Bundle-ClassPath: .,
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.eclipse.jdt.core,
- org.eclipse.jdt.launching,
- org.eclipse.ui,
- org.eclipse.jface.text,
  org.eclipse.buildship.core,
  org.slf4j.api;bundle-version="1.7.2",
  org.jetbrains.kotlin.bundled-compiler;bundle-version="[0.8.2,0.9.0)",
- org.jetbrains.kotlin.ui;bundle-version="[0.8.2,0.9.0)",
  org.jetbrains.kotlin.core;bundle-version="[0.8.2,0.9.0)",
  com.google.guava;bundle-version="[15.0.0,16.0.0)",
  com.gradleware.tooling.model;bundle-version="[0.19.3,0.20.0)",

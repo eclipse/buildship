@@ -11,22 +11,23 @@
 
 package org.eclipse.buildship.ui.view.task;
 
-import com.google.common.base.Preconditions;
-
-import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
-
 import org.eclipse.buildship.core.event.Event;
 import org.eclipse.buildship.core.event.EventListener;
 import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
+import org.eclipse.buildship.core.workspace.ProjectClosedEvent;
 import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
+import org.eclipse.buildship.core.workspace.ProjectOpenedEvent;
+
+import com.google.common.base.Preconditions;
+import com.gradleware.tooling.toolingmodel.repository.FetchStrategy;
 
 /**
- * Tracks the creation/deletion of projects in the workspace and updates the {@link TaskView}
+ * Tracks the creation/deletion/closed/opened of projects in the workspace and updates the {@link TaskView}
  * accordingly.
  * <p>
- * Every time a project is added or removed from the workspace, the listener updates the content of
- * the task view.
+ * Every time a project is added or removed from the workspace or change the state of the project to open or
+ * closed, the listener updates the content of the task view.
  */
 public final class WorkspaceProjectsChangeListener implements EventListener {
 
@@ -38,7 +39,8 @@ public final class WorkspaceProjectsChangeListener implements EventListener {
 
     @Override
     public void onEvent(Event event) {
-        if (event instanceof ProjectCreatedEvent || event instanceof ProjectDeletedEvent || event instanceof GradleNatureAddedEvent) {
+        if (event instanceof ProjectCreatedEvent || event instanceof ProjectDeletedEvent || event instanceof GradleNatureAddedEvent
+        		|| event instanceof ProjectClosedEvent || event instanceof ProjectOpenedEvent) {
             this.taskView.reload(FetchStrategy.LOAD_IF_NOT_CACHED);
         }
     }
