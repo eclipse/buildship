@@ -558,7 +558,6 @@
          </enabledWhen>
        </page>
     </extension>
-<<<<<<< HEAD
     <extension
           point="org.eclipse.ui.propertyPages">
        <page
