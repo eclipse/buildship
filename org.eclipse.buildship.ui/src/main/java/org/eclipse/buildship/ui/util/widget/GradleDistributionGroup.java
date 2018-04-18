@@ -139,7 +139,7 @@ public final class GradleDistributionGroup extends Group {
         } else if (this.useRemoteDistributionUriOption.getSelection()) {
             return new GradleDistributionInfo(GradleDistributionType.REMOTE_DISTRIBUTION, this.remoteDistributionUriText.getText());
         } else if (this.useGradleVersionOption.getSelection()) {
-            return new GradleDistributionInfo(GradleDistributionType.WRAPPER, getSpecificVersion());
+            return new GradleDistributionInfo(GradleDistributionType.VERSION, getSpecificVersion());
         } else {
             throw new GradlePluginsRuntimeException("No Gradle distribution type selected");
         }
