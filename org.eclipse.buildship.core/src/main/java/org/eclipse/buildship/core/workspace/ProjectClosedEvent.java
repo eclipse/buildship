@@ -11,7 +11,7 @@ package org.eclipse.buildship.core.workspace;
 import org.eclipse.core.resources.IProject;
 
 /**
- * Project closed event.
+ * Project closed event
  *
  * @author Prashanth Rao
  */
