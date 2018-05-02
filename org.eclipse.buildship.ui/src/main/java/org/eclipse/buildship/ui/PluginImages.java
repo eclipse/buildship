@@ -36,6 +36,7 @@ public enum PluginImages implements PluginImage {
     PRIVATE_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_private.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
     PROJECT_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_project.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
     PRIVATE_PROJECT_TASK(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task_project_private.png", ImageState.DISABLED, "icons/full/obj16/task_disabled.png")),
+    PROJECT_GROUP(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/project_hierarchy.png")),
     TASK_GROUP(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/task-group.png")),
     SORT_BY_TYPE(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/sort_by_type.png")),
     SORT_BY_VISIBILITY(ImmutableMap.of(ImageState.ENABLED, "icons/full/elcl16/sort_by_visibility.png")),

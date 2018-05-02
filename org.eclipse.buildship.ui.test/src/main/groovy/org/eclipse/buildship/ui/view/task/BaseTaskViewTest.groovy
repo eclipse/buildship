@@ -11,6 +11,7 @@ abstract class BaseTaskViewTest extends SwtBotSpecification {
 
     boolean originalProjectTasksVisible
     boolean originalTaskSelectorsVisible
+    boolean originalflattenProjectHiearchy
 
     TaskView view
     SWTBotTree tree
@@ -22,8 +23,10 @@ abstract class BaseTaskViewTest extends SwtBotSpecification {
 
             originalProjectTasksVisible = view.state.projectTasksVisible
             originalTaskSelectorsVisible = view.state.taskSelectorsVisible
+            originalflattenProjectHiearchy=view.state.projectHierarchyFlattened
             view.state.projectTasksVisible = true
             view.state.taskSelectorsVisible = true
+            view.state.projectHierarchyFlattened = true
 
             WorkbenchUtils.showView(IConsoleConstants.ID_CONSOLE_VIEW, null, IWorkbenchPage.VIEW_ACTIVATE)
         }
@@ -33,6 +36,7 @@ abstract class BaseTaskViewTest extends SwtBotSpecification {
     def cleanup() {
         view.state.projectTasksVisible = originalProjectTasksVisible
         view.state.taskSelectorsVisible = originalTaskSelectorsVisible
+        view.state.projectHierarchyFlattened = originalflattenProjectHiearchy
     }
 
     protected void focusTasksView() {

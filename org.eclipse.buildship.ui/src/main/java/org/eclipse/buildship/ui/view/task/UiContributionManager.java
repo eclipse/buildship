@@ -116,6 +116,7 @@ public final class UiContributionManager {
         manager.appendToGroup(MENU_SORTING_GROUP, new SortTasksByVisibilityAction(this.taskView));
         manager.add(new Separator(MENU_GROUPING_GROUP));
         manager.appendToGroup(MENU_GROUPING_GROUP, new GroupTasksAction(this.taskView));
+        manager.appendToGroup(MENU_GROUPING_GROUP, new ShowFlattenedProjectHierarchy(this.taskView));
     }
 
     private void registerContextMenu() {
