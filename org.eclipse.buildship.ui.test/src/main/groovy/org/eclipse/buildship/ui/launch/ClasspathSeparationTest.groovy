@@ -39,7 +39,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         setup:
         File projectDir = createSampleProject('sample-project')
 
-        importAndWait(projectDir, GradleDistribution.forVersion('4.4-20171019072836+0000'))
+        importAndWait(projectDir, GradleDistribution.forVersion('4.4'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.CustomMain'))
@@ -56,7 +56,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         setup:
         File projectDir = createSampleProject('sample-project')
 
-        importAndWait(projectDir, GradleDistribution.forVersion('4.4-20171019072836+0000'))
+        importAndWait(projectDir, GradleDistribution.forVersion('4.4'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.CustomMain'))
@@ -67,7 +67,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Only main dependencies are available when Java application launched from src/main/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main'))
@@ -82,7 +82,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when Java application launched from src/test/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.JunitTest'))
@@ -97,7 +97,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when JUnit test method executed"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project', 'pkg.JunitTest', 'test'))
@@ -112,7 +112,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when JUnit test project executedt"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4-20171019072836+0000'))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project'))
