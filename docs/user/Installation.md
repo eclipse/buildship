@@ -14,6 +14,18 @@ Buildship is also available through one of the provided composite update sites l
 
 For manual installation use one of the update sites below.
 
+
+### Update sites for Buildship 3.x
+
+Eclipse Version | Type      | Update Site
+--------------- | ----------| ------------
+Oxygen (4.7)    | snapshot  | `http://download.eclipse.org/buildship/updates/e47/snapshots/3.x`
+Neon (4.6)      | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/3.x`
+Mars (4.5)      | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/3.x`
+Luna (4.4)      | snapshot  | `http://download.eclipse.org/buildship/updates/e44/snapshots/3.x`
+Kepler (4.3)    | snapshot  | `http://download.eclipse.org/buildship/updates/e43/snapshots/3.x`
+Juno (4.2)      | snapshot  | `http://download.eclipse.org/buildship/updates/e42/snapshots/3.x`
+
 ### Update sites for Buildship 2.x
 
 Eclipse Version | Type      | Update Site
