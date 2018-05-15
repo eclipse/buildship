@@ -54,7 +54,6 @@ public final class UiPlugin extends AbstractUIPlugin {
     // search for -target jsr14 to find out more about this obscurity
     private ServiceRegistration loggerService;
     private ServiceRegistration processStreamsProviderService;
-    private ServiceRegistration dialogUserNotificationService;
     private ServiceRegistration gradleLaunchConfigurationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingLaunchRequestListener executionShowingLaunchRequestListener;
@@ -109,7 +108,6 @@ public final class UiPlugin extends AbstractUIPlugin {
 
     private void unregisterServices() {
         this.gradleLaunchConfigurationService.unregister();
-        this.dialogUserNotificationService.unregister();
         this.processStreamsProviderService.unregister();
         this.loggerService.unregister();
     }
