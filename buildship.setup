@@ -312,6 +312,17 @@
           name="org.jetbrains.kotlin.feature.feature.group"
           versionRange="0.8.2"/>
       <repositoryList
+          name="Photon">
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-photon"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-photon-m7"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+        <repository
+            url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
+      </repositoryList>
+      <repositoryList
           name="Oxygen">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen"/>
@@ -387,6 +398,13 @@
       <requirement
           name="org.eclipse.swtbot.eclipse.feature.group"
           versionRange="2.2.1"/>
+      <repositoryList
+          name="Photon">
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-photon-m7"/>
+      </repositoryList>
       <repositoryList
           name="Oxygen">
         <repository
