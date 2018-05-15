@@ -201,8 +201,11 @@
         xsi:type="setup:VariableTask"
         id="buildship.variables.buildshiptargetplatform"
         name="buildship.target.platform"
-        defaultValue="Oxygen"
+        defaultValue="Photon"
         label="Buildship Target Platform">
+      <choice
+          value="Photon"
+          label="Eclipse Photon - 4.8"/>
       <choice
           value="Oxygen"
           label="Eclipse Oxygen - 4.7"/>
