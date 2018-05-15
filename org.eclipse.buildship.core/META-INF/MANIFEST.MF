@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.core.expressions,
  com.google.guava;bundle-version="[15.0.0,16.0.0)",
  com.google.gson;bundle-version="[2.7.0,3.0.0)"
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.buildship.core;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
+Export-Package: org.eclipse.buildship,
+ org.eclipse.buildship.core;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.configuration;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.console;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.event;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",

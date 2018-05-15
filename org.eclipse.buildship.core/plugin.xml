@@ -6,6 +6,9 @@
 
     <!-- extension point to contribute additional arguments to build invocations -->
     <extension-point id="invocationcustomizers" name="Gradle Invocation Customizers" schema="schema/invocationcustomizers.exsd" />
+    
+    <!-- extension point to contribute additional arguments to build invocations -->
+    <extension-point id="projectconfigurators" name="Gradle Invocation Customizers" schema="schema/projectconfigurators.exsd" />
 
     <!-- initialization of the classpath container-->
     <extension

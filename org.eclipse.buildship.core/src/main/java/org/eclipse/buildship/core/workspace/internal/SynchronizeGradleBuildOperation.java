@@ -16,14 +16,16 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-import org.gradle.tooling.model.eclipse.EclipseProject;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.GradleProjectConfigurator;
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.configuration.ConfigurationManager;
+import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.internal.DefaultGradleWorkspace;
+import org.eclipse.buildship.core.internal.ProjectConfiguratorExtension;
+import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
+import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -35,13 +37,13 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.ConfigurationManager;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Synchronizes the given Gradle build with the Eclipse workspace. The algorithm is as follows:
@@ -222,6 +224,24 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         } else {
             persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
         }
+        
+        
+        try {
+			Optional<String> configName = DefaultGradleWorkspace.loadConfiguratorName(HierarchicalElementUtils.getRoot(project).getProjectDirectory());
+			if (!configName.isPresent()) {
+				System.err.println("NOT PRESENT");
+			} else {
+				System.err.println("PRESENT: " + configName.get());
+				
+				for (GradleProjectConfigurator configurator : ProjectConfiguratorExtension.loadConfigurators()) {
+					if (configName.get().equals(configurator.getClass().getCanonicalName())) {
+						configurator.configure(workspaceProject);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
         CorePlugin.modelPersistence().saveModel(persistentModel.build());
     }
