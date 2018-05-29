@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.CorePlugin;
@@ -51,6 +52,11 @@ public abstract class ToolingApiJob<T> extends Job {
             public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
                 T result = ToolingApiJob.this.runInToolingApi(tokenSource, monitor);
                 ToolingApiJob.this.resultHandler.onSuccess(result);
+            }
+
+            @Override
+            public ISchedulingRule getRule() {
+                return ToolingApiJob.this.getRule();
             }
         };
 
@@ -91,7 +97,7 @@ public abstract class ToolingApiJob<T> extends Job {
     /**
      * Default handler for the target operation.
      *
-     * @param <T> the result type
+     * @param <T> the result typeToolingApiJobToolingApiJob
      */
     private static final class DefaultResultHandler<T> implements ToolingApiJobResultHandler<T> {
 

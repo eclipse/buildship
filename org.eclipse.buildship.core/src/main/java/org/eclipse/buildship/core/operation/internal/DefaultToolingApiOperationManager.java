@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -38,7 +39,7 @@ public final class DefaultToolingApiOperationManager implements ToolingApiOperat
     @Override
     public void run(ToolingApiOperation runnable, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
         IProgressMonitor efficientMonitor = new RateLimitingProgressMonitor(monitor, 500, TimeUnit.MILLISECONDS);
-        ResourcesPlugin.getWorkspace().run(new WorkspaceRunnableAdapter(runnable, tokenSource), efficientMonitor);
+        ResourcesPlugin.getWorkspace().run(new WorkspaceRunnableAdapter(runnable, tokenSource), runnable.getRule(), IWorkspace.AVOID_UPDATE, efficientMonitor);
     }
 
     /**
