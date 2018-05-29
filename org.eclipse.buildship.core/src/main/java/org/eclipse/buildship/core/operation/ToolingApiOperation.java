@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.operation;
 import org.gradle.tooling.CancellationTokenSource;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 /**
  * Basic operation to execute synchronously in the context of the Tooling API.
@@ -27,6 +28,14 @@ public interface ToolingApiOperation {
      * @return the operation name
      */
     public String getName();
+
+    /**
+     * Returns the human-readable name of the operation that is presented on the UI.
+     *
+     * @return the operation name
+     */
+    public ISchedulingRule getRule();
+
 
     /**
      * Executes the operation.
