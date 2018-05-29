@@ -38,7 +38,7 @@ public final class DefaultToolingApiOperationManager implements ToolingApiOperat
     @Override
     public void run(ToolingApiOperation runnable, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
         IProgressMonitor efficientMonitor = new RateLimitingProgressMonitor(monitor, 500, TimeUnit.MILLISECONDS);
-        ResourcesPlugin.getWorkspace().run(new WorkspaceRunnableAdapter(runnable, tokenSource), efficientMonitor);
+        ResourcesPlugin.getWorkspace().run(new WorkspaceRunnableAdapter(runnable, tokenSource), runnable.getRule(), 0, efficientMonitor);
     }
 
     /**

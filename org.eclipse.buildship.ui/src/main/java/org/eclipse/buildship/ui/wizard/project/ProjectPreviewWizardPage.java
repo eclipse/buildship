@@ -26,8 +26,10 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -469,6 +471,11 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             BuildEnvironment buildEnvironment = fetchBuildEnvironment(this.buildConfig, tokenSource, progress.newChild(1));
             GradleBuild gradleBuild = fetchGradleBuildStructure(this.buildConfig, tokenSource, progress.newChild(1));
             previewFinished(buildEnvironment, gradleBuild);
+        }
+
+        @Override
+        public ISchedulingRule getRule() {
+            return ResourcesPlugin.getWorkspace().getRoot();
         }
     }
 }
