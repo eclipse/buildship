@@ -15,7 +15,9 @@ import org.gradle.tooling.CancellationTokenSource;
 
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
@@ -58,5 +60,10 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
                 gradleBuild.newBuildLauncher(runConfiguration, progressAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
             }
         }
+    }
+
+    @Override
+    public ISchedulingRule getRule() {
+        return ResourcesPlugin.getWorkspace().getRoot();
     }
 }
