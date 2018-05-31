@@ -11,9 +11,11 @@ package org.eclipse.buildship.core.operation;
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 /**
  * Utility class to create {@link ToolingApiOperation} instances.
@@ -31,7 +33,7 @@ public final class ToolingApiOperations {
      * If the first operation is cancelled then the second operation is not executed.
      *
      * @param op1 the operation to execute first
-     * @param op2 the operation to execute last
+     * @param op2 the operation to execute last        // TODO Auto-generated method stub
      * @return the composite operation
      */
     public static ToolingApiOperation concat(final ToolingApiOperation op1, final ToolingApiOperation op2) {
@@ -55,6 +57,11 @@ public final class ToolingApiOperations {
                 }
 
                 op2.runInToolingApi(tokenSource, progress.newChild(1));
+            }
+
+            @Override
+            public ISchedulingRule getRule() {
+                return ResourcesPlugin.getWorkspace().getRoot();
             }
         };
     }

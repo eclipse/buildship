@@ -21,7 +21,9 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizard;
@@ -208,6 +210,11 @@ public class ProjectImportWizardController {
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
             this.gradleBuild.synchronize(this.workingSetsAddingNewProjectHandler, tokenSource, monitor);
+        }
+
+        @Override
+        public ISchedulingRule getRule() {
+            return ResourcesPlugin.getWorkspace().getRoot();
         }
     }
 
