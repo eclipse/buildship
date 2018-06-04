@@ -167,6 +167,8 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=507206")
     def "Runtime classpath contains custom output folders"() {
         setup:
+        // Another non-custom source directory is required for the default-directory to be set
+        new File(location, 'a/src/test/java').mkdirs()
         buildFile << '''
             project(':a') {
                 apply plugin: 'eclipse'

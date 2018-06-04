@@ -27,6 +27,7 @@ import org.eclipse.jdt.launching.IRuntimeClasspathEntryResolver;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 
+import org.eclipse.buildship.core.launch.internal.GradleClasspathProvider;
 import org.eclipse.buildship.core.launch.internal.LaunchConfigurationScope;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
@@ -87,7 +88,7 @@ public class GradleClasspathContainerRuntimeClasspathEntryResolver implements IR
                         // add the project entry itself so that the source lookup can find the classes
                         // see https://github.com/eclipse/buildship/issues/383
                         result.add(projectRuntimeEntry);
-                        Collections.addAll(result, JavaRuntime.resolveRuntimeClasspathEntry(projectRuntimeEntry, dependencyProject));
+                        Collections.addAll(result, GradleClasspathProvider.resolveOutputLocations(projectRuntimeEntry, dependencyProject, configurationScopes));
                         collectContainerRuntimeClasspathIfPresent(dependencyProject, result, true, configurationScopes);
                     }
                 }
