@@ -61,8 +61,30 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         distribution << supportedGradleDistributions
     }
 
+    def "Job launches Gradle Continous task"() {
+        setup:
+        def RunGradleBuildLaunchRequestJob continousJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, ['clean','build'], ['-t']))
+        def RunGradleBuildLaunchRequestJob normalJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, ['build'], ['']))
+
+        when:
+        continousJob.schedule()
+
+        normalJob.schedule()
+        normalJob.join()
+
+        then:
+        normalJob.getResult().isOK()
+    }
+
     ILaunch createLaunch(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild()) {
         ILaunchConfiguration launchConfiguration = createLaunchConfiguration(projectDir, ['clean', 'build'], distribution)
+        ILaunch launch = Mock(ILaunch)
+        launch.launchConfiguration >> launchConfiguration
+        launch
+    }
+
+    ILaunch createLaunch(File projectDir,tasks, arguments, GradleDistribution distribution = GradleDistribution.fromBuild()) {
+        ILaunchConfiguration launchConfiguration = createLaunchConfiguration(projectDir, tasks, distribution, arguments)
         ILaunch launch = Mock(ILaunch)
         launch.launchConfiguration >> launchConfiguration
         launch

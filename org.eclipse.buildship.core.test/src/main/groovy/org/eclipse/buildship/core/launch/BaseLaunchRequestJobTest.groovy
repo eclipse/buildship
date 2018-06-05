@@ -35,14 +35,14 @@ class BaseLaunchRequestJobTest extends WorkspaceSpecification {
         buildConfigurationStream.toString()
     }
 
-    ILaunchConfiguration createLaunchConfiguration(File projectDir, tasks = ['clean', 'build'], GradleDistribution distribution = GradleDistribution.fromBuild()) {
+    ILaunchConfiguration createLaunchConfiguration(File projectDir, tasks = ['clean', 'build'], GradleDistribution distribution = GradleDistribution.fromBuild(), arguments = []) {
         ILaunchConfiguration launchConfiguration = Mock(ILaunchConfiguration)
         launchConfiguration.getName() >> 'name'
         launchConfiguration.getAttribute('override_workspace_settings', _) >> 'true'
         launchConfiguration.getAttribute('tasks', _) >> tasks
         launchConfiguration.getAttribute('working_dir', _) >> projectDir
         launchConfiguration.getAttribute('gradle_distribution', _) >> distribution.serializeToString()
-        launchConfiguration.getAttribute('arguments', _) >> []
+        launchConfiguration.getAttribute('arguments', _) >> arguments
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
         launchConfiguration
     }

@@ -14,6 +14,8 @@ import org.gradle.tooling.CancellationTokenSource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 
 /**
  * Utility class to create {@link ToolingApiOperation} instances.
@@ -55,6 +57,11 @@ public final class ToolingApiOperations {
                 }
 
                 op2.runInToolingApi(tokenSource, progress.newChild(1));
+            }
+
+            @Override
+            public ISchedulingRule getRule() {
+                return new MultiRule(new ISchedulingRule[]{op1.getRule(),op2.getRule()});
             }
         };
     }
