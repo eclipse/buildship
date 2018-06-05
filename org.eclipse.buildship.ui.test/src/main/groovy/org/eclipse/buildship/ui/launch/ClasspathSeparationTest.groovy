@@ -33,6 +33,8 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('org.apache.commons.io.IOUtils available')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
+        assertConsoleOutputContains('main.txt available')
+        assertConsoleOutputContains('test.txt available')
     }
 
     def "All dependencies are available when target source folders doesn't supply scope information"() {
@@ -50,6 +52,8 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('org.apache.commons.io.IOUtils available')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
+        assertConsoleOutputContains('main.txt available')
+        assertConsoleOutputContains('test.txt available')
     }
 
     def "Source folder is included in classpath if it doesn't supply scope information"() {
@@ -63,6 +67,8 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
         then:
         assertConsoleOutputContains('pkg.CustomMain available')
+        assertConsoleOutputContains('main.txt available')
+        assertConsoleOutputContains('test.txt available')
     }
 
     def "Only main dependencies are available when Java application launched from src/main/java folder"() {
@@ -78,6 +84,8 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test inaccessible')
+        assertConsoleOutputContains('main.txt available')
+        assertConsoleOutputContains('test.txt inaccessible')
     }
 
     def "Main and test dependencies are available when Java application launched from src/test/java folder"() {
@@ -93,6 +101,8 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
+        assertConsoleOutputContains('main.txt available')
+        assertConsoleOutputContains('test.txt available')
     }
 
     def "Main and test dependencies are available when JUnit test method executed"() {
@@ -108,6 +118,8 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
+        assertConsoleOutputContains('main.txt available')
+        assertConsoleOutputContains('test.txt available')
     }
 
     def "Main and test dependencies are available when JUnit test project executedt"() {
@@ -123,10 +135,15 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
+        assertConsoleOutputContains('main.txt available')
+        assertConsoleOutputContains('test.txt available')
     }
 
     private File createSampleProject(String name) {
         dir(name) {
+            file 'settings.gradle', """
+                include ':resource-library'
+            """
             file 'build.gradle', '''
                 import org.gradle.plugins.ide.eclipse.model.SourceFolder
 
@@ -138,6 +155,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                 }
 
                 dependencies {
+                    compile project(':resource-library')
                     compile 'com.google.guava:guava:18.0'
                     compileOnly 'commons-io:commons-io:1.4'
                     testCompile 'junit:junit:4.12'
@@ -165,6 +183,8 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                             exists("com.google.common.collect.ImmutableList");
                             exists("org.apache.commons.io.IOUtils");
                             exists("junit.framework.Test");
+                            resourceExists("main.txt");
+                            resourceExists("test.txt");
                         }
 
                         public static void exists(String className) {
@@ -174,6 +194,11 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                             } catch (ClassNotFoundException e) {
                                 System.out.println(className + " inaccessible");
                             }
+                        }
+
+                        public static void resourceExists(String resourceName) {
+                            boolean available = Main.class.getClassLoader().getResource(resourceName) != null;
+                            System.out.println(resourceName + (available ? " available" : " inaccessible"));
                         }
                     }
                 '''
@@ -208,6 +233,17 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                         }
                     }
                 '''
+            }
+            dir('resource-library') {
+                file 'build.gradle', '''
+                apply plugin: 'java'
+                '''
+                dir('src/main/resources') {
+                    file 'main.txt', ''
+                }
+                dir('src/test/resources') {
+                    file 'test.txt', ''
+                }
             }
         }
     }
