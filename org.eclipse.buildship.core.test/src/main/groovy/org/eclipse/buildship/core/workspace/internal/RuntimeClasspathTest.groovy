@@ -25,9 +25,9 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
     def setup() {
         location = dir('sample-project') {
             file('settings.gradle') << "include 'a', 'b', 'c'"
-            dir('a/src/main/java').mkdirs()
-            dir('b/src/main/java').mkdirs()
-            dir('c/src/main/java').mkdirs()
+            dir('a/src/main/java')
+            dir('b/src/main/java')
+            dir('c/src/main/java')
             buildFile = file 'build.gradle', '''
                 subprojects {
                     apply plugin: 'java'
@@ -167,7 +167,8 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=507206")
     def "Runtime classpath contains custom output folders"() {
         setup:
-        new File(location, 'a/src/main/java').mkdirs()
+        // Another non-custom source directory is required for the default-directory to be set
+        new File(location, 'a/src/test/java').mkdirs()
         buildFile << '''
             project(':a') {
                 apply plugin: 'eclipse'
