@@ -1,5 +1,6 @@
 package org.eclipse.buildship.core.launch
 
+import spock.lang.Timeout
 import spock.lang.Unroll
 
 import org.eclipse.debug.core.ILaunch
@@ -61,10 +62,11 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         distribution << supportedGradleDistributions
     }
 
-    def "Job launches Gradle Continous task"() {
+    @Timeout(60)
+    def "Can launch continuous builds"() {
         setup:
-        def RunGradleBuildLaunchRequestJob continousJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, ['clean','build'], ['-t']))
-        def RunGradleBuildLaunchRequestJob normalJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, ['build'], ['']))
+        def RunGradleBuildLaunchRequestJob continousJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, GradleDistribution.fromBuild(), ['clean','build'], ['-t']))
+        def RunGradleBuildLaunchRequestJob normalJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, GradleDistribution.fromBuild(), ['build'], ['']))
 
         when:
         continousJob.schedule()
@@ -74,16 +76,12 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
         then:
         normalJob.getResult().isOK()
+
+        cleanup:
+        continousJob.cancel()
     }
 
-    ILaunch createLaunch(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild()) {
-        ILaunchConfiguration launchConfiguration = createLaunchConfiguration(projectDir, ['clean', 'build'], distribution)
-        ILaunch launch = Mock(ILaunch)
-        launch.launchConfiguration >> launchConfiguration
-        launch
-    }
-
-    ILaunch createLaunch(File projectDir,tasks, arguments, GradleDistribution distribution = GradleDistribution.fromBuild()) {
+    ILaunch createLaunch(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild(), tasks = ['clean', 'build'], arguments = []) {
         ILaunchConfiguration launchConfiguration = createLaunchConfiguration(projectDir, tasks, distribution, arguments)
         ILaunch launch = Mock(ILaunch)
         launch.launchConfiguration >> launchConfiguration

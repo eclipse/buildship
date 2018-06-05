@@ -61,7 +61,7 @@ public final class ToolingApiOperations {
 
             @Override
             public ISchedulingRule getRule() {
-                return new MultiRule(new ISchedulingRule[]{op1.getRule(),op2.getRule()});
+                return new MultiRule(new ISchedulingRule[]{ op1.getRule(), op2.getRule() });
             }
         };
     }
