@@ -15,9 +15,9 @@ import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.jface.action.Action;
 
 /**
- * An action on the {@link TaskView} that toggles the project between flat and hierarchy
+ * An action on the {@link TaskView} that toggles the project between flat and hierarchy.
  *
- * @author Charles Wu <charles.wu@liferay.com> 
+ * @author Charles Wu <charles.wu@liferay.com>
  */
 public final class ShowFlattenedProjectHierarchy extends Action {
 

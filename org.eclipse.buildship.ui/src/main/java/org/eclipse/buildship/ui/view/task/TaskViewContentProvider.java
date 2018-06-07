@@ -78,8 +78,8 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
                 }
             }
         } else {
-            //put all subprojects into parent project's folder, simmilar
-            //to how Java Class look in the Eclipse Type Hierarchy
+            // put all subprojects into the parent project's folder, similar
+            // to how a Java class look in the Eclipse Type Hierarchy
             for (OmniEclipseProject project : projects) {
                 if (project.getParent() == null) {
                     OmniGradleProject gradleProject = project.getGradleProject();
