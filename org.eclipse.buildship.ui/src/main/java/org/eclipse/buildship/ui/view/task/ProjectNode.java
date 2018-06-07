@@ -11,14 +11,19 @@
 
 package org.eclipse.buildship.ui.view.task;
 
+import java.util.Map;
+
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 
 import org.eclipse.core.resources.IProject;
+
+import org.eclipse.buildship.core.util.gradle.Path;
 
 
 /**
@@ -30,15 +35,17 @@ public final class ProjectNode extends BaseProjectNode {
     private final EclipseProject eclipseProject;
     private final GradleProject gradleProject;
     private final boolean includedProject;
-    private final BuildInvocations buildInvociations;
+    private final Map<Path, BuildInvocations> allBuildInvocations;
+    private final Path projectPath;
 
-    public ProjectNode(ProjectNode parentProjectNode, EclipseProject eclipseProject, GradleProject gradleProject, Optional<IProject> workspaceProject, boolean includedProject, BuildInvocations buildInvociations) {
+    public ProjectNode(ProjectNode parentProjectNode, EclipseProject eclipseProject, GradleProject gradleProject, Optional<IProject> workspaceProject, boolean includedProject,  Map<Path, BuildInvocations> allBuildInvocations, Path projectPath) {
         super(workspaceProject);
         this.parentProjectNode = parentProjectNode; // is null for root project
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.includedProject = includedProject;
-        this.buildInvociations = buildInvociations;
+        this.allBuildInvocations = Preconditions.checkNotNull(allBuildInvocations);
+        this.projectPath = Preconditions.checkNotNull(projectPath);
     }
 
     public ProjectNode getRootProjectNode() {
@@ -65,9 +72,12 @@ public final class ProjectNode extends BaseProjectNode {
         return this.includedProject;
     }
 
+    public Map<Path, BuildInvocations> getAllBuildInvocations() {
+        return ImmutableMap.copyOf(this.allBuildInvocations);
+    }
 
     public BuildInvocations getInvocations() {
-        return this.buildInvociations;
+        return this.allBuildInvocations.get(this.projectPath);
     }
 
     @Override
@@ -89,11 +99,12 @@ public final class ProjectNode extends BaseProjectNode {
                 && Objects.equal(this.eclipseProject, that.eclipseProject)
                 && Objects.equal(this.gradleProject, that.gradleProject)
                 && Objects.equal(this.includedProject, that.includedProject)
-                && Objects.equal(this.buildInvociations, that.buildInvociations);
+                && Objects.equal(this.allBuildInvocations, that.allBuildInvocations)
+                && Objects.equal(this.projectPath, that.projectPath);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.gradleProject, this.includedProject, this.buildInvociations);
+        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.gradleProject, this.includedProject, this.allBuildInvocations, this.projectPath);
     }
 }
