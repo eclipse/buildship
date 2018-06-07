@@ -16,7 +16,7 @@ import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
 abstract class ViewSpecification extends WorkspaceSpecification {
 
   protected def newProjectNode(ProjectNode parent, String projectLocation) {
-    return new ProjectNode(parent, newEclipseProject(parent, projectLocation), newGradleProject(), Optional.absent(), false, Mock(BuildInvocations))
+    return new ProjectNode(parent, newEclipseProject(parent, projectLocation), newGradleProject(), Optional.absent(), false, Mock(Map), Path.from(':'))
   }
 
   protected ProjectTaskNode newProjectTaskNode(ProjectNode parent, String taskPath) {
