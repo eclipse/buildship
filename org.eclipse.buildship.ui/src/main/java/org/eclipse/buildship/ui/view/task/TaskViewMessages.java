@@ -54,6 +54,7 @@ public final class TaskViewMessages extends NLS {
     public static String Action_SortByType_Text;
     public static String Action_SortByVisibility_Text;
     public static String Action_GroupTasks_Text;
+    public static String Action_ShowFlattenProjectHiearchy;
 
     static {
         // initialize resource bundle
