@@ -12,6 +12,7 @@
 package eclipsebuild
 
 import org.gradle.api.Task
+import eclipsebuild.testing.EclipseTestTask
 
 import javax.inject.Inject
 
@@ -114,7 +115,7 @@ class TestBundlePlugin implements Plugin<Project> {
     }
 
     static Task defineEclipseTestTask(Project project, Config config, String testTaskName, String taskDescription, String integTestVersions) {
-        Test testTask = project.task(testTaskName, type: Test) {
+        Test testTask = project.task(testTaskName, type: EclipseTestTask) {
             group = Constants.gradleTaskGroupName
             description = taskDescription
 
