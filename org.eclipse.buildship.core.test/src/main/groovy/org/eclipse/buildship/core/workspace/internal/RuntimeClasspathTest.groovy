@@ -145,7 +145,8 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
                 }
             }
         '''
-        importAndWait(location)
+        // TODO (donat) add test coverage for more recent versions
+        importAndWait(location, GradleDistribution.forVersion('4.3'))
 
         when:
         IJavaProject javaProject = JavaCore.create(findProject('b'))
@@ -187,7 +188,8 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
                 }
             }
         '''
-        importAndWait(location)
+        // TODO (donat) add test coverage for more recent versions
+        importAndWait(location, GradleDistribution.forVersion("4.3"))
 
         when:
         IJavaProject javaProject = JavaCore.create(findProject('b'))
