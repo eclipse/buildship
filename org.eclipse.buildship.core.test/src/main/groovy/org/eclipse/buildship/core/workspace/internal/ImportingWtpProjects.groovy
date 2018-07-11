@@ -147,8 +147,8 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         then:
         def project = findProject('project')
         IClasspathEntry dependency = resolvedClasspath(project).find { it.path.lastSegment() == 'junit-4.12.jar' }
-        IClasspathAttribute[] attributes = dependency.getExtraAttributes()
-        attributes.length == 0
+        List attributes = dependency.extraAttributes.findAll { [DEPLOYED, NON_DEPLOYED].contains(it.name) }
+        attributes.size() == 0
     }
 
     def "Deployed attribute is set for deployed dependencies"() {
