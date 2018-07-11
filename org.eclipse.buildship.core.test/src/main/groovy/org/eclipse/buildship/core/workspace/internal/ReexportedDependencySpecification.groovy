@@ -13,7 +13,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
 class ReexportedDependencySpecification extends ProjectSynchronizationSpecification {
@@ -124,12 +124,12 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
 
     private File multiProjectWithSpringTransitiveDependency() {
         dir('spring-example') {
-            file 'build.gradle', '''
+            file 'build.gradle', """
                 allprojects {
-                    repositories { mavenCentral() }
+                    ${jcenterRepositoryBlock}
                     apply plugin: 'java'
                 }
-            '''
+            """
             file 'settings.gradle', '''
                 include "moduleA"
                 include "moduleB"
@@ -156,12 +156,12 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
 
     private File springExampleProjectFromBug473348() {
         dir('Bug473348') {
-            file 'build.gradle', '''
+            file 'build.gradle', """
                 allprojects {
-                   repositories { mavenCentral() }
+                   ${jcenterRepositoryBlock}
                    apply plugin: 'java'
                 }
-            '''
+            """
             file 'settings.gradle', '''
                 include "moduleA"
                 include "moduleB"

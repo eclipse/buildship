@@ -28,15 +28,12 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
             dir('a/src/main/java')
             dir('b/src/main/java')
             dir('c/src/main/java')
-            buildFile = file 'build.gradle', '''
+            buildFile = file 'build.gradle', """
                 subprojects {
                     apply plugin: 'java'
-
-                    repositories {
-                        mavenCentral()
-                    }
+                    ${jcenterRepositoryBlock}
                 }
-            '''
+            """
         }
     }
 
@@ -209,7 +206,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         File external = dir('external-gradle-project') {
             file('build.gradle') << """
                 apply plugin: 'java'
-                repositories.mavenCentral()
+                ${jcenterRepositoryBlock}
                 dependencies.compile 'com.google.guava:guava:18.0'
             """
         }

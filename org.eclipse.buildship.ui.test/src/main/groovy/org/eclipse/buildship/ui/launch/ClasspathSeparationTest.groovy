@@ -145,15 +145,13 @@ class ClasspathSeparationTest extends SwtBotSpecification {
             file 'settings.gradle', """
                 include ':resource-library'
             """
-            file 'build.gradle', '''
+            file 'build.gradle', """
                 import org.gradle.plugins.ide.eclipse.model.SourceFolder
 
                 apply plugin: 'java'
                 apply plugin: 'eclipse'
 
-                repositories {
-                    jcenter()
-                }
+                ${jcenterRepositoryBlock}
 
                 dependencies {
                     compile project(':resource-library')
@@ -171,7 +169,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                         }
                     }
                 }
-            '''
+            """
             dir('src/main/java/pkg') {
                 file 'Main.java', '''
                     package pkg;

@@ -3,10 +3,10 @@ package org.eclipse.buildship.core.workspace.internal
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.Path
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.Logger;
+import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpecification {
 
@@ -88,12 +88,12 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
 
     private File createSampleProject() {
         rootDir = dir('sample') {
-            file 'build.gradle', '''
+            file 'build.gradle', """
                 allprojects {
-                    repositories { mavenCentral() }
+                    ${jcenterRepositoryBlock}
                     apply plugin: 'java'
                 }
-            '''
+            """
             file 'settings.gradle', """
                 include 'moduleA'
                 include 'moduleA:moduleAsub'
