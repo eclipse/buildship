@@ -207,14 +207,28 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected static String getJcenterRepositoryBlock() {
-        """
-            repositories {
-                if (org.gradle.api.JavaVersion.current().isJava8Compatible()) {
-                    jcenter()
-                } else {
-                    maven { url = "http://jcenter.bintray.com" }
+        String jcenterMirror = System.getProperty("org.eclipse.buildship.eclipsetest.mirrors.jcenter")
+        if (jcenterMirror == null) {
+            """
+                repositories {
+                    if (org.gradle.api.JavaVersion.current().isJava8Compatible()) {
+                        jcenter()
+                    } else {
+                        maven {
+                            url = "http://jcenter.bintray.com"
+                        }
+                    }
                 }
-            }
-        """
+            """
+        } else {
+            """
+                repositories {
+                    maven {
+                        name = 'jcenter-mirror'
+                        url "$jcenterMirror"
+                    }
+                }
+            """
+        }
     }
 }

@@ -13,7 +13,9 @@ package eclipsebuild.testing;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -176,6 +178,24 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         if (Constants.getOs().equals("macosx")) {
             jvmArgs.add("-XstartOnFirstThread");
         }
+
+        // declare mirror urls if exists
+        Map<String, String> mirrorUrls = new HashMap<>();
+        if (project.hasProperty("mirrors")) {
+            String mirrorsString = (String) project.property("mirrors");
+            String[] mirrors = mirrorsString.split(",");
+            for (String mirror : mirrors) {
+                if (!"".equals(mirror)) {
+                    String[] nameAndUrl = mirror.split(":", 2);
+                    mirrorUrls.put(nameAndUrl[0], nameAndUrl[1]);
+                }
+            }
+        }
+
+        for (Map.Entry<String, String> mirrorUrl : mirrorUrls.entrySet()) {
+            jvmArgs.add("-Dorg.eclipse.buildship.eclipsetest.mirrors." + mirrorUrl.getKey() + "=" + mirrorUrl.getValue());
+        }
+
         javaExecHandleBuilder.setJvmArgs(jvmArgs);
         javaExecHandleBuilder.setWorkingDir(this.project.getBuildDir());
 
