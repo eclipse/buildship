@@ -30,11 +30,11 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         enableProjectAutoSync(project)
 
         when:
-        String buildScript = '''
+        String buildScript = """
             apply plugin: "java"
-            repositories { jcenter() }
+            ${jcenterRepositoryBlock}
             dependencies { compile "org.springframework:spring-beans:1.2.8" }
-        '''
+        """
         project.getFile('build.gradle').create(new ByteArrayInputStream(buildScript.bytes), false, new NullProgressMonitor())
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
@@ -47,12 +47,12 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         setup:
         File projectDir = dir('auto-sync-test-project') {
             dir('src/main/java')
-            file 'build.gradle', '''
+            file 'build.gradle', """
                 allprojects {
-                    repositories { mavenCentral() }
+                    ${jcenterRepositoryBlock}
                     apply plugin: 'java'
                 }
-            '''
+            """
         }
 
         importAndWait(projectDir)
@@ -60,11 +60,11 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         enableProjectAutoSync(project)
 
         when:
-        String buildScript = '''
+        String buildScript = """
             apply plugin: "java"
-            repositories { jcenter() }
+            ${jcenterRepositoryBlock}
             dependencies { compile "org.springframework:spring-beans:1.2.8" }
-        '''
+        """
 
         project.getFile('build.gradle').setContents(new ByteArrayInputStream(buildScript.bytes), 0, new NullProgressMonitor())
         waitForResourceChangeEvents()
@@ -100,12 +100,12 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         setup:
         File projectDir = dir('auto-sync-test-project') {
             dir('src/main/java')
-            file 'custom.gradle', '''
+            file 'custom.gradle', """
                 allprojects {
-                    repositories { mavenCentral() }
                     apply plugin: 'java'
+                    ${jcenterRepositoryBlock}
                 }
-            '''
+            """
             file 'settings.gradle', "rootProject.buildFileName = 'custom.gradle'"
 
         }
@@ -114,11 +114,11 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         enableProjectAutoSync(project)
 
         when:
-        String buildScript = '''
+        String buildScript = """
             apply plugin: "java"
-            repositories { jcenter() }
+            ${jcenterRepositoryBlock}
             dependencies { compile "org.springframework:spring-beans:1.2.8" }
-        '''
+        """
         project.getFile('custom.gradle').setContents(new ByteArrayInputStream(buildScript.bytes), 0, new NullProgressMonitor())
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
@@ -151,12 +151,12 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         setup:
         File projectDir = dir('auto-sync-test-project') {
             dir('src/main/java')
-            file 'build.gradle', '''
+            file 'build.gradle', """
                 allprojects {
-                    repositories { mavenCentral() }
                     apply plugin: 'java'
+                    ${jcenterRepositoryBlock}
                 }
-            '''
+            """
         }
 
         importAndWait(projectDir)
@@ -165,11 +165,11 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         disableProjectAutoSync(project)
 
         when:
-        String buildScript = '''
+        String buildScript = """
             apply plugin: "java"
-            repositories { jcenter() }
+            ${jcenterRepositoryBlock}
             dependencies { compile "org.springframework:spring-beans:1.2.8" }
-        '''
+        """
         project.getFile('build.gradle').setContents(new ByteArrayInputStream(buildScript.bytes), 0, new NullProgressMonitor())
         waitForResourceChangeEvents()
         waitForGradleJobsToFinish()
@@ -204,7 +204,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
     }
 
     private void setProjectAutoSync(IProject project, boolean autoSync) {
-        BuildConfiguration currentConfig = configurationManager.loadProjectConfiguration(project).buildConfiguration;
+        BuildConfiguration currentConfig = configurationManager.loadProjectConfiguration(project).buildConfiguration
         BuildConfiguration updatedConfig = configurationManager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
             true,
             currentConfig.gradleDistribution,
@@ -216,7 +216,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
     }
 
     private void inheritWorkspacePreferences(IProject project) {
-        BuildConfiguration currentConfig = configurationManager.loadProjectConfiguration(project).buildConfiguration;
+        BuildConfiguration currentConfig = configurationManager.loadProjectConfiguration(project).buildConfiguration
         BuildConfiguration updatedConfig = configurationManager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
             false,
             currentConfig.gradleDistribution,

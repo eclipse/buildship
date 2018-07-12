@@ -62,11 +62,11 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
 
     private def sampleProject() {
         dir('sample-project') {
-            file 'build.gradle',  '''
+            file 'build.gradle',  """
                 apply plugin: "java"
-                repositories { jcenter() }
+                ${jcenterRepositoryBlock}
                 dependencies { testCompile 'junit:junit:4.10' }
-            '''
+            """
             dir('src/test/java') {
                 file 'SampleTest.java', '''
                     import org.junit.Test;

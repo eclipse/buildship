@@ -66,9 +66,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
             file 'build.gradle', """
                 apply plugin: 'java'
 
-                repositories {
-                    jcenter()
-                }
+                ${jcenterRepositoryBlock}
 
                 dependencies {
                     compile 'com.google.guava:guava:18.0'

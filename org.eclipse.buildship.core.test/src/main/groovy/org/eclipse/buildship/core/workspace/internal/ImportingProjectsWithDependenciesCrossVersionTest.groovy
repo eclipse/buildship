@@ -21,14 +21,12 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
                 include 'sub2:subSub1'
             '''
 
-            file 'build.gradle', '''
+            file 'build.gradle', """
                 subprojects {
                     apply plugin: 'java'
-                    repositories {
-                        mavenCentral()
-                    }
+                    ${jcenterRepositoryBlock}
                 }
-            '''
+            """
 
             dir('api') {
                 file 'build.gradle', '''

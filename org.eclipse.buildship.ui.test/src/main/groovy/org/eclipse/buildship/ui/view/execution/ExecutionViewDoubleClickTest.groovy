@@ -116,9 +116,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
             file 'build.gradle', """
                 apply plugin: 'java'
 
-                repositories {
-                    jcenter()
-                }
+                ${jcenterRepositoryBlock}
 
                 dependencies {
                     testCompile 'junit:junit:4.12'

@@ -479,7 +479,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 allprojects {
                     apply plugin: 'java'
                     apply plugin: 'eclipse'
-                    repositories.jcenter()
+                    ${jcenterRepositoryBlock}
                 }
 
                 dependencies {
@@ -536,7 +536,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 allprojects {
                     apply plugin: 'java'
                     apply plugin: 'eclipse'
-                    repositories.jcenter()
+                    ${jcenterRepositoryBlock}
                 }
 
                 dependencies {
@@ -658,7 +658,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 allprojects {
                     apply plugin: 'java'
                     apply plugin: 'eclipse'
-                    repositories.jcenter()
+                    ${jcenterRepositoryBlock}
                 }
 
                 dependencies {
@@ -719,7 +719,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 allprojects {
                     apply plugin: 'java'
                     apply plugin: 'eclipse'
-                    repositories.jcenter()
+                    ${jcenterRepositoryBlock}
                 }
 
                 dependencies {
