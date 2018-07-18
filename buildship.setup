@@ -27,11 +27,11 @@
         name="org.jetbrains.kotlin.feature.feature.group"
         versionRange="0.8.0"/>
     <repository
-        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.7"/>
+        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.8"/>
     <repository
-        url="http://download.eclipse.org/buildship/updates/e47/snapshots/2.x"/>
+        url="http://download.eclipse.org/buildship/updates/e48/snapshots/3.x"/>
     <repository
-        url="https://teamcity.jetbrains.com/guestAuth/repository/download/Kotlin_EclipsePlugin/scripts.tcbuildtag"/>
+        url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
@@ -313,7 +313,7 @@
           versionRange="0.19.4"/>
       <requirement
           name="org.jetbrains.kotlin.feature.feature.group"
-          versionRange="0.8.2"/>
+          versionRange="0.8.5"/>
       <repositoryList
           name="Photon">
         <repository
@@ -321,7 +321,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-photon-m7"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
@@ -332,7 +332,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
@@ -343,7 +343,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
@@ -354,7 +354,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
@@ -365,7 +365,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
@@ -376,7 +376,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
@@ -387,7 +387,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
+            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
         <repository
             url="jar:https://repo.gradle.org/gradle/tooling-libs-releases-local/com/gradleware/tooling/p2-repository/0.19.4/p2-repository-0.19.4.zip!/"/>
       </repositoryList>
