@@ -224,24 +224,19 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         } else {
             persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
         }
-        
-        
-        try {
-			Optional<String> configName = DefaultGradleWorkspace.loadConfiguratorName(HierarchicalElementUtils.getRoot(project).getProjectDirectory());
-			if (!configName.isPresent()) {
-				System.err.println("NOT PRESENT");
-			} else {
-				System.err.println("PRESENT: " + configName.get());
-				
-				for (GradleProjectConfigurator configurator : ProjectConfiguratorExtension.loadConfigurators()) {
-					if (configName.get().equals(configurator.getClass().getCanonicalName())) {
-						configurator.configure(workspaceProject);
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
+        Optional<String> configName = DefaultGradleWorkspace.loadConfiguratorName(HierarchicalElementUtils.getRoot(project).getProjectDirectory());
+        if (configName.isPresent()) {
+            try {
+                for (GradleProjectConfigurator configurator : ProjectConfiguratorExtension.loadConfigurators()) {
+                    if (configName.get().equals(configurator.getClass().getCanonicalName())) {
+                        configurator.configure(new DefaultSynchronizationContext(workspaceProject));
+                    }
+                }
+            } catch (Exception e) {
+                CorePlugin.logger().warn("Project configurator " + configName.get() + " failed", e);
+            }
+        }
 
         CorePlugin.modelPersistence().saveModel(persistentModel.build());
     }
