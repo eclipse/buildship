@@ -11,8 +11,9 @@ import org.eclipse.jdt.core.IAccessRule
 import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
-
+import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.Logger
+import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
@@ -23,6 +24,62 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     private static final String NON_DEPLOYED = "org.eclipse.jst.component.nondependency"
     private static final String DEPLOYED = "org.eclipse.jst.component.dependency"
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature"
+
+    def "Do not check mixed deployment paths without WTP installed"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                apply plugin: 'ear'
+                ${jcenterRepositoryBlock}
+                dependencies {
+                    earlib 'org.assertj:assertj-core:3.10.0'
+                    deploy "log4j:log4j:1.2.17"
+                }
+            """
+        }
+
+        UserNotification notification = Mock(UserNotification)
+        registerService(UserNotification, notification)
+
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: false, wtpInstalled:false)
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root)
+
+        then:
+        0 * notification.errorOccurred(*_)
+
+    }
+    
+    def "Check mixed deployment paths with WTP installed"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                apply plugin: 'ear'
+                ${jcenterRepositoryBlock}
+                dependencies {
+                    earlib 'org.assertj:assertj-core:3.10.0'
+                    deploy "log4j:log4j:1.2.17"
+                }
+            """
+        }
+
+        UserNotification notification = Mock(UserNotification)
+        registerService(UserNotification, notification)
+
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: false, wtpInstalled:true)
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root)
+
+        then:
+        1 * notification.errorOccurred(*_)
+
+    }
 
     def "The eclipseWtp task is run before importing WTP projects"() {
         setup:
@@ -381,6 +438,11 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     class WorkspaceOperationsDelegate {
         @Delegate WorkspaceOperations delegate = new DefaultWorkspaceOperations()
         boolean recognizeWtpComponentNature
+        boolean wtpInstalled = false
+
+        boolean isWtpInstalled () {
+        	wtpInstalled
+        }
 
         boolean isNatureRecognizedByEclipse(String nature) {
             nature == WTP_COMPONENT_NATURE ? recognizeWtpComponentNature : delegate.isNatureRecognizedByEclipse(nature)
