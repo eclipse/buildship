@@ -28,6 +28,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
         final Property<String> qualifier
         final Property<String> template
         final Property<String> packageFilter
+        final Property<String> sourceReference
         final ConfigurableFileCollection resources
 
         BundleInfoExtension(Project project) {
@@ -37,6 +38,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
             qualifier = project.objects.property(String)
             template = project.objects.property(String)
             packageFilter = project.objects.property(String)
+            sourceReference = project.objects.property(String)
             resources = project.files()
         }
 
@@ -86,8 +88,9 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
                 String packageFilter = project.extensions.bundleInfo.packageFilter.get()
                 String bundleVersion = project.extensions.bundleInfo.bundleVersion.get()
                 String qualifier = 'qualifier'
+                String sourceReference = project.extensions.bundleInfo.sourceReference.getOrNull()
                 project.file('META-INF').mkdirs()
-                project.file('META-INF/MANIFEST.MF').text = JarBundleUtils.manifestContent(jar, template, packageFilter, bundleVersion, qualifier)
+                project.file('META-INF/MANIFEST.MF').text = JarBundleUtils.manifestContent(jar, template, packageFilter, bundleVersion, qualifier, sourceReference)
             }
         }
     }

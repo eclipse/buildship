@@ -20,3 +20,4 @@ Export-Package: org.gradle.api;version="4.8.1",
  org.gradle.tooling.model.idea;version="4.8.1",
  org.gradle.tooling.model.java;version="4.8.1"
 Bundle-Version: 4.8.1.qualifier
+Eclipse-SourceReferences: scm:git:https://github.com/gradle/gradle.git;path="subprojects/tooling-api";tag="v4.8.1"

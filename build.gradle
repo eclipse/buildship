@@ -259,6 +259,9 @@ eclipseBuild {
             'org.junit'                             : '4.12.0'
         ] + eclipseVersionAgnosticDependencies
     }
+
+    scmRepo = "https://github.com/eclipse/buildship.git"
+    commitId = currentCommitId()
 }
 
 // read the current version from an external file and add a timestamp suffix if requested by the caller
@@ -540,4 +543,13 @@ String getBundleVersion(String version) {
   } else {
     throw new IllegalArgumentException("Invalid bundle version: $version")
   }
+}
+
+def currentCommitId() {
+    def result = new ByteArrayOutputStream()
+    exec {
+        standardOutput = result
+        commandLine('git', 'rev-parse', '--verify', 'HEAD')
+    }
+    return result.toString().trim()
 }
