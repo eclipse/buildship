@@ -74,8 +74,6 @@ class BuildDefinitionPlugin implements Plugin<Project> {
 
         def defaultEclipseVersion
         final def targetPlatforms
-        def scmRepo
-        def commitId
 
         EclipseBuild() {
             targetPlatforms = [:]
