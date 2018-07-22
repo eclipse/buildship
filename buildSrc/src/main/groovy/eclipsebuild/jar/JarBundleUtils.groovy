@@ -23,11 +23,11 @@ class JarBundleUtils {
         dependency.moduleArtifacts.find { it.extension == 'jar' }
     }
 
-    static String manifestContent(File jar, String template, String packageFilter, String bundleVersion, String qualifier, String sourceReference) {
+    static String manifestContent(File jar, String template, String packageFilter, String bundleVersion, String qualifier) {
         List<String> packageNames = packageNames(jar, packageFilter) as List
         packageNames.sort()
         String fullVersion = "${bundleVersion}.${qualifier}"
-        manifestFor(template, packageNames, bundleVersion, fullVersion, sourceReference)
+        manifestFor(template, packageNames, bundleVersion, fullVersion)
     }
 
     private static Set<String> packageNames(File jar, String filteredPackagesPattern) {
@@ -49,7 +49,7 @@ class JarBundleUtils {
         result
     }
 
-    private static String manifestFor(String manifestTemplate, Collection<String> packageNames, String mainVersion, String fullVersion, String sourceReference) {
+    private static String manifestFor(String manifestTemplate, Collection<String> packageNames, String mainVersion, String fullVersion) {
         StringBuilder manifest = new StringBuilder(manifestTemplate)
 
         if (!packageNames.isEmpty()) {
@@ -57,9 +57,6 @@ class JarBundleUtils {
             manifest.append "Export-Package:${exportedPackages}\n"
         }
         manifest.append "Bundle-Version: $fullVersion\n"
-        if (sourceReference) {
-            manifest.append "Eclipse-SourceReferences: $sourceReference\n"
-        }
         manifest.toString()
     }
 }

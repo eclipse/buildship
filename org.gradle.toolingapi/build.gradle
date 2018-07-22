@@ -6,14 +6,11 @@ dependencies {
     plugin "org.gradle:gradle-tooling-api:$toolingApiVersion"
 }
 
-String toolingApiBundleVersion = getBundleVersion(toolingApiVersion)
-
 bundleInfo {
     bundleName = 'org.gradle.toolingapi'
-    bundleVersion = toolingApiBundleVersion
+    bundleVersion = getBundleVersion(toolingApiVersion)
     qualifier = versionQualifier
     template = file('resources/template/manifest-template.txt').text
     packageFilter = ".c*jarjar.*|.*impldep.*|.*internal.*|org.gradle(|.concurrent.*|.groovy.*|.initialization.*|.api.+|.wrapper|.util)"
     resources = files('resources/extra_resources')
-    sourceReference = "scm:git:https://github.com/gradle/gradle.git;path=\"subprojects/tooling-api\";tag=\"v${toolingApiBundleVersion}\"".toString()
 }
