@@ -6,10 +6,14 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.provider.Property
+import org.gradle.api.specs.Specs
 import org.gradle.plugins.ide.eclipse.EclipsePlugin
 import org.gradle.plugins.ide.eclipse.model.Library
 
@@ -28,6 +32,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
         final Property<String> qualifier
         final Property<String> template
         final Property<String> packageFilter
+        final Property<String> sourceReference
         final ConfigurableFileCollection resources
 
         BundleInfoExtension(Project project) {
@@ -37,6 +42,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
             qualifier = project.objects.property(String)
             template = project.objects.property(String)
             packageFilter = project.objects.property(String)
+            sourceReference = project.objects.property(String)
             resources = project.files()
         }
 
@@ -68,6 +74,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
             project.eclipse.classpath.file.whenMerged {
                 def lib = new Library(fileReference(jarName(project)))
                 lib.exported = true
+                lib.sourcePath = fileReference(sourceJarName(project))
                 entries += lib
             }
 
@@ -79,6 +86,14 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
                     from jar
                     into project.file('.')
                     rename { jarName }
+                }
+
+                // copy the source jar file into project
+                project.copy {
+                    File sourceJar = JarBundleUtils.firstDependencySourceJar(project, getPluginConfiguration(project))
+                    from(sourceJar)
+                    into project.file('.')
+                    rename { sourceJarName(project) }
                 }
 
                 // update manifest file
@@ -139,5 +154,11 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
         String bundleName = project.extensions.bundleInfo.bundleName.get()
         String bundleVersion = project.extensions.bundleInfo.bundleVersion.get()
         "${bundleName}_${bundleVersion}.jar"
+    }
+
+    private static String sourceJarName(Project project) {
+        String bundleName = project.extensions.bundleInfo.bundleName.get()
+        String bundleVersion = project.extensions.bundleInfo.bundleVersion.get()
+        "${bundleName}.source_${bundleVersion}.jar"
     }
 }

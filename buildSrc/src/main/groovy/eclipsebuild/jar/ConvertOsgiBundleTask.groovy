@@ -1,6 +1,8 @@
 package eclipsebuild.jar
 
+import eclipsebuild.PluginUtils
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Property
@@ -36,11 +38,12 @@ class ConvertOsgiBundleTask extends DefaultTask {
 
     @TaskAction
     void convertOsgiBundle() {
-        createNewBundle(JarBundleUtils.firstDependencyJar(pluginConfiguration))
+        createNewBundle(project, JarBundleUtils.firstDependencyJar(pluginConfiguration))
     }
 
-    void createNewBundle(File jar) {
-        String manifest = JarBundleUtils.manifestContent(jar, template.get(), packageFilter.get(), bundleVersion.get(), qualifier.get())
+    void createNewBundle(Project project, File jar) {
+        String sourceReference = PluginUtils.sourceReference(project)
+        String manifest = JarBundleUtils.manifestContent(jar, template.get(), packageFilter.get(), bundleVersion.get(), qualifier.get(), sourceReference)
 
         File extraResources = project.file("${project.buildDir}/tmp/bundle-resources")
         File manifestFile = new File(extraResources, '/META-INF/MANIFEST.MF')
