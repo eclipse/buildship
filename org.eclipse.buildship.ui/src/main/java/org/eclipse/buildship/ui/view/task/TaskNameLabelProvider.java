@@ -89,14 +89,7 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
     }
 
     private StyledString getProjectText(ProjectNode project) {
-        String name;
-        Optional<IProject> workspaceProject = project.getWorkspaceProject();
-        if (workspaceProject.isPresent()) {
-            name = workspaceProject.get().getName();
-        } else {
-            name = project.getEclipseProject().getName();
-        }
-        return new StyledString(name);
+        return new StyledString(project.getDisplayName());
     }
 
     private Image getProjectImage(ProjectNode project) {

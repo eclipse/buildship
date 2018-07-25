@@ -192,6 +192,31 @@ class TaskViewContentTest extends BaseTaskViewTest {
         taskTree.root1.sub.containsKey('ss1')
     }
 
+    def "Project nodes should come before task group nodes if hierarchy is not flattened"() {
+        setup:
+        view.state.projectHierarchyFlattened = false
+
+        when:
+        def project = dir("root") {
+            file 'build.gradle', """
+                task foo() {
+                    group = 'b'
+                }
+            """
+            file 'settings.gradle', """
+                include 'z'
+                include 'a'
+            """
+            dir('z')
+            dir('a')
+        }
+        importAndWait(project)
+        waitForTaskView()
+
+        then:
+        taskTree.root.collect { k, v -> k }.findAll { ['a', 'b', 'z'].contains(it) } == ['a', 'z', 'b']
+    }
+
     private def getTaskTree() {
         getChildren(tree.allItems as List)
     }

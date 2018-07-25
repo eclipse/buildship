@@ -48,6 +48,17 @@ public final class ProjectNode extends BaseProjectNode {
         this.projectPath = Preconditions.checkNotNull(projectPath);
     }
 
+    public String getDisplayName() {
+        String name;
+        Optional<IProject> workspaceProject = this.getWorkspaceProject();
+        if (workspaceProject.isPresent()) {
+            name = workspaceProject.get().getName();
+        } else {
+            name = this.getEclipseProject().getName();
+        }
+        return name;
+    }
+
     public ProjectNode getRootProjectNode() {
         ProjectNode root = this;
         while (root.getParentProjectNode() != null) {

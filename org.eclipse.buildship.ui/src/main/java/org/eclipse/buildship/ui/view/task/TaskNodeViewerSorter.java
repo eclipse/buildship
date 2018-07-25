@@ -46,6 +46,10 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
             return -1;
         } else if (leftNode instanceof TaskNode && rightNode instanceof ProjectNode) {
             return 1;
+        } else if (leftNode instanceof ProjectNode && rightNode instanceof TaskGroupNode) {
+            return -1;
+        } else if (leftNode instanceof TaskGroupNode && rightNode instanceof ProjectNode) {
+            return 1;
         } else if (leftNode instanceof TaskNode && rightNode instanceof TaskNode) {
             TaskNode left = (TaskNode) leftNode;
             TaskNode right = (TaskNode) rightNode;
@@ -78,25 +82,30 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
      * @return the new sorter instance
      */
     public static TaskNodeViewerSorter createFor(TaskViewState state) {
-        Ordering<ProjectNode> projectOrdering = createProjectNodeOrdering();
+        Ordering<ProjectNode> projectOrdering = createProjectNodeOrdering(state.isProjectHierarchyFlattened());
         Ordering<TaskNode> taskOrdering = createTaskNodeOrdering(state.isSortByType(), state.isSortByVisibility());
         return new TaskNodeViewerSorter(projectOrdering, taskOrdering);
     }
 
-    private static Ordering<ProjectNode> createProjectNodeOrdering() {
+    private static Ordering<ProjectNode> createProjectNodeOrdering(final boolean isHierarchyFlattened) {
         return new Ordering<ProjectNode>() {
 
             @Override
             public int compare(ProjectNode left, ProjectNode right) {
-                EclipseProject leftRoot = HierarchicalElementUtils.getRoot(left.getEclipseProject());
-                EclipseProject rightRoot = HierarchicalElementUtils.getRoot(right.getEclipseProject());
-                if (leftRoot == rightRoot) {
-                    // do not change sorting of projects that belong to the same root
-                    return 0;
+                if (!isHierarchyFlattened) {
+                    return left.getDisplayName().compareTo(right.getDisplayName());
                 } else {
-                    // projects that do not belong to the same root should be grouped by the name of
-                    // their root projects
-                    return leftRoot.getName().compareTo(rightRoot.getName());
+                    EclipseProject leftRoot = HierarchicalElementUtils.getRoot(left.getEclipseProject());
+                    EclipseProject rightRoot = HierarchicalElementUtils.getRoot(right.getEclipseProject());
+
+                    if (leftRoot.getProjectIdentifier() == rightRoot.getProjectIdentifier()) {
+                        // do not change sorting of projects that belong to the same root
+                        return 0;
+                    } else {
+                        // projects that do not belong to the same root should be grouped by the name of
+                        // their root projects
+                        return leftRoot.getName().compareTo(rightRoot.getName());
+                    }
                 }
             }
         };
