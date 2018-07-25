@@ -214,7 +214,8 @@ class TaskViewContentTest extends BaseTaskViewTest {
         waitForTaskView()
 
         then:
-        taskTree.root.collect { k, v -> k }.findAll { ['a', 'b', 'z'].contains(it) } == ['a', 'z', 'b']
+        List childrenNames = taskTree.root.collect { k, v -> k }
+        childrenNames[0..2] == ['a', 'z', 'b']
     }
 
     private def getTaskTree() {
