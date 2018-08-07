@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
@@ -44,7 +45,7 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
  * Default implementation of the {@link WorkspaceOperations} interface.
  */
 public class DefaultWorkspaceOperations implements WorkspaceOperations {
-
+	
     @Override
     public ImmutableList<IProject> getAllProjects() {
         return ImmutableList.copyOf(ResourcesPlugin.getWorkspace().getRoot().getProjects());
@@ -356,6 +357,11 @@ public class DefaultWorkspaceOperations implements WorkspaceOperations {
             throw new GradlePluginsRuntimeException(e);
         }
         return findProjectByName(newName).get();
+    }
+
+    @Override
+    public boolean isWtpInstalled() {
+        return Platform.getBundle("org.eclipse.wst.common.core") != null;
     }
 
 }
