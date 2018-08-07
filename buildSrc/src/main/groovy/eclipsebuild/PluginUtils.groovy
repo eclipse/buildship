@@ -49,6 +49,17 @@ class PluginUtils {
         }
     }
 
+    private static String sourceReference(Project project) {
+        def scmRepo =  project.rootProject.eclipseBuild.scmRepo
+        if (scmRepo) {
+            def commitId = project.rootProject.eclipseBuild.commitId
+            def rootPath = Paths.get(project.rootProject.projectDir.canonicalPath)
+            def projectPath = Paths.get(project.projectDir.canonicalPath)
+            def relativePath = rootPath.relativize(projectPath)
+            "scm:git:${scmRepo};path=\"${relativePath}\"" + (commitId ? ";commitId=${commitId}" : "")
+        }
+    }
+
     /**
      * Calculates the value for the Eclipse-SourceReferences manifest attribute.
      *

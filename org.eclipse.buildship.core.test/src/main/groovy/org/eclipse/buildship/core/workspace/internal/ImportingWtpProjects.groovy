@@ -24,6 +24,57 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     private static final String DEPLOYED = "org.eclipse.jst.component.dependency"
     private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature"
 
+    def "Do not check mixed deployment paths without WTP installed"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                apply plugin: 'ear'
+                ${jcenterRepositoryBlock}
+                dependencies {
+                    earlib 'org.assertj:assertj-core:3.10.0'
+                    deploy "log4j:log4j:1.2.17"
+                }
+            """
+        }
+        Logger logger = Mock(Logger)
+        registerService(Logger, logger)
+
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root)
+
+        then:
+        notThrown(Exception)
+    }
+
+    def "Check mixed deployment paths with WTP installed"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                apply plugin: 'ear'
+                ${jcenterRepositoryBlock}
+                dependencies {
+                    earlib 'org.assertj:assertj-core:3.10.0'
+                    deploy "log4j:log4j:1.2.17"
+                }
+            """
+        }
+
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root)
+
+        then:
+        Exception e = thrown(Exception)
+        e.message == "WTP currently does not support mixed deployment paths."
+    }
+
     def "The eclipseWtp task is run before importing WTP projects"() {
         setup:
         File root = dir("project") {
@@ -33,7 +84,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -53,7 +104,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: false)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -73,7 +124,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -94,7 +145,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -313,7 +364,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=506627")
     def "Cleans up outdated component configuration"() {
         setup:
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         File root = dir("wtp-project") {
@@ -364,7 +415,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             file 'settings.gradle', "includeBuild 'included'"
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -379,13 +430,17 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
 
     class WorkspaceOperationsDelegate {
         @Delegate WorkspaceOperations delegate = new DefaultWorkspaceOperations()
-        boolean recognizeWtpComponentNature
+        boolean wtpInstalled
+
+        boolean isWtpInstalled () {
+            wtpInstalled
+        }
 
         boolean isNatureRecognizedByEclipse(String nature) {
             // hacky way to ensure the ProjectNatureUpdater doesn't actually set the WTP nature
             // as it is not part of the test target platform and makes the synchronization fail
             def natureUpdaterCalled = new Exception().stackTrace.find { StackTraceElement element -> element.className == ProjectNatureUpdater.class.name && element.methodName == 'toNatures' }
-            nature == WTP_COMPONENT_NATURE && !natureUpdaterCalled ? recognizeWtpComponentNature : delegate.isNatureRecognizedByEclipse(nature)
+            nature == WTP_COMPONENT_NATURE && !natureUpdaterCalled ? wtpInstalled : delegate.isNatureRecognizedByEclipse(nature)
         }
     }
 

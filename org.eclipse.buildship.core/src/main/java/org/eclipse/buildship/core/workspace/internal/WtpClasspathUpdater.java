@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 
@@ -41,12 +42,14 @@ final class WtpClasspathUpdater {
     private static final String NON_DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.nondependency";
 
     public static void update(IJavaProject javaProject, EclipseProject project, SubMonitor progress) throws JavaModelException {
-        List<EclipseExternalDependency> dependencies = Lists.newArrayList(project.getClasspath());
-        String deploymentPath = getDeploymentPath(dependencies);
-        if (deploymentPath != null) {
-            updateDeploymentPath(javaProject, deploymentPath, progress);
-        } else if (hasNonDeploymentAttributes(dependencies)) {
-            markAsNonDeployed(javaProject, progress);
+        if (CorePlugin.workspaceOperations().isWtpInstalled()) {
+            List<EclipseExternalDependency> dependencies = Lists.newArrayList(project.getClasspath());
+            String deploymentPath = getDeploymentPath(dependencies);
+            if (deploymentPath != null) {
+                updateDeploymentPath(javaProject, deploymentPath, progress);
+            } else if (hasNonDeploymentAttributes(dependencies)) {
+                markAsNonDeployed(javaProject, progress);
+            }
         }
     }
 
