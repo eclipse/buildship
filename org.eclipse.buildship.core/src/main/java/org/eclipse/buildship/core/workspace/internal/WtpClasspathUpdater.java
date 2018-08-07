@@ -12,12 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.google.common.collect.Lists;
-
-import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
-import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
-import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
-
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -25,8 +22,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.UnsupportedConfigurationException;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import com.google.common.collect.Lists;
+import com.gradleware.tooling.toolingmodel.OmniClasspathAttribute;
+import com.gradleware.tooling.toolingmodel.OmniEclipseProject;
+import com.gradleware.tooling.toolingmodel.OmniExternalDependency;
 
 /**
  * Updates the Gradle classpath container to have the correct deployment attribute if any of its
@@ -42,6 +41,7 @@ final class WtpClasspathUpdater {
     private static final String NON_DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.nondependency";
 
     public static void update(IJavaProject javaProject, OmniEclipseProject project, SubMonitor progress) throws JavaModelException {
+      if (CorePlugin.workspaceOperations().isWtpInstalled()) {
         List<OmniExternalDependency> dependencies = project.getExternalDependencies();
         String deploymentPath = getDeploymentPath(dependencies);
         if (deploymentPath != null) {
@@ -49,6 +49,7 @@ final class WtpClasspathUpdater {
         } else if (hasNonDeploymentAttributes(dependencies)) {
             markAsNonDeployed(javaProject, progress);
         }
+      }
     }
 
     private static String getDeploymentPath(List<OmniExternalDependency> dependencies) {
