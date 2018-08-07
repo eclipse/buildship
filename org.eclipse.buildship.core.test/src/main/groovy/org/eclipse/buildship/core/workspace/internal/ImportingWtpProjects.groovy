@@ -42,7 +42,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         UserNotification notification = Mock(UserNotification)
         registerService(UserNotification, notification)
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: false, wtpInstalled:false)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -52,7 +52,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         0 * notification.errorOccurred(*_)
 
     }
-    
+
     def "Check mixed deployment paths with WTP installed"() {
         setup:
         File root = dir("project") {
@@ -70,7 +70,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         UserNotification notification = Mock(UserNotification)
         registerService(UserNotification, notification)
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: false, wtpInstalled:true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -90,7 +90,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -110,7 +110,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: false)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -130,7 +130,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -151,7 +151,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -371,7 +371,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=506627")
     def "Cleans up outdated component configuration"() {
         setup:
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         File root = dir("wtp-project") {
@@ -422,7 +422,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             file 'settings.gradle', "includeBuild 'included'"
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -437,15 +437,14 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
 
     class WorkspaceOperationsDelegate {
         @Delegate WorkspaceOperations delegate = new DefaultWorkspaceOperations()
-        boolean recognizeWtpComponentNature
-        boolean wtpInstalled = false
+        boolean wtpInstalled
 
         boolean isWtpInstalled () {
-        	wtpInstalled
+            wtpInstalled
         }
 
         boolean isNatureRecognizedByEclipse(String nature) {
-            nature == WTP_COMPONENT_NATURE ? recognizeWtpComponentNature : delegate.isNatureRecognizedByEclipse(nature)
+            nature == WTP_COMPONENT_NATURE ? wtpInstalled : delegate.isNatureRecognizedByEclipse(nature)
         }
     }
 

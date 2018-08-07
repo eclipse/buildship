@@ -41,15 +41,15 @@ final class WtpClasspathUpdater {
     private static final String NON_DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.nondependency";
 
     public static void update(IJavaProject javaProject, OmniEclipseProject project, SubMonitor progress) throws JavaModelException {
-      if (CorePlugin.workspaceOperations().isWtpInstalled()) {
-        List<OmniExternalDependency> dependencies = project.getExternalDependencies();
-        String deploymentPath = getDeploymentPath(dependencies);
-        if (deploymentPath != null) {
-            updateDeploymentPath(javaProject, deploymentPath, progress);
-        } else if (hasNonDeploymentAttributes(dependencies)) {
-            markAsNonDeployed(javaProject, progress);
+        if (CorePlugin.workspaceOperations().isWtpInstalled()) {
+            List<OmniExternalDependency> dependencies = project.getExternalDependencies();
+            String deploymentPath = getDeploymentPath(dependencies);
+            if (deploymentPath != null) {
+                updateDeploymentPath(javaProject, deploymentPath, progress);
+            } else if (hasNonDeploymentAttributes(dependencies)) {
+                markAsNonDeployed(javaProject, progress);
+            }
         }
-      }
     }
 
     private static String getDeploymentPath(List<OmniExternalDependency> dependencies) {

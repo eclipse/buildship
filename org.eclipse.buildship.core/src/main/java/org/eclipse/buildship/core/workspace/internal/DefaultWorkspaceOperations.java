@@ -45,7 +45,7 @@ import org.eclipse.buildship.core.workspace.WorkspaceOperations;
  * Default implementation of the {@link WorkspaceOperations} interface.
  */
 public class DefaultWorkspaceOperations implements WorkspaceOperations {
-	
+
     @Override
     public ImmutableList<IProject> getAllProjects() {
         return ImmutableList.copyOf(ResourcesPlugin.getWorkspace().getRoot().getProjects());
