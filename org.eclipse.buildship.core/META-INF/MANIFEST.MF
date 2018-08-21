@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.eclipse.buildship.core;singleton:=true
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-Activator: org.eclipse.buildship.core.CorePlugin
+Bundle-Activator: org.eclipse.buildship.core.internal.CorePlugin
 Require-Bundle: org.eclipse.core.expressions,
  org.eclipse.core.filesystem,
  org.eclipse.core.net,
