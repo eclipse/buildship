@@ -18,6 +18,7 @@ import java.util.List;
  * @author Donat Csikos
  * @since 2.0
  */
+// TODO (donat) move back to org.eclipse.buildship.core.invocation
 public interface InvocationCustomizer {
 
     /**
