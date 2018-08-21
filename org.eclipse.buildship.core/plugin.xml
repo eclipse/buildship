@@ -12,7 +12,7 @@
             point="org.eclipse.jdt.core.classpathContainerInitializer">
         <classpathContainerInitializer
                 id="org.eclipse.buildship.core.gradleclasspathcontainer"
-                class="org.eclipse.buildship.core.workspace.internal.GradleClasspathContainerInitializer">
+                class="org.eclipse.buildship.core.internal.workspace.internal.GradleClasspathContainerInitializer">
         </classpathContainerInitializer>
     </extension>
 
@@ -23,7 +23,7 @@
             point="org.eclipse.core.resources.natures">
         <builder id="org.eclipse.buildship.core.gradleprojectbuilder"/>
         <runtime>
-            <run class="org.eclipse.buildship.core.configuration.internal.DefaultGradleProjectNature"/>
+            <run class="org.eclipse.buildship.core.internal.configuration.internal.DefaultGradleProjectNature"/>
         </runtime>
     </extension>
 
@@ -32,7 +32,7 @@
             name="Gradle Project Builder"
             point="org.eclipse.core.resources.builders">
         <builder hasNature="true">
-            <run class="org.eclipse.buildship.core.configuration.internal.DefaultGradleProjectBuilder" />
+            <run class="org.eclipse.buildship.core.internal.configuration.internal.DefaultGradleProjectBuilder" />
         </builder>
     </extension>
 
@@ -50,7 +50,7 @@
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             id="org.eclipse.buildship.core.launch.runconfiguration"
-            delegate="org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate"
+            delegate="org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate"
             name="Gradle Project"
             modes="run">
       </launchConfigurationType>
@@ -60,7 +60,7 @@
     <extension
           point="org.eclipse.core.expressions.propertyTesters">
        <propertyTester
-             class="org.eclipse.buildship.core.configuration.internal.GradleResourceTester"
+             class="org.eclipse.buildship.core.internal.configuration.internal.GradleResourceTester"
              id="org.eclipse.buildship.core.GradleResourceTester"
              namespace="org.eclipse.buildship.core"
              properties="isGradleResource"
@@ -72,7 +72,7 @@
     <extension
           point="org.eclipse.jdt.launching.runtimeClasspathEntryResolvers">
        <runtimeClasspathEntryResolver
-             class="org.eclipse.buildship.core.workspace.internal.GradleClasspathContainerRuntimeClasspathEntryResolver"
+             class="org.eclipse.buildship.core.internal.workspace.internal.GradleClasspathContainerRuntimeClasspathEntryResolver"
              container="org.eclipse.buildship.core.gradleclasspathcontainer"
              id="org.eclipse.buildship.core.classpathcontainerentryresolver">
        </runtimeClasspathEntryResolver>
@@ -80,7 +80,7 @@
     <extension
           point="org.eclipse.jdt.launching.classpathProviders">
        <classpathProvider
-             class="org.eclipse.buildship.core.launch.internal.GradleClasspathProvider"
+             class="org.eclipse.buildship.core.internal.launch.internal.GradleClasspathProvider"
              id="org.eclipse.buildship.core.classpathprovider">
        </classpathProvider>
     </extension>
