@@ -18,7 +18,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public final class CoreMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.core.i18n.CoreMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.core.internal.i18n.CoreMessages"; //$NON-NLS-1$
 
     public static String ClasspathContainer_Label;
 
