@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.configuration.internal
+package org.eclipse.buildship.core.internal.configuration.internal
 
 import org.eclipse.core.resources.IProject
 

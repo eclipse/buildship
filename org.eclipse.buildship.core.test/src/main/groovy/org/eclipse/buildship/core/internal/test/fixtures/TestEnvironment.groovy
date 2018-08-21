@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.test.fixtures
+package org.eclipse.buildship.core.internal.test.fixtures
 
 import groovy.transform.CompileStatic
 import org.osgi.framework.Constants

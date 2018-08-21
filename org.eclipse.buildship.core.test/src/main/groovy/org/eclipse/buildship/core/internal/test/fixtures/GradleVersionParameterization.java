@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.test.fixtures;
+package org.eclipse.buildship.core.internal.test.fixtures;
 
 import java.net.URI;
 import java.net.URISyntaxException;

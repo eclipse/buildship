@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.test.fixtures
+package org.eclipse.buildship.core.internal.test.fixtures
 
 import org.gradle.tooling.GradleConnector
 

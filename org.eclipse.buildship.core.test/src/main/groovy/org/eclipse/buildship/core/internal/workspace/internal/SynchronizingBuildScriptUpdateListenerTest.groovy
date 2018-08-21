@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.workspace.internal
+package org.eclipse.buildship.core.internal.workspace.internal
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor

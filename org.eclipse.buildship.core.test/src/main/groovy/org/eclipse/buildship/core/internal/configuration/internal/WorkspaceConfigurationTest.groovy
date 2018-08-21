@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.configuration.internal
+package org.eclipse.buildship.core.internal.configuration.internal
 
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification

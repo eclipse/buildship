@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.util.file
+package org.eclipse.buildship.core.internal.util.file
 
 import spock.lang.Specification
 

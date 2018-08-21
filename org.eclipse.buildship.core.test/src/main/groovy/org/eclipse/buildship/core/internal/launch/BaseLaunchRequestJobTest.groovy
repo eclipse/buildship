@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.launch
+package org.eclipse.buildship.core.internal.launch
 
 import org.eclipse.debug.core.ILaunchConfiguration
 

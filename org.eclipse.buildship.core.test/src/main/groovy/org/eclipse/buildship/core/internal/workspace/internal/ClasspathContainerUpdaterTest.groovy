@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.workspace.internal
+package org.eclipse.buildship.core.internal.workspace.internal
 
 import org.gradle.api.JavaVersion
 import org.gradle.tooling.model.eclipse.AccessRule

@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.configuration
+package org.eclipse.buildship.core.internal.configuration
 
 import spock.lang.AutoCleanup;
 import spock.lang.Shared;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.eclipse.buildship.core.util.gradle
+package org.eclipse.buildship.core.internal.util.gradle
 
 import org.gradle.tooling.GradleConnector
 import spock.lang.Specification

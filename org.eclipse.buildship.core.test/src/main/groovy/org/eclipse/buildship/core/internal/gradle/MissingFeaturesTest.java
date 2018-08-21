@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.gradle;
+package org.eclipse.buildship.core.internal.gradle;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.launch
+package org.eclipse.buildship.core.internal.launch
 
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.*
 

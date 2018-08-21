@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.marker
+package org.eclipse.buildship.core.internal.marker
 
 import org.gradle.tooling.GradleConnectionException
 

@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.util.binding
+package org.eclipse.buildship.core.internal.util.binding
 
 import spock.lang.Specification
 

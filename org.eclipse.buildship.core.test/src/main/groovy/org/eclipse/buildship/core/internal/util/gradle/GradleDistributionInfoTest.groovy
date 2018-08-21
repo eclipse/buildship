@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.util.gradle
+package org.eclipse.buildship.core.internal.util.gradle
 
 import org.junit.ClassRule
 import org.junit.rules.TemporaryFolder

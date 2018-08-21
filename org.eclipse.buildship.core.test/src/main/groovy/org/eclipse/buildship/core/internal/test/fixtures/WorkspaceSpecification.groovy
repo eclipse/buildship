@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.test.fixtures
+package org.eclipse.buildship.core.internal.test.fixtures
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder

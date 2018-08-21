@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.workspace.internal
+package org.eclipse.buildship.core.internal.workspace.internal
 
 import spock.lang.Unroll
 

@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.preferences.internal
+package org.eclipse.buildship.core.internal.preferences.internal
 
 import spock.lang.Issue
 

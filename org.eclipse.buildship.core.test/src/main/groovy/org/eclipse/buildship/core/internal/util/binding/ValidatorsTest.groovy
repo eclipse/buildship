@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.util.binding
+package org.eclipse.buildship.core.internal.util.binding
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
