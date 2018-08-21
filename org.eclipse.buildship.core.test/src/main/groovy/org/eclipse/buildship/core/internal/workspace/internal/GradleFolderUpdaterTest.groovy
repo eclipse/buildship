@@ -6,8 +6,8 @@ import org.gradle.tooling.model.eclipse.EclipseProject
 import org.eclipse.core.resources.IFolder
 import org.eclipse.core.resources.IProject
 
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.util.gradle.ModelUtils
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.util.gradle.ModelUtils
 
 class GradleFolderUpdaterTest extends WorkspaceSpecification {
     IProject project

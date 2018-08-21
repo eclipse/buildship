@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 
-import org.eclipse.buildship.core.util.gradle.GradleVersion;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
  * Provides {@link GradleVersion} instances that match the supplied Gradle version

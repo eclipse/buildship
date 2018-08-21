@@ -6,8 +6,8 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
 import org.eclipse.core.runtime.NullProgressMonitor
 
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class ProjectNatureUpdaterTest extends WorkspaceSpecification {
 

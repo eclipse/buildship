@@ -4,8 +4,8 @@ import org.eclipse.jdt.core.IClasspathContainer
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
 class RefreshingTheGradleClasspathContainer extends ProjectSynchronizationSpecification {
 

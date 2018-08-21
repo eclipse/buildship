@@ -2,7 +2,7 @@ package org.eclipse.buildship.core.internal.workspace.internal
 
 import spock.lang.Specification
 
-import org.eclipse.buildship.core.workspace.internal.ManagedModelMergingStrategy.Result
+import org.eclipse.buildship.core.internal.workspace.internal.ManagedModelMergingStrategy.Result
 
 class ManagedModelMergingStrategyTest extends Specification {
 

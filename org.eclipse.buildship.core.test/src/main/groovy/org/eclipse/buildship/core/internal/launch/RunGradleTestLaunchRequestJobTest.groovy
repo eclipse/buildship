@@ -3,8 +3,8 @@ package org.eclipse.buildship.core.internal.launch
 
 import org.eclipse.jdt.core.IType
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.RunConfiguration
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration
 
 class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 

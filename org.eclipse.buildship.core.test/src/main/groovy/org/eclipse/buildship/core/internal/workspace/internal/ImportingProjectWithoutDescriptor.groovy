@@ -1,6 +1,6 @@
 package org.eclipse.buildship.core.internal.workspace.internal
 
-import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.internal.CorePlugin
 
 class ImportingProjectWithoutDescriptor extends SingleProjectSynchronizationSpecification {
 

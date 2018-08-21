@@ -1,8 +1,8 @@
 package org.eclipse.buildship.core.internal.workspace.internal
 
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.workspace.NewProjectHandler
-import org.eclipse.buildship.core.workspace.SynchronizationJob
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.workspace.NewProjectHandler
+import org.eclipse.buildship.core.internal.workspace.SynchronizationJob
 
 class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecification {
 

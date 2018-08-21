@@ -4,7 +4,7 @@ import groovy.transform.CompileStatic
 import org.osgi.framework.Constants
 import org.osgi.framework.ServiceRegistration
 
-import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.internal.CorePlugin
 
 /**
  * Allows to replace services of the {@link CorePlugin} with arbitrary implementations for testing purposes.

@@ -6,7 +6,7 @@ import spock.lang.Unroll
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
 
 class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 

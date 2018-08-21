@@ -6,9 +6,9 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecification {
 

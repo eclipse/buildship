@@ -9,9 +9,9 @@ import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.Status
 
-import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.core.test.fixtures.TestEnvironment
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.Logger
+import org.eclipse.buildship.core.internal.test.fixtures.TestEnvironment
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 
 class ConfiguringGradleBuilderOnBrokenProject extends WorkspaceSpecification {

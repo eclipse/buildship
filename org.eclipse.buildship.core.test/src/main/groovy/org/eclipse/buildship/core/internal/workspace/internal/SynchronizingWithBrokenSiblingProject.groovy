@@ -5,8 +5,8 @@ import spock.lang.Issue
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class SynchronizingWithBrokenSiblingProject extends ProjectSynchronizationSpecification {
 

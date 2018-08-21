@@ -6,10 +6,10 @@ import org.gradle.tooling.model.build.GradleEnvironment
 
 import org.eclipse.core.resources.IProject
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.BuildConfiguration
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.extension.InvocationCustomizerCollector
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.util.extension.InvocationCustomizerCollector
 
 class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
 

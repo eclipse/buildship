@@ -7,7 +7,7 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
 class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronizationSpecification {
 

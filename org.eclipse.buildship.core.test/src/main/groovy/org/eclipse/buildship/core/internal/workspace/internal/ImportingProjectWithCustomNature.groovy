@@ -6,8 +6,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 
-import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.Logger
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=497753")
 class ImportingProjectWithCustomNature extends ProjectSynchronizationSpecification {

@@ -12,11 +12,11 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.util.file.FileUtils
-import org.eclipse.buildship.core.util.gradle.CompatEclipseClasspathEntry
-import org.eclipse.buildship.core.util.gradle.CompatEclipseSourceDirectory
-import org.eclipse.buildship.core.util.gradle.ModelUtils
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.util.file.FileUtils
+import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseClasspathEntry
+import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseSourceDirectory
+import org.eclipse.buildship.core.internal.util.gradle.ModelUtils
 
 class SourceFolderUpdaterTest extends WorkspaceSpecification {
 

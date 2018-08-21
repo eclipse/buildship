@@ -2,8 +2,8 @@ package org.eclipse.buildship.core.internal.workspace.internal
 
 import org.eclipse.jdt.core.IJavaProject
 
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.test.fixtures.TestEnvironment.*
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.test.fixtures.TestEnvironment.*
 
 class LinkedProjectClasspathEntriesTest extends ProjectSynchronizationSpecification {
 

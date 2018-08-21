@@ -10,12 +10,12 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.RunConfiguration
-import org.eclipse.buildship.core.event.Event
-import org.eclipse.buildship.core.event.EventListener
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration
+import org.eclipse.buildship.core.internal.event.Event
+import org.eclipse.buildship.core.internal.event.EventListener
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
 
 class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpecification {
 

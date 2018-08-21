@@ -21,8 +21,8 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleVersion;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
  * Provides parameterization for Spock that includes one or more Gradle distributions on the first

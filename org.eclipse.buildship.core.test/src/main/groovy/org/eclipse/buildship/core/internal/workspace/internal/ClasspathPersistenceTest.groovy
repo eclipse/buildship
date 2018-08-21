@@ -6,10 +6,10 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.workspace.GradleBuild
-import org.eclipse.buildship.core.workspace.GradleWorkspaceManager
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.workspace.GradleBuild
+import org.eclipse.buildship.core.internal.workspace.GradleWorkspaceManager
 
 class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
 

@@ -8,10 +8,10 @@ import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.BuildConfiguration
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
-import org.eclipse.buildship.core.workspace.NewProjectHandler
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.internal.workspace.NewProjectHandler
 
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {

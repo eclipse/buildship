@@ -4,12 +4,12 @@ import org.gradle.tooling.BuildException
 
 import org.eclipse.core.runtime.CoreException
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.operation.ToolingApiStatus
-import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusType
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.workspace.internal.ImportRootProjectOperation.ImportRootProjectException
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.workspace.internal.ImportRootProjectOperation.ImportRootProjectException
 
 class ImportingBrokenProject extends ProjectSynchronizationSpecification {
 

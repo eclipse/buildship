@@ -18,8 +18,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 
-import org.eclipse.buildship.core.util.gradle.GradleVersion;
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersions;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersions;
 
 /**
  * Provides released versions of Gradle. Typically, the list of provided Gradle versions is

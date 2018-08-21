@@ -3,7 +3,7 @@ package org.eclipse.buildship.core.internal.util.gradle
 import spock.lang.Shared;
 import spock.lang.Specification
 
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersions.LookupStrategy
+import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersions.LookupStrategy
 
 class PublishedGradleVersionsTest extends Specification {
 

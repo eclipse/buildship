@@ -11,8 +11,8 @@
 
 package org.eclipse.buildship.core.internal.workspace.internal
 
-import org.eclipse.buildship.core.UnsupportedConfigurationException
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
 

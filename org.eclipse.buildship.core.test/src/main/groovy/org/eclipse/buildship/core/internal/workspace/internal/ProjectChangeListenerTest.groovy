@@ -2,13 +2,13 @@ package org.eclipse.buildship.core.internal.workspace.internal
 
 import org.eclipse.core.runtime.NullProgressMonitor
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.event.Event
-import org.eclipse.buildship.core.event.EventListener
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.workspace.ProjectCreatedEvent
-import org.eclipse.buildship.core.workspace.ProjectDeletedEvent
-import org.eclipse.buildship.core.workspace.ProjectMovedEvent
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.event.Event
+import org.eclipse.buildship.core.internal.event.EventListener
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent
+import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent
+import org.eclipse.buildship.core.internal.workspace.ProjectMovedEvent
 
 class ProjectChangeListenerTest extends WorkspaceSpecification {
 

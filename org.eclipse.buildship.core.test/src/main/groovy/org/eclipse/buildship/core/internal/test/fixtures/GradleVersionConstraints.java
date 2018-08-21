@@ -14,7 +14,7 @@ import java.util.List;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 
-import org.eclipse.buildship.core.util.gradle.GradleVersion;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
  * A specification that matches against Gradle version patterns.

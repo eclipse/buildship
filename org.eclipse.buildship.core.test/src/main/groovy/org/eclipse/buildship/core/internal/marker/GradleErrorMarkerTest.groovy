@@ -2,7 +2,7 @@ package org.eclipse.buildship.core.internal.marker
 
 import org.gradle.tooling.BuildException
 
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
 

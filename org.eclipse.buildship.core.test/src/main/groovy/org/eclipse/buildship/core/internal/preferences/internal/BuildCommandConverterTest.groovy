@@ -3,7 +3,7 @@ package org.eclipse.buildship.core.internal.preferences.internal
 import org.eclipse.core.resources.ICommand
 import org.eclipse.core.resources.IProject
 
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class BuildCommandConverterTest extends WorkspaceSpecification {
 

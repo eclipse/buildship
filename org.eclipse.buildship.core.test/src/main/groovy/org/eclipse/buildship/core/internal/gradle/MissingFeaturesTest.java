@@ -18,8 +18,8 @@ import java.util.List;
 
 import org.junit.Test;
 
-import org.eclipse.buildship.core.util.gradle.GradleVersion;
-import org.eclipse.buildship.core.util.gradle.Pair;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+import org.eclipse.buildship.core.internal.util.gradle.Pair;
 
 /**
  * MissingFeatures test.

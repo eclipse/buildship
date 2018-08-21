@@ -11,10 +11,10 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils
-import org.eclipse.buildship.core.util.gradle.ModelUtils
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils
+import org.eclipse.buildship.core.internal.util.gradle.ModelUtils
+import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
 class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 

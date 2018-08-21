@@ -8,7 +8,7 @@ import spock.lang.Unroll
 
 import com.google.common.base.Strings
 
-import org.eclipse.buildship.core.util.binding.Validator
+import org.eclipse.buildship.core.internal.util.binding.Validator
 
 class GradleDistributionInfoTest extends Specification {
 

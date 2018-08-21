@@ -10,10 +10,10 @@ import org.eclipse.core.runtime.Platform
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.Logger
-import org.eclipse.buildship.core.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.Logger
+import org.eclipse.buildship.core.internal.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
 class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizationSpecification {
 

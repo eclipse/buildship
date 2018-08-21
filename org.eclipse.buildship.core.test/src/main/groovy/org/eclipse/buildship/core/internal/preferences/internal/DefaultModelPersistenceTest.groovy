@@ -7,9 +7,9 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.preferences.PersistentModel
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.preferences.PersistentModel
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class DefaultModelPersistenceTest extends WorkspaceSpecification {
 

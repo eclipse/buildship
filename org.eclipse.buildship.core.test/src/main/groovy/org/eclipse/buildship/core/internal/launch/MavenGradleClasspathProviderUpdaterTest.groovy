@@ -13,9 +13,9 @@ import org.eclipse.debug.core.ILaunchConfigurationListener
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.jdt.core.IJavaProject
 
-import org.eclipse.buildship.core.configuration.GradleProjectNature
-import org.eclipse.buildship.core.launch.internal.SupportedLaunchConfigType
-import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
+import org.eclipse.buildship.core.internal.launch.internal.SupportedLaunchConfigType
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class MavenGradleClasspathProviderUpdaterTest extends WorkspaceSpecification {
 

@@ -22,11 +22,11 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.UnsupportedConfigurationException
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.gradle.Pair
-import org.eclipse.buildship.core.workspace.FetchStrategy
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.util.gradle.Pair
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy
 
 class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification {
 

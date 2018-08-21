@@ -5,9 +5,9 @@ import spock.lang.Ignore
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.ProjectScope
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.internal.BuildConfigurationPersistence
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.internal.BuildConfigurationPersistence
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification;
 
 @Ignore // see https://github.com/eclipse/buildship/issues/661
 //@IgnoreIf({OperatingSystem.current.isWindows()})
