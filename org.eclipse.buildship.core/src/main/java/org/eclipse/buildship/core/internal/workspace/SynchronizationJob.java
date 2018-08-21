@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.operation.ToolingApiJob;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.operation.ToolingApiJob;
 
 /**
  * Base job to execute project synchronization.

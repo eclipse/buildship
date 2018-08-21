@@ -22,8 +22,8 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.workspace.internal.DefaultGradleClasspathContainer;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.workspace.internal.DefaultGradleClasspathContainer;
 
 /**
  * API to define classpath container for Buildship project and external dependencies.

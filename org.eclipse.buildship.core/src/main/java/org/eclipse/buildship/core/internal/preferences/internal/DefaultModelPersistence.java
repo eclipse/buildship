@@ -34,15 +34,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.event.Event;
-import org.eclipse.buildship.core.event.EventListener;
-import org.eclipse.buildship.core.preferences.ModelPersistence;
-import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
-import org.eclipse.buildship.core.workspace.ProjectMovedEvent;
-import org.eclipse.buildship.core.workspace.WorkbenchShutdownEvent;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.event.Event;
+import org.eclipse.buildship.core.internal.event.EventListener;
+import org.eclipse.buildship.core.internal.preferences.ModelPersistence;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent;
+import org.eclipse.buildship.core.internal.workspace.ProjectMovedEvent;
+import org.eclipse.buildship.core.internal.workspace.WorkbenchShutdownEvent;
 
 /**
  * Default implementation for {@link MutablePersistentModel}.

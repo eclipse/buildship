@@ -14,7 +14,7 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 
 /**
  * Defines how to access a hierarchy of preferences for the Gradle projects in the workspace.

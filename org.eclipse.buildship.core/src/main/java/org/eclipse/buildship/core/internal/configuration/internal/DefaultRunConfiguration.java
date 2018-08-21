@@ -13,10 +13,10 @@ import java.util.List;
 
 import com.google.common.base.Objects;
 
-import org.eclipse.buildship.core.configuration.GradleArguments;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.configuration.GradleArguments;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 
 /**
  * Default implementation for {@link RunConfiguration}.

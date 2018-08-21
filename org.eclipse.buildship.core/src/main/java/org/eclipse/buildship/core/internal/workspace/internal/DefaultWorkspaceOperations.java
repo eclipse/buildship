@@ -37,12 +37,12 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.UnsupportedConfigurationException;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.workspace.GradleNatureAddedEvent;
+import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations;
 
 /**
  * Default implementation of the {@link WorkspaceOperations} interface.

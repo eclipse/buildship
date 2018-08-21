@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.internal.CorePlugin;
 
 /**
  * Job that belongs to the Gradle job family.

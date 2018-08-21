@@ -13,7 +13,7 @@ package org.eclipse.buildship.core.internal.console;
 
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 
 /**
  * Describes the process that runs a Gradle build.

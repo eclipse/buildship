@@ -21,12 +21,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
-import org.eclipse.buildship.core.workspace.FetchStrategy;
-import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.ModelProvider;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.ModelProvider;
+import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
 /**
  * Synchronizes each of the given Gradle builds with the workspace.

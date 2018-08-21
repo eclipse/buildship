@@ -22,7 +22,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.internal.CorePlugin;
 
 /**
  * Execute Gradle tasks from the run configurations.

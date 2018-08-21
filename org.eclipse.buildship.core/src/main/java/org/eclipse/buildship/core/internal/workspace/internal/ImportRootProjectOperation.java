@@ -22,13 +22,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.UnsupportedConfigurationException;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
-import org.eclipse.buildship.core.workspace.WorkspaceOperations;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations;
 
 /**
  * Imports the root project into the workspace.

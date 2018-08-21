@@ -24,9 +24,9 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.UnsupportedConfigurationException;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer;
 
 /**
  * Updates the Gradle classpath container to have the correct deployment attribute if any of its

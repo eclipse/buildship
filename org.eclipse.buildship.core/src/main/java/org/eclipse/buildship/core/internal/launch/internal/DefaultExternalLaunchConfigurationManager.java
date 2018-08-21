@@ -27,15 +27,15 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.launching.JavaRuntime;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.GradleProjectNatureConfiguredEvent;
-import org.eclipse.buildship.core.configuration.GradleProjectNatureDeconfiguredEvent;
-import org.eclipse.buildship.core.event.Event;
-import org.eclipse.buildship.core.event.EventListener;
-import org.eclipse.buildship.core.launch.ExternalLaunchConfigurationManager;
-import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
-import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureConfiguredEvent;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureDeconfiguredEvent;
+import org.eclipse.buildship.core.internal.event.Event;
+import org.eclipse.buildship.core.internal.event.EventListener;
+import org.eclipse.buildship.core.internal.launch.ExternalLaunchConfigurationManager;
+import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent;
+import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent;
 
 /**
  * Default implementation for {@link ExternalLaunchConfigurationManager}.

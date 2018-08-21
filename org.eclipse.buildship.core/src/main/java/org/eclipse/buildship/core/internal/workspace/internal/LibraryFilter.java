@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.util.gradle.CompatEclipseProject;
+import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseProject;
 
 /**
  * Updater responsible for adjusting the project's raw classpath.

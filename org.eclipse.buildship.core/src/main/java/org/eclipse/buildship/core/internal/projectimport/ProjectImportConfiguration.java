@@ -14,12 +14,12 @@ package org.eclipse.buildship.core.internal.projectimport;
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.util.binding.Property;
-import org.eclipse.buildship.core.util.binding.Validator;
-import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.util.binding.Property;
+import org.eclipse.buildship.core.internal.util.binding.Validator;
+import org.eclipse.buildship.core.internal.util.binding.Validators;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 
 /**
  * Serves as the data model of the project import wizard.

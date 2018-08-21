@@ -33,9 +33,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.util.file.FileUtils;
 
 /**
  * Updates the linked sources of the target project.

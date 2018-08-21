@@ -34,7 +34,7 @@ import com.google.common.collect.Maps;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.internal.CorePlugin;
 
 /**
  * Transforms build commands to XML format and vica versa.

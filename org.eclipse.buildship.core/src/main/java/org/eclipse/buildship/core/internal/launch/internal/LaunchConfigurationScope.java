@@ -18,8 +18,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
 
 /**
  * Represents the scope associated with the current launch configuration.

@@ -27,13 +27,13 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
+import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 
 /**
  * Executes Gradle tasks based on a given {@code ILaunch} and {@code ILaunchConfiguration} instance.

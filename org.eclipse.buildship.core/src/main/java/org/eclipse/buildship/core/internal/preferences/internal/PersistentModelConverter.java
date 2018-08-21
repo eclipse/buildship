@@ -29,7 +29,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 
 /**
  * Contains helper methods for the {@link PersistentModel} <-> {@link Properties} conversion.

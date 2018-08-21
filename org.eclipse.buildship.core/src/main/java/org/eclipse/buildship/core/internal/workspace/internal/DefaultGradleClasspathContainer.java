@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
+import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer;
 
 /**
  * Default {@link GradleClasspathContainer} implementation.

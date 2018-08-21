@@ -10,7 +10,7 @@ package org.eclipse.buildship.core.internal.workspace;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.internal.event.Event;
 
 /**
  * Event announcing that the Gradle nature is added to a set of projects.

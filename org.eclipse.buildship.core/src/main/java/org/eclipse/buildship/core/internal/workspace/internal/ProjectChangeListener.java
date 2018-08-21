@@ -20,10 +20,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
-import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
-import org.eclipse.buildship.core.workspace.ProjectMovedEvent;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent;
+import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent;
+import org.eclipse.buildship.core.internal.workspace.ProjectMovedEvent;
 
 /**
  * An {@link IResourceChangeListener} implementation which sends events about project change events

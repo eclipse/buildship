@@ -36,7 +36,7 @@ import com.google.common.collect.Lists;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.internal.CorePlugin;
 
 /**
  * Transforms classpath entries to XML format and vica versa.

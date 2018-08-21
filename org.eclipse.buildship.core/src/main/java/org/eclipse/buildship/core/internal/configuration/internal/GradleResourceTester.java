@@ -12,7 +12,7 @@ import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 
 /**
  * Determines whether a given {@link IResource} is a Gradle resource, i.e.

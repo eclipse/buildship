@@ -27,11 +27,11 @@ import com.google.common.collect.Sets;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
-import org.eclipse.buildship.core.util.gradle.CompatEclipseProject;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseProject;
 
 /**
  * Runs extra tasks that set up the project so it can be used in Eclipse.

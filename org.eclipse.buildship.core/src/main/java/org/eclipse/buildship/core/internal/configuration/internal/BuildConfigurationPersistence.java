@@ -15,10 +15,10 @@ import com.google.common.base.Preconditions;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 
 /**
  * Provides capability to read and save configuration properties on a target project.

@@ -17,8 +17,8 @@ import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
-import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.preferences.internal.DefaultPersistentModel;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.preferences.internal.DefaultPersistentModel;
 
 /**
  * Builder for {@link PersistentModel}.

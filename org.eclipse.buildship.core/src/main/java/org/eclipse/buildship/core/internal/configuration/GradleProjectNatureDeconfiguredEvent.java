@@ -10,7 +10,7 @@ package org.eclipse.buildship.core.internal.configuration;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.internal.event.Event;
 
 /**
  * Event raised when the Gradle nature is removed from a project.

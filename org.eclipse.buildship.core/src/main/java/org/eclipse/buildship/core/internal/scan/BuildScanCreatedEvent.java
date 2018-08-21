@@ -9,8 +9,8 @@ package org.eclipse.buildship.core.internal.scan;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.event.Event;
 
 /**
  * Event raised when a build scan is created in a build invocation.

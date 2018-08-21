@@ -30,10 +30,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.util.file.RelativePathUtils;
-import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 
 /**
  * Updates the derived resource markers on a project. Stores the last state in the preferences, so

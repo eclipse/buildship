@@ -13,10 +13,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.marker.internal.ErrorMarkerLocation;
-import org.eclipse.buildship.core.operation.ToolingApiStatus;
-import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.marker.internal.ErrorMarkerLocation;
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 
 /**
  * Main interface to update Gradle error markers on workspace projects.

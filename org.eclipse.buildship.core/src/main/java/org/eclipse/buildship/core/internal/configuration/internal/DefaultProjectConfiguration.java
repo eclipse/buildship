@@ -13,8 +13,8 @@ import java.io.File;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 
 /**
  * Default implementation for {@link ProjectConfiguration}.

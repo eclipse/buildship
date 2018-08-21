@@ -38,10 +38,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
+import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer;
 
 /**
  * Updates the classpath container of the target project.

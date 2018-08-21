@@ -19,14 +19,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
-import org.eclipse.buildship.core.marker.GradleMarkerManager;
-import org.eclipse.buildship.core.operation.ToolingApiStatus;
-import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.ModelProvider;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.marker.GradleMarkerManager;
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.ModelProvider;
+import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
 /**
  * Default implementation of {@link GradleBuild}.

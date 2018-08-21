@@ -11,7 +11,7 @@
 
 package org.eclipse.buildship.core.internal.util.logging;
 
-import org.eclipse.buildship.core.Logger;
+import org.eclipse.buildship.core.internal.Logger;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;

@@ -8,7 +8,7 @@
 
 package org.eclipse.buildship.core.internal.workspace;
 
-import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.internal.event.Event;
 
 /**
  * Event raised just before the workbench shuts down.

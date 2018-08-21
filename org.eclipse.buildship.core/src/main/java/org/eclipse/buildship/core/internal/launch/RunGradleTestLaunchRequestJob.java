@@ -30,11 +30,11 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 
 /**
  * Executes tests through Gradle based on a given list of {@code TestOperationDescriptor} instances and a given set of {@code GradleRunConfigurationAttributes}.

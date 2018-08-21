@@ -20,9 +20,9 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.string.StringUtils;
-import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.util.string.StringUtils;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 
 /**
  * Describes Gradle error marker.

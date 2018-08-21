@@ -20,15 +20,15 @@ import com.google.common.base.Preconditions;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.event.Event;
-import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
-import org.eclipse.buildship.core.launch.internal.BuildExecutionParticipants;
-import org.eclipse.buildship.core.launch.internal.DefaultExecuteLaunchRequestEvent;
-import org.eclipse.buildship.core.operation.ToolingApiJob;
-import org.eclipse.buildship.core.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.event.Event;
+import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.launch.internal.BuildExecutionParticipants;
+import org.eclipse.buildship.core.internal.launch.internal.DefaultExecuteLaunchRequestEvent;
+import org.eclipse.buildship.core.internal.operation.ToolingApiJob;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 
 /**
  * Base class to execute Gradle builds in a job.

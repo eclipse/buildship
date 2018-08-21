@@ -23,7 +23,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.osgi.util.NLS;
 
-import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 
 /**
  * Factory class for common {@link Validator} instances.

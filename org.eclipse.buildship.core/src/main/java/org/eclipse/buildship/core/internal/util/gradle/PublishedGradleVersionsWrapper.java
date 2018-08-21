@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.gradle.PublishedGradleVersions.LookupStrategy;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersions.LookupStrategy;
 
 /**
  * Wraps the {@link PublishedGradleVersions} functionality in a background job that handles all

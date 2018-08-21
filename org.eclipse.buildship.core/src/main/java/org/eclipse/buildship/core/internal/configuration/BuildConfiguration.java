@@ -10,7 +10,7 @@ package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
 
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 
 /**
  * Configuration for for a Gradle project in the workspace.

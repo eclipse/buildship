@@ -18,7 +18,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
-import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 
 /**
  * Marker PersistentModel implementation for missing models.

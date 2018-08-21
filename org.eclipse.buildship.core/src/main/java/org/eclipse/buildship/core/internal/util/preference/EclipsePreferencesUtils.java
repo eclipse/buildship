@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 
 /**
  * Utility methods to work with Eclipse preferences.

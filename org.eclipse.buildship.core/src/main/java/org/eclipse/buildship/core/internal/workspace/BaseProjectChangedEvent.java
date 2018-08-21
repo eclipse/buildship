@@ -12,7 +12,7 @@ import com.google.common.base.Preconditions;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.internal.event.Event;
 
 /**
  * Common base class for project add/delete/move events.

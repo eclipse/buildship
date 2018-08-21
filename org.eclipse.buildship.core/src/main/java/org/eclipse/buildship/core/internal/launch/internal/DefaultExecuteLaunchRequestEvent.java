@@ -16,8 +16,8 @@ import org.gradle.tooling.LongRunningOperation;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.launch.ExecuteLaunchRequestEvent;
 
 /**
  * Default implementation of {@link ExecuteLaunchRequestEvent}.

@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
-import org.eclipse.buildship.core.util.file.RelativePathUtils;
+import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
 
 /**
  * Updates the build script location in the persistent model.

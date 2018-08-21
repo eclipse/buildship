@@ -14,8 +14,8 @@ package org.eclipse.buildship.core.internal.launch;
 
 import org.gradle.tooling.LongRunningOperation;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.event.Event;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.event.Event;
 
 /**
  * Event informing that a launch request is about to be executed. The request can still be modified

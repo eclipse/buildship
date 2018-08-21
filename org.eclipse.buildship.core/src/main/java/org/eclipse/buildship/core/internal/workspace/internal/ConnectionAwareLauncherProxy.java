@@ -32,10 +32,10 @@ import org.gradle.tooling.model.build.BuildEnvironment;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.GradleArguments;
-import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.configuration.GradleArguments;
+import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 
 /**
  * Provides long-running TAPI operation instances that close their project connection after the execution is

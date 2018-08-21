@@ -25,14 +25,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
-import org.eclipse.buildship.core.operation.ToolingApiStatus;
-import org.eclipse.buildship.core.preferences.PersistentModel;
-import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.SynchronizationJob;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.internal.operation.ToolingApiJobResultHandler;
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.SynchronizationJob;
 
 /**
  * Executes project synchronization if the corresponding preference is enabled and the user changes

@@ -24,8 +24,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
 
 /**
  * Updates project names to match the Gradle model. Moves other projects out of the way if necessary.

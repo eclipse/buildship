@@ -19,7 +19,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.configuration.GradleProjectMarker;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectMarker;
 
 /**
  * Backing implementation class for the {@link org.eclipse.buildship.core.configuration.GradleProjectBuilder}.

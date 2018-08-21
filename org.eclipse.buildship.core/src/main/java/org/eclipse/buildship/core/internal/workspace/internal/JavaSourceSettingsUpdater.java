@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-import org.eclipse.buildship.core.util.gradle.JavaVersionUtil;
+import org.eclipse.buildship.core.internal.util.gradle.JavaVersionUtil;
 
 /**
  * Updates the Java source settings on the target project.

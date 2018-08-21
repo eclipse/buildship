@@ -22,11 +22,11 @@ import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate;
-import org.eclipse.buildship.core.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate;
+import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 
 /**
  * Default implementation of the {@link GradleLaunchConfigurationManager} interface.

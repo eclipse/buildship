@@ -19,10 +19,10 @@ import com.google.common.collect.ImmutableSet.Builder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.GradleBuilds;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.GradleBuilds;
+import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
 /**
  * Default implementation of {@link GradleBuilds}.

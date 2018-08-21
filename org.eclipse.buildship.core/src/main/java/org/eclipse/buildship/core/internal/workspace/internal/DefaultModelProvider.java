@@ -26,13 +26,13 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
-import org.eclipse.buildship.core.util.gradle.GradleVersion;
-import org.eclipse.buildship.core.util.gradle.ModelUtils;
-import org.eclipse.buildship.core.workspace.FetchStrategy;
-import org.eclipse.buildship.core.workspace.ModelProvider;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+import org.eclipse.buildship.core.internal.util.gradle.ModelUtils;
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
+import org.eclipse.buildship.core.internal.workspace.ModelProvider;
 
 /**
  * Default implementation of {@link ModelProvider}.

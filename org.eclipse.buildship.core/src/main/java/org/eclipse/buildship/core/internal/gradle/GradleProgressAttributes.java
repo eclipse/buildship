@@ -24,12 +24,12 @@ import com.google.common.collect.ImmutableList.Builder;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.core.console.ProcessStreamsProvider;
-import org.eclipse.buildship.core.util.progress.CancellationForwardingListener;
-import org.eclipse.buildship.core.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.console.ProcessStreams;
+import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.internal.util.progress.CancellationForwardingListener;
+import org.eclipse.buildship.core.internal.util.progress.DelegatingProgressListener;
 
 /**
  * Holds attributes that are commonly used to handle progress in each Gradle invocation.

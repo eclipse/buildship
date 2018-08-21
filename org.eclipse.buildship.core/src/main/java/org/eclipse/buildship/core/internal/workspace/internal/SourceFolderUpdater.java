@@ -34,8 +34,8 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.util.gradle.CompatEclipseClasspathEntry;
-import org.eclipse.buildship.core.util.gradle.CompatEclipseSourceDirectory;
+import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseClasspathEntry;
+import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseSourceDirectory;
 
 /**
  * Updates the source folders of the target project.

@@ -36,7 +36,7 @@ import org.eclipse.jdt.launching.IRuntimeClasspathProvider;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.StandardClasspathProvider;
 
-import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.internal.CorePlugin;
 
 /**
  * Classpath provider for Gradle projects filtering the project output folders based on the Gradle

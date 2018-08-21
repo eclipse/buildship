@@ -24,11 +24,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
-import org.eclipse.buildship.core.util.variable.ExpressionUtils;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.util.file.FileUtils;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 
 /**
  * Contains the attributes that describe a Gradle run configuration.

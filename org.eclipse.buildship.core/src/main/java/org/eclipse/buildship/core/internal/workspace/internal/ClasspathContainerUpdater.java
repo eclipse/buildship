@@ -36,10 +36,10 @@ import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 
-import org.eclipse.buildship.core.util.classpath.ClasspathUtils;
-import org.eclipse.buildship.core.util.gradle.CompatEclipseProject;
-import org.eclipse.buildship.core.util.gradle.JavaVersionUtil;
-import org.eclipse.buildship.core.workspace.GradleClasspathContainer;
+import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
+import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseProject;
+import org.eclipse.buildship.core.internal.util.gradle.JavaVersionUtil;
+import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer;
 
 /**
  * Updates the classpath containers of the target project.
