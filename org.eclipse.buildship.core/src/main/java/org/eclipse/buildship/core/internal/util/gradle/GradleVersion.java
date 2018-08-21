@@ -45,7 +45,7 @@ public final class GradleVersion implements Comparable<GradleVersion> {
 
     private static final GradleVersion CURRENT;
 
-    public static final String RESOURCE_NAME = "/org/eclipse/buildship/core/gradle/buildship-runtime.properties";
+    public static final String RESOURCE_NAME = "/org/eclipse/buildship/core/internal/gradle/buildship-runtime.properties";
 
     static {
         URL resource = GradleVersion.class.getResource(RESOURCE_NAME);
