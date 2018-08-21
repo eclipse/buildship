@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.gradle;
+package org.eclipse.buildship.core.internal.gradle;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.string;
+package org.eclipse.buildship.core.internal.util.string;
 
 import java.util.regex.Pattern;
 

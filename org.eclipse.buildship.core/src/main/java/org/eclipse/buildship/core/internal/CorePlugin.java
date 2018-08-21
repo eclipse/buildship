@@ -10,7 +10,7 @@
  *     Simon Scholz (vogella GmbH) - Bug 465723
  */
 
-package org.eclipse.buildship.core;
+package org.eclipse.buildship.core.internal;
 
 import java.util.Dictionary;
 import java.util.Hashtable;

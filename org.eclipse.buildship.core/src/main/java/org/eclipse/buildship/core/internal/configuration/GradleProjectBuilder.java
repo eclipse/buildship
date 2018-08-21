@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.configuration;
+package org.eclipse.buildship.core.internal.configuration;
 
 import java.util.Arrays;
 import java.util.List;

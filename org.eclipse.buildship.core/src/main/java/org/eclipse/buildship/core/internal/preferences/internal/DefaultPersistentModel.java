@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.preferences.internal;
+package org.eclipse.buildship.core.internal.preferences.internal;
 
 import java.util.Collection;
 import java.util.List;

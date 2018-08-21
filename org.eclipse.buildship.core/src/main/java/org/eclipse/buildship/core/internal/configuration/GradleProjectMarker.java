@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.configuration;
+package org.eclipse.buildship.core.internal.configuration;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;

@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.launch.internal;
+package org.eclipse.buildship.core.internal.launch.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;

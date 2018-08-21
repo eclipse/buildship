@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.workspace;
+package org.eclipse.buildship.core.internal.workspace;
 
 import org.eclipse.core.resources.IProject;
 

@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.i18n;
+package org.eclipse.buildship.core.internal.i18n;
 
 import org.eclipse.osgi.util.NLS;
 

@@ -10,7 +10,7 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 478054
  */
 
-package org.eclipse.buildship.core.launch.internal;
+package org.eclipse.buildship.core.internal.launch.internal;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.core.runtime.IConfigurationElement;

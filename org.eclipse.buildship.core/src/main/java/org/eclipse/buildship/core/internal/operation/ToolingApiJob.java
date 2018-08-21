@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.operation;
+package org.eclipse.buildship.core.internal.operation;
 
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;

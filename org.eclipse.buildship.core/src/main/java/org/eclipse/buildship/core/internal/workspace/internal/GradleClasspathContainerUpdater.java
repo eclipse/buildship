@@ -10,7 +10,7 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 473348
  */
 
-package org.eclipse.buildship.core.workspace.internal;
+package org.eclipse.buildship.core.internal.workspace.internal;
 
 import java.io.File;
 import java.util.List;

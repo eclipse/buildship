@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.buildship.core.scan;
+package org.eclipse.buildship.core.internal.scan;
 
 import com.google.common.base.Preconditions;
 

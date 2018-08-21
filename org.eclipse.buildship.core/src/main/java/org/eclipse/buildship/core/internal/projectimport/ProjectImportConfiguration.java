@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.projectimport;
+package org.eclipse.buildship.core.internal.projectimport;
 
 import java.io.File;
 import java.util.List;

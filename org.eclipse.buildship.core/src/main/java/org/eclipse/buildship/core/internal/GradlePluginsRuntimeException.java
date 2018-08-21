@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core;
+package org.eclipse.buildship.core.internal;
 
 /**
  * Base class for all custom unchecked exception types thrown by the Gradle integration plugins.

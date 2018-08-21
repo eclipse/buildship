@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.marker;
+package org.eclipse.buildship.core.internal.marker;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;

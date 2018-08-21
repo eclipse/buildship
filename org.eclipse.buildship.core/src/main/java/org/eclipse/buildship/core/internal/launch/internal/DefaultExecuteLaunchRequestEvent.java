@@ -10,7 +10,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - refactoring and integration
  */
 
-package org.eclipse.buildship.core.launch.internal;
+package org.eclipse.buildship.core.internal.launch.internal;
 
 import org.gradle.tooling.LongRunningOperation;
 

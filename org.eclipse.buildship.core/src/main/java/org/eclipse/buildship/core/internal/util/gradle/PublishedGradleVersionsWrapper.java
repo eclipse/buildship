@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.util.gradle;
+package org.eclipse.buildship.core.internal.util.gradle;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;

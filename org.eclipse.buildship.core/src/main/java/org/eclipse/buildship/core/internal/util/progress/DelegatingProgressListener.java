@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.util.progress;
+package org.eclipse.buildship.core.internal.util.progress;
 
 import java.util.Queue;
 

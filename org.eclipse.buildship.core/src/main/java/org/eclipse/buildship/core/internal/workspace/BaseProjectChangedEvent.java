@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.workspace;
+package org.eclipse.buildship.core.internal.workspace;
 
 import com.google.common.base.Preconditions;
 

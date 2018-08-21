@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.event.internal;
+package org.eclipse.buildship.core.internal.event.internal;
 
 import com.google.common.collect.ImmutableList;
 

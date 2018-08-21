@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.binding;
+package org.eclipse.buildship.core.internal.util.binding;
 
 import com.google.common.base.Optional;
 

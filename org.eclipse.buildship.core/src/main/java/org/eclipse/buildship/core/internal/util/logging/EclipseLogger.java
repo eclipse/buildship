@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.util.logging;
+package org.eclipse.buildship.core.internal.util.logging;
 
 import org.eclipse.buildship.core.Logger;
 import org.eclipse.core.runtime.ILog;

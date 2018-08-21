@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.util.collections;
+package org.eclipse.buildship.core.internal.util.collections;
 
 import com.google.common.base.Function;
 

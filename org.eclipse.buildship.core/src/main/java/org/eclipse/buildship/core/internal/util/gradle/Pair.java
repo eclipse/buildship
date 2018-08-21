@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.gradle;
+package org.eclipse.buildship.core.internal.util.gradle;
 
 import java.io.Serializable;
 

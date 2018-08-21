@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.classpath;
+package org.eclipse.buildship.core.internal.util.classpath;
 
 import java.util.List;
 import java.util.Set;

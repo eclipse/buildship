@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.event;
+package org.eclipse.buildship.core.internal.event;
 
 /**
  * Common interface for all events dispatched via {@link ListenerRegistry}.

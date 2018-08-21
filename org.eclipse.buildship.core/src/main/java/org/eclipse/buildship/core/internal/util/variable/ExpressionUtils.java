@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.util.variable;
+package org.eclipse.buildship.core.internal.util.variable;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;

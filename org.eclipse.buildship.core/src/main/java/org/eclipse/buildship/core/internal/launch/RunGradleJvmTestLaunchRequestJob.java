@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.launch;
+package org.eclipse.buildship.core.internal.launch;
 
 import java.io.File;
 import java.text.DateFormat;

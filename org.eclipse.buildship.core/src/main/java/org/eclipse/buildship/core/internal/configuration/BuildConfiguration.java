@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.configuration;
+package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
 

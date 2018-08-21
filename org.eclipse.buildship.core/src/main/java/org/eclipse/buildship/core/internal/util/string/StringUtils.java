@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.util.string;
+package org.eclipse.buildship.core.internal.util.string;
 
 import java.util.Deque;
 import java.util.List;
