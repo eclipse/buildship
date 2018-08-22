@@ -19,6 +19,7 @@ import org.eclipse.buildship.core.configuration.BuildConfiguration;
  *
  * @author Donat Csikos
  * @since 3.0
+ * @noimplement this interface is not intended to be implemented by clients
  */
 public interface GradleWorkspace {
 

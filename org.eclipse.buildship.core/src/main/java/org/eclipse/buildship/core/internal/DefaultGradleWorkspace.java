@@ -10,6 +10,8 @@ package org.eclipse.buildship.core.internal;
 
 import java.util.Optional;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.GradleBuild;

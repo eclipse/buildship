@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
 public final class DefaultGradleBuild implements GradleBuild {
@@ -33,8 +32,14 @@ public final class DefaultGradleBuild implements GradleBuild {
     }
 
     public DefaultGradleBuild(BuildConfiguration configuration) {
-        org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfiguration = CorePlugin.configurationManager()
-                .createBuildConfiguration(configuration.getRootProjectDirectory(), true, GradleDistribution.fromBuild(), null, false, false, false);
+        org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfiguration = CorePlugin.configurationManager().createBuildConfiguration(
+            configuration.getRootProjectDirectory(),
+            configuration.isOverrideWorkspaceConfiguration(),
+            configuration.getGradleDistribution(),
+            null,
+            false,
+            false,
+            false);
         this.gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration);
     }
 

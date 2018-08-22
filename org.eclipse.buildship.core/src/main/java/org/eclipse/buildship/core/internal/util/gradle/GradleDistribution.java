@@ -26,7 +26,33 @@ import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
  *
  * @author Etienne Studer
  */
-public class GradleDistribution {
+public class GradleDistribution extends org.eclipse.buildship.core.GradleDistribution {
+
+    /**
+     * The available Gradle distributions types.
+     */
+    public enum Type {
+
+        /**
+         * Distribution handled via the wrapper script.
+         */
+        WRAPPER,
+
+        /**
+         * Distribution loaded from the the disk.
+         */
+        LOCAL_INSTALLATION,
+
+        /**
+         * Distribution downloaded from a remote URI.
+         */
+        REMOTE_DISTRIBUTION,
+
+        /**
+         * A specific Gradle version.
+         */
+        VERSION
+    }
 
     private final GradleDistributionInfo distributionInfo;
 
@@ -46,6 +72,10 @@ public class GradleDistribution {
 
     public GradleDistributionType getType() {
         return this.distributionInfo.getType();
+    }
+
+    public Type getDistributionType() {
+        return this.distributionInfo.getType().toType();
     }
 
     public String getConfiguration() {

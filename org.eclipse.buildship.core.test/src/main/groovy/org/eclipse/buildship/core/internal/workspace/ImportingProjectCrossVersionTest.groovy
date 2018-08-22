@@ -4,7 +4,7 @@ import spock.lang.Ignore
 import spock.lang.Unroll
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.GradleDistribution
 
 class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecification {
 
