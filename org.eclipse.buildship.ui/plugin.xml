@@ -294,7 +294,7 @@
     <extension
             point="org.eclipse.ui.console.consolePageParticipants">
         <consolePageParticipant
-                id="org.eclipse.buildship.ui.internal.console.gradle"
+                id="org.eclipse.buildship.ui.console.gradle"
                 class="org.eclipse.buildship.ui.internal.console.GradleConsolePageParticipant">
             <enablement/>
         </consolePageParticipant>
