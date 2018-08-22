@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.configuration.internal
+package org.eclipse.buildship.core.internal.configuration.impl
 
 import org.gradle.tooling.LongRunningOperation
 import org.gradle.tooling.model.build.BuildEnvironment

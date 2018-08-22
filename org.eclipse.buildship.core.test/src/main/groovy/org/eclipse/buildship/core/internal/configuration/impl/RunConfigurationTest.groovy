@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.configuration.internal
+package org.eclipse.buildship.core.internal.configuration.impl
 
 import spock.lang.Issue
 

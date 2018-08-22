@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.configuration.internal;
+package org.eclipse.buildship.core.internal.configuration.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

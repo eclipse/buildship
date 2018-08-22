@@ -13,7 +13,7 @@ import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
-import org.eclipse.buildship.core.internal.configuration.internal.BuildConfigurationPersistence
+import org.eclipse.buildship.core.internal.configuration.impl.BuildConfigurationPersistence
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.internal.util.gradle.JavaVersionUtil

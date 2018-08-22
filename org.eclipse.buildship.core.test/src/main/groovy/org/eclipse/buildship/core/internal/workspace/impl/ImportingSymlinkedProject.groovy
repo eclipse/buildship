@@ -6,7 +6,7 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.ProjectScope
 
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.configuration.internal.BuildConfigurationPersistence
+import org.eclipse.buildship.core.internal.configuration.impl.BuildConfigurationPersistence
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification;
 
 @Ignore // see https://github.com/eclipse/buildship/issues/661

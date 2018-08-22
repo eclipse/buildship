@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.configuration.internal;
+package org.eclipse.buildship.core.internal.configuration.impl;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
