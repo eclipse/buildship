@@ -8,7 +8,7 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="org.eclipse.buildship.core.internal.workspace.internal.ImportingProjectWithCustomNature$JavaExtensionNature">
+               class="org.eclipse.buildship.core.internal.workspace.impl.ImportingProjectWithCustomNature$JavaExtensionNature">
          </run>
       </runtime>
       <requires-nature
