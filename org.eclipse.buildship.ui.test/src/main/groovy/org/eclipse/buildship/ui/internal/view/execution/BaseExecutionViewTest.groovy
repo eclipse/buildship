@@ -10,7 +10,7 @@ import org.eclipse.ui.IWorkbenchPage
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
-import org.eclipse.buildship.ui.internal.external.viewer.FilteredTree
+import org.eclipse.buildship.ui.internal.extviewer.FilteredTree
 import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils
 
