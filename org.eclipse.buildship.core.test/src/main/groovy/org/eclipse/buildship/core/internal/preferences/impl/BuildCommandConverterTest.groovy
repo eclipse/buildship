@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.preferences.internal
+package org.eclipse.buildship.core.internal.preferences.impl
 
 import org.eclipse.core.resources.ICommand
 import org.eclipse.core.resources.IProject

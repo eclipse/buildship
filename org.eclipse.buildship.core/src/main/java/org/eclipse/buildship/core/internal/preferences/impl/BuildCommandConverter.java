@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.preferences.internal;
+package org.eclipse.buildship.core.internal.preferences.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;

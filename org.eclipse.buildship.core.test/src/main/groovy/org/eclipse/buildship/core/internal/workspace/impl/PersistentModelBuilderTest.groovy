@@ -4,7 +4,7 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.JavaCore
 
-import org.eclipse.buildship.core.internal.preferences.internal.DefaultPersistentModel
+import org.eclipse.buildship.core.internal.preferences.impl.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class PersistentModelBuilderTest extends WorkspaceSpecification {

@@ -38,7 +38,7 @@ import org.eclipse.buildship.core.internal.launch.internal.DefaultGradleLaunchCo
 import org.eclipse.buildship.core.internal.operation.ToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.operation.internal.DefaultToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.preferences.ModelPersistence;
-import org.eclipse.buildship.core.internal.preferences.internal.DefaultModelPersistence;
+import org.eclipse.buildship.core.internal.preferences.impl.DefaultModelPersistence;
 import org.eclipse.buildship.core.internal.util.extension.InvocationCustomizerCollector;
 import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.internal.util.logging.EclipseLogger;
