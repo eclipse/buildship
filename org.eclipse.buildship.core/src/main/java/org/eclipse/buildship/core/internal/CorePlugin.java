@@ -44,10 +44,10 @@ import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersionsWr
 import org.eclipse.buildship.core.internal.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.internal.workspace.GradleWorkspaceManager;
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations;
-import org.eclipse.buildship.core.internal.workspace.internal.DefaultGradleWorkspaceManager;
-import org.eclipse.buildship.core.internal.workspace.internal.DefaultWorkspaceOperations;
-import org.eclipse.buildship.core.internal.workspace.internal.ProjectChangeListener;
-import org.eclipse.buildship.core.internal.workspace.internal.SynchronizingBuildScriptUpdateListener;
+import org.eclipse.buildship.core.internal.workspace.impl.DefaultGradleWorkspaceManager;
+import org.eclipse.buildship.core.internal.workspace.impl.DefaultWorkspaceOperations;
+import org.eclipse.buildship.core.internal.workspace.impl.ProjectChangeListener;
+import org.eclipse.buildship.core.internal.workspace.impl.SynchronizingBuildScriptUpdateListener;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.

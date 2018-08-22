@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.workspace.internal;
+package org.eclipse.buildship.core.internal.workspace.impl;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.internal.configuration.GradleProjectBuilder;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
-import org.eclipse.buildship.core.internal.workspace.internal.ManagedModelMergingStrategy.Result;
+import org.eclipse.buildship.core.internal.workspace.impl.ManagedModelMergingStrategy.Result;
 
 /**
  * Updates the build commands on the target project.

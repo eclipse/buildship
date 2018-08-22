@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.workspace.internal
+package org.eclipse.buildship.core.internal.workspace.impl
 
 import org.eclipse.core.runtime.CoreException
 
@@ -6,7 +6,7 @@ import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.internal.test.fixtures.TestEnvironment.*
-import org.eclipse.buildship.core.internal.workspace.internal.ImportRootProjectOperation.ImportRootProjectException
+import org.eclipse.buildship.core.internal.workspace.impl.ImportRootProjectOperation.ImportRootProjectException
 
 class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecification {
 

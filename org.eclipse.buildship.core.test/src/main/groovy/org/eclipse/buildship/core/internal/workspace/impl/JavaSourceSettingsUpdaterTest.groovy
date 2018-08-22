@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.workspace.internal
+package org.eclipse.buildship.core.internal.workspace.impl
 
 import org.gradle.api.JavaVersion
 import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings

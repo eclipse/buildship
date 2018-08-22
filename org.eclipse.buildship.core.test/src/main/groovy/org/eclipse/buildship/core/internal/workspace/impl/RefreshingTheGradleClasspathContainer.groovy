@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.workspace.internal
+package org.eclipse.buildship.core.internal.workspace.impl
 
 import org.eclipse.jdt.core.IClasspathContainer
 import org.eclipse.jdt.core.IJavaProject

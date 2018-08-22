@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.workspace.internal
+package org.eclipse.buildship.core.internal.workspace.impl
 
 import org.gradle.tooling.BuildException
 
@@ -9,7 +9,7 @@ import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.internal.workspace.internal.ImportRootProjectOperation.ImportRootProjectException
+import org.eclipse.buildship.core.internal.workspace.impl.ImportRootProjectOperation.ImportRootProjectException
 
 class ImportingBrokenProject extends ProjectSynchronizationSpecification {
 

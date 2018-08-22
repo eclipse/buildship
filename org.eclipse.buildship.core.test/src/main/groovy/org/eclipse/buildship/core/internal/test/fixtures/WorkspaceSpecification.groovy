@@ -43,7 +43,7 @@ import org.eclipse.buildship.core.internal.preferences.PersistentModel
 import org.eclipse.buildship.core.internal.preferences.internal.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
-import org.eclipse.buildship.core.internal.workspace.internal.PersistentModelBuilder
+import org.eclipse.buildship.core.internal.workspace.impl.PersistentModelBuilder
 
 /**
  * Base Spock test specification to verify Buildship functionality against the current state of the

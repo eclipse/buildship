@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.workspace.internal;
+package org.eclipse.buildship.core.internal.workspace.impl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
-import org.eclipse.buildship.core.internal.workspace.internal.ManagedModelMergingStrategy.Result;
+import org.eclipse.buildship.core.internal.workspace.impl.ManagedModelMergingStrategy.Result;
 
 /**
  * Updates the natures on the target project.
