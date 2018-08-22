@@ -1,9 +1,9 @@
-package org.eclipse.buildship.ui.view.execution
+package org.eclipse.buildship.ui.internal.view.execution
 
 import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
 
 class OpenBuildScanActionTest extends BaseExecutionViewTest {
 

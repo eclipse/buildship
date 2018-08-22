@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.internal.view.execution;
 
 import java.util.List;
 import java.util.Map;
@@ -53,20 +53,20 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.ui.external.viewer.FilteredTree;
-import org.eclipse.buildship.ui.external.viewer.PatternFilter;
-import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelectionProvider;
-import org.eclipse.buildship.ui.util.nodeselection.SelectionHistoryManager;
-import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
-import org.eclipse.buildship.ui.view.BasePage;
-import org.eclipse.buildship.ui.view.CollapseAllTreeNodesAction;
-import org.eclipse.buildship.ui.view.ExpandAllTreeNodesAction;
-import org.eclipse.buildship.ui.view.MultiPageView;
-import org.eclipse.buildship.ui.view.PageSite;
-import org.eclipse.buildship.ui.view.ShowFilterAction;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.ui.internal.external.viewer.FilteredTree;
+import org.eclipse.buildship.ui.internal.external.viewer.PatternFilter;
+import org.eclipse.buildship.ui.internal.util.nodeselection.ActionShowingContextMenuListener;
+import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelectionProvider;
+import org.eclipse.buildship.ui.internal.util.nodeselection.SelectionHistoryManager;
+import org.eclipse.buildship.ui.internal.util.nodeselection.SelectionSpecificAction;
+import org.eclipse.buildship.ui.internal.view.BasePage;
+import org.eclipse.buildship.ui.internal.view.CollapseAllTreeNodesAction;
+import org.eclipse.buildship.ui.internal.view.ExpandAllTreeNodesAction;
+import org.eclipse.buildship.ui.internal.view.MultiPageView;
+import org.eclipse.buildship.ui.internal.view.PageSite;
+import org.eclipse.buildship.ui.internal.view.ShowFilterAction;
 
 /**
  * Displays the tree of a single build execution.

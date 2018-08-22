@@ -9,16 +9,16 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.event.Event;
-import org.eclipse.buildship.core.event.EventListener;
-import org.eclipse.buildship.core.workspace.FetchStrategy;
-import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent;
-import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
-import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
+import org.eclipse.buildship.core.internal.event.Event;
+import org.eclipse.buildship.core.internal.event.EventListener;
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
+import org.eclipse.buildship.core.internal.workspace.GradleNatureAddedEvent;
+import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent;
+import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent;
 
 /**
  * Tracks the creation/deletion of projects in the workspace and updates the {@link TaskView}

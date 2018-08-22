@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.view.execution
+package org.eclipse.buildship.ui.internal.view.execution
 
 import org.gradle.tooling.LongRunningOperation
 import org.gradle.tooling.events.OperationDescriptor
@@ -16,12 +16,12 @@ import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.ui.IWorkbenchPage
 import org.eclipse.ui.PlatformUI
 
-import org.eclipse.buildship.core.console.ProcessDescription
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
-import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
-import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils
-import org.eclipse.buildship.ui.view.execution.ExecutionsView
+import org.eclipse.buildship.core.internal.console.ProcessDescription
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
+import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils
+import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView
 
 class ExecutionsViewPerformanceTest extends ProjectSynchronizationSpecification {
 

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.internal.view.execution;
 
 import org.gradle.tooling.events.FailureResult;
 import org.gradle.tooling.events.FinishEvent;
@@ -32,9 +32,9 @@ import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.TextStyle;
 
-import org.eclipse.buildship.ui.PluginImage;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.util.color.ColorUtils;
+import org.eclipse.buildship.ui.internal.PluginImage;
+import org.eclipse.buildship.ui.internal.PluginImages;
+import org.eclipse.buildship.ui.internal.util.color.ColorUtils;
 
 /**
  * Label provider for for the first column of {@link ExecutionPage} containing the build operation

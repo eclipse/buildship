@@ -1,11 +1,11 @@
-package org.eclipse.buildship.ui.view.task
+package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.ui.IWorkbenchPage
 import org.eclipse.ui.console.IConsoleConstants
 
-import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils
+import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
+import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils
 
 abstract class BaseTaskViewTest extends SwtBotSpecification {
 

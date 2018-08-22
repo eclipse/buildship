@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -17,7 +17,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.core.workspace.FetchStrategy;
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
 
 /**
  * A command handler on the {@link TaskView} to reload/refresh the content of the task view.

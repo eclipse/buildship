@@ -9,12 +9,12 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Color;
 
-import org.eclipse.buildship.ui.util.color.ColorUtils;
+import org.eclipse.buildship.ui.internal.util.color.ColorUtils;
 
 /**
  * Styled label provider for the task description column in the TaskView.

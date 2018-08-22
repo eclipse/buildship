@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.console;
+package org.eclipse.buildship.ui.internal.console;
 
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.ui.console.IConsole;

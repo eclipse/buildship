@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.marker;
+package org.eclipse.buildship.ui.internal.marker;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
-import org.eclipse.buildship.core.marker.GradleErrorMarker;
+import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
 /**
  * Property page displaying details of Gradle problem markers.

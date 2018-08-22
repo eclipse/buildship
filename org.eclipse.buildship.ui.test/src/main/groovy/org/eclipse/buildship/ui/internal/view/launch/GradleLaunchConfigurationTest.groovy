@@ -1,11 +1,11 @@
-package org.eclipse.buildship.ui.view.launch
+package org.eclipse.buildship.ui.internal.view.launch
 
 import org.eclipse.debug.core.ILaunchConfiguration
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
-import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class GradleLaunchConfigurationTest extends ProjectSynchronizationSpecification {
 

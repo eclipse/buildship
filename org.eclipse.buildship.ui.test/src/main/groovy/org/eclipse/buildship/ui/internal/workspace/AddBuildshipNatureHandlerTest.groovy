@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.workspace
+package org.eclipse.buildship.ui.internal.workspace
 
 import org.gradle.api.JavaVersion
 import org.gradle.tooling.CancellationTokenSource
@@ -14,16 +14,16 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.viewers.StructuredSelection
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.BuildConfiguration
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
-import org.eclipse.buildship.core.event.Event
-import org.eclipse.buildship.core.event.EventListener
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
-import org.eclipse.buildship.core.workspace.FetchStrategy
-import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent
-import org.eclipse.buildship.ui.test.fixtures.EclipseProjects
-import org.eclipse.buildship.ui.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
+import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration
+import org.eclipse.buildship.core.internal.event.Event
+import org.eclipse.buildship.core.internal.event.EventListener
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy
+import org.eclipse.buildship.core.internal.workspace.GradleNatureAddedEvent
+import org.eclipse.buildship.ui.internal.test.fixtures.EclipseProjects
+import org.eclipse.buildship.ui.internal.test.fixtures.WorkspaceSpecification
 
 class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
 

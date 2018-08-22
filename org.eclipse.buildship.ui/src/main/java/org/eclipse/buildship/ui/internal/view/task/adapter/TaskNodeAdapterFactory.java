@@ -9,15 +9,15 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task.adapter;
+package org.eclipse.buildship.ui.internal.view.task.adapter;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.ui.views.properties.IPropertySource;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.ui.view.task.ProjectTaskNode;
-import org.eclipse.buildship.ui.view.task.TaskNode;
-import org.eclipse.buildship.ui.view.task.TaskSelectorNode;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.ui.internal.view.task.ProjectTaskNode;
+import org.eclipse.buildship.ui.internal.view.task.TaskNode;
+import org.eclipse.buildship.ui.internal.view.task.TaskSelectorNode;
 
 /**
  * Adapts {@link TaskNode} instances to {@link IPropertySource} instances.

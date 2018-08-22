@@ -10,7 +10,7 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 479243
  */
 
-package org.eclipse.buildship.ui.util.nodeselection;
+package org.eclipse.buildship.ui.internal.util.nodeselection;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

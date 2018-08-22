@@ -9,13 +9,13 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import java.io.File;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.util.binding.Property;
+import org.eclipse.buildship.core.internal.util.binding.Property;
 
 /**
  * Serves as the extra data model of the project creation wizard.

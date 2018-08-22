@@ -6,12 +6,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.ui.PluginImage;
-import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.internal.PluginImage;
+import org.eclipse.buildship.ui.internal.PluginImages;
 import org.eclipse.jface.action.Action;
 
 /**

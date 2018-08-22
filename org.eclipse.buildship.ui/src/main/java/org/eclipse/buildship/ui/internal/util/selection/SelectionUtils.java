@@ -9,7 +9,7 @@
  *               Etienne Studer & Donát Csikós (Gradle Inc.) - expose belongsToViewPart
  *******************************************************************************/
 
-package org.eclipse.buildship.ui.util.selection;
+package org.eclipse.buildship.ui.internal.util.selection;
 
 import java.util.List;
 

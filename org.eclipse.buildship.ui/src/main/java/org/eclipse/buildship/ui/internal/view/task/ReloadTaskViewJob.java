@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  */
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -27,15 +27,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.operation.ToolingApiJob;
-import org.eclipse.buildship.core.operation.ToolingApiJobResultHandler;
-import org.eclipse.buildship.core.operation.ToolingApiStatus;
-import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
-import org.eclipse.buildship.core.workspace.FetchStrategy;
-import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.ModelProvider;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.operation.ToolingApiJob;
+import org.eclipse.buildship.core.internal.operation.ToolingApiJobResultHandler;
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.ModelProvider;
 
 /**
  * Loads the tasks for all projects into the cache and refreshes the task view afterwards.

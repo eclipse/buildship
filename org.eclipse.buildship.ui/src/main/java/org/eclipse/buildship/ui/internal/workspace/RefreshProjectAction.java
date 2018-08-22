@@ -6,12 +6,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.workspace;
+package org.eclipse.buildship.ui.internal.workspace;
 
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.util.action.CommandBackedAction;
+import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
+import org.eclipse.buildship.ui.internal.PluginImages;
+import org.eclipse.buildship.ui.internal.UiPluginConstants;
+import org.eclipse.buildship.ui.internal.util.action.CommandBackedAction;
 
 /**
  * Executes the refresh project command.

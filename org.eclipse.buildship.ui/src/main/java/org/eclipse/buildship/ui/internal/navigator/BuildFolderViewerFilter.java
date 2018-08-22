@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.navigator;
+package org.eclipse.buildship.ui.internal.navigator;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -16,8 +16,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 
 /**
  * Allows users to show or hide the build folder in the Navigator, Project and Package Explorer.

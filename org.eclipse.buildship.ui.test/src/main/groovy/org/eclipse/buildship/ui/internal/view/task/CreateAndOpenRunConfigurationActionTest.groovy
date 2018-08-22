@@ -1,14 +1,14 @@
-package org.eclipse.buildship.ui.view.task
+package org.eclipse.buildship.ui.internal.view.task
 
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import spock.lang.AutoCleanup;
 
 import com.google.common.base.Optional
-import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager
-import org.eclipse.buildship.ui.UiPluginConstants
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection
-import org.eclipse.buildship.ui.test.fixtures.TestEnvironment
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager
+import org.eclipse.buildship.ui.internal.UiPluginConstants
+import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection
+import org.eclipse.buildship.ui.internal.test.fixtures.TestEnvironment
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.jface.viewers.StructuredSelection
 

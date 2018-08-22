@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.preferences;
+package org.eclipse.buildship.ui.internal.preferences;
 
 import java.io.File;
 
@@ -17,16 +17,16 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.util.binding.Validator;
-import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
-import org.eclipse.buildship.ui.util.font.FontUtils;
-import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
-import org.eclipse.buildship.ui.util.widget.GradleUserHomeGroup;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
+import org.eclipse.buildship.core.internal.util.binding.Validator;
+import org.eclipse.buildship.core.internal.util.binding.Validators;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.ui.internal.util.font.FontUtils;
+import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
+import org.eclipse.buildship.ui.internal.util.widget.GradleUserHomeGroup;
 
 /**
  * The main workspace preference page for Buildship. Currently only used to configure the Gradle

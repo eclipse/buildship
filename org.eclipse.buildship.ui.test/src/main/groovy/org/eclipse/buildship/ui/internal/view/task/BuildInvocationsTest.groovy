@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.view.task
+package org.eclipse.buildship.ui.internal.view.task
 
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.model.GradleProject
@@ -7,11 +7,11 @@ import org.gradle.tooling.model.eclipse.EclipseProject
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.util.gradle.Path
-import org.eclipse.buildship.core.workspace.FetchStrategy
-import org.eclipse.buildship.core.workspace.ModelProvider
-import org.eclipse.buildship.ui.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.util.gradle.Path
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy
+import org.eclipse.buildship.core.internal.workspace.ModelProvider
+import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class BuildInvocationsTest extends ProjectSynchronizationSpecification {
 

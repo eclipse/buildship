@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.buildship.ui.external.viewer;
+package org.eclipse.buildship.ui.internal.external.viewer;
 
 import java.util.ArrayList;
 import java.util.HashMap;

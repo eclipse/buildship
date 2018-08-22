@@ -1,7 +1,7 @@
-package org.eclipse.buildship.ui.view.task
+package org.eclipse.buildship.ui.internal.view.task
 
-import org.eclipse.buildship.ui.UiPluginConstants
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection
+import org.eclipse.buildship.ui.internal.UiPluginConstants
+import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection
 import org.eclipse.jface.viewers.StructuredSelection
 
 class OpenBuildScriptActionTest extends ViewSpecification {

@@ -6,12 +6,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.marker;
+package org.eclipse.buildship.ui.internal.marker;
 
 import org.eclipse.core.resources.IMarker;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.marker.GradleErrorMarker;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
 /**
  * Property tester to determine if the test launch shortcut should be visible in the context menus.

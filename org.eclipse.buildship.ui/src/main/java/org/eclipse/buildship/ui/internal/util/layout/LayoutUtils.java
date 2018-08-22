@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.layout;
+package org.eclipse.buildship.ui.internal.util.layout;
 
 import org.eclipse.swt.layout.GridLayout;
 

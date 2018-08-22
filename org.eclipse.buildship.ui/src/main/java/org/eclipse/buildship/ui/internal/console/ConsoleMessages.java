@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.console;
+package org.eclipse.buildship.ui.internal.console;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -18,7 +18,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public final class ConsoleMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.console.ConsoleMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.internal.console.ConsoleMessages"; //$NON-NLS-1$
 
     public static String Background_Console_Title;
 
