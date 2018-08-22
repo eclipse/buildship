@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  */
-package org.eclipse.buildship.ui.workspace;
+package org.eclipse.buildship.ui.internal.workspace;
 
 import java.util.List;
 import java.util.Set;
@@ -21,14 +21,14 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.workspace.GradleBuild;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
-import org.eclipse.buildship.core.workspace.SynchronizationJob;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.internal.workspace.SynchronizationJob;
 
 /**
  * Synchronizes the given projects as if the user had run the import wizard on their location.

@@ -10,7 +10,7 @@
  *     Ian Stewart-Binks (Red Hat Inc.) - Bug 473862 - F5 key shortcut doesn't refresh project folder contents
  */
 
-package org.eclipse.buildship.ui.workspace;
+package org.eclipse.buildship.ui.internal.workspace;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

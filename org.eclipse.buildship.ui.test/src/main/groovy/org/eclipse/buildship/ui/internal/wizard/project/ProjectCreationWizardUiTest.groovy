@@ -10,7 +10,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - Bug 467193
  */
 
-package org.eclipse.buildship.ui.wizard.project
+package org.eclipse.buildship.ui.internal.wizard.project
 
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
@@ -28,9 +28,9 @@ import org.eclipse.ui.IWorkingSet
 import org.eclipse.ui.IWorkingSetManager
 import org.eclipse.ui.PlatformUI
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.ui.test.fixtures.LegacyEclipseSpockTestHelper
-import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.ui.internal.test.fixtures.LegacyEclipseSpockTestHelper
+import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 
 class ProjectCreationWizardUiTest extends SwtBotSpecification {
 

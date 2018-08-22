@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.action;
+package org.eclipse.buildship.ui.internal.util.action;
 
 import com.google.common.base.Preconditions;
 
@@ -19,8 +19,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.ui.internal.UiPlugin;
 
 /**
  * Base class for {@link Action} instances that invoke a {@link org.eclipse.core.commands.Command}

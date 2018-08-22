@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import java.io.File;
 
@@ -19,8 +19,8 @@ import com.google.common.base.Optional;
 
 import org.eclipse.core.commands.ExecutionEvent;
 
-import org.eclipse.buildship.ui.util.editor.EditorUtils;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.internal.util.editor.EditorUtils;
+import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
 
 /**
  * Opens the build file for the selected {@link ProjectNode}.

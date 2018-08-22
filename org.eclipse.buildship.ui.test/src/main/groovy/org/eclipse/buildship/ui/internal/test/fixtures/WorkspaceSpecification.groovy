@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.test.fixtures
+package org.eclipse.buildship.ui.internal.test.fixtures
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -33,14 +33,14 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.ui.IWorkbenchWindow
 import org.eclipse.ui.PlatformUI
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.configuration.BuildConfiguration
-import org.eclipse.buildship.core.configuration.ConfigurationManager
-import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
-import org.eclipse.buildship.core.marker.GradleErrorMarker
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
-import org.eclipse.buildship.core.workspace.WorkspaceOperations
-import org.eclipse.buildship.ui.view.execution.ExecutionsView
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
+import org.eclipse.buildship.core.internal.configuration.ConfigurationManager
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
+import org.eclipse.buildship.core.internal.marker.GradleErrorMarker
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
+import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView
 
 /**
  * Base Spock test specification to verify Buildship functionality against the current state of the

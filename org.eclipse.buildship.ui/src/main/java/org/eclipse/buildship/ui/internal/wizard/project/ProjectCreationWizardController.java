@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import java.io.File;
 
@@ -18,10 +18,10 @@ import com.google.common.base.Optional;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.ui.INewWizard;
 
-import org.eclipse.buildship.core.util.binding.Property;
-import org.eclipse.buildship.core.util.binding.ValidationListener;
-import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.file.FileUtils;
+import org.eclipse.buildship.core.internal.util.binding.Property;
+import org.eclipse.buildship.core.internal.util.binding.ValidationListener;
+import org.eclipse.buildship.core.internal.util.binding.Validators;
+import org.eclipse.buildship.core.internal.util.file.FileUtils;
 
 /**
  * Controller class for the {@link org.eclipse.buildship.ui.wizard.project.ProjectImportWizard}. Contains all non-UI related calculations

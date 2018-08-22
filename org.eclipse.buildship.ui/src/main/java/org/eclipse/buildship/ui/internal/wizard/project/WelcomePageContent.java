@@ -9,7 +9,7 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 473545
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

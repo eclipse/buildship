@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.launch;
+package org.eclipse.buildship.ui.internal.launch;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -17,8 +17,8 @@ import com.google.common.base.Preconditions;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.DebugUITools;
 
-import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 
 /**
  * Decorates an original {@link GradleLaunchConfigurationManager} such that the

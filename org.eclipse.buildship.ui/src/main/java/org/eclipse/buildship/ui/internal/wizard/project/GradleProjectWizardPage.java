@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import java.io.File;
 import java.util.List;
@@ -29,15 +29,15 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.UiPlugin;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.i18n.UiMessages;
-import org.eclipse.buildship.ui.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
-import org.eclipse.buildship.ui.util.workbench.WorkingSetUtils;
+import org.eclipse.buildship.core.internal.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.internal.util.file.FileUtils;
+import org.eclipse.buildship.ui.internal.UiPlugin;
+import org.eclipse.buildship.ui.internal.UiPluginConstants;
+import org.eclipse.buildship.ui.internal.i18n.UiMessages;
+import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.internal.util.workbench.WorkingSetUtils;
 
 /**
  * Page in the {@link ProjectImportWizard} specifying the Gradle root project folder to import.

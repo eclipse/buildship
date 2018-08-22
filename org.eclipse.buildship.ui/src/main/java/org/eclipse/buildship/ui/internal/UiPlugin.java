@@ -10,7 +10,7 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 473389
  */
 
-package org.eclipse.buildship.ui;
+package org.eclipse.buildship.ui.internal;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -25,16 +25,16 @@ import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.Logger;
-import org.eclipse.buildship.core.console.ProcessStreamsProvider;
-import org.eclipse.buildship.core.launch.GradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.util.logging.EclipseLogger;
-import org.eclipse.buildship.ui.console.ConsoleProcessStreamsProvider;
-import org.eclipse.buildship.ui.launch.ConsoleShowingLaunchListener;
-import org.eclipse.buildship.ui.launch.UiGradleLaunchConfigurationManager;
-import org.eclipse.buildship.ui.view.execution.ExecutionShowingLaunchRequestListener;
-import org.eclipse.buildship.ui.workspace.ShutdownListener;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.Logger;
+import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.internal.util.logging.EclipseLogger;
+import org.eclipse.buildship.ui.internal.console.ConsoleProcessStreamsProvider;
+import org.eclipse.buildship.ui.internal.launch.ConsoleShowingLaunchListener;
+import org.eclipse.buildship.ui.internal.launch.UiGradleLaunchConfigurationManager;
+import org.eclipse.buildship.ui.internal.view.execution.ExecutionShowingLaunchRequestListener;
+import org.eclipse.buildship.ui.internal.workspace.ShutdownListener;
 
 /**
  * The plug-in runtime class for the Gradle integration plug-in containing the UI-related elements.

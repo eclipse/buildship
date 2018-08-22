@@ -7,7 +7,7 @@
  */
 
 
-package org.eclipse.buildship.ui.preferences;
+package org.eclipse.buildship.ui.internal.preferences;
 
 import java.io.File;
 
@@ -17,8 +17,8 @@ import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 
-import org.eclipse.buildship.core.util.binding.Validator;
-import org.eclipse.buildship.ui.util.widget.GradleUserHomeGroup;
+import org.eclipse.buildship.core.internal.util.binding.Validator;
+import org.eclipse.buildship.ui.internal.util.widget.GradleUserHomeGroup;
 
 /**
  * Updates Gradle user home validation messages on the preference pages.

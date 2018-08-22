@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.launch;
+package org.eclipse.buildship.ui.internal.launch;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -18,7 +18,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public final class LaunchMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.launch.LaunchMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.internal.launch.LaunchMessages"; //$NON-NLS-1$
 
     public static String Tab_Name_GradleTasks;
     public static String Tab_Name_ProjectSettings;

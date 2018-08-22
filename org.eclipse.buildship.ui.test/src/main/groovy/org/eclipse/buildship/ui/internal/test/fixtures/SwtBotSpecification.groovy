@@ -10,7 +10,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - Bug 471095
  */
 
-package org.eclipse.buildship.ui.test.fixtures
+package org.eclipse.buildship.ui.internal.test.fixtures
 
 import org.junit.Rule
 import org.junit.rules.ExternalResource
@@ -31,9 +31,9 @@ import org.eclipse.ui.console.IConsole
 import org.eclipse.ui.console.IConsoleListener
 import org.eclipse.ui.console.IConsoleManager
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.ui.UiPlugin
-import org.eclipse.buildship.ui.console.GradleConsole
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.ui.internal.UiPlugin
+import org.eclipse.buildship.ui.internal.console.GradleConsole
 
 abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
 

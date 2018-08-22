@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import java.util.List;
 
@@ -23,8 +23,8 @@ import com.google.common.collect.Iterables;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
-import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
+import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
 
 /**
  * Contains the logic that determines the state of the actions of the {@link TaskView} for a given

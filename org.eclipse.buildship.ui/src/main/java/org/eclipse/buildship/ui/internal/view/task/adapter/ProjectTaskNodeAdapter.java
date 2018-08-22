@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task.adapter;
+package org.eclipse.buildship.ui.internal.view.task.adapter;
 
 import com.google.common.base.Preconditions;
 
@@ -17,7 +17,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import org.eclipse.buildship.ui.view.task.ProjectTaskNode;
+import org.eclipse.buildship.ui.internal.view.task.ProjectTaskNode;
 
 /**
  * Adapts a {@link ProjectTaskNode} instance to a {@link IPropertySource} instance.

@@ -20,14 +20,14 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view;
+package org.eclipse.buildship.ui.internal.view;
 
 import com.google.common.base.Preconditions;
 
 import org.eclipse.jface.action.Action;
 
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
+import org.eclipse.buildship.ui.internal.PluginImages;
 
 /**
  * Removes the target {@link Page} from the {@link MultiPageView} to which this page belongs.

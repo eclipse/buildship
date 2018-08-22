@@ -9,11 +9,11 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 473545
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import org.eclipse.buildship.ui.wizard.project.WelcomePageContent.PageParagraph;
+import org.eclipse.buildship.ui.internal.wizard.project.WelcomePageContent.PageParagraph;
 
 /**
  * Factory for creating {@link WelcomePageContent} instances for the different project wizards.

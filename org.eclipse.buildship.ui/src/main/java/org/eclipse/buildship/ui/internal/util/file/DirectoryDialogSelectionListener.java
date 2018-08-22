@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.file;
+package org.eclipse.buildship.ui.internal.util.file;
 
 import java.io.File;
 
@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.internal.i18n.UiMessages;
 
 /**
  * A {@link org.eclipse.swt.events.SelectionListener} implementation which opens a

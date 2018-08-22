@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.nodeselection;
+package org.eclipse.buildship.ui.internal.util.nodeselection;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 
-import org.eclipse.buildship.ui.view.NoActionsAvailableAction;
+import org.eclipse.buildship.ui.internal.view.NoActionsAvailableAction;
 
 /**
  * Adds {@link SelectionSpecificAction} instances as menu items to the context menu of the provided

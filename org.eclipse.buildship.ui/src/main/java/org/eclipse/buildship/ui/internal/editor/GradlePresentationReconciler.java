@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.buildship.ui.editor;
+package org.eclipse.buildship.ui.internal.editor;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 
-import org.eclipse.buildship.core.util.preference.EclipsePreferencesUtils;
+import org.eclipse.buildship.core.internal.util.preference.EclipsePreferencesUtils;
 
 /**
  * Presentation reconciler for the Gradle Editor.

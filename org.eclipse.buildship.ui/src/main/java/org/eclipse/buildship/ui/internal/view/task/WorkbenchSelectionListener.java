@@ -10,7 +10,7 @@
  *     Wayne Beaton (The Eclipse Foundation) - Bug 463693
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import java.util.List;
 

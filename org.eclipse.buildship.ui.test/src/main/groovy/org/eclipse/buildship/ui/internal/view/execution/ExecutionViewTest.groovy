@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.view.execution
+package org.eclipse.buildship.ui.internal.view.execution
 
 import spock.lang.Issue
 

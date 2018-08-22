@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.ui.util.selection.SelectionUtils;
+import org.eclipse.buildship.ui.internal.util.selection.SelectionUtils;
 
 /**
  * Links the selection from the {@link TaskView} to the workspace.

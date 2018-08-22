@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui;
+package org.eclipse.buildship.ui.internal;
 
 /**
  * Enumerates some of the values defined in the <i>plugin.xml</i>.

@@ -9,20 +9,20 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.console;
+package org.eclipse.buildship.ui.internal.console;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
 
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.i18n.UiMessages;
+import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
+import org.eclipse.buildship.ui.internal.PluginImages;
+import org.eclipse.buildship.ui.internal.i18n.UiMessages;
 
 /**
  * Cancel the build execution attached to the given {@link GradleConsole} instance.

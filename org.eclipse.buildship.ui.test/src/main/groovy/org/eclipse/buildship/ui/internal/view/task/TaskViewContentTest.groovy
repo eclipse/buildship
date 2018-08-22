@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.eclipse.buildship.ui.view.task
+package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
-import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.workspace.FetchStrategy
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy
 
 
 class TaskViewContentTest extends BaseTaskViewTest {

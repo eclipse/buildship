@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import com.google.common.collect.ImmutableList;
 
@@ -22,12 +22,12 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.binding.Property;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
-import org.eclipse.buildship.ui.preferences.GradleWorkbenchPreferencePage;
-import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.DistributionChangedListener;
-import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
+import org.eclipse.buildship.core.internal.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.internal.util.binding.Property;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.ui.internal.preferences.GradleWorkbenchPreferencePage;
+import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
+import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 
 /**
  * Page on the {@link ProjectImportWizard} declaring the used Gradle distribution and other advanced options for the imported project.

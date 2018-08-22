@@ -6,12 +6,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.editor;
+package org.eclipse.buildship.ui.internal.editor;
 
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.ui.part.EditorActionBarContributor;
 
-import org.eclipse.buildship.ui.workspace.RefreshProjectAction;
+import org.eclipse.buildship.ui.internal.workspace.RefreshProjectAction;
 
 /**
  * Contributes items to the toolbar when {@link GradleEditor} is opened.

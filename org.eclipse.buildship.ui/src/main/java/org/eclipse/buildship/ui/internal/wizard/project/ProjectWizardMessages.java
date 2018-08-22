@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -18,7 +18,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public final class ProjectWizardMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.wizard.project.ProjectWizardMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.internal.wizard.project.ProjectWizardMessages"; //$NON-NLS-1$
 
     public static String Title_GradleWelcomeWizardPage;
     public static String Title_GradleProjectWizardPage;
