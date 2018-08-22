@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.kotlin;
+package org.eclipse.buildship.kotlin.internal;
 
 import java.io.File;
 import java.net.URI;
@@ -27,11 +27,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 
 /**
  * Contributes the Gradle Kotlin Script template to the Kotlin Eclipse

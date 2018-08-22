@@ -4,7 +4,7 @@
    <extension
          point="org.jetbrains.kotlin.core.scriptTemplateProviderEx">
       <provider
-            class="org.eclipse.buildship.kotlin.GradleKotlinScriptTemplateProvider"
+            class="org.eclipse.buildship.kotlin.internal.GradleKotlinScriptTemplateProvider"
             id="org.eclipse.buildship.kotlin.scripttemplateprovider"
             name="Gradle Kotlin script">
       </provider>
