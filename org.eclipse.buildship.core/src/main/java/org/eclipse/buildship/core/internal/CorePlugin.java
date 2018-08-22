@@ -36,7 +36,7 @@ import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManag
 import org.eclipse.buildship.core.internal.launch.impl.DefaultExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.launch.impl.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.operation.ToolingApiOperationManager;
-import org.eclipse.buildship.core.internal.operation.internal.DefaultToolingApiOperationManager;
+import org.eclipse.buildship.core.internal.operation.impl.DefaultToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.preferences.ModelPersistence;
 import org.eclipse.buildship.core.internal.preferences.impl.DefaultModelPersistence;
 import org.eclipse.buildship.core.internal.util.extension.InvocationCustomizerCollector;
