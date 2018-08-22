@@ -17,7 +17,7 @@ import org.eclipse.jface.action.Action;
 
 import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
 import org.eclipse.buildship.ui.internal.PluginImages;
-import org.eclipse.buildship.ui.internal.external.viewer.FilteredTree;
+import org.eclipse.buildship.ui.internal.extviewer.FilteredTree;
 import org.eclipse.buildship.ui.internal.i18n.UiMessages;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.internal.util.nodeselection.SelectionSpecificAction;
