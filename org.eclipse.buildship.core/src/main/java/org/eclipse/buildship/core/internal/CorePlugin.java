@@ -33,8 +33,8 @@ import org.eclipse.buildship.core.internal.event.internal.DefaultListenerRegistr
 import org.eclipse.buildship.core.internal.invocation.InvocationCustomizer;
 import org.eclipse.buildship.core.internal.launch.ExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.internal.launch.internal.DefaultExternalLaunchConfigurationManager;
-import org.eclipse.buildship.core.internal.launch.internal.DefaultGradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.internal.launch.impl.DefaultExternalLaunchConfigurationManager;
+import org.eclipse.buildship.core.internal.launch.impl.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.operation.ToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.operation.internal.DefaultToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.preferences.ModelPersistence;

@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.launch.internal
+package org.eclipse.buildship.core.internal.launch.impl
 
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.ILaunchConfiguration

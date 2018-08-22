@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.launch.internal;
+package org.eclipse.buildship.core.internal.launch.impl;
 
 import java.util.Collections;
 import java.util.Map;

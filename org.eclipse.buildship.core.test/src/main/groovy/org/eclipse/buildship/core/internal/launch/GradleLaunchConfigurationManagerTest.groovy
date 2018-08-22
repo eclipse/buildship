@@ -21,7 +21,7 @@ import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
-import org.eclipse.buildship.core.internal.launch.internal.DefaultGradleLaunchConfigurationManager
+import org.eclipse.buildship.core.internal.launch.impl.DefaultGradleLaunchConfigurationManager
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
 

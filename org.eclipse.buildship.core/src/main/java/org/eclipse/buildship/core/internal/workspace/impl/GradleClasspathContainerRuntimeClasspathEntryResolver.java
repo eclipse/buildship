@@ -27,8 +27,8 @@ import org.eclipse.jdt.launching.IRuntimeClasspathEntryResolver;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 
-import org.eclipse.buildship.core.internal.launch.internal.GradleClasspathProvider;
-import org.eclipse.buildship.core.internal.launch.internal.LaunchConfigurationScope;
+import org.eclipse.buildship.core.internal.launch.impl.GradleClasspathProvider;
+import org.eclipse.buildship.core.internal.launch.impl.LaunchConfigurationScope;
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer;
 
 /**
