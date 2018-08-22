@@ -19,7 +19,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Default implementation of {@link org.eclipse.buildship.core.console.ProcessStreamsProvider} that provides {@link System#out},
+ * Default implementation of {@link org.eclipse.buildship.core.internal.console.ProcessStreamsProvider} that provides {@link System#out},
  * {@link System#err}, and {@link System#in}.
  * <p>
  * This implementation is useful in non-UI test scenarios.

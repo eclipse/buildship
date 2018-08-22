@@ -18,7 +18,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
  * its own implementation. The injected {@code GradleClasspathProvider} instance filters entries
  * entries if Gradle provides the appropriate scope information.
  *
- * @see org.eclipse.buildship.core.launch.internal.GradleClasspathProvider
+ * @see org.eclipse.buildship.core.internal.launch.impl.GradleClasspathProvider
  *
  * @author Donat Csikos
  */

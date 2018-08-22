@@ -37,7 +37,7 @@ import org.eclipse.buildship.ui.internal.i18n.UiMessages;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleUtils;
 
 /**
- * Reruns the build represented by the target {@link org.eclipse.buildship.ui.view.execution.ExecutionPage}.
+ * Reruns the build represented by the target {@link org.eclipse.buildship.ui.internal.view.execution.ExecutionPage}.
  * <p/>
  * Note: we listen for removals of {@code ILaunchConfiguration} instances even though not every {@code ProcessDescription} implementation
  * is necessarily backed by a launch configuration. This means that in the worst case, {@code ProcessDescription#isRerunnable()} is invoked

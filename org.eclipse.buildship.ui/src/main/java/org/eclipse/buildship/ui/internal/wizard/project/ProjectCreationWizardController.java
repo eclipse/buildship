@@ -24,7 +24,7 @@ import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
 
 /**
- * Controller class for the {@link org.eclipse.buildship.ui.wizard.project.ProjectImportWizard}. Contains all non-UI related calculations
+ * Controller class for the {@link org.eclipse.buildship.ui.internal.wizard.project.ProjectImportWizard}. Contains all non-UI related calculations
  * the wizard has to perform.
  */
 public final class ProjectCreationWizardController {

@@ -22,9 +22,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectMarker;
 
 /**
- * Backing implementation class for the {@link org.eclipse.buildship.core.configuration.GradleProjectBuilder}.
+ * Backing implementation class for the {@link org.eclipse.buildship.core.internal.configuration.GradleProjectBuilder}.
  * <p/>
- * Wired to the project by the {@link org.eclipse.buildship.core.configuration.GradleProjectBuilder}.
+ * Wired to the project by the {@link org.eclipse.buildship.core.internal.configuration.GradleProjectBuilder}.
  * <p/>
  * Defined as an extension point of <code>org.eclipse.core.resources.builders</code> in the <i>plugin.xml</i>.
  */

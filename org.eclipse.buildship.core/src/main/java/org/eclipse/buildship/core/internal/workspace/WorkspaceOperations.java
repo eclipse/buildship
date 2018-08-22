@@ -72,7 +72,7 @@ public interface WorkspaceOperations {
      * @param natureIds the nature ids to associate with the project
      * @param monitor the monitor to report progress on
      * @return the created project
-     * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if the project creation fails
+     * @throws org.eclipse.buildship.core.internal.GradlePluginsRuntimeException thrown if the project creation fails
      */
    IProject createProject(String name, File location, List<String> natureIds, IProgressMonitor monitor);
 
@@ -84,7 +84,7 @@ public interface WorkspaceOperations {
      * @param extraNatureIds the nature ids to add to the project
      * @param monitor the monitor to report the progress on
      * @return the included project
-     * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException thrown if the project inclusion fails
+     * @throws org.eclipse.buildship.core.internal.GradlePluginsRuntimeException thrown if the project inclusion fails
      */
     IProject includeProject(IProjectDescription projectDescription, List<String> extraNatureIds, IProgressMonitor monitor);
 
@@ -149,7 +149,7 @@ public interface WorkspaceOperations {
      * @param name the project name
      * @param location the project location
      * @throws NullPointerException if any of the arguments are {@code null}
-     * @throws org.eclipse.buildship.core.UnsupportedConfigurationException if the target
+     * @throws org.eclipse.buildship.core.internal.UnsupportedConfigurationException if the target
      *             directory is located under the workspace root and the directory's name
      *             is not equal to the project's name
      */
@@ -167,7 +167,7 @@ public interface WorkspaceOperations {
      * @param newName the name to rename the project to
      * @param monitor the monitor to report progress on
      * @return the renamed project
-     * @throws org.eclipse.buildship.core.GradlePluginsRuntimeException if the project cannot be renamed
+     * @throws org.eclipse.buildship.core.internal.GradlePluginsRuntimeException if the project cannot be renamed
      */
     IProject renameProject(IProject project, String newName, IProgressMonitor monitor);
 
