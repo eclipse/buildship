@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.marker.internal;
+package org.eclipse.buildship.core.internal.marker.impl;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
