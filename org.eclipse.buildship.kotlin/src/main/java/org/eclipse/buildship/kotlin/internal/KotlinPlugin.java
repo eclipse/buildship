@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.kotlin;
+package org.eclipse.buildship.kotlin.internal;
 
 import org.osgi.framework.BundleContext;
 
