@@ -95,7 +95,7 @@
 &lt;pre&gt;
 import java.util.*;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.buildship.core.internal.invocation.InvocationCustomizer;
+import org.eclipse.buildship.core.invocation.InvocationCustomizer;
 
 public class EclipseInstallLocationGradleBuild implements InvocationCustomizer {
      @Override public List&lt;String&gt; getExtraArguments() {
