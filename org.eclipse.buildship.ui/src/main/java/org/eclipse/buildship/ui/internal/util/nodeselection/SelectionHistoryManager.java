@@ -24,7 +24,7 @@ import java.util.List;
  * the {@link TreeViewer} and acts as {@link ISelectionProvider}, which can be
  * added to an {@link org.eclipse.ui.IViewSite}.
  *
- * @see org.eclipse.buildship.ui.view.task.TaskView
+ * @see org.eclipse.buildship.ui.internal.view.task.TaskView
  */
 public final class SelectionHistoryManager implements ISelectionProvider {
 

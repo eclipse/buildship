@@ -40,7 +40,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Page on the {@link org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard} declaring the project name and project location.
+ * Page on the {@link org.eclipse.buildship.ui.internal.wizard.project.ProjectCreationWizard} declaring the project name and project location.
  */
 public final class NewGradleProjectWizardPage extends AbstractWizardPage {
 

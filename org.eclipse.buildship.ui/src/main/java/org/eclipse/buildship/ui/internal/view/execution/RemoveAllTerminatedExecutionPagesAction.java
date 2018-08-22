@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 /**
- * Removes all {@link org.eclipse.buildship.ui.view.Page} elements from the target {@link org.eclipse.buildship.ui.view.MultiPageView}.
+ * Removes all {@link org.eclipse.buildship.ui.internal.view.Page} elements from the target {@link org.eclipse.buildship.ui.internal.view.MultiPageView}.
  */
 public final class RemoveAllTerminatedExecutionPagesAction extends RemoveAllPagesAction {
 

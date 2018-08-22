@@ -26,7 +26,7 @@ import org.eclipse.buildship.core.internal.util.file.FileUtils;
 import org.eclipse.buildship.ui.internal.view.task.ProjectNode;
 
 /**
- * Adapts a {@link org.eclipse.buildship.ui.view.task.ProjectNode} instance to a {@link IPropertySource} instance.
+ * Adapts a {@link org.eclipse.buildship.ui.internal.view.task.ProjectNode} instance to a {@link IPropertySource} instance.
  */
 final class ProjectNodeAdapter implements IPropertySource {
 

@@ -61,7 +61,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
     private final IPageChangedListener pageChangeListener;
 
     /**
-     * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.UiPlugin}..
+     * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.internal.UiPlugin}..
      */
     @SuppressWarnings("UnusedDeclaration")
     public ProjectCreationWizard() {

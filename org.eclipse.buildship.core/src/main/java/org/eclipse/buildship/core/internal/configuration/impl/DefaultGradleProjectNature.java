@@ -20,7 +20,7 @@ import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureConf
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureDeconfiguredEvent;
 
 /**
- * Backing implementation class for the {@link org.eclipse.buildship.core.configuration.GradleProjectNature}.
+ * Backing implementation class for the {@link org.eclipse.buildship.core.internal.configuration.GradleProjectNature}.
  * <p/>
  * Delegates to the {@link GradleProjectBuilder} to wire the project under configuration with the {@link DefaultGradleProjectBuilder}.
  * <p/>
