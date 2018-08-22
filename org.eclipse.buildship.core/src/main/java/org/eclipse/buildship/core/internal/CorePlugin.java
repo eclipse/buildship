@@ -96,6 +96,7 @@ public final class CorePlugin extends Plugin {
     private SynchronizingBuildScriptUpdateListener buildScriptUpdateListener;
     private InvocationCustomizer invocationCustomizer;
     private ConfigurationManager configurationManager;
+    private org.eclipse.buildship.core.configuration.ConfigurationManager newConfigurationManager; // TODO (donat) remove the old configuration manager above
     private DefaultExternalLaunchConfigurationManager externalLaunchConfigurationManager;
     private ToolingApiOperationManager operationManager;
 
@@ -148,6 +149,7 @@ public final class CorePlugin extends Plugin {
         this.buildScriptUpdateListener = SynchronizingBuildScriptUpdateListener.createAndRegister();
         this.invocationCustomizer = new InvocationCustomizerCollector();
         this.configurationManager = new DefaultConfigurationManager();
+        this.newConfigurationManager = new org.eclipse.buildship.core.internal.configuration.DefaultConfigurationManager();
         this.externalLaunchConfigurationManager = DefaultExternalLaunchConfigurationManager.createAndRegister();
         this.operationManager = new DefaultToolingApiOperationManager();
     }
@@ -254,6 +256,10 @@ public final class CorePlugin extends Plugin {
 
     public static ConfigurationManager configurationManager() {
         return getInstance().configurationManager;
+    }
+
+    public static org.eclipse.buildship.core.configuration.ConfigurationManager newConfigurationManager() {
+        return getInstance().newConfigurationManager;
     }
 
     public static ExternalLaunchConfigurationManager externalLaunchConfigurationManager() {
