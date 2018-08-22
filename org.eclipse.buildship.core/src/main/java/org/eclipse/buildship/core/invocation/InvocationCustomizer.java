@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.invocation;
+package org.eclipse.buildship.core.invocation;
 
 import java.util.List;
 
@@ -18,7 +18,6 @@ import java.util.List;
  * @author Donat Csikos
  * @since 2.0
  */
-// TODO (donat) move back to org.eclipse.buildship.core.invocation
 public interface InvocationCustomizer {
 
     /**

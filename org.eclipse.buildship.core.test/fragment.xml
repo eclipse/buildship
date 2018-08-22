@@ -20,7 +20,7 @@
    <extension
          point="org.eclipse.buildship.core.invocationcustomizers">
       <customizer
-            class="org.eclipse.buildship.core.internal.invocation.InvocationCustomizerTest$SampleInvocationCustomizer">
+            class="org.eclipse.buildship.core.invocation.InvocationCustomizerTest$SampleInvocationCustomizer">
       </customizer>
    </extension>
 

@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.invocation.InvocationCustomizer;
+import org.eclipse.buildship.core.invocation.InvocationCustomizer;
 
 /**
  * Retrieves and caches extra Gradle arguments contributed via the {@code invocationcustomizer}
