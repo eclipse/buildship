@@ -27,7 +27,7 @@ Export-Package: org.eclipse.buildship.core.internal;x-friends:="org.eclipse.buil
  org.eclipse.buildship.core.internal.event;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.gradle;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.i18n;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
- org.eclipse.buildship.core.internal.invocation,
+ org.eclipse.buildship.core.invocation,
  org.eclipse.buildship.core.internal.launch;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.marker;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.operation;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
