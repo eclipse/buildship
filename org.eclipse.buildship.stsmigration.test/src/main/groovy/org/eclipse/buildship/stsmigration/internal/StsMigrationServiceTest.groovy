@@ -1,10 +1,10 @@
-package org.eclipse.buildship.stsmigration
+package org.eclipse.buildship.stsmigration.internal
 
 import spock.lang.Specification
 
-import org.eclipse.buildship.stsmigration.StsMigrationDialog
-import org.eclipse.buildship.stsmigration.StsMigrationService
-import org.eclipse.buildship.stsmigration.StsMigrationState
+import org.eclipse.buildship.stsmigration.internal.StsMigrationDialog
+import org.eclipse.buildship.stsmigration.internal.StsMigrationService
+import org.eclipse.buildship.stsmigration.internal.StsMigrationState
 
 class StsMigrationServiceTest extends Specification {
 
