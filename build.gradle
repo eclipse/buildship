@@ -317,18 +317,9 @@ subprojects {
     // set the calculated version on all projects in the hierarchy
     version = rootProject.version
 
-    // for all Eclipse versions before Mars, the built plugins must be Java 6 compatible
-    // for Eclipse Mars, the minimum execution environment is Java 7 (https://www.eclipse.org/projects/project-plan.php?planurl=/eclipse/development/plans/eclipse_project_plan_4_5.xml)
-    // for later versions the minimum execution environment is Java 8
-    // try to compile with the minimum required JDK if the location is specified by the caller or if it can be derived
     plugins.withType(JavaPlugin) {
-        sourceCompatibility = 1.7
-        String targetPlatformVersion = Config.on(project).targetPlatform.eclipseVersion
-        if (targetPlatformVersion < '46') {
-            targetCompatibility = 1.7
-        } else {
-            targetCompatibility = 1.8
-        }
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
 
         tasks.matching { it instanceof JavaCompile || it instanceof GroovyCompile }.all {
             // enable all warnings except for different sourceCompatibility and targetCompatibility value
