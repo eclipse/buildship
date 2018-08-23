@@ -18,7 +18,8 @@ import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
  * Represents a Gradle distribution that can be located locally or remotely, be a fixed version, or
  * be project-specific.
  *
- * @author Etienne Studer
+ * @author Donat Csikos
+ * @since 3.0
  */
 public abstract class GradleDistribution {
 

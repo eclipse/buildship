@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2018 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.eclipse.buildship.core.internal;
 
 import java.io.File;
@@ -16,7 +24,7 @@ import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
 
-public class DefaultGradleDistribution extends GradleDistribution {
+public final class DefaultGradleDistribution extends GradleDistribution {
 
     private final GradleDistributionInfo distributionInfo;
 
@@ -45,11 +53,6 @@ public class DefaultGradleDistribution extends GradleDistribution {
         return this.distributionInfo.getConfiguration();
     }
 
-    /**
-     * Configures the specified connector with this distribution.
-     *
-     * @param connector the connector to configure
-     */
     public void apply(GradleConnector connector) {
         switch (this.distributionInfo.getType()) {
             case LOCAL_INSTALLATION:
@@ -101,70 +104,26 @@ public class DefaultGradleDistribution extends GradleDistribution {
         return this.distributionInfo.toString();
     }
 
-    /**
-     * Creates a reference to a local Gradle installation.
-     *
-     * @param installationDir the local Gradle installation directory to use
-     * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useInstallation(java.io.File)
-     */
     public static GradleDistribution forLocalInstallation(String installationDir) {
         return new DefaultGradleDistribution(GradleDistributionType.LOCAL_INSTALLATION, installationDir);
     }
 
-    /**
-     * Creates a reference to a local Gradle installation.
-     *
-     * @param installationDir the local Gradle installation directory to use
-     * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useInstallation(java.io.File)
-     */
     public static GradleDistribution forLocalInstallation(File installationDir) {
         return new DefaultGradleDistribution(GradleDistributionType.LOCAL_INSTALLATION, installationDir.getAbsolutePath());
     }
 
-    /**
-     * Creates a reference to a remote Gradle distribution. The appropriate distribution is
-     * downloaded and installed into the user's Gradle home directory.
-     *
-     * @param distributionUri the remote Gradle distribution location to use
-     * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useDistribution(java.net.URI)
-     */
     public static GradleDistribution forRemoteDistribution(String distributionUri) {
         return new DefaultGradleDistribution(GradleDistributionType.REMOTE_DISTRIBUTION, distributionUri);
     }
 
-    /**
-     * Creates a reference to a remote Gradle distribution. The appropriate distribution is
-     * downloaded and installed into the user's Gradle home directory.
-     *
-     * @param distributionUri the remote Gradle distribution location to use
-     * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useDistribution(java.net.URI)
-     */
     public static GradleDistribution forRemoteDistribution(URI distributionUri) {
         return new DefaultGradleDistribution(GradleDistributionType.REMOTE_DISTRIBUTION, distributionUri.toString());
     }
 
-    /**
-     * Creates a reference to a specific version of Gradle. The appropriate distribution is
-     * downloaded and installed into the user's Gradle home directory.
-     *
-     * @param version the Gradle version to use
-     * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useGradleVersion(String)
-     */
     public static GradleDistribution forVersion(String version) {
         return new DefaultGradleDistribution(GradleDistributionType.VERSION, version);
     }
 
-    /**
-     * Creates a reference to a project-specific version of Gradle.
-     *
-     * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useBuildDistribution()
-     */
     public static GradleDistribution fromBuild() {
         return new DefaultGradleDistribution(GradleDistributionType.WRAPPER, null);
     }
