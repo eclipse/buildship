@@ -19,6 +19,8 @@ package org.eclipse.buildship.core.util.gradle
 import org.gradle.tooling.GradleConnector
 import spock.lang.Specification
 
+import org.eclipse.buildship.core.GradleDistribution
+
 class GradleDistributionTest extends Specification {
 
     def "GradleDistrubution configures GradleConnector to use local installation"() {

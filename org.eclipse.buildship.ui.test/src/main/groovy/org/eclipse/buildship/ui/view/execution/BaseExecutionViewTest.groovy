@@ -8,8 +8,8 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.ui.IWorkbenchPage
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.ui.external.viewer.FilteredTree
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils

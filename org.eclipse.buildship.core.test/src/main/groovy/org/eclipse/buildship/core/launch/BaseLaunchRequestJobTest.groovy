@@ -2,10 +2,10 @@ package org.eclipse.buildship.core.launch
 
 import org.eclipse.debug.core.ILaunchConfiguration
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.console.ProcessStreams
 import org.eclipse.buildship.core.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class BaseLaunchRequestJobTest extends WorkspaceSpecification {
 

@@ -11,8 +11,8 @@ import org.eclipse.core.resources.IncrementalProjectBuilder
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
 class ReexportedDependencySpecification extends ProjectSynchronizationSpecification {

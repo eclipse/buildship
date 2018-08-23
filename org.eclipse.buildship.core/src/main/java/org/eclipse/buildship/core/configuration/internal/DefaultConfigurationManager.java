@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.configuration.ProjectConfiguration;
@@ -29,7 +30,6 @@ import org.eclipse.buildship.core.configuration.RunConfiguration;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.file.RelativePathUtils;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Default implementation for {@link ConfigurationManager}.

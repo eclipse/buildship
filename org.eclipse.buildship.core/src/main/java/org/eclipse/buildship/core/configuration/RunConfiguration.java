@@ -11,7 +11,7 @@ package org.eclipse.buildship.core.configuration;
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistribution;
 
 /**
  * Configuration to launch tasks and tests.

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.gradle;
+package org.eclipse.buildship.core;
 
 import java.io.File;
 import java.net.URI;
@@ -18,8 +18,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.GradleDistributionType;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
 /**
  * Represents a Gradle distribution that can be located locally or remotely, be a fixed version, or
@@ -181,7 +180,7 @@ public class GradleDistribution {
         return new GradleDistribution(GradleDistributionType.WRAPPER, null);
     }
 
-    static GradleDistribution fromDistributionInfo(GradleDistributionInfo distributionInfo) {
+    public static GradleDistribution fromDistributionInfo(GradleDistributionInfo distributionInfo) {
         return new GradleDistribution(distributionInfo);
     }
 }

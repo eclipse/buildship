@@ -6,9 +6,9 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.IRuntimeClasspathEntry
 import org.eclipse.jdt.launching.JavaRuntime
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.launch.internal.SupportedLaunchConfigType
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class SourcePathTest extends ProjectSynchronizationSpecification {
 

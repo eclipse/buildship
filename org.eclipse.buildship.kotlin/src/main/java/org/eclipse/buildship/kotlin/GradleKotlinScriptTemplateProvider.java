@@ -28,10 +28,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Contributes the Gradle Kotlin Script template to the Kotlin Eclipse
