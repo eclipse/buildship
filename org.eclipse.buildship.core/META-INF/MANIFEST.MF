@@ -4,7 +4,7 @@ Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - Core
 Bundle-SymbolicName: org.eclipse.buildship.core;singleton:=true
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: Eclipse Buildship
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: org.eclipse.buildship.core.CorePlugin
 Require-Bundle: org.eclipse.core.expressions,
  org.eclipse.core.filesystem,
