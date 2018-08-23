@@ -56,7 +56,7 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
         then:
         job.getResult().isOK()
-        buildConfig.contains "Gradle Version: $distribution.configuration"
+        buildConfig.contains "Gradle Version: $distribution.distributionInfo.configuration"
 
         where:
         distribution << supportedGradleDistributions
