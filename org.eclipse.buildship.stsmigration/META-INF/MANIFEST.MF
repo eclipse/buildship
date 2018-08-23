@@ -4,7 +4,7 @@ Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - STS Gradle Migration
 Bundle-SymbolicName: org.eclipse.buildship.stsmigration;singleton:=true
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: Eclipse Buildship
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: org.eclipse.buildship.stsmigration.internal.StsMigrationPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
