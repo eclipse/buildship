@@ -11,12 +11,12 @@ package org.eclipse.buildship.core;
 /**
  * Enumerates the different types of Gradle distributions.
  * TODO (donat) add reference to usages and explain constraints
- * 
+ *
  * @author Donat Csikos
  * @since 3.0
  */
 public enum GradleDistributionType {
-    INVALID,
+    INVALID, // TODO (donat) this entry leaked to the API and should be removed
     WRAPPER,
     LOCAL_INSTALLATION,
     REMOTE_DISTRIBUTION,
