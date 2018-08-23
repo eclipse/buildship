@@ -28,8 +28,6 @@ public abstract class GradleDistribution {
 
     public abstract String getConfiguration();
 
-    public abstract String serializeToString();
-
     /**
      * Creates a reference to a local Gradle installation.
      *

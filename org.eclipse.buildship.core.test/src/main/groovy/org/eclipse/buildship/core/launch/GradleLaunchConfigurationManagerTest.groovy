@@ -97,7 +97,7 @@ class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {
     private GradleRunConfigurationAttributes createValidAttributes() {
         new GradleRunConfigurationAttributes(['clean'],
             '/home/user/workspace/project',
-            GradleDistribution.forVersion('2.3').serializeToString(),
+            GradleDistribution.forVersion('2.3').distributionInfo.serializeToString(),
             null,
             '/.java',
             ['-ea'],

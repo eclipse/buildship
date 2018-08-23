@@ -33,7 +33,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
             ['clean', 'test'],
             project.getLocation().toFile().absolutePath,
-            GradleDistribution.fromBuild().serializeToString(),
+            GradleDistribution.fromBuild().distributionInfo.serializeToString(),
             "",
             null,
             [],
@@ -102,7 +102,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
             runConfig.tasks,
             runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory.absolutePath,
-            runConfig.projectConfiguration.buildConfiguration.gradleDistribution.serializeToString(),
+            runConfig.projectConfiguration.buildConfiguration.gradleDistribution.distributionInfo.serializeToString(),
             runConfig.gradleUserHome,
             runConfig.javaHome,
             runConfig.jvmArguments,

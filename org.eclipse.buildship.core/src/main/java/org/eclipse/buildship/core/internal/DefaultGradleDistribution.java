@@ -50,7 +50,6 @@ public class DefaultGradleDistribution extends GradleDistribution {
      *
      * @param connector the connector to configure
      */
-    @Override
     public void apply(GradleConnector connector) {
         switch (this.distributionInfo.getType()) {
             case LOCAL_INSTALLATION:
@@ -68,11 +67,6 @@ public class DefaultGradleDistribution extends GradleDistribution {
             default:
                 throw new GradlePluginsRuntimeException("Invalid distribution type: " + this.distributionInfo.getType());
         }
-    }
-
-    @Override
-    public String serializeToString() {
-        return this.distributionInfo.serializeToString();
     }
 
     private static URI createURI(String path) {

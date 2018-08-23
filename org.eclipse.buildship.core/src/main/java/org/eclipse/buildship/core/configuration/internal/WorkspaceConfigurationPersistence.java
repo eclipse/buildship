@@ -55,7 +55,7 @@ public final class WorkspaceConfigurationPersistence {
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
         Preconditions.checkNotNull(config);
         IEclipsePreferences preferences = getPreferences();
-        preferences.put(GRADLE_DISTRIBUTION, config.getGradleDistribution().serializeToString());
+        preferences.put(GRADLE_DISTRIBUTION, config.getGradleDistribution().getDistributionInfo().serializeToString());
         if (config.getGradleUserHome() == null) {
             preferences.remove(GRADLE_USER_HOME);
         } else {
