@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 
 import org.eclipse.osgi.util.NLS;
 
+import org.eclipse.buildship.core.GradleDistributionType;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.binding.Validator;

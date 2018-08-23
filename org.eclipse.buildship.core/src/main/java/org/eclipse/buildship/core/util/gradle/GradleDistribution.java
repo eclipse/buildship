@@ -18,6 +18,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import org.eclipse.buildship.core.GradleDistributionType;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 
 /**
