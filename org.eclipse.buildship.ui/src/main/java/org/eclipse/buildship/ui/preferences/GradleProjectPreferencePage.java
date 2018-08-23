@@ -20,12 +20,12 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
 import org.eclipse.buildship.ui.util.widget.GradleUserHomeGroup;
 

@@ -19,9 +19,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.GradleDistributionType;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
 /**
  * Default implementation for {@link GradleDistribution}.

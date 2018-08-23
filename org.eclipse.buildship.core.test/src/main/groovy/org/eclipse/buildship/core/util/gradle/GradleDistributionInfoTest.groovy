@@ -8,6 +8,7 @@ import spock.lang.Unroll
 
 import com.google.common.base.Strings
 
+import org.eclipse.buildship.core.GradleDistributionInfo
 import org.eclipse.buildship.core.GradleDistributionType
 import org.eclipse.buildship.core.util.binding.Validator
 

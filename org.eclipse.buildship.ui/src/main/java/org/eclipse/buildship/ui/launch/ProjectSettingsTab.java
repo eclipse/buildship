@@ -31,12 +31,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.preferences.GradleProjectPreferencePage;

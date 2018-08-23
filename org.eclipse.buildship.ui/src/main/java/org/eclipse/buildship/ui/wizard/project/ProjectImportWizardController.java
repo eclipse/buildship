@@ -34,6 +34,7 @@ import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.operation.ToolingApiOperation;
@@ -47,7 +48,6 @@ import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.core.workspace.GradleBuild;
 import org.eclipse.buildship.core.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;

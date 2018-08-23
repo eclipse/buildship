@@ -12,8 +12,8 @@ import com.google.common.base.Optional;
 
 import org.eclipse.jface.preference.PreferencePage;
 
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.util.binding.Validator;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.DistributionChangedListener;
 
 /**

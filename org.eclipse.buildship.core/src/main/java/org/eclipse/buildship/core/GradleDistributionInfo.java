@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.gradle;
+package org.eclipse.buildship.core;
 
 import java.io.File;
 import java.net.URI;
@@ -18,9 +18,6 @@ import com.google.common.base.Strings;
 
 import org.eclipse.osgi.util.NLS;
 
-import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.GradleDistributionType;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.binding.Validator;
 

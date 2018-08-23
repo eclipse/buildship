@@ -25,9 +25,9 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 
 /**

@@ -22,9 +22,9 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.util.binding.Property;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.ui.preferences.GradleWorkbenchPreferencePage;
 import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.DistributionChangedListener;
 import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;

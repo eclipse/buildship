@@ -12,7 +12,6 @@ import java.io.File;
 import java.net.URI;
 
 import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
 /**
  * Represents a Gradle distribution that can be located locally or remotely, be a fixed version, or

@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.Path;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
 /**
  * Provides capability to read and save configuration properties on a target project.

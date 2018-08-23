@@ -19,9 +19,9 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
 
 /**
