@@ -11,8 +11,6 @@ package org.eclipse.buildship.core;
 import java.io.File;
 import java.net.URI;
 
-import org.gradle.tooling.GradleConnector;
-
 import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
@@ -29,13 +27,6 @@ public abstract class GradleDistribution {
     public abstract GradleDistributionType getType();
 
     public abstract String getConfiguration();
-
-    /**
-     * Configures the specified connector with this distribution.
-     *
-     * @param connector the connector to configure
-     */
-    public abstract void apply(GradleConnector connector);
 
     public abstract String serializeToString();
 

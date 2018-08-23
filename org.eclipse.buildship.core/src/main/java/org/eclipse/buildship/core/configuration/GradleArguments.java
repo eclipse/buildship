@@ -26,6 +26,7 @@ import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
 import org.eclipse.buildship.core.util.gradle.GradleVersion;
@@ -93,7 +94,7 @@ public final class GradleArguments {
     public void applyTo(GradleConnector connector) {
         connector.forProjectDirectory(this.rootDir);
         connector.useGradleUserHomeDir(this.gradleUserHome);
-        this.gradleDistribution.apply(connector);
+        ((DefaultGradleDistribution) this.gradleDistribution).apply(connector);
     }
 
     public void applyTo(LongRunningOperation operation, BuildEnvironment environment) {
