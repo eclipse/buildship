@@ -25,10 +25,6 @@ public abstract class GradleDistribution {
 
     public abstract GradleDistributionInfo getDistributionInfo();
 
-    public abstract GradleDistributionType getType();
-
-    public abstract String getConfiguration();
-
     /**
      * Creates a reference to a local Gradle installation.
      *

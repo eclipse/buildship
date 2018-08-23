@@ -23,7 +23,9 @@ import org.eclipse.buildship.core.GradleDistributionType;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
-
+/**
+ * Default implementation for {@link GradleDistribution}.
+ */
 public final class DefaultGradleDistribution extends GradleDistribution {
 
     private final GradleDistributionInfo distributionInfo;
@@ -41,16 +43,6 @@ public final class DefaultGradleDistribution extends GradleDistribution {
     @Override
     public GradleDistributionInfo getDistributionInfo() {
         return this.distributionInfo;
-    }
-
-    @Override
-    public GradleDistributionType getType() {
-        return this.distributionInfo.getType();
-    }
-
-    @Override
-    public String getConfiguration() {
-        return this.distributionInfo.getConfiguration();
     }
 
     public void apply(GradleConnector connector) {
