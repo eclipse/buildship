@@ -133,13 +133,13 @@ public final class GradleDistributionGroup extends Group {
 
     public GradleDistributionInfo getDistributionInfo() {
         if (this.useGradleWrapperOption.getSelection()) {
-            return new GradleDistributionInfo(GradleDistributionType.WRAPPER, "");
+            return GradleDistributionInfo.from(GradleDistributionType.WRAPPER, "");
         } else if (this.useLocalInstallationDirOption.getSelection()) {
-            return new GradleDistributionInfo(GradleDistributionType.LOCAL_INSTALLATION, this.localInstallationDirText.getText());
+            return GradleDistributionInfo.from(GradleDistributionType.LOCAL_INSTALLATION, this.localInstallationDirText.getText());
         } else if (this.useRemoteDistributionUriOption.getSelection()) {
-            return new GradleDistributionInfo(GradleDistributionType.REMOTE_DISTRIBUTION, this.remoteDistributionUriText.getText());
+            return GradleDistributionInfo.from(GradleDistributionType.REMOTE_DISTRIBUTION, this.remoteDistributionUriText.getText());
         } else if (this.useGradleVersionOption.getSelection()) {
-            return new GradleDistributionInfo(GradleDistributionType.VERSION, getSpecificVersion());
+            return GradleDistributionInfo.from(GradleDistributionType.VERSION, getSpecificVersion());
         } else {
             throw new GradlePluginsRuntimeException("No Gradle distribution type selected");
         }

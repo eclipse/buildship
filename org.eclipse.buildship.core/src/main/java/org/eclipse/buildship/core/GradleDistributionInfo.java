@@ -31,7 +31,7 @@ public final class GradleDistributionInfo {
     private final GradleDistributionType type;
     private final String configuration;
 
-    public GradleDistributionInfo(GradleDistributionType type, String configuration) {
+    private GradleDistributionInfo(GradleDistributionType type, String configuration) {
         this.type = type != null ? type : GradleDistributionType.INVALID;
         this.configuration = Strings.nullToEmpty(configuration);
     }
@@ -168,40 +168,40 @@ public final class GradleDistributionInfo {
 
     public static GradleDistributionInfo deserializeFromString(String distributionString) {
         if (distributionString == null) {
-            return new GradleDistributionInfo(GradleDistributionType.INVALID, "");
+            return from(GradleDistributionType.INVALID, "");
         }
 
         String localInstallationPrefix = "GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(";
         if (distributionString.startsWith(localInstallationPrefix) && distributionString.endsWith("))")) {
             String configuration = distributionString.substring(localInstallationPrefix.length(), distributionString.length() - 2);
 
-            return new GradleDistributionInfo(GradleDistributionType.LOCAL_INSTALLATION, configuration);
+            return from(GradleDistributionType.LOCAL_INSTALLATION, configuration);
         }
 
         String remoteDistributionPrefix = "GRADLE_DISTRIBUTION(REMOTE_DISTRIBUTION(";
         if (distributionString.startsWith(remoteDistributionPrefix) && distributionString.endsWith("))")) {
             String configuration = distributionString.substring(remoteDistributionPrefix.length(), distributionString.length() - 2);
-            return new GradleDistributionInfo(GradleDistributionType.REMOTE_DISTRIBUTION, configuration);
+            return from(GradleDistributionType.REMOTE_DISTRIBUTION, configuration);
         }
 
         String versionPrefix = "GRADLE_DISTRIBUTION(VERSION(";
         if (distributionString.startsWith(versionPrefix) && distributionString.endsWith("))")) {
             String configuration = distributionString.substring(versionPrefix.length(), distributionString.length() - 2);
-            return new GradleDistributionInfo(GradleDistributionType.VERSION, configuration);
+            return from(GradleDistributionType.VERSION, configuration);
         }
 
         String wrapperString = "GRADLE_DISTRIBUTION(WRAPPER)";
         if (distributionString.equals(wrapperString)) {
-            return new GradleDistributionInfo(GradleDistributionType.WRAPPER, null);
+            return from(GradleDistributionType.WRAPPER, null);
         }
 
         String invalidDistributionPrefix = "INVALID_GRADLE_DISTRIBUTION(";
         if (distributionString.startsWith(invalidDistributionPrefix) && distributionString.endsWith("))")) {
             String configuration = distributionString.substring(invalidDistributionPrefix.length(), distributionString.length() - 2);
-            return new GradleDistributionInfo(GradleDistributionType.INVALID, configuration);
+            return from(GradleDistributionType.INVALID, configuration);
         }
 
-        return new GradleDistributionInfo(GradleDistributionType.INVALID, distributionString);
+        return from(GradleDistributionType.INVALID, distributionString);
     }
 
     public static Validator<GradleDistributionInfo> validator() {
@@ -212,5 +212,9 @@ public final class GradleDistributionInfo {
                 return distributionInfo.validate();
             }
         };
+    }
+
+    public static GradleDistributionInfo from(GradleDistributionType type, String configuration) {
+        return GradleDistributionInfo.from(type, configuration);
     }
 }

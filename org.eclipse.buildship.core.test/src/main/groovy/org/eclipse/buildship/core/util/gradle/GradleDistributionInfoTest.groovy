@@ -20,7 +20,7 @@ class GradleDistributionInfoTest extends Specification {
 
     def "Validation passes only with semantically valid objects"(GradleDistributionType type, String configuration, boolean isValid) {
         setup:
-        GradleDistributionInfo distributionInfo = new GradleDistributionInfo(type, configuration)
+        GradleDistributionInfo distributionInfo = GradleDistributionInfo.from(type, configuration)
         Validator<GradleDistributionInfo> validator = GradleDistributionInfo.validator()
 
         expect:
@@ -48,7 +48,7 @@ class GradleDistributionInfoTest extends Specification {
 
     def "Can serialize and deserialize valid and invalid distributions"(GradleDistributionType type, String configuration) {
         setup:
-        GradleDistributionInfo distributionInfo1 = new GradleDistributionInfo(type, configuration)
+        GradleDistributionInfo distributionInfo1 = GradleDistributionInfo.from(type, configuration)
         GradleDistributionInfo distributionInfo2 = GradleDistributionInfo.deserializeFromString(distributionInfo1.serializeToString())
 
         expect:

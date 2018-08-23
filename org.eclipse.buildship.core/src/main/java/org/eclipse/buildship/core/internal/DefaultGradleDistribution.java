@@ -31,7 +31,7 @@ public final class DefaultGradleDistribution extends GradleDistribution {
     private final GradleDistributionInfo distributionInfo;
 
     private DefaultGradleDistribution(GradleDistributionType type, String configuration) {
-        this(new GradleDistributionInfo(type, configuration));
+        this(GradleDistributionInfo.from(type, configuration));
     }
 
     private DefaultGradleDistribution(GradleDistributionInfo distributionInfo) {
