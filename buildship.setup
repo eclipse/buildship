@@ -221,9 +221,6 @@
       <choice
           value="Kepler"
           label="Eclipse Kepler - 4.3"/>
-      <choice
-          value="Juno"
-          label="Eclipse Juno - 4.2"/>
       <description>Buildship Target Platform</description>
     </setupTask>
     <setupTask
@@ -364,15 +361,6 @@
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
       </repositoryList>
-      <repositoryList
-          name="Juno">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-juno"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
-        <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
-      </repositoryList>
     </targlet>
     <targlet
         name="Buildship Test Dependencies"
@@ -420,13 +408,6 @@
       </repositoryList>
       <repositoryList
           name="Kepler">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
-      </repositoryList>
-      <repositoryList
-          name="Juno">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
