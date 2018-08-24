@@ -123,7 +123,7 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
             case VERSION:
                 return NLS.bind(CoreMessages.GradleDistribution_Value_UseGradleVersion_0, this.configuration);
             case INVALID:
-                return "Unknown Gradle distribution " + this.configuration; // TODO (donat) NLS
+                return NLS.bind(CoreMessages.GradleDistribution_Value_Invalid_0, this.configuration);
             default:
                 throw new GradlePluginsRuntimeException("Unrecognized Gradle distribution type: " + this.type);
         }
