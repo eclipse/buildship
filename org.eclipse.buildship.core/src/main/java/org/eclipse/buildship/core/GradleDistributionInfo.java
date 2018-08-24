@@ -25,15 +25,6 @@ public abstract class GradleDistributionInfo {
     public abstract String getConfiguration();
 
     /**
-     * Returns whether instance describes a valid Gradle distribution.
-     *
-     * @return true if can be converted to a {@link GradleDistribution} object
-     */
-    public boolean isValid() {
-        return !validate().isPresent();
-    }
-
-    /**
      * Returns an error message if the current instance represents an invalid
      * {@link GradleDistribution}.
      *

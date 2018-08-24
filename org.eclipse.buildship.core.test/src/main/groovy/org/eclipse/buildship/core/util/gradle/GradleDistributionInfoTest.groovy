@@ -25,7 +25,6 @@ class GradleDistributionInfoTest extends Specification {
 
         expect:
         validator.validate(distributionInfo).present != isValid
-        distributionInfo.isValid() == isValid
         distributionInfo.validate().present != isValid
 
         where:
