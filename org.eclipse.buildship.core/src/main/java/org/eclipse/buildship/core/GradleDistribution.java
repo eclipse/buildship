@@ -91,8 +91,4 @@ public abstract class GradleDistribution {
     public static GradleDistribution fromBuild() {
         return DefaultGradleDistribution.fromBuild();
     }
-
-    public static GradleDistribution fromDistributionInfo(GradleDistributionInfo distributionInfo) {
-        return DefaultGradleDistribution.fromDistributionInfo(distributionInfo);
-    }
 }

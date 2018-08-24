@@ -89,7 +89,7 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
 
     @Override
     public GradleDistribution toGradleDistribution() {
-        return GradleDistribution.fromDistributionInfo(this);
+        return DefaultGradleDistribution.fromDistributionInfo(this);
     }
 
     @Override
