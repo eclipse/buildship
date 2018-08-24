@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2018 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.eclipse.buildship.core.internal;
 
 import java.io.File;
@@ -16,6 +24,9 @@ import org.eclipse.buildship.core.GradleDistributionType;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 
+/**
+ * Default implementation for {@link GradleDistributionInfo}.
+ */
 public final class DefaultGradleDistributionInfo extends GradleDistributionInfo {
 
     private final GradleDistributionType type;
@@ -36,12 +47,6 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
         return this.configuration;
     }
 
-    /**
-     * Returns an error message if the current instance represents an invalid
-     * {@link GradleDistribution}.
-     *
-     * @return a human-readable error message describing the problem
-     */
     @Override
     public Optional<String> validate() {
         if (GradleDistributionType.INVALID == this.type) {
