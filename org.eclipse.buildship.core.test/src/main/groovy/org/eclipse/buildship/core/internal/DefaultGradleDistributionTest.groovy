@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.eclipse.buildship.core.util.gradle
+package org.eclipse.buildship.core.internal
 
 import org.gradle.tooling.GradleConnector
 import spock.lang.Specification
 
 import org.eclipse.buildship.core.GradleDistribution
 
-class GradleDistributionTest extends Specification {
+class DefaultGradleDistributionTest extends Specification {
 
     def "GradleDistrubution configures GradleConnector to use local installation"() {
         setup:
