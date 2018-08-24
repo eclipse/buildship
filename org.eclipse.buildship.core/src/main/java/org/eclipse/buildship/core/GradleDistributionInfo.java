@@ -8,7 +8,8 @@
 
 package org.eclipse.buildship.core;
 
-import com.google.common.base.Optional;
+
+import java.util.Optional;
 
 import org.eclipse.buildship.core.internal.DefaultGradleDistributionInfo;
 import org.eclipse.buildship.core.util.binding.Validator;
@@ -53,6 +54,6 @@ public abstract class GradleDistributionInfo {
     }
 
     public static GradleDistributionInfo from(GradleDistributionType type, String configuration) {
-        return GradleDistributionInfo.from(type, configuration);
+        return DefaultGradleDistributionInfo.from(type, configuration);
     }
 }

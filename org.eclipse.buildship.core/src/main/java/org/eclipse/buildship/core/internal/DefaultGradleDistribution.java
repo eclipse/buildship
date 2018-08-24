@@ -11,11 +11,11 @@ package org.eclipse.buildship.core.internal;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import org.gradle.tooling.GradleConnector;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.buildship.core.GradleDistribution;
@@ -36,7 +36,7 @@ public final class DefaultGradleDistribution extends GradleDistribution {
 
     private DefaultGradleDistribution(GradleDistributionInfo distributionInfo) {
         Optional<String> validationError = distributionInfo.validate();
-        Preconditions.checkArgument(!validationError.isPresent(), validationError.or(""));
+        Preconditions.checkArgument(!validationError.isPresent(), validationError.orElse(""));
         this.distributionInfo = distributionInfo;
     }
 

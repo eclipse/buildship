@@ -3,9 +3,9 @@ package org.eclipse.buildship.core.internal;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import org.eclipse.osgi.util.NLS;
@@ -53,7 +53,7 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
             } else if (!new File(this.configuration).exists()) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
             } else {
-                return Optional.absent();
+                return Optional.empty();
             }
         } else if (GradleDistributionType.REMOTE_DISTRIBUTION == this.type) {
             if (Strings.isNullOrEmpty(this.configuration)) {
@@ -61,16 +61,16 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
             } else if (!isValidURI(this.configuration)) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_IsNotValid, CoreMessages.GradleDistribution_Label_RemoteDistributionUri));
             } else {
-                return Optional.absent();
+                return Optional.empty();
             }
         } else if (GradleDistributionType.VERSION == this.type) {
             if (Strings.isNullOrEmpty(this.configuration)) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_SpecificGradleVersion));
             } else {
-                return Optional.absent();
+                return Optional.empty();
             }
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -192,12 +192,16 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
         return from(GradleDistributionType.INVALID, distributionString);
     }
 
+    public static GradleDistributionInfo from(GradleDistributionType type, String configuration) {
+        return new DefaultGradleDistributionInfo(type, configuration);
+    }
+
     public static Validator<GradleDistributionInfo> validator() {
         return new Validator<GradleDistributionInfo>() {
 
             @Override
-            public Optional<String> validate(GradleDistributionInfo distributionInfo) {
-                return distributionInfo.validate();
+            public com.google.common.base.Optional<String> validate(GradleDistributionInfo distributionInfo) {
+                return com.google.common.base.Optional.fromNullable(distributionInfo.validate().orElse(null));
             }
         };
     }
