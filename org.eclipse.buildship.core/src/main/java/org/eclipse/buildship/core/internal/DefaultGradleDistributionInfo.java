@@ -50,7 +50,7 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
     @Override
     public Optional<String> validate() {
         if (GradleDistributionType.INVALID == this.type) {
-            return Optional.of("Invalid distribution type"); // TODO (donat) externalize string
+            return Optional.of(CoreMessages.ErrorMessage_Invalid_GradleDistribution);
         } else if (GradleDistributionType.LOCAL_INSTALLATION == this.type) {
             if (Strings.isNullOrEmpty(this.configuration)) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));

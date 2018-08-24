@@ -14,14 +14,19 @@ import java.net.URI;
 import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
 
 /**
- * Represents a Gradle distribution that can be located locally or remotely, be a fixed version, or
- * be project-specific.
+ * Represents a valid Gradle distribution that can be located locally or remotely, be a fixed
+ * version, or be project-specific.
  *
  * @author Donat Csikos
  * @since 3.0
  */
 public abstract class GradleDistribution {
 
+    /**
+     * Contains the properties (type and configuration) of the distribution.
+     *
+     * @return the object containing all properties.
+     */
     public abstract GradleDistributionInfo getDistributionInfo();
 
     /**
@@ -29,7 +34,6 @@ public abstract class GradleDistribution {
      *
      * @param installationDir the local Gradle installation directory to use
      * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useInstallation(java.io.File)
      */
     public static GradleDistribution forLocalInstallation(String installationDir) {
         return DefaultGradleDistribution.forLocalInstallation(installationDir);
@@ -40,7 +44,6 @@ public abstract class GradleDistribution {
      *
      * @param installationDir the local Gradle installation directory to use
      * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useInstallation(java.io.File)
      */
     public static GradleDistribution forLocalInstallation(File installationDir) {
         return DefaultGradleDistribution.forLocalInstallation(installationDir);
@@ -52,7 +55,6 @@ public abstract class GradleDistribution {
      *
      * @param distributionUri the remote Gradle distribution location to use
      * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useDistribution(java.net.URI)
      */
     public static GradleDistribution forRemoteDistribution(String distributionUri) {
         return DefaultGradleDistribution.forRemoteDistribution(distributionUri);
@@ -64,7 +66,6 @@ public abstract class GradleDistribution {
      *
      * @param distributionUri the remote Gradle distribution location to use
      * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useDistribution(java.net.URI)
      */
     public static GradleDistribution forRemoteDistribution(URI distributionUri) {
         return DefaultGradleDistribution.forRemoteDistribution(distributionUri);
@@ -76,7 +77,6 @@ public abstract class GradleDistribution {
      *
      * @param version the Gradle version to use
      * @return a new distribution instance
-     * @see org.gradle.tooling.GradleConnector#useGradleVersion(String)
      */
     public static GradleDistribution forVersion(String version) {
         return DefaultGradleDistribution.forVersion(version);

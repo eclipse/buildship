@@ -59,6 +59,7 @@ public final class CoreMessages extends NLS {
 
     public static String WarningMessage_Using_0_NonPortable;
 
+    public static String ErrorMessage_Invalid_GradleDistribution;
     public static String ErrorMessage_0_DoesNotExist;
     public static String ErrorMessage_0_IsNotValid;
     public static String ErrorMessage_0_MustBeSpecified;
