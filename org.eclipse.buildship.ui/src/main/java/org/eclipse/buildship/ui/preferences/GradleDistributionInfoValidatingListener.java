@@ -8,12 +8,11 @@
 
 package org.eclipse.buildship.ui.preferences;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.eclipse.jface.preference.PreferencePage;
 
-import org.eclipse.buildship.core.util.binding.Validator;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.DistributionChangedListener;
 
 /**
@@ -24,17 +23,15 @@ import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.Distribution
 final class GradleDistributionInfoValidatingListener implements DistributionChangedListener {
 
     private final PreferencePage preferencePage;
-    private final Validator<GradleDistributionInfo> distributionInfoValidator;
 
-    public GradleDistributionInfoValidatingListener(PreferencePage preferencePage, Validator<GradleDistributionInfo> distributionInfoValidator) {
+    public GradleDistributionInfoValidatingListener(PreferencePage preferencePage) {
         this.preferencePage = preferencePage;
-        this.distributionInfoValidator = distributionInfoValidator;
     }
 
     @Override
     public void distributionUpdated(GradleDistributionInfo distributionInfo) {
-        Optional<String> error = this.distributionInfoValidator.validate(distributionInfo);
+        Optional<String> error = distributionInfo.validate();
         this.preferencePage.setValid(!error.isPresent());
-        this.preferencePage.setErrorMessage(error.orNull());
+        this.preferencePage.setErrorMessage(error.orElse(null));
     }
 }

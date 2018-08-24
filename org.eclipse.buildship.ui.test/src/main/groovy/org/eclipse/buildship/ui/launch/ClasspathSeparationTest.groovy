@@ -10,7 +10,7 @@ import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchManager
 
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
 
 class ClasspathSeparationTest extends SwtBotSpecification {

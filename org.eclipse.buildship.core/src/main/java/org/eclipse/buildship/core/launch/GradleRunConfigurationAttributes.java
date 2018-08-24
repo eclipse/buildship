@@ -24,10 +24,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.core.util.variable.ExpressionUtils;
 
 /**
@@ -96,7 +96,8 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public GradleDistribution getGradleDistribution() {
-        return GradleDistributionInfo.deserializeFromString(this.gradleDistribution).toGradleDistributionOrDefault();
+        GradleDistributionInfo distributionInfo = GradleDistributionInfo.deserializeFromString(this.gradleDistribution);
+        return distributionInfo.validate().map(message -> GradleDistribution.fromBuild()).orElseGet(() -> distributionInfo.toGradleDistribution());
     }
 
     public String getGradleUserHomeHomeExpression() {
@@ -106,7 +107,7 @@ public final class GradleRunConfigurationAttributes {
     public File getGradleUserHome() {
         try {
             String location = ExpressionUtils.decode(this.gradleUserHomeExpression);
-            return FileUtils.getAbsoluteFile(location).orNull();
+            return FileUtils.getAbsoluteFile(location).orElse(null);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot resolve Gradle user home directory expression %s.", this.javaHomeExpression));
         }
@@ -119,7 +120,7 @@ public final class GradleRunConfigurationAttributes {
     public File getJavaHome() {
         try {
             String location = ExpressionUtils.decode(this.javaHomeExpression);
-            return FileUtils.getAbsoluteFile(location).orNull();
+            return FileUtils.getAbsoluteFile(location).orElse(null);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot resolve Java home directory expression %s.", this.javaHomeExpression));
         }
@@ -220,7 +221,7 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public static void applyGradleDistribution(GradleDistribution gradleDistribution, ILaunchConfigurationWorkingCopy launchConfiguration) {
-        launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, gradleDistribution.serializeToString());
+        launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, gradleDistribution.getDistributionInfo().serializeToString());
     }
 
     public static void applyGradleUserHomeExpression(String gradleUserHomeExpression, ILaunchConfigurationWorkingCopy launchConfiguration) {
@@ -263,7 +264,7 @@ public final class GradleRunConfigurationAttributes {
         Preconditions.checkNotNull(launchConfiguration);
         List<String> tasks = getListAttribute(TASKS, launchConfiguration);
         String workingDirExpression = getStringAttribute(WORKING_DIR, "", launchConfiguration);
-        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, GradleDistribution.fromBuild().serializeToString(), launchConfiguration);
+        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, GradleDistribution.fromBuild().getDistributionInfo().serializeToString(), launchConfiguration);
         String gradleUserHomeExpression = getStringAttribute(GRADLE_USER_HOME, null, launchConfiguration);
         String javaHomeExpression = getStringAttribute(JAVA_HOME, null, launchConfiguration);
         List<String> jvmArgumentExpressions = getListAttribute(JVM_ARGUMENTS, launchConfiguration);

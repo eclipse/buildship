@@ -25,7 +25,6 @@ import org.eclipse.buildship.core.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
 import org.eclipse.buildship.ui.util.widget.GradleUserHomeGroup;
 
@@ -40,12 +39,10 @@ public final class GradleProjectPreferencePage extends PropertyPage {
 
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
-    private final Validator<GradleDistributionInfo> distributionInfoValidator;
     private final Validator<File> gradleUserHomeValidator;
 
     public GradleProjectPreferencePage() {
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_GradleUserHome);
-        this.distributionInfoValidator = GradleDistributionInfo.validator();
     }
 
     @Override
@@ -78,7 +75,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
         this.gradleProjectSettingsComposite.getParentPreferenceLink().addSelectionListener(new WorkbenchPreferenceOpeningSelectionListener());
         GradleUserHomeGroup gradleUserHomeGroup = this.gradleProjectSettingsComposite.getGradleUserHomeGroup();
         gradleUserHomeGroup.getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener(this, gradleUserHomeGroup, this.gradleUserHomeValidator));
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionInfoValidatingListener(this, this.distributionInfoValidator));
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionInfoValidatingListener(this));
     }
 
     @Override

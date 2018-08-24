@@ -8,12 +8,12 @@
 
 package org.eclipse.buildship.core.util.binding;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -32,7 +32,7 @@ public final class Property<T> {
 
     private Property(Validator<T> validator) {
         this.validator = Preconditions.checkNotNull(validator);
-        this.listeners = new LinkedHashSet<ValidationListener>();
+        this.listeners = new LinkedHashSet<>();
     }
 
     /**
@@ -114,7 +114,7 @@ public final class Property<T> {
      * @return the new instance
      */
     public static <T> Property<T> create(Validator<T> validator) {
-        return new Property<T>(validator);
+        return new Property<>(validator);
     }
 
 }

@@ -12,8 +12,8 @@
 package org.eclipse.buildship.ui.launch;
 
 import java.io.File;
+import java.util.Optional;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import org.eclipse.core.resources.IProject;
@@ -31,12 +31,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.util.binding.Validator;
 import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.ui.PluginImage.ImageState;
 import org.eclipse.buildship.ui.PluginImages;
 import org.eclipse.buildship.ui.preferences.GradleProjectPreferencePage;
@@ -48,14 +48,12 @@ import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
  */
 public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
-    private final Validator<GradleDistributionInfo> distributionInfoValidator;
     private final Validator<File> gradleUserHomeValidator;
 
     private GradleRunConfigurationAttributes attributes;
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     public ProjectSettingsTab() {
-        this.distributionInfoValidator = GradleDistributionInfo.validator();
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
     }
 
@@ -114,11 +112,11 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
         GradleDistributionInfo distributionInfo = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistributionInfo();
-        Optional<String> error = this.distributionInfoValidator.validate(distributionInfo);
+        Optional<String> error = distributionInfo.validate();
         if (!error.isPresent()) {
             error = this.gradleUserHomeValidator.validate(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome());
         }
-        setErrorMessage(error.orNull());
+        setErrorMessage(error.orElse(null));
         return !error.isPresent();
     }
 
@@ -166,7 +164,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         private void openWorkspacePreferences() {
             try {
                 File workingDir = ProjectSettingsTab.this.attributes.getWorkingDir();
-                Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(workingDir);
+                com.google.common.base.Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(workingDir);
                 if (project.isPresent() && GradleProjectNature.isPresentOn(project.get())) {
                     PreferencesUtil.createPropertyDialogOn(getShell(), project.get(), GradleProjectPreferencePage.PAGE_ID, null, null).open();
                 }

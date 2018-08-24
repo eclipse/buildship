@@ -34,6 +34,7 @@ public final class CoreMessages extends NLS {
     public static String GradleDistribution_Value_UseLocalInstallation_0;
     public static String GradleDistribution_Value_UseRemoteDistribution_0;
     public static String GradleDistribution_Value_UseGradleVersion_0;
+    public static String GradleDistribution_Value_Invalid_0;
 
     public static String BuildExecution_Label_ShowExecutionView;
     public static String BuildExecution_Label_ShowConsoleView;
@@ -59,6 +60,7 @@ public final class CoreMessages extends NLS {
 
     public static String WarningMessage_Using_0_NonPortable;
 
+    public static String ErrorMessage_Invalid_GradleDistribution;
     public static String ErrorMessage_0_DoesNotExist;
     public static String ErrorMessage_0_IsNotValid;
     public static String ErrorMessage_0_MustBeSpecified;

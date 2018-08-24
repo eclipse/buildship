@@ -18,10 +18,10 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
 
 
 /**
@@ -40,7 +40,8 @@ public final class WorkspaceConfigurationPersistence {
     public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();
         String distributionString = preferences.get(GRADLE_DISTRIBUTION, null);
-        GradleDistribution distribution = GradleDistributionInfo.deserializeFromString(distributionString).toGradleDistributionOrDefault();
+        GradleDistributionInfo distributionInfo = GradleDistributionInfo.deserializeFromString(distributionString);
+        GradleDistribution distribution = distributionInfo.validate().map(message -> GradleDistribution.fromBuild()).orElseGet(() -> distributionInfo.toGradleDistribution());
         String gradleUserHomeString = preferences.get(GRADLE_USER_HOME, null);
         File gradleUserHome = gradleUserHomeString == null
                 ? null
@@ -55,7 +56,7 @@ public final class WorkspaceConfigurationPersistence {
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
         Preconditions.checkNotNull(config);
         IEclipsePreferences preferences = getPreferences();
-        preferences.put(GRADLE_DISTRIBUTION, config.getGradleDistribution().serializeToString());
+        preferences.put(GRADLE_DISTRIBUTION, config.getGradleDistribution().getDistributionInfo().serializeToString());
         if (config.getGradleUserHome() == null) {
             preferences.remove(GRADLE_USER_HOME);
         } else {

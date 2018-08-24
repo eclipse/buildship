@@ -28,10 +28,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 
 /**
  * Contributes the Gradle Kotlin Script template to the Kotlin Eclipse
@@ -122,15 +122,15 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
         environment.put(GSK_JVM_OPTIONS, Collections.<String>emptyList());
 
         GradleDistribution gradleDistribution = buildConfig.getGradleDistribution();
-        switch (gradleDistribution.getType()) {
+        switch (gradleDistribution.getDistributionInfo().getType()) {
         case LOCAL_INSTALLATION:
-            environment.put(GSK_INSTALLATION_LOCAL, new File(gradleDistribution.getConfiguration()));
+            environment.put(GSK_INSTALLATION_LOCAL, new File(gradleDistribution.getDistributionInfo().getConfiguration()));
             break;
         case REMOTE_DISTRIBUTION:
-            environment.put(GSK_INSTALLATION_REMOTE, createURI(gradleDistribution.getConfiguration()));
+            environment.put(GSK_INSTALLATION_REMOTE, createURI(gradleDistribution.getDistributionInfo().getConfiguration()));
             break;
         case VERSION:
-            environment.put(GSK_INSTALLATION_VERSION, gradleDistribution.getConfiguration());
+            environment.put(GSK_INSTALLATION_VERSION, gradleDistribution.getDistributionInfo().getConfiguration());
             break;
         default:
             break;

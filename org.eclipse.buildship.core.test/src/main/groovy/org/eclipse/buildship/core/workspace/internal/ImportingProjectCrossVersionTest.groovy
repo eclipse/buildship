@@ -3,8 +3,8 @@ package org.eclipse.buildship.core.workspace.internal
 import spock.lang.Ignore
 import spock.lang.Unroll
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
 
 class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecification {
 

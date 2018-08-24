@@ -72,7 +72,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
 
         // project directory text field
         File projectDir = getConfiguration().getProjectDir().getValue();
-        String projectDirValue = FileUtils.getAbsolutePath(projectDir).orNull();
+        String projectDirValue = FileUtils.getAbsolutePath(projectDir).orElse(null);
         this.projectDirText = uiBuilderFactory.newText(projectDirectoryComposite).alignFillHorizontal().text(projectDirValue).control();
 
         // browse button for file chooser
@@ -97,7 +97,7 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
 
             @Override
             public void modifyText(ModifyEvent e) {
-                File projectDir = FileUtils.getAbsoluteFile(GradleProjectWizardPage.this.projectDirText.getText()).orNull();
+                File projectDir = FileUtils.getAbsoluteFile(GradleProjectWizardPage.this.projectDirText.getText()).orElse(null);
                 getConfiguration().setProjectDir(projectDir);
             }
         });

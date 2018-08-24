@@ -12,8 +12,8 @@
 package org.eclipse.buildship.core.util.file;
 
 import java.io.File;
+import java.util.Optional;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import org.eclipse.core.resources.IContainer;
@@ -36,11 +36,11 @@ public final class FileUtils {
      *
      * @param file the relative or absolute file of the {@code File} instance to derive
      * @return the absolute {@code File} if the file is not {@code null}, otherwise
-     * {@link Optional#absent()}
+     * {@link Optional#empty()}
      */
     public static Optional<File> getAbsoluteFile(File file) {
         if (file == null) {
-            return Optional.absent();
+            return Optional.empty();
         } else {
             return Optional.of(file.isAbsolute() ? file : file.getAbsoluteFile());
         }
@@ -51,11 +51,11 @@ public final class FileUtils {
      *
      * @param path the relative or absolute path of the {@code File} instance to derive
      * @return the absolute {@code File} if the path is not {@code null} or empty, otherwise
-     * {@link Optional#absent()}
+     * {@link Optional#empty()}
      */
     public static Optional<File> getAbsoluteFile(String path) {
         if (Strings.isNullOrEmpty(path)) {
-            return Optional.absent();
+            return Optional.empty();
         } else {
             return Optional.of(new File(path.trim()).getAbsoluteFile());
         }
@@ -66,11 +66,11 @@ public final class FileUtils {
      *
      * @param file the file from which to get the absolute path
      * @return the absolute path if the file is not {@code null}, otherwise
-     * {@link Optional#absent()}
+     * {@link Optional#empty()}
      */
     public static Optional<String> getAbsolutePath(File file) {
         if (file == null) {
-            return Optional.absent();
+            return Optional.empty();
         } else {
             return Optional.of(file.getAbsolutePath());
         }

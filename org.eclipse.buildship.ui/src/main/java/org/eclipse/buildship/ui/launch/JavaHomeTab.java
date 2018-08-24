@@ -12,8 +12,8 @@
 package org.eclipse.buildship.ui.launch;
 
 import java.io.File;
+import java.util.Optional;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import org.eclipse.core.runtime.CoreException;
@@ -130,9 +130,9 @@ public final class JavaHomeTab extends AbstractLaunchConfigurationTab {
             return false;
         }
 
-        File javaHome = FileUtils.getAbsoluteFile(javaHomeResolved).orNull();
+        File javaHome = FileUtils.getAbsoluteFile(javaHomeResolved).orElse(null);
         Optional<String> error = this.javaHomeValidator.validate(javaHome);
-        setErrorMessage(error.orNull());
+        setErrorMessage(error.orElse(null));
         return !error.isPresent();
     }
 

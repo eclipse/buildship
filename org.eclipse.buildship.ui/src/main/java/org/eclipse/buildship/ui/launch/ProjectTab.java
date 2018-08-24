@@ -12,8 +12,8 @@
 package org.eclipse.buildship.ui.launch;
 
 import java.io.File;
+import java.util.Optional;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
@@ -229,9 +229,9 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
             return false;
         }
 
-        File workingDir = FileUtils.getAbsoluteFile(workingDirectoryResolved).orNull();
+        File workingDir = FileUtils.getAbsoluteFile(workingDirectoryResolved).orElse(null);
         Optional<String> error = this.workingDirValidator.validate(workingDir);
-        setErrorMessage(error.orNull());
+        setErrorMessage(error.orElse(null));
         return !error.isPresent();
     }
 

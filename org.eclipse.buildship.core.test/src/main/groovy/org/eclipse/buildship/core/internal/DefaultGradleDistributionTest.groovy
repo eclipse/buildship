@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package org.eclipse.buildship.core.util.gradle
+package org.eclipse.buildship.core.internal
 
 import org.gradle.tooling.GradleConnector
 import spock.lang.Specification
 
-class GradleDistributionTest extends Specification {
+import org.eclipse.buildship.core.GradleDistribution
 
-    def "GradleDistrubution configures GradleConnector to use local installation"() {
+class DefaultGradleDistributionTest extends Specification {
+
+    def "GradleDistribution configures GradleConnector to use local installation"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
-        def file = new File('.')
-        def distribution = GradleDistribution.forLocalInstallation(file)
+        File file = new File('.')
+        DefaultGradleDistribution distribution = GradleDistribution.forLocalInstallation(file)
 
         when:
         distribution.apply(connector)
@@ -34,11 +36,11 @@ class GradleDistributionTest extends Specification {
         1 * connector.useInstallation(_)
     }
 
-    def "GradleDistrubution configures GradleConnector to use remote distribution"() {
+    def "GradleDistribution configures GradleConnector to use remote distribution"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
-        def uri = new File('.').toURI()
-        def distribution = GradleDistribution.forRemoteDistribution(uri)
+        URI uri = new File('.').toURI()
+        DefaultGradleDistribution distribution = GradleDistribution.forRemoteDistribution(uri)
 
         when:
         distribution.apply(connector)
@@ -47,11 +49,11 @@ class GradleDistributionTest extends Specification {
         1 * connector.useDistribution(uri)
     }
 
-    def "GradleDistrubution configures GradleConnector to use version number"() {
+    def "GradleDistribution configures GradleConnector to use version number"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
-        def version = '2.0'
-        def distribution = GradleDistribution.forVersion(version)
+        String version = '2.0'
+        DefaultGradleDistribution distribution = GradleDistribution.forVersion(version)
 
         when:
         distribution.apply(connector)
@@ -60,10 +62,10 @@ class GradleDistributionTest extends Specification {
         1 * connector.useGradleVersion(version)
     }
 
-    def "GradleDistrubution configures GradleConnector to use default distibution defined by the Tooling API library"() {
+    def "GradleDistribution configures GradleConnector to use default distibution defined by the Tooling API library"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
-        def distribution = GradleDistribution.fromBuild()
+        DefaultGradleDistribution distribution = GradleDistribution.fromBuild()
 
         when:
         distribution.apply(connector)
@@ -72,10 +74,10 @@ class GradleDistributionTest extends Specification {
         1 * connector.useBuildDistribution()
     }
 
-    def "GradleDistrubution has human-readable toString() implementation"() {
+    def "GradleDistribution has human-readable toString() implementation"() {
         when:
-        def file = new File('.')
-        def distribution = GradleDistribution.forLocalInstallation(file)
+        File file = new File('.')
+        DefaultGradleDistribution distribution = GradleDistribution.forLocalInstallation(file)
 
         then:
         distribution.toString() == "Local installation at " + file.absolutePath

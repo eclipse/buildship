@@ -76,13 +76,13 @@ final class ProjectNodeAdapter implements IPropertySource {
             return "Gradle Project";
         } else if (id.equals(PROPERTY_PROJECT_DIRECTORY)) {
             File projectDir = this.project.getProjectDirectory();
-            return FileUtils.getAbsolutePath(projectDir).or("unknown");
+            return FileUtils.getAbsolutePath(projectDir).orElse("unknown");
         } else if (id.equals(PROPERTY_BUILD_OUTPUT_DIRECTORY)) {
             File buildDir = this.project.getBuildDirectory();
             return buildDir == null ? "unknown" : buildDir;
         } else if (id.equals(PROPERTY_BUILD_SCRIPT_LOCATION)) {
             GradleScript script = this.project.getBuildScript();
-            return script == null ? "unknown" : FileUtils.getAbsolutePath(script.getSourceFile()).or("none");
+            return script == null ? "unknown" : FileUtils.getAbsolutePath(script.getSourceFile()).orElse("none");
         } else {
             throw new IllegalStateException("Unsupported project property: " + id);
         }

@@ -12,8 +12,8 @@
 package org.eclipse.buildship.ui.wizard.project;
 
 import java.util.List;
+import java.util.Optional;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -105,7 +105,7 @@ public abstract class AbstractWizardPage extends WizardPage {
                         return errorMessage;
                     }
                 }
-                return Optional.absent();
+                return Optional.empty();
             }
         };
 

@@ -11,11 +11,11 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.configuration.internal.BuildConfigurationPersistence
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.util.gradle.JavaVersionUtil
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 

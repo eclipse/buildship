@@ -23,11 +23,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.i18n.CoreMessages;
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
 import org.eclipse.buildship.core.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
 import org.eclipse.buildship.core.util.gradle.GradleVersion;
 
 /**
@@ -81,7 +82,7 @@ public final class GradleArguments {
     }
 
     private String toNonEmpty(File fileValue, String defaultMessage) {
-        String string = FileUtils.getAbsolutePath(fileValue).orNull();
+        String string = FileUtils.getAbsolutePath(fileValue).orElse(null);
         return string != null ? string : defaultMessage;
     }
 
@@ -93,7 +94,7 @@ public final class GradleArguments {
     public void applyTo(GradleConnector connector) {
         connector.forProjectDirectory(this.rootDir);
         connector.useGradleUserHomeDir(this.gradleUserHome);
-        this.gradleDistribution.apply(connector);
+        ((DefaultGradleDistribution) this.gradleDistribution).apply(connector);
     }
 
     public void applyTo(LongRunningOperation operation, BuildEnvironment environment) {

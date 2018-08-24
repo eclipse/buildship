@@ -34,11 +34,11 @@ import org.eclipse.ui.IWorkbenchWindow
 import org.eclipse.ui.PlatformUI
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.ConfigurationManager
 import org.eclipse.buildship.core.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.marker.GradleErrorMarker
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
 import org.eclipse.buildship.ui.view.execution.ExecutionsView
 

@@ -9,8 +9,8 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.configuration.BuildConfiguration
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.workspace.NewProjectHandler
 
 

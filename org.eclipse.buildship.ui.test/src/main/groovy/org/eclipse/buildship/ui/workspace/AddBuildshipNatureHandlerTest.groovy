@@ -15,11 +15,11 @@ import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.viewers.StructuredSelection
 
 import org.eclipse.buildship.core.CorePlugin
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.event.Event
 import org.eclipse.buildship.core.event.EventListener
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.workspace.FetchStrategy
 import org.eclipse.buildship.core.workspace.GradleNatureAddedEvent
 import org.eclipse.buildship.ui.test.fixtures.EclipseProjects

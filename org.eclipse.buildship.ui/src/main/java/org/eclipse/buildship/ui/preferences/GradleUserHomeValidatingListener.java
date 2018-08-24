@@ -10,8 +10,7 @@
 package org.eclipse.buildship.ui.preferences;
 
 import java.io.File;
-
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.events.ModifyEvent;
@@ -42,6 +41,6 @@ final class GradleUserHomeValidatingListener implements ModifyListener {
         File gradleUserHome = this.gradleUserHomeGroup.getGradleUserHome();
         Optional<String> error = this.gradleUserHomeValidator.validate(gradleUserHome);
         this.preferencePage.setValid(!error.isPresent());
-        this.preferencePage.setErrorMessage(error.orNull());
+        this.preferencePage.setErrorMessage(error.orElse(null));
     }
 }

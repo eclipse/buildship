@@ -6,70 +6,60 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.util.gradle;
+package org.eclipse.buildship.core.internal;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import org.eclipse.osgi.util.NLS;
 
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributionInfo;
+import org.eclipse.buildship.core.GradleDistributionType;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.util.binding.Validator;
 
 /**
- * Describes a valid or invalid {@link GradleDistribution}.
- *
- * @author Donat Csikos
+ * Default implementation for {@link GradleDistributionInfo}.
  */
-public final class GradleDistributionInfo {
+public final class DefaultGradleDistributionInfo extends GradleDistributionInfo {
 
     private final GradleDistributionType type;
     private final String configuration;
 
-    public GradleDistributionInfo(GradleDistributionType type, String configuration) {
+    private DefaultGradleDistributionInfo(GradleDistributionType type, String configuration) {
         this.type = type != null ? type : GradleDistributionType.INVALID;
         this.configuration = Strings.nullToEmpty(configuration);
     }
 
+    @Override
     public GradleDistributionType getType() {
         return this.type;
     }
 
+    @Override
     public String getConfiguration() {
         return this.configuration;
     }
 
-    /**
-     * Returns whether instance describes a valid Gradle distribution.
-     *
-     * @return true if can be converted to a {@link GradleDistribution} object
-     */
-    public boolean isValid() {
-        return !validate().isPresent();
-    }
-
-    /**
-     * Returns an error message if the current instance represents an invalid
-     * {@link GradleDistribution}.
-     *
-     * @return a human-readable error message describing the problem
-     */
+    @Override
     public Optional<String> validate() {
         if (GradleDistributionType.INVALID == this.type) {
-            return Optional.of("Invalid distribution type"); // TODO (donat) externalize string
+            return Optional.of(CoreMessages.ErrorMessage_Invalid_GradleDistribution);
         } else if (GradleDistributionType.LOCAL_INSTALLATION == this.type) {
             if (Strings.isNullOrEmpty(this.configuration)) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
             } else if (!new File(this.configuration).exists()) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+            } else if (!new File(this.configuration).isDirectory()) {
+                return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeDirectory, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
             } else {
-                return Optional.absent();
+                return Optional.empty();
             }
         } else if (GradleDistributionType.REMOTE_DISTRIBUTION == this.type) {
             if (Strings.isNullOrEmpty(this.configuration)) {
@@ -77,16 +67,16 @@ public final class GradleDistributionInfo {
             } else if (!isValidURI(this.configuration)) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_IsNotValid, CoreMessages.GradleDistribution_Label_RemoteDistributionUri));
             } else {
-                return Optional.absent();
+                return Optional.empty();
             }
         } else if (GradleDistributionType.VERSION == this.type) {
             if (Strings.isNullOrEmpty(this.configuration)) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_SpecificGradleVersion));
             } else {
-                return Optional.absent();
+                return Optional.empty();
             }
         } else {
-            return Optional.absent();
+            return Optional.empty();
         }
     }
 
@@ -99,18 +89,9 @@ public final class GradleDistributionInfo {
         }
     }
 
+    @Override
     public GradleDistribution toGradleDistribution() {
-        return GradleDistribution.fromDistributionInfo(this);
-    }
-
-    /**
-     * Converts the current object to a {@link GradleDistribution} or returns
-     * {@link GradleDistribution#fromBuild()} if invalid.
-     *
-     * @return the created Gradle distribution
-     */
-    public GradleDistribution toGradleDistributionOrDefault() {
-        return isValid() ? toGradleDistribution() : GradleDistribution.fromBuild();
+        return DefaultGradleDistribution.fromDistributionInfo(this);
     }
 
     @Override
@@ -123,7 +104,7 @@ public final class GradleDistributionInfo {
             return false;
         }
 
-        GradleDistributionInfo that = (GradleDistributionInfo) other;
+        DefaultGradleDistributionInfo that = (DefaultGradleDistributionInfo) other;
         return Objects.equal(this.type, that.type) && Objects.equal(this.configuration, that.configuration);
     }
 
@@ -144,12 +125,13 @@ public final class GradleDistributionInfo {
             case VERSION:
                 return NLS.bind(CoreMessages.GradleDistribution_Value_UseGradleVersion_0, this.configuration);
             case INVALID:
-                return "Unknown Gradle distribution " + this.configuration; // TODO (donat) NLS
+                return NLS.bind(CoreMessages.GradleDistribution_Value_Invalid_0, this.configuration);
             default:
                 throw new GradlePluginsRuntimeException("Unrecognized Gradle distribution type: " + this.type);
         }
     }
 
+    @Override
     public String serializeToString() {
         switch (this.type) {
             case INVALID:
@@ -169,49 +151,43 @@ public final class GradleDistributionInfo {
 
     public static GradleDistributionInfo deserializeFromString(String distributionString) {
         if (distributionString == null) {
-            return new GradleDistributionInfo(GradleDistributionType.INVALID, "");
+            return from(GradleDistributionType.INVALID, "");
         }
 
         String localInstallationPrefix = "GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(";
         if (distributionString.startsWith(localInstallationPrefix) && distributionString.endsWith("))")) {
             String configuration = distributionString.substring(localInstallationPrefix.length(), distributionString.length() - 2);
 
-            return new GradleDistributionInfo(GradleDistributionType.LOCAL_INSTALLATION, configuration);
+            return from(GradleDistributionType.LOCAL_INSTALLATION, configuration);
         }
 
         String remoteDistributionPrefix = "GRADLE_DISTRIBUTION(REMOTE_DISTRIBUTION(";
         if (distributionString.startsWith(remoteDistributionPrefix) && distributionString.endsWith("))")) {
             String configuration = distributionString.substring(remoteDistributionPrefix.length(), distributionString.length() - 2);
-            return new GradleDistributionInfo(GradleDistributionType.REMOTE_DISTRIBUTION, configuration);
+            return from(GradleDistributionType.REMOTE_DISTRIBUTION, configuration);
         }
 
         String versionPrefix = "GRADLE_DISTRIBUTION(VERSION(";
         if (distributionString.startsWith(versionPrefix) && distributionString.endsWith("))")) {
             String configuration = distributionString.substring(versionPrefix.length(), distributionString.length() - 2);
-            return new GradleDistributionInfo(GradleDistributionType.VERSION, configuration);
+            return from(GradleDistributionType.VERSION, configuration);
         }
 
         String wrapperString = "GRADLE_DISTRIBUTION(WRAPPER)";
         if (distributionString.equals(wrapperString)) {
-            return new GradleDistributionInfo(GradleDistributionType.WRAPPER, null);
+            return from(GradleDistributionType.WRAPPER, null);
         }
 
         String invalidDistributionPrefix = "INVALID_GRADLE_DISTRIBUTION(";
         if (distributionString.startsWith(invalidDistributionPrefix) && distributionString.endsWith("))")) {
             String configuration = distributionString.substring(invalidDistributionPrefix.length(), distributionString.length() - 2);
-            return new GradleDistributionInfo(GradleDistributionType.INVALID, configuration);
+            return from(GradleDistributionType.INVALID, configuration);
         }
 
-        return new GradleDistributionInfo(GradleDistributionType.INVALID, distributionString);
+        return from(GradleDistributionType.INVALID, distributionString);
     }
 
-    public static Validator<GradleDistributionInfo> validator() {
-        return new Validator<GradleDistributionInfo>() {
-
-            @Override
-            public Optional<String> validate(GradleDistributionInfo distributionInfo) {
-                return distributionInfo.validate();
-            }
-        };
+    public static GradleDistributionInfo from(GradleDistributionType type, String configuration) {
+        return new DefaultGradleDistributionInfo(type, configuration);
     }
 }

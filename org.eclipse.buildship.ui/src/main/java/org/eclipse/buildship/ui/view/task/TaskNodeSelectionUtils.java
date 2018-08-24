@@ -109,7 +109,7 @@ public final class TaskNodeSelectionUtils {
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadBuildConfiguration(rootDir);
         return new GradleRunConfigurationAttributes(tasks,
                                                     projectDirectoryExpression(workingDir),
-                                                    buildConfig.getGradleDistribution().serializeToString(),
+                                                    buildConfig.getGradleDistribution().getDistributionInfo().serializeToString(),
                                                     gradleUserHomeExpression(buildConfig.getGradleUserHome()),
                                                     null,
                                                     Collections.<String>emptyList(),
