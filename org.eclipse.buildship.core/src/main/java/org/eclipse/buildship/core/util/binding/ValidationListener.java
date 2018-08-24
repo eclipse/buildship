@@ -8,7 +8,7 @@
 
 package org.eclipse.buildship.core.util.binding;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Validation listeners are invoked when a {@link Property} has been validated.

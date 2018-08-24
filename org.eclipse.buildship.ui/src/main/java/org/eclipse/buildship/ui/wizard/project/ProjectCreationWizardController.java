@@ -12,8 +12,7 @@
 package org.eclipse.buildship.ui.wizard.project;
 
 import java.io.File;
-
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.ui.INewWizard;
@@ -50,7 +49,7 @@ public final class ProjectCreationWizardController {
         Optional<File> customLocation = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_CUSTOM_LOCATION));
 
         this.configuration.setUseDefaultLocation(useDefaultLocation);
-        this.configuration.setCustomLocation(customLocation.orNull());
+        this.configuration.setCustomLocation(customLocation.orElse(null));
 
         // store the values every time they change
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_LOCATION_USE_DEFAULT, this.configuration.getUseDefaultLocation());
@@ -72,7 +71,7 @@ public final class ProjectCreationWizardController {
 
             @Override
             public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
-                settings.put(settingsKey, FileUtils.getAbsolutePath(target.getValue()).orNull());
+                settings.put(settingsKey, FileUtils.getAbsolutePath(target.getValue()).orElse(null));
             }
         });
     }

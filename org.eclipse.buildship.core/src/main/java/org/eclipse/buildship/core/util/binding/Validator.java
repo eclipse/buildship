@@ -8,7 +8,7 @@
 
 package org.eclipse.buildship.core.util.binding;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 /**
  * Validates a given value and returns a validation error message if and only if the validation fails.

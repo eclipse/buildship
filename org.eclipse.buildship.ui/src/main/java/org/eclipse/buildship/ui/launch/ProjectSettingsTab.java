@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.launch;
 
 import java.io.File;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import org.eclipse.core.resources.IProject;
@@ -114,12 +113,13 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
         GradleDistributionInfo distributionInfo = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistributionInfo();
-        Optional<String> error = this.distributionInfoValidator.validate(distributionInfo);
-        if (!error.isPresent()) {
-            error = this.gradleUserHomeValidator.validate(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome());
+        // TODO (donat) restore optional for 'error' variable
+        String error = this.distributionInfoValidator.validate(distributionInfo).orElse(null);
+        if (error == null) {
+            error = this.gradleUserHomeValidator.validate(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome()).orElse(null);
         }
-        setErrorMessage(error.orNull());
-        return !error.isPresent();
+        setErrorMessage(error);
+        return error == null;
     }
 
     @Override
@@ -166,7 +166,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         private void openWorkspacePreferences() {
             try {
                 File workingDir = ProjectSettingsTab.this.attributes.getWorkingDir();
-                Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(workingDir);
+                com.google.common.base.Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(workingDir);
                 if (project.isPresent() && GradleProjectNature.isPresentOn(project.get())) {
                     PreferencesUtil.createPropertyDialogOn(getShell(), project.get(), GradleProjectPreferencePage.PAGE_ID, null, null).open();
                 }

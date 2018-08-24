@@ -14,10 +14,10 @@ package org.eclipse.buildship.ui.wizard.project;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Optional;
 
 import org.gradle.tooling.CancellationTokenSource;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
@@ -100,10 +100,10 @@ public class ProjectImportWizardController {
         boolean offlineMode = dialogSettings.getBoolean(SETTINGS_KEY_OFFLINE_MODE);
         boolean autoSync = dialogSettings.getBoolean(SETTINGS_KEY_AUTO_SYNC);
 
-        this.configuration.setProjectDir(projectDir.orNull());
+        this.configuration.setProjectDir(projectDir.orElse(null));
         this.configuration.setOverwriteWorkspaceSettings(false);
         this.configuration.setDistributionInfo(gradleDistribution.getDistributionInfo());
-        this.configuration.setGradleUserHome(gradleUserHome.orNull());
+        this.configuration.setGradleUserHome(gradleUserHome.orElse(null));
         this.configuration.setApplyWorkingSets(applyWorkingSets);
         this.configuration.setWorkingSets(workingSets);
         this.configuration.setBuildScansEnabled(buildScansEnabled);
@@ -147,7 +147,7 @@ public class ProjectImportWizardController {
 
             @Override
             public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
-                settings.put(settingsKey, FileUtils.getAbsolutePath(target.getValue()).orNull());
+                settings.put(settingsKey, FileUtils.getAbsolutePath(target.getValue()).orElse(null));
             }
         });
     }

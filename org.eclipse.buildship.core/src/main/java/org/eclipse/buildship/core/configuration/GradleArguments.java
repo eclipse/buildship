@@ -82,7 +82,7 @@ public final class GradleArguments {
     }
 
     private String toNonEmpty(File fileValue, String defaultMessage) {
-        String string = FileUtils.getAbsolutePath(fileValue).orNull();
+        String string = FileUtils.getAbsolutePath(fileValue).orElse(null);
         return string != null ? string : defaultMessage;
     }
 

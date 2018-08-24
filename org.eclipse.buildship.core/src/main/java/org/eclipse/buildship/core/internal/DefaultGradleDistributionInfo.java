@@ -189,8 +189,8 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
         return new Validator<GradleDistributionInfo>() {
 
             @Override
-            public com.google.common.base.Optional<String> validate(GradleDistributionInfo distributionInfo) {
-                return com.google.common.base.Optional.fromNullable(distributionInfo.validate().orElse(null));
+            public Optional<String> validate(GradleDistributionInfo distributionInfo) {
+                return distributionInfo.validate();
             }
         };
     }

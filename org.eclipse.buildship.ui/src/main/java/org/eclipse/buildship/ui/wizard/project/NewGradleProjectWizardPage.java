@@ -96,7 +96,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         this.customLocationText.setEnabled(!this.useDefaultWorkspaceLocationButton.getSelection());
         this.customLocationText.setText(this.useDefaultWorkspaceLocationButton.getSelection() ?
                 ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString() :
-                FileUtils.getAbsolutePath(this.creationConfiguration.getCustomLocation().getValue()).or(""));
+                FileUtils.getAbsolutePath(this.creationConfiguration.getCustomLocation().getValue()).orElse(""));
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.customLocationText);
 
         // browse button for file chooser
@@ -134,7 +134,7 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
             public void widgetSelected(SelectionEvent e) {
                 String location = NewGradleProjectWizardPage.this.useDefaultWorkspaceLocationButton.getSelection() ?
                         ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString() :
-                        FileUtils.getAbsolutePath(NewGradleProjectWizardPage.this.creationConfiguration.getCustomLocation().getValue()).or("");
+                        FileUtils.getAbsolutePath(NewGradleProjectWizardPage.this.creationConfiguration.getCustomLocation().getValue()).orElse("");
                 NewGradleProjectWizardPage.this.customLocationText.setText(location);
                 updateLocation();
             }
@@ -167,14 +167,14 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
     private void updateLocation() {
         File parentLocation = this.useDefaultWorkspaceLocationButton.getSelection() ?
                 ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile() :
-                FileUtils.getAbsoluteFile(this.customLocationText.getText()).orNull();
+                FileUtils.getAbsoluteFile(this.customLocationText.getText()).orElse(null);
         File projectDir = parentLocation != null ? new File(parentLocation, this.projectNameText.getText()) : null;
 
         // always update project name last to ensure project name validation errors have precedence in the UI
         getConfiguration().getProjectDir().setValue(projectDir);
         this.creationConfiguration.setTargetProjectDir(projectDir);
         if (!this.useDefaultWorkspaceLocationButton.getSelection()) {
-            this.creationConfiguration.setCustomLocation(FileUtils.getAbsoluteFile(this.customLocationText.getText()).orNull());
+            this.creationConfiguration.setCustomLocation(FileUtils.getAbsoluteFile(this.customLocationText.getText()).orElse(null));
         }
         this.creationConfiguration.setUseDefaultLocation(this.useDefaultWorkspaceLocationButton.getSelection());
         this.creationConfiguration.setProjectName(this.projectNameText.getText());

@@ -107,7 +107,7 @@ public final class GradleRunConfigurationAttributes {
     public File getGradleUserHome() {
         try {
             String location = ExpressionUtils.decode(this.gradleUserHomeExpression);
-            return FileUtils.getAbsoluteFile(location).orNull();
+            return FileUtils.getAbsoluteFile(location).orElse(null);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot resolve Gradle user home directory expression %s.", this.javaHomeExpression));
         }
@@ -120,7 +120,7 @@ public final class GradleRunConfigurationAttributes {
     public File getJavaHome() {
         try {
             String location = ExpressionUtils.decode(this.javaHomeExpression);
-            return FileUtils.getAbsoluteFile(location).orNull();
+            return FileUtils.getAbsoluteFile(location).orElse(null);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot resolve Java home directory expression %s.", this.javaHomeExpression));
         }

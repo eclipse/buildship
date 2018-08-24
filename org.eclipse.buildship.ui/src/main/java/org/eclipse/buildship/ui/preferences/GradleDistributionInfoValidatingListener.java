@@ -8,7 +8,7 @@
 
 package org.eclipse.buildship.ui.preferences;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 
 import org.eclipse.jface.preference.PreferencePage;
 
@@ -35,6 +35,6 @@ final class GradleDistributionInfoValidatingListener implements DistributionChan
     public void distributionUpdated(GradleDistributionInfo distributionInfo) {
         Optional<String> error = this.distributionInfoValidator.validate(distributionInfo);
         this.preferencePage.setValid(!error.isPresent());
-        this.preferencePage.setErrorMessage(error.orNull());
+        this.preferencePage.setErrorMessage(error.orElse(null));
     }
 }
