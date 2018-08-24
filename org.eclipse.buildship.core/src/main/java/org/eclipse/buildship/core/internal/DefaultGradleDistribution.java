@@ -96,16 +96,8 @@ public final class DefaultGradleDistribution extends GradleDistribution {
         return this.distributionInfo.toString();
     }
 
-    public static GradleDistribution forLocalInstallation(String installationDir) {
-        return new DefaultGradleDistribution(GradleDistributionType.LOCAL_INSTALLATION, installationDir);
-    }
-
     public static GradleDistribution forLocalInstallation(File installationDir) {
         return new DefaultGradleDistribution(GradleDistributionType.LOCAL_INSTALLATION, installationDir.getAbsolutePath());
-    }
-
-    public static GradleDistribution forRemoteDistribution(String distributionUri) {
-        return new DefaultGradleDistribution(GradleDistributionType.REMOTE_DISTRIBUTION, distributionUri);
     }
 
     public static GradleDistribution forRemoteDistribution(URI distributionUri) {

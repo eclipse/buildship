@@ -35,29 +35,8 @@ public abstract class GradleDistribution {
      * @param installationDir the local Gradle installation directory to use
      * @return a new distribution instance
      */
-    public static GradleDistribution forLocalInstallation(String installationDir) {
-        return DefaultGradleDistribution.forLocalInstallation(installationDir);
-    }
-
-    /**
-     * Creates a reference to a local Gradle installation.
-     *
-     * @param installationDir the local Gradle installation directory to use
-     * @return a new distribution instance
-     */
     public static GradleDistribution forLocalInstallation(File installationDir) {
         return DefaultGradleDistribution.forLocalInstallation(installationDir);
-    }
-
-    /**
-     * Creates a reference to a remote Gradle distribution. The appropriate distribution is
-     * downloaded and installed into the user's Gradle home directory.
-     *
-     * @param distributionUri the remote Gradle distribution location to use
-     * @return a new distribution instance
-     */
-    public static GradleDistribution forRemoteDistribution(String distributionUri) {
-        return DefaultGradleDistribution.forRemoteDistribution(distributionUri);
     }
 
     /**
