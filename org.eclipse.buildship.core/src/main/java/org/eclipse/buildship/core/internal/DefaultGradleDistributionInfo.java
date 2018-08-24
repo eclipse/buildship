@@ -88,17 +88,6 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
         return GradleDistribution.fromDistributionInfo(this);
     }
 
-    /**
-     * Converts the current object to a {@link GradleDistribution} or returns
-     * {@link GradleDistribution#fromBuild()} if invalid.
-     *
-     * @return the created Gradle distribution
-     */
-    @Override
-    public GradleDistribution toGradleDistributionOrDefault() {
-        return validate().isPresent() ? GradleDistribution.fromBuild() : toGradleDistribution();
-    }
-
     @Override
     public boolean equals(Object other) {
         if (this == other) {

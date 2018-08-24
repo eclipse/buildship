@@ -96,7 +96,8 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public GradleDistribution getGradleDistribution() {
-        return GradleDistributionInfo.deserializeFromString(this.gradleDistribution).toGradleDistributionOrDefault();
+        GradleDistributionInfo distributionInfo = GradleDistributionInfo.deserializeFromString(this.gradleDistribution);
+        return distributionInfo.validate().map(message -> GradleDistribution.fromBuild()).orElseGet(() -> distributionInfo.toGradleDistribution());
     }
 
     public String getGradleUserHomeHomeExpression() {

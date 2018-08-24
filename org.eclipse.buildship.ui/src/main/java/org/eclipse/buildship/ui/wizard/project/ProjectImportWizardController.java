@@ -34,6 +34,7 @@ import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
@@ -88,7 +89,10 @@ public class ProjectImportWizardController {
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectImportWizard.getDialogSettings();
         Optional<File> projectDir = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_PROJECT_DIR));
-        String gradleDistribution = dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION);
+        String distributionString = dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION);
+        GradleDistributionInfo distributionInfo = GradleDistributionInfo.deserializeFromString(distributionString);
+        GradleDistribution gradleDistribution = distributionInfo.validate().map(message -> GradleDistribution.fromBuild()).orElseGet(() -> distributionInfo.toGradleDistribution());
+
         Optional<File> gradleUserHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_GRADLE_USER_HOME));
         boolean applyWorkingSets = dialogSettings.get(SETTINGS_KEY_APPLY_WORKING_SETS) != null && dialogSettings.getBoolean(SETTINGS_KEY_APPLY_WORKING_SETS);
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
@@ -98,7 +102,7 @@ public class ProjectImportWizardController {
 
         this.configuration.setProjectDir(projectDir.orNull());
         this.configuration.setOverwriteWorkspaceSettings(false);
-        this.configuration.setDistributionInfo(GradleDistributionInfo.deserializeFromString(gradleDistribution).toGradleDistributionOrDefault().getDistributionInfo());
+        this.configuration.setDistributionInfo(gradleDistribution.getDistributionInfo());
         this.configuration.setGradleUserHome(gradleUserHome.orNull());
         this.configuration.setApplyWorkingSets(applyWorkingSets);
         this.configuration.setWorkingSets(workingSets);

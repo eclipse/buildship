@@ -35,14 +35,6 @@ public abstract class GradleDistributionInfo {
 
     public abstract GradleDistribution toGradleDistribution();
 
-    /**
-     * Converts the current object to a {@link GradleDistribution} or returns
-     * {@link GradleDistribution#fromBuild()} if invalid.
-     *
-     * @return the created Gradle distribution
-     */
-    public abstract GradleDistribution toGradleDistributionOrDefault();
-
     public abstract String serializeToString();
 
     public static GradleDistributionInfo deserializeFromString(String distributionString) {

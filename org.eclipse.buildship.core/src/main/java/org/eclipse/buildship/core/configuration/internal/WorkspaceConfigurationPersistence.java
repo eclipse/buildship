@@ -40,7 +40,8 @@ public final class WorkspaceConfigurationPersistence {
     public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();
         String distributionString = preferences.get(GRADLE_DISTRIBUTION, null);
-        GradleDistribution distribution = GradleDistributionInfo.deserializeFromString(distributionString).toGradleDistributionOrDefault();
+        GradleDistributionInfo distributionInfo = GradleDistributionInfo.deserializeFromString(distributionString);
+        GradleDistribution distribution = distributionInfo.validate().map(message -> GradleDistribution.fromBuild()).orElseGet(() -> distributionInfo.toGradleDistribution());
         String gradleUserHomeString = preferences.get(GRADLE_USER_HOME, null);
         File gradleUserHome = gradleUserHomeString == null
                 ? null

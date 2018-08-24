@@ -114,7 +114,8 @@ final class BuildConfigurationPersistence {
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
 
         String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
-        GradleDistribution distribution = GradleDistributionInfo.deserializeFromString(distributionString).toGradleDistributionOrDefault();
+        GradleDistributionInfo distributionInfo = GradleDistributionInfo.deserializeFromString(distributionString);
+        GradleDistribution distribution = distributionInfo.validate().map(message -> GradleDistribution.fromBuild()).orElseGet(() -> distributionInfo.toGradleDistribution());
 
         String gradleUserHomeString = preferences.readString(PREF_KEY_GRADLE_USER_HOME, "");
         File gradleUserHome = gradleUserHomeString.isEmpty()
