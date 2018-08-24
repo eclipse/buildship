@@ -79,7 +79,7 @@ public class ProjectImportWizardController {
         Validator<File> projectDirValidator = Validators.and(
                 Validators.requiredDirectoryValidator(ProjectWizardMessages.Label_ProjectRootDirectory),
                 Validators.nonWorkspaceFolderValidator(ProjectWizardMessages.Label_ProjectRootDirectory));
-        Validator<GradleDistributionInfo> gradleDistributionValidator = GradleDistributionInfo.validator();
+        Validator<GradleDistributionInfo> gradleDistributionValidator = newGradleDistributionInfoValidator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
         Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
@@ -195,6 +195,16 @@ public class ProjectImportWizardController {
         }
 
         return true;
+    }
+
+    private static Validator<GradleDistributionInfo> newGradleDistributionInfoValidator() {
+        return new Validator<GradleDistributionInfo>() {
+
+            @Override
+            public Optional<String> validate(GradleDistributionInfo gradleDistributionInfo) {
+                return gradleDistributionInfo.validate();
+            }
+        };
     }
 
     /**

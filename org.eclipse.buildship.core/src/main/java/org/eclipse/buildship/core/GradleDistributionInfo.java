@@ -12,7 +12,6 @@ package org.eclipse.buildship.core;
 import java.util.Optional;
 
 import org.eclipse.buildship.core.internal.DefaultGradleDistributionInfo;
-import org.eclipse.buildship.core.util.binding.Validator;
 
 /**
  * Describes a valid or invalid {@link GradleDistribution}.
@@ -39,10 +38,6 @@ public abstract class GradleDistributionInfo {
 
     public static GradleDistributionInfo deserializeFromString(String distributionString) {
        return DefaultGradleDistributionInfo.deserializeFromString(distributionString);
-    }
-
-    public static Validator<GradleDistributionInfo> validator() {
-        return DefaultGradleDistributionInfo.validator();
     }
 
     public static GradleDistributionInfo from(GradleDistributionType type, String configuration) {

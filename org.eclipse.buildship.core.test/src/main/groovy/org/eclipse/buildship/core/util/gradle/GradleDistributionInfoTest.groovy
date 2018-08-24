@@ -21,10 +21,8 @@ class GradleDistributionInfoTest extends Specification {
     def "Validation passes only with semantically valid objects"(GradleDistributionType type, String configuration, boolean isValid) {
         setup:
         GradleDistributionInfo distributionInfo = GradleDistributionInfo.from(type, configuration)
-        Validator<GradleDistributionInfo> validator = GradleDistributionInfo.validator()
 
         expect:
-        validator.validate(distributionInfo).present != isValid
         distributionInfo.validate().present != isValid
 
         where:

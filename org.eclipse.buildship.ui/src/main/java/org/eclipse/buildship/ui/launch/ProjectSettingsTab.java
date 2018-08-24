@@ -12,6 +12,7 @@
 package org.eclipse.buildship.ui.launch;
 
 import java.io.File;
+import java.util.Optional;
 
 import com.google.common.base.Strings;
 
@@ -47,14 +48,12 @@ import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
  */
 public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
-    private final Validator<GradleDistributionInfo> distributionInfoValidator;
     private final Validator<File> gradleUserHomeValidator;
 
     private GradleRunConfigurationAttributes attributes;
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     public ProjectSettingsTab() {
-        this.distributionInfoValidator = GradleDistributionInfo.validator();
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
     }
 
@@ -113,13 +112,12 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     @Override
     public boolean isValid(ILaunchConfiguration launchConfig) {
         GradleDistributionInfo distributionInfo = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistributionInfo();
-        // TODO (donat) restore optional for 'error' variable
-        String error = this.distributionInfoValidator.validate(distributionInfo).orElse(null);
-        if (error == null) {
-            error = this.gradleUserHomeValidator.validate(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome()).orElse(null);
+        Optional<String> error = distributionInfo.validate();
+        if (!error.isPresent()) {
+            error = this.gradleUserHomeValidator.validate(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome());
         }
-        setErrorMessage(error);
-        return error == null;
+        setErrorMessage(error.orElse(null));
+        return !error.isPresent();
     }
 
     @Override

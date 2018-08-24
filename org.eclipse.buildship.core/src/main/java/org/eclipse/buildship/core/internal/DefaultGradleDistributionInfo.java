@@ -15,7 +15,6 @@ import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.GradleDistributionType;
 import org.eclipse.buildship.core.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.util.binding.Validator;
 
 public final class DefaultGradleDistributionInfo extends GradleDistributionInfo {
 
@@ -184,15 +183,4 @@ public final class DefaultGradleDistributionInfo extends GradleDistributionInfo 
     public static GradleDistributionInfo from(GradleDistributionType type, String configuration) {
         return new DefaultGradleDistributionInfo(type, configuration);
     }
-
-    public static Validator<GradleDistributionInfo> validator() {
-        return new Validator<GradleDistributionInfo>() {
-
-            @Override
-            public Optional<String> validate(GradleDistributionInfo distributionInfo) {
-                return distributionInfo.validate();
-            }
-        };
-    }
-
 }

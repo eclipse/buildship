@@ -19,7 +19,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.GradleDistributionInfo;
 import org.eclipse.buildship.core.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.i18n.CoreMessages;
 import org.eclipse.buildship.core.util.binding.Validator;
@@ -38,14 +37,12 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
     private final Font defaultFont;
     private final Validator<File> gradleUserHomeValidator;
-    private final Validator<GradleDistributionInfo> distributionInfoValidator;
 
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_GradleUserHome);
-        this.distributionInfoValidator = GradleDistributionInfo.validator();
     }
 
     @Override
@@ -76,7 +73,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     private void addListeners() {
         GradleUserHomeGroup gradleUserHomeGroup = this.gradleProjectSettingsComposite.getGradleUserHomeGroup();
         gradleUserHomeGroup.getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener(this, gradleUserHomeGroup, this.gradleUserHomeValidator));
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionInfoValidatingListener(this, this.distributionInfoValidator));
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionInfoValidatingListener(this));
     }
 
     @Override
