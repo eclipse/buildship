@@ -68,7 +68,7 @@ public final class DefaultGradleDistribution extends GradleDistribution {
         try {
             return new URI(path);
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new GradlePluginsRuntimeException(e.getMessage());
         }
     }
 
