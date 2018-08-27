@@ -2,6 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension point="org.eclipse.ui.startup">
-      <startup class="org.eclipse.buildship.stsmigration.Startup"/>
+      <startup class="org.eclipse.buildship.stsmigration.internal.Startup"/>
    </extension>
 </plugin>

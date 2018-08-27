@@ -2,6 +2,6 @@ apply plugin: eclipsebuild.BundlePlugin
 
 // ensure that the buildship-runtime.properties file contains up-to-date information
 tasks.processResources.doFirst {
-    def buildshipRunimeProperties = file('src/main/resources/org/eclipse/buildship/core/gradle/buildship-runtime.properties')
+    def buildshipRunimeProperties = file('src/main/resources/org/eclipse/buildship/core/internal/gradle/buildship-runtime.properties')
     buildshipRunimeProperties.text = "ToolingApiVersion=$toolingApiVersion"
 }

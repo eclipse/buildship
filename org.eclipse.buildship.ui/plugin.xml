@@ -14,7 +14,7 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             id="org.eclipse.buildship.ui.wizard.project.creation"
-            class="org.eclipse.buildship.ui.wizard.project.ProjectCreationWizard"
+            class="org.eclipse.buildship.ui.internal.wizard.project.ProjectCreationWizard"
             category="org.eclipse.buildship.ui.creationwizards"
             icon="icons/full/etool16/creation_wiz.png"
             name="Gradle Project"
@@ -37,7 +37,7 @@
          point="org.eclipse.ui.importWizards">
       <wizard
             id="org.eclipse.buildship.ui.wizards.project.import"
-            class="org.eclipse.buildship.ui.wizard.project.ProjectImportWizard"
+            class="org.eclipse.buildship.ui.internal.wizard.project.ProjectImportWizard"
             category="org.eclipse.buildship.ui.importwizards"
             icon="icons/full/etool16/import_wiz.png"
             name="Existing Gradle Project">
@@ -65,8 +65,8 @@
     <extension
             point="org.eclipse.ui.editors">
       <editor
-            class="org.eclipse.buildship.ui.editor.GradleEditor"
-            contributorClass="org.eclipse.buildship.ui.editor.GradleEditorContributor"
+            class="org.eclipse.buildship.ui.internal.editor.GradleEditor"
+            contributorClass="org.eclipse.buildship.ui.internal.editor.GradleEditorContributor"
             default="false"
             extensions="gradle"
             icon="icons/full/obj16/gradle_file.png"
@@ -77,7 +77,7 @@
     <extension
           point="org.eclipse.core.filebuffers.documentSetup">
        <participant
-             class="org.eclipse.buildship.ui.editor.GradleDocumentSetupParticipant"
+             class="org.eclipse.buildship.ui.internal.editor.GradleDocumentSetupParticipant"
              contentTypeId="org.eclipse.buildship.core.files.gradlebuildscript">
        </participant>
     </extension>
@@ -87,7 +87,7 @@
          point="org.eclipse.ui.views">
       <view
             id="org.eclipse.buildship.ui.views.taskview"
-            class="org.eclipse.buildship.ui.view.task.TaskView"
+            class="org.eclipse.buildship.ui.internal.view.task.TaskView"
             category="org.eclipse.buildship.ui.views"
             icon="icons/full/eview16/tasks_view.png"
             name="Gradle Tasks"
@@ -95,7 +95,7 @@
       </view>
       <view
             id="org.eclipse.buildship.ui.views.executionview"
-            class="org.eclipse.buildship.ui.view.execution.ExecutionsView"
+            class="org.eclipse.buildship.ui.internal.view.execution.ExecutionsView"
             category="org.eclipse.buildship.ui.views"
             icon="icons/full/eview16/executions_view.png"
             name="Gradle Executions"
@@ -172,27 +172,27 @@
           point="org.eclipse.ui.handlers">
       <handler
              commandId="org.eclipse.buildship.ui.commands.refreshtaskview"
-             class="org.eclipse.buildship.ui.view.task.RefreshViewHandler">
+             class="org.eclipse.buildship.ui.internal.view.task.RefreshViewHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.runtasks"
-            class="org.eclipse.buildship.ui.view.task.RunTasksHandler">
+            class="org.eclipse.buildship.ui.internal.view.task.RunTasksHandler">
       </handler>
       <handler
                 commandId="org.eclipse.buildship.ui.commands.rundefaulttasks"
-                class="org.eclipse.buildship.ui.view.task.RunTasksHandler">
+                class="org.eclipse.buildship.ui.internal.view.task.RunTasksHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.openrunconfiguration"
-            class="org.eclipse.buildship.ui.view.task.OpenRunConfigurationHandler">
+            class="org.eclipse.buildship.ui.internal.view.task.OpenRunConfigurationHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.openbuildscript"
-            class="org.eclipse.buildship.ui.view.task.OpenBuildScriptHandler">
+            class="org.eclipse.buildship.ui.internal.view.task.OpenBuildScriptHandler">
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.refreshproject"
-            class="org.eclipse.buildship.ui.workspace.RefreshProjectHandler">
+            class="org.eclipse.buildship.ui.internal.workspace.RefreshProjectHandler">
          <activeWhen>
             <or>
                 <with variable="activePartId">
@@ -221,7 +221,7 @@
       </handler>
       <handler
             commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
-            class="org.eclipse.buildship.ui.workspace.AddBuildshipNatureHandler">
+            class="org.eclipse.buildship.ui.internal.workspace.AddBuildshipNatureHandler">
          <activeWhen>
             <iterate
                     operator="or"
@@ -295,7 +295,7 @@
             point="org.eclipse.ui.console.consolePageParticipants">
         <consolePageParticipant
                 id="org.eclipse.buildship.ui.console.gradle"
-                class="org.eclipse.buildship.ui.console.GradleConsolePageParticipant">
+                class="org.eclipse.buildship.ui.internal.console.GradleConsolePageParticipant">
             <enablement/>
         </consolePageParticipant>
     </extension>
@@ -314,7 +314,7 @@
         <launchConfigurationTabGroup
                 id="org.eclipse.buildship.ui.launch.runconfigurationtabgroup"
                 type="org.eclipse.buildship.core.launch.runconfiguration"
-                class="org.eclipse.buildship.ui.launch.GradleRunConfigurationTabGroup">
+                class="org.eclipse.buildship.ui.internal.launch.GradleRunConfigurationTabGroup">
         </launchConfigurationTabGroup>
     </extension>
 
@@ -322,7 +322,7 @@
     <extension
           point="org.eclipse.debug.ui.launchShortcuts">
        <shortcut
-             class="org.eclipse.buildship.ui.launch.TestLaunchShortcut"
+             class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcut"
              icon="icons/full/obj16/launch_config.png"
              id="org.eclipse.buildship.ui.shortcut.test"
              label="Gradle Test"
@@ -355,15 +355,15 @@
     <extension
           point="org.eclipse.core.runtime.adapters">
        <factory
-             adaptableType="org.eclipse.buildship.ui.view.task.TaskNode"
-             class="org.eclipse.buildship.ui.view.task.adapter.TaskNodeAdapterFactory">
+             adaptableType="org.eclipse.buildship.ui.internal.view.task.TaskNode"
+             class="org.eclipse.buildship.ui.internal.view.task.adapter.TaskNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
        <factory
-             adaptableType="org.eclipse.buildship.ui.view.task.ProjectNode"
-             class="org.eclipse.buildship.ui.view.task.adapter.ProjectNodeAdapterFactory">
+             adaptableType="org.eclipse.buildship.ui.internal.view.task.ProjectNode"
+             class="org.eclipse.buildship.ui.internal.view.task.adapter.ProjectNodeAdapterFactory">
           <adapter
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
@@ -475,7 +475,7 @@
           point="org.eclipse.core.expressions.propertyTesters">
        <propertyTester
              id="org.eclipse.buildship.ui.properties.testlaunchpropertytester"
-             class="org.eclipse.buildship.ui.launch.TestLaunchShortcutValidator$PropertyTester"
+             class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcutValidator$PropertyTester"
              namespace="org.eclipse.buildship.ui.properties"
              properties="selectioncanbelaunchedastest"
              type="java.lang.Object">
@@ -487,14 +487,14 @@
           point="org.eclipse.jdt.ui.javaElementFilters">
        <filter
              id="org.eclipse.buildship.ui.packageexplorer.filter.gradle.buildfolder"
-             class="org.eclipse.buildship.ui.navigator.BuildFolderViewerFilter"
+             class="org.eclipse.buildship.ui.internal.navigator.BuildFolderViewerFilter"
              name="Gradle build folder"
              description="Hides the build folder of Gradle projects"
              enabled="true">
        </filter>
        <filter
              id="org.eclipse.buildship.ui.packageexplorer.filter.gradle.subProject"
-             class="org.eclipse.buildship.ui.navigator.SubProjectViewerFilter"
+             class="org.eclipse.buildship.ui.internal.navigator.SubProjectViewerFilter"
              name="Gradle sub projects"
              description="Hides Gradle sub project folders from their parent project"
              enabled="true">
@@ -504,7 +504,7 @@
           point="org.eclipse.ui.navigator.navigatorContent">
        <commonFilter
              id="org.eclipse.buildship.ui.navigator.filter.gradle.buildfolder"
-             class="org.eclipse.buildship.ui.navigator.BuildFolderViewerFilter"
+             class="org.eclipse.buildship.ui.internal.navigator.BuildFolderViewerFilter"
              name="Gradle build folder"
              description="Hides the build folder of Gradle projects"
              activeByDefault="true"
@@ -512,7 +512,7 @@
        </commonFilter>
        <commonFilter
              id="org.eclipse.buildship.ui.navigator.filter.gradle.subProject"
-             class="org.eclipse.buildship.ui.navigator.SubProjectViewerFilter"
+             class="org.eclipse.buildship.ui.internal.navigator.SubProjectViewerFilter"
              name="Gradle sub projects"
              description="Hides Gradle sub project folders from their parent project"
              activeByDefault="true"
@@ -538,7 +538,7 @@
     <extension
           point="org.eclipse.ui.preferencePages">
        <page
-             class="org.eclipse.buildship.ui.preferences.GradleWorkbenchPreferencePage"
+             class="org.eclipse.buildship.ui.internal.preferences.GradleWorkbenchPreferencePage"
              id="org.eclipse.buildship.ui.preferences"
              name="Gradle">
        </page>
@@ -548,7 +548,7 @@
     <extension
           point="org.eclipse.ui.propertyPages">
        <page
-             class="org.eclipse.buildship.ui.preferences.GradleProjectPreferencePage"
+             class="org.eclipse.buildship.ui.internal.preferences.GradleProjectPreferencePage"
              id="org.eclipse.buildship.ui.projectproperties"
              name="Gradle">
          <enabledWhen>
@@ -561,7 +561,7 @@
     <extension
           point="org.eclipse.ui.propertyPages">
        <page
-             class="org.eclipse.buildship.ui.marker.MarkersPropertyPage"
+             class="org.eclipse.buildship.ui.internal.marker.MarkersPropertyPage"
              id="org.eclipse.buildship.ui.propertypages.markers"
              name="Gradle">
           <enabledWhen>
@@ -581,7 +581,7 @@
           point="org.eclipse.core.expressions.propertyTesters">
        <propertyTester
              id="org.eclipse.buildship.ui.properties.markerpropertytester"
-             class="org.eclipse.buildship.ui.marker.MarkerProperyTester"
+             class="org.eclipse.buildship.ui.internal.marker.MarkerProperyTester"
              namespace="org.eclipse.buildship.ui.marker"
              properties="gradlemarker"
              type="org.eclipse.core.resources.IMarker">
