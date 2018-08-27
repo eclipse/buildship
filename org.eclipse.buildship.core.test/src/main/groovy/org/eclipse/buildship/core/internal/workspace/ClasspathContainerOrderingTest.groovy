@@ -65,7 +65,6 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         assertClasspatContent(project, SOURCE_FOLDER, JRE_CONTAINER, GRADLE_CONTAINER)
     }
 
-    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })
     def "Without source folders"() {
         setup:
         File location = dir('sample-project') {
@@ -86,7 +85,6 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         assertClasspatContent(project, JRE_CONTAINER, GRADLE_CONTAINER)
     }
 
-    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })
     def "With source folders"() {
         setup:
         File location = dir('sample-project') {
@@ -108,7 +106,6 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         assertClasspatContent(project, SOURCE_FOLDER, JRE_CONTAINER, GRADLE_CONTAINER)
     }
 
-    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })
     def "With custom container"() {
         setup:
         File location = dir('sample-project') {
@@ -134,7 +131,6 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         assertClasspatContent(project, JRE_CONTAINER, CUSTOM_CONTAINER, GRADLE_CONTAINER)
     }
 
-    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })
     def "With custom container order"() {
         setup:
         File location = dir('sample-project') {
@@ -160,7 +156,6 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         assertClasspatContent(project, JRE_CONTAINER, GRADLE_CONTAINER, CUSTOM_CONTAINER)
     }
 
-    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })
     def "Jre removed from model" () {
         setup:
         File location = dir('sample-project') {
@@ -188,7 +183,6 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         assertClasspatContent(project, GRADLE_CONTAINER)
     }
 
-    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })
     def "Jre removed from project"() {
         setup:
         File location = dir('sample-project') {
@@ -210,7 +204,6 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         assertClasspatContent(project, JRE_CONTAINER, GRADLE_CONTAINER)
     }
 
-    @IgnoreIf({ !JavaVersion.current().isJava7Compatible() })
     def "Jre removed from the model and from project" () {
         setup:
         File location = dir('sample-project') {

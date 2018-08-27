@@ -28,45 +28,13 @@ def eclipseVersionAgnosticDependencies = [
     'org.jetbrains.kotlin.core'             : '0.8.5'
 ]
 
-// target platform definition for all major Eclipse releases between version 4.2 and 4.6
-// the default version is 46 which can be overridden through -Peclipse.version=<version>
+// target platform definition for all major Eclipse releases between version 4.3 and 4.8
+// the default version is 48 which can be overridden through -Peclipse.version=<version>
 // also the target platforms contain 1) the Eclipse SDK 2) the latest junit 3) SWTBot 2.2.1
 eclipseBuild {
-    defaultEclipseVersion = '47'
+    defaultEclipseVersion = '48'
 
     final def swtPluginId = "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}"
-
-    targetPlatform {
-        eclipseVersion = '42'
-        targetDefinition = file('tooling-e42.target')
-        versionMapping = [
-            "$swtPluginId"                          : '3.100.1',
-            'com.ibm.icu'                           : '4.4.2',
-            'org.eclipse.core.expressions'          : '3.4.401',
-            'org.eclipse.core.filesystem'           : '1.3.200',
-            'org.eclipse.core.net'                  : '1.2.200',
-            'org.eclipse.core.resources'            : '3.8.1',
-            'org.eclipse.core.runtime'              : '3.8.0',
-            'org.eclipse.core.variables'            : '3.2.600',
-            'org.eclipse.debug.core'                : '3.7.100',
-            'org.eclipse.debug.ui'                  : '3.8.2',
-            'org.eclipse.help'                      : '3.6.0',
-            'org.eclipse.jdt.core'                  : '3.8.3',
-            'org.eclipse.jdt.junit.core'            : '3.7.100',
-            'org.eclipse.jdt.launching'             : '3.6.101',
-            'org.eclipse.jdt.ui'                    : '3.8.2',
-            'org.eclipse.jface.databinding'         : '1.6.0',
-            'org.eclipse.jface.text'                : '3.8.2',
-            'org.eclipse.ui'                        : '3.104.0',
-            'org.eclipse.ui.console'                : '3.5.100',
-            'org.eclipse.ui.editors'                : '3.8.0',
-            'org.eclipse.ui.ide'                    : '3.8.2',
-            'org.eclipse.ui.navigator'              : '3.4.200',
-            'org.eclipse.ui.views'                  : '3.6.100',
-            'org.eclipse.ui.workbench.texteditor'   : '3.8.0',
-            'org.junit'                             : '4.12.0'
-        ] + eclipseVersionAgnosticDependencies
-    }
 
     targetPlatform {
         eclipseVersion = '43'
@@ -83,10 +51,10 @@ eclipseBuild {
             'org.eclipse.debug.core'                : '3.8.0',
             'org.eclipse.debug.ui'                  : '3.9.0',
             'org.eclipse.help'                      : '3.6.0',
-            'org.eclipse.jdt.core'                  : '3.9.2',
-            'org.eclipse.jdt.junit.core'            : '3.7.200',
+            'org.eclipse.jdt.core'                  : '3.9.50',
+            'org.eclipse.jdt.junit.core'            : '3.7.250',
             'org.eclipse.jdt.launching'             : '3.7.1',
-            'org.eclipse.jdt.ui'                    : '3.9.2',
+            'org.eclipse.jdt.ui'                    : '3.9.50',
             'org.eclipse.jface.databinding'         : '1.6.200',
             'org.eclipse.jface.text'                : '3.8.101',
             'org.eclipse.ui'                        : '3.105.0',
@@ -317,18 +285,9 @@ subprojects {
     // set the calculated version on all projects in the hierarchy
     version = rootProject.version
 
-    // for all Eclipse versions before Mars, the built plugins must be Java 6 compatible
-    // for Eclipse Mars, the minimum execution environment is Java 7 (https://www.eclipse.org/projects/project-plan.php?planurl=/eclipse/development/plans/eclipse_project_plan_4_5.xml)
-    // for later versions the minimum execution environment is Java 8
-    // try to compile with the minimum required JDK if the location is specified by the caller or if it can be derived
     plugins.withType(JavaPlugin) {
-        sourceCompatibility = 1.7
-        String targetPlatformVersion = Config.on(project).targetPlatform.eclipseVersion
-        if (targetPlatformVersion < '46') {
-            targetCompatibility = 1.7
-        } else {
-            targetCompatibility = 1.8
-        }
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
 
         tasks.matching { it instanceof JavaCompile || it instanceof GroovyCompile }.all {
             // enable all warnings except for different sourceCompatibility and targetCompatibility value

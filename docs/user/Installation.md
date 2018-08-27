@@ -24,7 +24,6 @@ Neon (4.6)      | snapshot  | `http://download.eclipse.org/buildship/updates/e46
 Mars (4.5)      | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/3.x`
 Luna (4.4)      | snapshot  | `http://download.eclipse.org/buildship/updates/e44/snapshots/3.x`
 Kepler (4.3)    | snapshot  | `http://download.eclipse.org/buildship/updates/e43/snapshots/3.x`
-Juno (4.2)      | snapshot  | `http://download.eclipse.org/buildship/updates/e42/snapshots/3.x`
 
 ### Update sites for Buildship 2.x
 

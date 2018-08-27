@@ -22,8 +22,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Maps;
@@ -83,13 +81,7 @@ final class GradleClasspathContainerUpdater {
         List<IClasspathEntry> externalDependencies = collectExternalDependencies();
         List<IClasspathEntry> projectDependencies = collectProjectDependencies();
 
-        boolean hasExportedEntry = FluentIterable.from(externalDependencies).anyMatch(new Predicate<IClasspathEntry>() {
-
-            @Override
-            public boolean apply(IClasspathEntry entry) {
-                return entry.isExported();
-            }
-        });
+        boolean hasExportedEntry = externalDependencies.stream().anyMatch(IClasspathEntry::isExported);
 
         // Gradle distributions <2.5 rely on exports to define the project classpath. Unfortunately
         // that logic is broken if dependency excludes are defined in the build scripts. To work

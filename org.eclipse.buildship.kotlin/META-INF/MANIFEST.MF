@@ -4,7 +4,7 @@ Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - Kotlin script support
 Bundle-SymbolicName: org.eclipse.buildship.kotlin;singleton:=true
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: Eclipse Buildship
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: org.eclipse.buildship.kotlin.KotlinPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
