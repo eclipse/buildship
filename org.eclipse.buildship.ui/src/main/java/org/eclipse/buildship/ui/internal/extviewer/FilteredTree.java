@@ -208,7 +208,7 @@ public class FilteredTree extends Composite {
         setShowFilterControls(true);
         createControl(getParent(), treeStyle);
         createRefreshJob();
-        setInitialText(ViewerMessages.FilteredTree_FilterMessage);
+        setInitialText(FilteredTreeMessages.FilteredTree_FilterMessage);
         setFont(getParent().getFont());
     }
 
@@ -503,7 +503,7 @@ public class FilteredTree extends Composite {
                 if (filterTextString.length() == 0 || filterTextString.equals(FilteredTree.this.initialText)) {
                     e.result = FilteredTree.this.initialText;
                 } else {
-                    e.result = NLS.bind(ViewerMessages.FilteredTree_AccessibleListenerFiltered, new String[] { filterTextString, String.valueOf(getFilteredItemsCount()) });
+                    e.result = NLS.bind(FilteredTreeMessages.FilteredTree_AccessibleListenerFiltered, new String[] { filterTextString, String.valueOf(getFilteredItemsCount()) });
                 }
             }
 
@@ -664,7 +664,7 @@ public class FilteredTree extends Composite {
      * Update the receiver after the text has changed.
      */
     protected void textChanged() {
-        this.narrowingDown = this.previousFilterText == null || this.previousFilterText.equals(ViewerMessages.FilteredTree_FilterMessage) || getFilterString().startsWith(this.previousFilterText);
+        this.narrowingDown = this.previousFilterText == null || this.previousFilterText.equals(FilteredTreeMessages.FilteredTree_FilterMessage) || getFilterString().startsWith(this.previousFilterText);
         this.previousFilterText = getFilterString();
         // cancel currently running job first, to prevent unnecessary redraw
         this.refreshJob.cancel();
@@ -717,7 +717,7 @@ public class FilteredTree extends Composite {
             clearButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
             clearButton.setImage(inactiveImage);
             clearButton.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-            clearButton.setToolTipText(ViewerMessages.FilteredTree_ClearToolTip);
+            clearButton.setToolTipText(FilteredTreeMessages.FilteredTree_ClearToolTip);
             clearButton.addMouseListener(new MouseAdapter() {
 
                 private MouseMoveListener fMoveListener;
@@ -780,7 +780,7 @@ public class FilteredTree extends Composite {
 
                 @Override
                 public void getName(AccessibleEvent e) {
-                    e.result = ViewerMessages.FilteredTree_AccessibleListenerClearButton;
+                    e.result = FilteredTreeMessages.FilteredTree_AccessibleListenerClearButton;
                 }
             });
             clearButton.getAccessible().addAccessibleControlListener(new AccessibleControlAdapter() {
