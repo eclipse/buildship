@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.preferences.impl
+package org.eclipse.buildship.core.internal.preferences
 
 import spock.lang.Issue
 
@@ -8,7 +8,6 @@ import org.eclipse.core.runtime.Path
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.preferences.PersistentModel
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class DefaultModelPersistenceTest extends WorkspaceSpecification {

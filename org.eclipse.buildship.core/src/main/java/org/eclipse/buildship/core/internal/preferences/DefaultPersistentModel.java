@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.preferences.impl;
+package org.eclipse.buildship.core.internal.preferences;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,8 +19,6 @@ import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
-
-import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 
 /**
  * Default PersistentModel implementation.

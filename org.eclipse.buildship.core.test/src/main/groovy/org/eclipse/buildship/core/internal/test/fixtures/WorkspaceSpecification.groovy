@@ -39,8 +39,8 @@ import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker
+import org.eclipse.buildship.core.internal.preferences.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.preferences.PersistentModel
-import org.eclipse.buildship.core.internal.preferences.impl.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations

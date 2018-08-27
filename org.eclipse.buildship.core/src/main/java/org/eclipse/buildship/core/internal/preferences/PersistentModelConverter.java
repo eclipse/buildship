@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.preferences.impl;
+package org.eclipse.buildship.core.internal.preferences;
 
 import java.io.File;
 import java.util.Collection;
@@ -28,8 +28,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-
-import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 
 /**
  * Contains helper methods for the {@link PersistentModel} <-> {@link Properties} conversion.

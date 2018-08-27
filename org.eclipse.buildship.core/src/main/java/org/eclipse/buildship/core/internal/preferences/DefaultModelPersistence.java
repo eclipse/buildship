@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.preferences.impl;
+package org.eclipse.buildship.core.internal.preferences;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,14 +38,12 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.event.Event;
 import org.eclipse.buildship.core.internal.event.EventListener;
-import org.eclipse.buildship.core.internal.preferences.ModelPersistence;
-import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent;
 import org.eclipse.buildship.core.internal.workspace.ProjectMovedEvent;
 import org.eclipse.buildship.core.internal.workspace.WorkbenchShutdownEvent;
 
 /**
- * Default implementation for {@link MutablePersistentModel}.
+ * Default implementation for {@link ModelPersistence}.
  *
  * @author Donat Csikos
  */
