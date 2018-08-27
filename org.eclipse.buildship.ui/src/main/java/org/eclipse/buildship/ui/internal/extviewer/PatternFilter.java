@@ -1,13 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2004, 2014 IBM Corporation and others.
+/*
+ * Copyright (c) 2018 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ */
 
 package org.eclipse.buildship.ui.internal.extviewer;
 
@@ -33,18 +30,27 @@ import org.eclipse.jface.viewers.ViewerFilter;
 
 /**
  * Based on org.eclipse.ui.dialogs.PatternFilter.
- */
+/*******************************************************************************
+ * Copyright (c) 2004, 2014 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 public class PatternFilter extends ViewerFilter {
 
     /*
      * Cache of filtered elements in the tree
      */
-    private Map<Object, Object[]> cache = new HashMap<Object, Object[]>();
+    private Map<Object, Object[]> cache = new HashMap<>();
 
     /*
      * Maps parent elements to TRUE or FALSE
      */
-    private Map<Object, Boolean> foundAnyCache = new HashMap<Object, Boolean>();
+    private Map<Object, Boolean> foundAnyCache = new HashMap<>();
 
     private boolean useCache = false;
 
@@ -308,7 +314,7 @@ public class PatternFilter extends ViewerFilter {
      * @return an array of words
      */
     private String[] getWords(String text) {
-        List<String> words = new ArrayList<String>();
+        List<String> words = new ArrayList<>();
         // Break the text up into words, separating based on whitespace and
         // common punctuation.
         // Previously used String.split(..., "\\W"), where "\W" is a regular

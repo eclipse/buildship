@@ -1,4 +1,19 @@
-/*******************************************************************************
+/*
+ * Copyright (c) 2018 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.eclipse.buildship.ui.internal.extviewer;
+
+import java.util.Vector;
+
+/**
+ * Based on org.eclipse.ui.internal.misc.StringMatcher.
+ *
+ /*******************************************************************************
  * Copyright (c) 2000, 2014 IBM Corporation and others. All rights reserved. This program and
  * the accompanying materials are made available under the terms of the Eclipse Public License
  * v1.0 which accompanies this distribution, and is available at
@@ -7,14 +22,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
-package org.eclipse.buildship.ui.internal.extviewer;
-
-import java.util.Vector;
-
-/**
- * Based on org.eclipse.ui.internal.misc.StringMatcher.
- */
 public class StringMatcher {
 
     protected String fPattern;
@@ -286,7 +293,7 @@ public class StringMatcher {
             }
         }
 
-        Vector<String> temp = new Vector<String>();
+        Vector<String> temp = new Vector<>();
 
         int pos = 0;
         StringBuffer buf = new StringBuffer();
