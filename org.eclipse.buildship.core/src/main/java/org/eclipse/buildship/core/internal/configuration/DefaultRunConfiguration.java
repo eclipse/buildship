@@ -6,22 +6,19 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.configuration.impl;
+package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
 import java.util.List;
 
 import com.google.common.base.Objects;
 
-import org.eclipse.buildship.core.internal.configuration.GradleArguments;
-import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 
 /**
  * Default implementation for {@link RunConfiguration}.
  */
-public class DefaultRunConfiguration implements RunConfiguration {
+class DefaultRunConfiguration implements RunConfiguration {
 
     private final ProjectConfiguration projectConfiguration;
     private final RunConfigurationProperties properties;

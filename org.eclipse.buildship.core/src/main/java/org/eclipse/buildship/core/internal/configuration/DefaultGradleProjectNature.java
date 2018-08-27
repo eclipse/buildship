@@ -9,15 +9,12 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.configuration.impl;
+package org.eclipse.buildship.core.internal.configuration;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.GradleProjectBuilder;
-import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureConfiguredEvent;
-import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureDeconfiguredEvent;
 
 /**
  * Backing implementation class for the {@link org.eclipse.buildship.core.internal.configuration.GradleProjectNature}.

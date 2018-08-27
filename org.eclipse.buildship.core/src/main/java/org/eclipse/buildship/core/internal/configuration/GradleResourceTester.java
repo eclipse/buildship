@@ -6,13 +6,11 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  */
-package org.eclipse.buildship.core.internal.configuration.impl;
+package org.eclipse.buildship.core.internal.configuration;
 
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-
-import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 
 /**
  * Determines whether a given {@link IResource} is a Gradle resource, i.e.

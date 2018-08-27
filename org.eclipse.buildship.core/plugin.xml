@@ -23,7 +23,7 @@
             point="org.eclipse.core.resources.natures">
         <builder id="org.eclipse.buildship.core.gradleprojectbuilder"/>
         <runtime>
-            <run class="org.eclipse.buildship.core.internal.configuration.impl.DefaultGradleProjectNature"/>
+            <run class="org.eclipse.buildship.core.internal.configuration.DefaultGradleProjectNature"/>
         </runtime>
     </extension>
 
@@ -32,7 +32,7 @@
             name="Gradle Project Builder"
             point="org.eclipse.core.resources.builders">
         <builder hasNature="true">
-            <run class="org.eclipse.buildship.core.internal.configuration.impl.DefaultGradleProjectBuilder" />
+            <run class="org.eclipse.buildship.core.internal.configuration.DefaultGradleProjectBuilder" />
         </builder>
     </extension>
 
@@ -60,7 +60,7 @@
     <extension
           point="org.eclipse.core.expressions.propertyTesters">
        <propertyTester
-             class="org.eclipse.buildship.core.internal.configuration.impl.GradleResourceTester"
+             class="org.eclipse.buildship.core.internal.configuration.GradleResourceTester"
              id="org.eclipse.buildship.core.GradleResourceTester"
              namespace="org.eclipse.buildship.core"
              properties="isGradleResource"

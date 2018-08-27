@@ -6,16 +6,13 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.configuration.impl;
+package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
 import java.util.Collections;
 
 import com.google.common.base.Objects;
 
-import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.configuration.GradleArguments;
-import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 
 /**
@@ -23,7 +20,7 @@ import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
  *
  * @author Donat Csikos
  */
-class DefaultBuildConfiguration implements BuildConfiguration {
+final class DefaultBuildConfiguration implements BuildConfiguration {
 
     private final DefaultBuildConfigurationProperties properties;
     private final WorkspaceConfiguration workspaceConfiguration;

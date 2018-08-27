@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.configuration.impl
+package org.eclipse.buildship.core.internal.configuration
 
 import spock.lang.Shared
 import spock.lang.Subject

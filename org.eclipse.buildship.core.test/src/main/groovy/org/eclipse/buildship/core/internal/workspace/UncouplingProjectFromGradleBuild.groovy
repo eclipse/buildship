@@ -5,8 +5,8 @@ import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.BuildConfigurationPersistence
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
-import org.eclipse.buildship.core.internal.configuration.impl.BuildConfigurationPersistence
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecification {

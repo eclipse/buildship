@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.configuration.impl;
+package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,11 +22,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
-import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
-import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;

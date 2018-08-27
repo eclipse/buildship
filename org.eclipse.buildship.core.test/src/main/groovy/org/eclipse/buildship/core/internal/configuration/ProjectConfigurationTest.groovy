@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.configuration.impl
+package org.eclipse.buildship.core.internal.configuration
 
 import spock.lang.Issue
 
@@ -7,9 +7,6 @@ import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
-import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration
-import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
 

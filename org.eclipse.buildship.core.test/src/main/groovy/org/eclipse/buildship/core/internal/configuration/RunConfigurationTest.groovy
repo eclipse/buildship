@@ -1,4 +1,4 @@
-package org.eclipse.buildship.core.internal.configuration.impl
+package org.eclipse.buildship.core.internal.configuration
 
 import spock.lang.Issue
 
@@ -11,8 +11,6 @@ import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
-import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification

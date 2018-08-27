@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.configuration.impl;
+package org.eclipse.buildship.core.internal.configuration;
 
 import java.util.Map;
 
@@ -18,8 +18,6 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-
-import org.eclipse.buildship.core.internal.configuration.GradleProjectMarker;
 
 /**
  * Backing implementation class for the {@link org.eclipse.buildship.core.internal.configuration.GradleProjectBuilder}.

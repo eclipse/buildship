@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.configuration.impl;
+package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
 
@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 
@@ -29,7 +28,7 @@ import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
  *
  * @author Donat Csikos
  */
-public final class WorkspaceConfigurationPersistence {
+final class WorkspaceConfigurationPersistence {
 
     private static final String GRADLE_DISTRIBUTION = "gradle.distribution";
     private static final String GRADLE_USER_HOME = "gradle.user.home";

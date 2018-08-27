@@ -1,11 +1,10 @@
-package org.eclipse.buildship.core.internal.configuration.impl
+package org.eclipse.buildship.core.internal.configuration
 
 import org.gradle.tooling.LongRunningOperation
 import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.build.GradleEnvironment
 import spock.lang.Specification
 
-import org.eclipse.buildship.core.internal.configuration.GradleArguments
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
 
 class GradleArgumentsTest extends Specification {
