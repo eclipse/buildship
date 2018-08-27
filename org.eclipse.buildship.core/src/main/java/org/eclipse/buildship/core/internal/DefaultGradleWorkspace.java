@@ -22,7 +22,6 @@ public final class DefaultGradleWorkspace implements GradleWorkspace {
 
     @Override
     public GradleBuild getBuild(IProject project) {
-        // TODO (donat) implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        return DefaultGradleBuild.from(project);
     }
 }
