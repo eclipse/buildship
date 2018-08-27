@@ -19,7 +19,7 @@ def eclipseVersionAgnosticDependencies = [
     'org.gradle.toolingapi'                 : toolingApiBundleVersion,
     'org.slf4j.api'                         : '1.7.2',
     'org.slf4j.simple'                      : '1.7.2',
-    'com.google.guava'                      : '15.0.0',
+    'com.google.guava'                      : '21.0.0',
     'com.google.gson'                       : '2.7.0',
     'org.apache.log4j'                      : '1.2.15',
     'org.eclipse.swtbot.eclipse.finder'     : '2.2.1',
