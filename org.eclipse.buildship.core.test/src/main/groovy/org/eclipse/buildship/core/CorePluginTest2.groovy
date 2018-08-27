@@ -1,8 +1,8 @@
-package org.eclipse.buildship.core.internal
+package org.eclipse.buildship.core
 
 import spock.lang.Specification;
 
-class CorePluginTest extends Specification {
+class CorePluginTest2 extends Specification {
 
     def "Services exposed from core plugin are available"() {
         expect:
