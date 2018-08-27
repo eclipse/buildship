@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.operation.impl;
+package org.eclipse.buildship.core.internal.operation;
 
 import java.util.concurrent.TimeUnit;
 
@@ -18,9 +18,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.internal.operation.ToolingApiOperation;
-import org.eclipse.buildship.core.internal.operation.ToolingApiOperationManager;
-import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.util.progress.RateLimitingProgressMonitor;
 
 /**

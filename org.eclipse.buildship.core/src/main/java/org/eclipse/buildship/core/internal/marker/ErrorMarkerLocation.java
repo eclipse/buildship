@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.marker.impl;
+package org.eclipse.buildship.core.internal.marker;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +33,7 @@ import org.eclipse.buildship.core.internal.workspace.GradleBuild;
  *
  * @author Donat Csikos
  */
-public final class ErrorMarkerLocation {
+final class ErrorMarkerLocation {
 
     private static final Pattern ERROR_LOCATION_PATTERN = Pattern.compile("Build file '(.+)' line: (\\d+).*");
 
