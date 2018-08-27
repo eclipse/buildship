@@ -5,11 +5,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.buildship.ui.editor;
+package org.eclipse.buildship.ui.internal.editor;
 
 import org.eclipse.jface.text.IDocument;
 
-import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.internal.UiPlugin;
 
 /**
  * @author Christophe Moine

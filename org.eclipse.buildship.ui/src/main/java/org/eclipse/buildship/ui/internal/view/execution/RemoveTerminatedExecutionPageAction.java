@@ -20,16 +20,16 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.internal.view.execution;
 
-import org.eclipse.buildship.ui.view.RemovePageAction;
+import org.eclipse.buildship.ui.internal.view.RemovePageAction;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
 /**
- * Removes the target {@link org.eclipse.buildship.ui.view.execution.ExecutionPage} from the
- * {@link org.eclipse.buildship.ui.view.MultiPageView} to which this page belongs.
+ * Removes the target {@link org.eclipse.buildship.ui.internal.view.execution.ExecutionPage} from the
+ * {@link org.eclipse.buildship.ui.internal.view.MultiPageView} to which this page belongs.
  */
 public final class RemoveTerminatedExecutionPageAction extends RemovePageAction {
 

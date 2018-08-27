@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -22,15 +22,15 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Menu;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.ui.UiPluginConstants;
-import org.eclipse.buildship.ui.util.nodeselection.ActionEnablingSelectionChangedListener;
-import org.eclipse.buildship.ui.util.nodeselection.ActionShowingContextMenuListener;
-import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
-import org.eclipse.buildship.ui.util.selection.ContextActivatingViewPartListener;
-import org.eclipse.buildship.ui.view.CollapseAllTreeNodesAction;
-import org.eclipse.buildship.ui.view.ExpandAllTreeNodesAction;
-import org.eclipse.buildship.ui.view.ShowFilterAction;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.ui.internal.UiPluginConstants;
+import org.eclipse.buildship.ui.internal.util.nodeselection.ActionEnablingSelectionChangedListener;
+import org.eclipse.buildship.ui.internal.util.nodeselection.ActionShowingContextMenuListener;
+import org.eclipse.buildship.ui.internal.util.nodeselection.SelectionSpecificAction;
+import org.eclipse.buildship.ui.internal.util.selection.ContextActivatingViewPartListener;
+import org.eclipse.buildship.ui.internal.view.CollapseAllTreeNodesAction;
+import org.eclipse.buildship.ui.internal.view.ExpandAllTreeNodesAction;
+import org.eclipse.buildship.ui.internal.view.ShowFilterAction;
 
 /**
  * Adds UI contributions to the {@link TaskView}.

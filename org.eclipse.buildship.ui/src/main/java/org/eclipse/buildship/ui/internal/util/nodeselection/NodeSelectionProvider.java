@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.nodeselection;
+package org.eclipse.buildship.ui.internal.util.nodeselection;
 
 /**
  * Provides the current selection of a visual component, respecting the temporal order of the selection.

@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task.adapter;
+package org.eclipse.buildship.ui.internal.view.task.adapter;
 
 import java.io.File;
 
@@ -22,11 +22,11 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import org.eclipse.buildship.core.util.file.FileUtils;
-import org.eclipse.buildship.ui.view.task.ProjectNode;
+import org.eclipse.buildship.core.internal.util.file.FileUtils;
+import org.eclipse.buildship.ui.internal.view.task.ProjectNode;
 
 /**
- * Adapts a {@link org.eclipse.buildship.ui.view.task.ProjectNode} instance to a {@link IPropertySource} instance.
+ * Adapts a {@link org.eclipse.buildship.ui.internal.view.task.ProjectNode} instance to a {@link IPropertySource} instance.
  */
 final class ProjectNodeAdapter implements IPropertySource {
 

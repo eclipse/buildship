@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.internal.view.execution;
 
 import java.text.DecimalFormat;
 

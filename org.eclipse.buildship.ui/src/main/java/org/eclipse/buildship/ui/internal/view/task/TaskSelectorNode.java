@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;

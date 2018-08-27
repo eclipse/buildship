@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -18,7 +18,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public final class TaskViewMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.view.task.TaskViewMessages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.internal.view.task.TaskViewMessages"; //$NON-NLS-1$
 
     public static String Label_No_Gradle_Projects;
     public static String Label_Reload_Error;

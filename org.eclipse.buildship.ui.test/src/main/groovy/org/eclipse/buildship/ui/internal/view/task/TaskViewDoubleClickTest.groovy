@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.view.task
+package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 

@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.selection;
+package org.eclipse.buildship.ui.internal.util.selection;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

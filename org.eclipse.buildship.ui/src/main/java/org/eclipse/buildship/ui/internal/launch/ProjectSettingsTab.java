@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.launch;
+package org.eclipse.buildship.ui.internal.launch;
 
 import java.io.File;
 
@@ -30,18 +30,18 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.util.binding.Validator;
-import org.eclipse.buildship.core.util.binding.Validators;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.preferences.GradleProjectPreferencePage;
-import org.eclipse.buildship.ui.util.widget.GradleDistributionGroup.DistributionChangedListener;
-import org.eclipse.buildship.ui.util.widget.GradleProjectSettingsComposite;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.util.binding.Validator;
+import org.eclipse.buildship.core.internal.util.binding.Validators;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
+import org.eclipse.buildship.ui.internal.PluginImages;
+import org.eclipse.buildship.ui.internal.preferences.GradleProjectPreferencePage;
+import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
+import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 
 /**
  * Specifies the Gradle distribution to apply when executing tasks via the run configurations.

@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
@@ -18,8 +18,8 @@ import com.google.common.collect.Ordering;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
-import org.eclipse.buildship.core.util.gradle.HierarchicalElementUtils;
-import org.eclipse.buildship.ui.view.task.TaskNode.TaskNodeType;
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
+import org.eclipse.buildship.ui.internal.view.task.TaskNode.TaskNodeType;
 
 /**
  * Sorts {@link TaskNode} instances based on their type and/or visibility.

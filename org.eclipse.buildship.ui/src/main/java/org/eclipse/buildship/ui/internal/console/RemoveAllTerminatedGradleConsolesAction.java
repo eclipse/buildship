@@ -9,16 +9,16 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.console;
+package org.eclipse.buildship.ui.internal.console;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
+import org.eclipse.buildship.ui.internal.PluginImages;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;

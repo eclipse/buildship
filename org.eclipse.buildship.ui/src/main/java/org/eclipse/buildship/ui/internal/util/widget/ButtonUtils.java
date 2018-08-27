@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.widget;
+package org.eclipse.buildship.ui.internal.util.widget;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;

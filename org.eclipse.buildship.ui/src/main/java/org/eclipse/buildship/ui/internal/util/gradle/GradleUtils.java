@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.gradle;
+package org.eclipse.buildship.ui.internal.util.gradle;
 
 import com.google.common.collect.ImmutableList;
 import org.gradle.tooling.events.OperationDescriptor;

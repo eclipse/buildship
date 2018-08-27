@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.buildship.ui.console;
+package org.eclipse.buildship.ui.internal.console;
 
 import java.net.URL;
 
@@ -16,8 +16,8 @@ import org.eclipse.ui.console.IPatternMatchListener;
 import org.eclipse.ui.console.PatternMatchEvent;
 import org.eclipse.ui.console.TextConsole;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.string.PatternUtils;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.util.string.PatternUtils;
 
 /**
  * Transforms all URLs to clickable links in the target console.

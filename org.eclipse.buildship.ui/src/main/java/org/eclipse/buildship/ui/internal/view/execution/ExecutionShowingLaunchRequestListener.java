@@ -9,16 +9,16 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.internal.view.execution;
 
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.event.Event;
-import org.eclipse.buildship.core.event.EventListener;
-import org.eclipse.buildship.core.launch.ExecuteLaunchRequestEvent;
-import org.eclipse.buildship.ui.util.workbench.WorkbenchUtils;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.event.Event;
+import org.eclipse.buildship.core.internal.event.EventListener;
+import org.eclipse.buildship.core.internal.launch.ExecuteLaunchRequestEvent;
+import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils;
 
 /**
  * {@link EventListener} implementation showing/activating the Executions View when a new Gradle

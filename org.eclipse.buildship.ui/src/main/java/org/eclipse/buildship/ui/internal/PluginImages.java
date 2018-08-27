@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui;
+package org.eclipse.buildship.ui.internal;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +23,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.graphics.Image;
 
-import org.eclipse.buildship.ui.util.image.ImageUtils;
+import org.eclipse.buildship.ui.internal.util.image.ImageUtils;
 
 /**
  * Enumerates all the images used in this plugin. Uses the {@link ImageRegistry} provided by the

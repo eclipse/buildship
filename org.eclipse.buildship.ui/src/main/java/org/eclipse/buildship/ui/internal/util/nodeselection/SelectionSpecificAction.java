@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.nodeselection;
+package org.eclipse.buildship.ui.internal.util.nodeselection;
 
 import org.eclipse.jface.action.IAction;
 

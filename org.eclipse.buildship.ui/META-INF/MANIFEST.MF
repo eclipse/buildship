@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.eclipse.buildship.ui;singleton:=true
 Bundle-Version: 3.0.0.qualifier
 Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-Activator: org.eclipse.buildship.ui.UiPlugin
+Bundle-Activator: org.eclipse.buildship.ui.internal.UiPlugin
 Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.core.runtime,
  org.eclipse.jdt.core,

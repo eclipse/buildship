@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 /**
  * Describes the common features of all task nodes.

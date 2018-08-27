@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.test.fixtures
+package org.eclipse.buildship.ui.internal.test.fixtures
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription

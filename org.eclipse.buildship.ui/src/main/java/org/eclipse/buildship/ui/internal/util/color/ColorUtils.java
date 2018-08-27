@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.color;
+package org.eclipse.buildship.ui.internal.util.color;
 
 import com.google.common.base.Preconditions;
 

@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.launch;
+package org.eclipse.buildship.ui.internal.launch;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,15 +29,15 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.launch.RunGradleJvmTestLaunchRequestJob;
-import org.eclipse.buildship.core.launch.TestMethod;
-import org.eclipse.buildship.core.launch.TestTarget;
-import org.eclipse.buildship.core.launch.TestType;
-import org.eclipse.buildship.core.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.launch.RunGradleJvmTestLaunchRequestJob;
+import org.eclipse.buildship.core.internal.launch.TestMethod;
+import org.eclipse.buildship.core.internal.launch.TestTarget;
+import org.eclipse.buildship.core.internal.launch.TestType;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.

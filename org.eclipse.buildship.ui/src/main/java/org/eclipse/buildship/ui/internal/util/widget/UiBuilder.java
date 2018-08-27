@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.util.widget;
+package org.eclipse.buildship.ui.internal.util.widget;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;

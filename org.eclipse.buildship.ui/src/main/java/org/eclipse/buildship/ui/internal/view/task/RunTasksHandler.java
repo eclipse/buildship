@@ -9,15 +9,15 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 
 /**
  * Runs the currently selected Gradle tasks. The tasks are run through an

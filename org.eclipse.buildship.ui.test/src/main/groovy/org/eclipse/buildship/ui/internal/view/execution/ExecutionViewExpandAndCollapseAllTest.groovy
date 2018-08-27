@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.view.execution
+package org.eclipse.buildship.ui.internal.view.execution
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 

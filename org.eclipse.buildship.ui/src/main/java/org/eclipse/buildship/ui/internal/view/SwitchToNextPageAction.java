@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view;
+package org.eclipse.buildship.ui.internal.view;
 
 import java.util.List;
 
@@ -19,8 +19,8 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
+import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
+import org.eclipse.buildship.ui.internal.PluginImages;
 
 /**
  * This is a drop down action, which switches to the next page of a {@link MultiPageView} and

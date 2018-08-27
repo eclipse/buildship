@@ -8,8 +8,6 @@
     <suppress checks="JavadocType"
               files=".+\.test(/|\\).+.java"/>
     <suppress checks="RegexpHeader"
-              files="org\.eclipse\.buildship\.ui[/|\\]src[/|\\]main[/|\\]java[/|\\]org[/|\\]eclipse[/|\\]buildship[/|\\]ui[/|\\]util[/|\\]selection[/|\\]SelectionUtils\.java" />
-    <suppress checks="RegexpHeader"
-              files="org\.eclipse\.buildship\.ui[/|\\]src[/|\\]main[/|\\]java[/|\\]org[/|\\]eclipse[/|\\]buildship[/|\\]ui[/|\\]external[/|\\]viewer[/|\\].*\.java" />
+              files="org\.eclipse\.buildship\.ui[/|\\]src[/|\\]main[/|\\]java[/|\\]org[/|\\]eclipse[/|\\]buildship[/|\\]ui[/|\\]internal[/|\\]util[/|\\]selection[/|\\]SelectionUtils\.java" />
 </suppressions>
 

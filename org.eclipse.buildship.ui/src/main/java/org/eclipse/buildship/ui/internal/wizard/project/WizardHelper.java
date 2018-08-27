@@ -6,13 +6,13 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.CoreException;
 
-import org.eclipse.buildship.core.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 
 /**
  * Helper method for the import wizards.

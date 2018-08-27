@@ -1,4 +1,4 @@
-package org.eclipse.buildship.ui.launch
+package org.eclipse.buildship.ui.internal.launch
 
 import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
@@ -10,8 +10,8 @@ import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchManager
 
-import org.eclipse.buildship.core.util.gradle.GradleDistribution
-import org.eclipse.buildship.ui.test.fixtures.SwtBotSpecification
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 
 class ClasspathSeparationTest extends SwtBotSpecification {
 

@@ -42,7 +42,7 @@ public interface ToolingApiOperationManager {
      * <p/>
      * If the target operation fails then the exception is caught internally and a new
      * {@code CoreException} is thrown containing a custom
-     * {@link org.eclipse.buildship.core.operation.ToolingApiStatus}.
+     * {@link org.eclipse.buildship.core.internal.operation.ToolingApiStatus}.
      *
      * @param operation the target Tooling API operation
      * @param tokenSource the cancellation token source to be used in the operation

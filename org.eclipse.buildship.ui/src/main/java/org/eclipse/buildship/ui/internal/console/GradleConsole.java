@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.console;
+package org.eclipse.buildship.ui.internal.console;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,11 +30,11 @@ import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleInputStream;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.core.console.ProcessStreams;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.core.internal.console.ProcessStreams;
+import org.eclipse.buildship.ui.internal.PluginImages;
+import org.eclipse.buildship.ui.internal.UiPlugin;
 
 /**
  * Provides a console to display the output of interacting with Gradle.

@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view;
+package org.eclipse.buildship.ui.internal.view;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.swt.widgets.Composite;
@@ -21,8 +21,8 @@ import org.eclipse.swt.widgets.Control;
  * Implementations can either implement this interface directly or inherit from the {@link BasePage}
  * class containing sensible defaults.
  *
- * @see org.eclipse.buildship.ui.view.BasePage
- * @see org.eclipse.buildship.ui.view.MultiPageView
+ * @see org.eclipse.buildship.ui.internal.view.BasePage
+ * @see org.eclipse.buildship.ui.internal.view.MultiPageView
  */
 public interface Page extends IAdaptable {
 

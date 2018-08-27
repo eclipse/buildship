@@ -9,11 +9,11 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.launch;
+package org.eclipse.buildship.ui.internal.launch;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.ui.internal.UiPlugin;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;

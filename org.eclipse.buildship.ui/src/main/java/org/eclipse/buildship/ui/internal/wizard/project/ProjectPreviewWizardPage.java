@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -52,25 +52,25 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.gradle.MissingFeatures;
-import org.eclipse.buildship.core.i18n.CoreMessages;
-import org.eclipse.buildship.core.operation.BaseToolingApiOperation;
-import org.eclipse.buildship.core.operation.ToolingApiOperations;
-import org.eclipse.buildship.core.operation.ToolingApiStatus;
-import org.eclipse.buildship.core.operation.ToolingApiStatus.ToolingApiStatusType;
-import org.eclipse.buildship.core.projectimport.ProjectImportConfiguration;
-import org.eclipse.buildship.core.util.binding.Property;
-import org.eclipse.buildship.core.util.gradle.GradleDistributionInfo;
-import org.eclipse.buildship.core.util.gradle.GradleVersion;
-import org.eclipse.buildship.core.util.gradle.Pair;
-import org.eclipse.buildship.core.workspace.FetchStrategy;
-import org.eclipse.buildship.core.workspace.ModelProvider;
-import org.eclipse.buildship.ui.util.font.FontUtils;
-import org.eclipse.buildship.ui.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.util.widget.UiBuilder;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.gradle.MissingFeatures;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
+import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
+import org.eclipse.buildship.core.internal.operation.ToolingApiOperations;
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType;
+import org.eclipse.buildship.core.internal.projectimport.ProjectImportConfiguration;
+import org.eclipse.buildship.core.internal.util.binding.Property;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+import org.eclipse.buildship.core.internal.util.gradle.Pair;
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
+import org.eclipse.buildship.core.internal.workspace.ModelProvider;
+import org.eclipse.buildship.ui.internal.util.font.FontUtils;
+import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
 
 /**
  * Page in the {@link ProjectImportWizard} showing a preview about the project about to be imported.

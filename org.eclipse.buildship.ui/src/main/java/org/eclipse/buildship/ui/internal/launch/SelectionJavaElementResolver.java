@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.launch;
+package org.eclipse.buildship.ui.internal.launch;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;

@@ -11,7 +11,7 @@
  *     Donát Csikós (Gradle Inc.) - Bug 471786
  */
 
-package org.eclipse.buildship.ui.workspace;
+package org.eclipse.buildship.ui.internal.workspace;
 
 import java.util.List;
 import java.util.Set;
@@ -30,11 +30,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.FileEditorInput;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.workspace.GradleBuilds;
-import org.eclipse.buildship.core.workspace.NewProjectHandler;
-import org.eclipse.buildship.core.workspace.SynchronizationJob;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.util.collections.AdapterFunction;
+import org.eclipse.buildship.core.internal.workspace.GradleBuilds;
+import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
+import org.eclipse.buildship.core.internal.workspace.SynchronizationJob;
 
 /**
  * Collects all selected, Gradle-aware {@link IProject} instances and schedules a

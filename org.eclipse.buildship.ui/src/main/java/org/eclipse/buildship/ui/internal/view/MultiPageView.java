@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view;
+package org.eclipse.buildship.ui.internal.view;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -39,7 +39,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.SubActionBars;
 import org.eclipse.ui.part.ViewPart;
 
-import org.eclipse.buildship.core.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 
 /**
  * Abstract view part that manages multiple {@link Page} elements shown within this view part. If

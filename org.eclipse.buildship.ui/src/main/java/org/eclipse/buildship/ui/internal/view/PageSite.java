@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view;
+package org.eclipse.buildship.ui.internal.view;
 
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewSite;

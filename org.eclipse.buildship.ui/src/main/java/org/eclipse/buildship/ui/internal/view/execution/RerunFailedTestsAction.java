@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.internal.view.execution;
 
 import java.util.List;
 
@@ -29,15 +29,15 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
 
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.launch.RunGradleTestLaunchRequestJob;
-import org.eclipse.buildship.ui.PluginImage.ImageState;
-import org.eclipse.buildship.ui.PluginImages;
-import org.eclipse.buildship.ui.i18n.UiMessages;
-import org.eclipse.buildship.ui.util.gradle.GradleUtils;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.launch.RunGradleTestLaunchRequestJob;
+import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
+import org.eclipse.buildship.ui.internal.PluginImages;
+import org.eclipse.buildship.ui.internal.i18n.UiMessages;
+import org.eclipse.buildship.ui.internal.util.gradle.GradleUtils;
 
 /**
- * Reruns the build represented by the target {@link org.eclipse.buildship.ui.view.execution.ExecutionPage}.
+ * Reruns the build represented by the target {@link org.eclipse.buildship.ui.internal.view.execution.ExecutionPage}.
  * <p/>
  * Note: we listen for removals of {@code ILaunchConfiguration} instances even though not every {@code ProcessDescription} implementation
  * is necessarily backed by a launch configuration. This means that in the worst case, {@code ProcessDescription#isRerunnable()} is invoked

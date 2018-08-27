@@ -9,14 +9,14 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.task;
+package org.eclipse.buildship.ui.internal.view.task;
 
 import org.osgi.service.prefs.BackingStoreException;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 
-import org.eclipse.buildship.core.util.preference.EclipsePreferencesUtils;
-import org.eclipse.buildship.ui.UiPlugin;
+import org.eclipse.buildship.core.internal.util.preference.EclipsePreferencesUtils;
+import org.eclipse.buildship.ui.internal.UiPlugin;
 
 /**
  * Represents the (persistable) configuration state of the {@link TaskView}. Backed by the Eclipse

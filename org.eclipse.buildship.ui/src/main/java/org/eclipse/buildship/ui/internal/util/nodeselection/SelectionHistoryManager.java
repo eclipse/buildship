@@ -10,7 +10,7 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 479243
  */
 
-package org.eclipse.buildship.ui.util.nodeselection;
+package org.eclipse.buildship.ui.internal.util.nodeselection;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -24,7 +24,7 @@ import java.util.List;
  * the {@link TreeViewer} and acts as {@link ISelectionProvider}, which can be
  * added to an {@link org.eclipse.ui.IViewSite}.
  *
- * @see org.eclipse.buildship.ui.view.task.TaskView
+ * @see org.eclipse.buildship.ui.internal.view.task.TaskView
  */
 public final class SelectionHistoryManager implements ISelectionProvider {
 

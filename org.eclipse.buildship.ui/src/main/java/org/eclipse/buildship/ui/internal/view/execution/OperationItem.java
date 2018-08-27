@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.internal.view.execution;
 
 import java.util.List;
 
@@ -24,12 +24,12 @@ import com.google.common.collect.Lists;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 
-import org.eclipse.buildship.ui.view.ObservableItem;
+import org.eclipse.buildship.ui.internal.view.ObservableItem;
 
 /**
  * <p>
  * {@code OperationItem} instances are the nodes added to the trees of the
- * {@link org.eclipse.buildship.ui.view.execution.ExecutionsView}.
+ * {@link org.eclipse.buildship.ui.internal.view.execution.ExecutionsView}.
  * </p>
  * <pre>
  * ISelection selection = HandlerUtil.getCurrentSelection(event);

@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.internal.view.execution;
 
 import org.gradle.tooling.LongRunningOperation;
 
@@ -19,11 +19,11 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 
-import org.eclipse.buildship.core.console.ProcessDescription;
-import org.eclipse.buildship.ui.view.MessagePage;
-import org.eclipse.buildship.ui.view.MultiPageView;
-import org.eclipse.buildship.ui.view.Page;
-import org.eclipse.buildship.ui.view.SwitchToNextPageAction;
+import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.ui.internal.view.MessagePage;
+import org.eclipse.buildship.ui.internal.view.MultiPageView;
+import org.eclipse.buildship.ui.internal.view.Page;
+import org.eclipse.buildship.ui.internal.view.SwitchToNextPageAction;
 
 /**
  * A view displaying the Gradle executions.

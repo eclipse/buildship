@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.view.execution;
+package org.eclipse.buildship.ui.internal.view.execution;
 
 import java.util.List;
 
@@ -22,11 +22,11 @@ import com.google.common.collect.FluentIterable;
 
 import org.eclipse.jface.action.Action;
 
-import org.eclipse.buildship.core.configuration.RunConfiguration;
-import org.eclipse.buildship.core.launch.RunGradleTestLaunchRequestJob;
-import org.eclipse.buildship.ui.util.gradle.GradleUtils;
-import org.eclipse.buildship.ui.util.nodeselection.NodeSelection;
-import org.eclipse.buildship.ui.util.nodeselection.SelectionSpecificAction;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.launch.RunGradleTestLaunchRequestJob;
+import org.eclipse.buildship.ui.internal.util.gradle.GradleUtils;
+import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
+import org.eclipse.buildship.ui.internal.util.nodeselection.SelectionSpecificAction;
 
 /**
  * Action to launch a new Gradle execution specified by {@link TestOperationDescriptor} instances.
