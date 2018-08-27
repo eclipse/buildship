@@ -31,10 +31,10 @@ import org.eclipse.buildship.core.internal.console.impl.StdProcessStreamsProvide
 import org.eclipse.buildship.core.internal.event.ListenerRegistry;
 import org.eclipse.buildship.core.internal.event.impl.DefaultListenerRegistry;
 import org.eclipse.buildship.core.invocation.InvocationCustomizer;
+import org.eclipse.buildship.core.internal.launch.DefaultExternalLaunchConfigurationManager;
+import org.eclipse.buildship.core.internal.launch.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.launch.ExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.internal.launch.impl.DefaultExternalLaunchConfigurationManager;
-import org.eclipse.buildship.core.internal.launch.impl.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.operation.ToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.operation.impl.DefaultToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.preferences.DefaultModelPersistence;

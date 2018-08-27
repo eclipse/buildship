@@ -10,7 +10,7 @@
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 478054
  */
 
-package org.eclipse.buildship.core.internal.launch.impl;
+package org.eclipse.buildship.core.internal.launch;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -21,7 +21,7 @@ import org.osgi.framework.BundleException;
 /**
  * Helper class to activate plugins which contribute to the {@code executionparticipants} extension point.
  */
-public final class BuildExecutionParticipants {
+final class BuildExecutionParticipants {
 
     // the fully-qualified name of the extension point
     private static final String EXECUTION_PARTICIPANTS_EXTENSION_ID = CorePlugin.PLUGIN_ID + ".executionparticipants";

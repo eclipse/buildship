@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.launch.impl;
+package org.eclipse.buildship.core.internal.launch;
 
 import java.util.Collections;
 import java.util.Map;
@@ -33,7 +33,6 @@ import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureConf
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureDeconfiguredEvent;
 import org.eclipse.buildship.core.internal.event.Event;
 import org.eclipse.buildship.core.internal.event.EventListener;
-import org.eclipse.buildship.core.internal.launch.ExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent;
 

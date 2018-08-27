@@ -10,19 +10,18 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - refactoring and integration
  */
 
-package org.eclipse.buildship.core.internal.launch.impl;
+package org.eclipse.buildship.core.internal.launch;
 
 import org.gradle.tooling.LongRunningOperation;
 
 import com.google.common.base.Preconditions;
 
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
-import org.eclipse.buildship.core.internal.launch.ExecuteLaunchRequestEvent;
 
 /**
  * Default implementation of {@link ExecuteLaunchRequestEvent}.
  */
-public final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequestEvent {
+final class DefaultExecuteLaunchRequestEvent implements ExecuteLaunchRequestEvent {
     private final ProcessDescription processDescription;
     private final LongRunningOperation operation;
 

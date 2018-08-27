@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.launch.impl;
+package org.eclipse.buildship.core.internal.launch;
 
 import java.util.Set;
 
@@ -29,7 +29,7 @@ import org.eclipse.jdt.launching.JavaLaunchDelegate;
  *
  * @author Donat Csikos
  */
-public enum SupportedLaunchConfigType {
+enum SupportedLaunchConfigType {
 
     JDT_JAVA_APPLICATION("org.eclipse.jdt.launching.localJavaApplication") {
 

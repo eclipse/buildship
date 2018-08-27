@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal.launch.impl;
+package org.eclipse.buildship.core.internal.launch;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +75,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
             }
         }
 
-        List<IRuntimeClasspathEntry> result = new ArrayList<IRuntimeClasspathEntry>(entriesToFilter.length);
+        List<IRuntimeClasspathEntry> result = new ArrayList<>(entriesToFilter.length);
         for (IRuntimeClasspathEntry  entry : entriesToFilter) {
             if (!excludedPaths.contains(entry.getPath())) {
                 result.add(entry);
@@ -112,7 +112,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
         // replaced with a resolveClasspath(). This way we can intercept and update the project
         // entry resolution using the resolveProject() method.
         if (entry instanceof DefaultProjectClasspathEntry) {
-            List<IRuntimeClasspathEntry> result = new ArrayList<IRuntimeClasspathEntry>();
+            List<IRuntimeClasspathEntry> result = new ArrayList<>();
             for (IRuntimeClasspathEntry e : ((IRuntimeClasspathEntry2) entry).getRuntimeClasspathEntries(configuration)) {
                 Collections.addAll(result, resolveClasspath(new IRuntimeClasspathEntry[] { e }, configuration));
             }

@@ -11,9 +11,6 @@ import org.eclipse.jdt.core.IJavaProject
 
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
-import org.eclipse.buildship.core.internal.launch.impl.DefaultExternalLaunchConfigurationManager
-import org.eclipse.buildship.core.internal.launch.impl.GradleClasspathProvider
-import org.eclipse.buildship.core.internal.launch.impl.SupportedLaunchConfigType
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class ExternalLaunchConfigurationManagerTest extends WorkspaceSpecification {

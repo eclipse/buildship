@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.launch.impl;
+package org.eclipse.buildship.core.internal.launch;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -23,9 +23,6 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
-import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
-import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 
 /**

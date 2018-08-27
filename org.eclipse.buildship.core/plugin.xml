@@ -80,7 +80,7 @@
     <extension
           point="org.eclipse.jdt.launching.classpathProviders">
        <classpathProvider
-             class="org.eclipse.buildship.core.internal.launch.impl.GradleClasspathProvider"
+             class="org.eclipse.buildship.core.internal.launch.GradleClasspathProvider"
              id="org.eclipse.buildship.core.classpathprovider">
        </classpathProvider>
     </extension>
