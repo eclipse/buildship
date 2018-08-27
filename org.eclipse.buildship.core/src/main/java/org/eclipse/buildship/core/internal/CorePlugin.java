@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.internal.configuration.DefaultConfigurationManager;
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
-import org.eclipse.buildship.core.internal.console.impl.StdProcessStreamsProvider;
+import org.eclipse.buildship.core.internal.console.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.event.DefaultListenerRegistry;
 import org.eclipse.buildship.core.internal.event.ListenerRegistry;
 import org.eclipse.buildship.core.invocation.InvocationCustomizer;

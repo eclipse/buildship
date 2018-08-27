@@ -9,11 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.console.impl;
-
-import org.eclipse.buildship.core.internal.console.ProcessDescription;
-import org.eclipse.buildship.core.internal.console.ProcessStreams;
-import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
+package org.eclipse.buildship.core.internal.console;
 
 import java.io.InputStream;
 import java.io.OutputStream;
