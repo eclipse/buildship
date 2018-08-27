@@ -12,7 +12,7 @@
             point="org.eclipse.jdt.core.classpathContainerInitializer">
         <classpathContainerInitializer
                 id="org.eclipse.buildship.core.gradleclasspathcontainer"
-                class="org.eclipse.buildship.core.internal.workspace.impl.GradleClasspathContainerInitializer">
+                class="org.eclipse.buildship.core.internal.workspace.GradleClasspathContainerInitializer">
         </classpathContainerInitializer>
     </extension>
 
@@ -72,7 +72,7 @@
     <extension
           point="org.eclipse.jdt.launching.runtimeClasspathEntryResolvers">
        <runtimeClasspathEntryResolver
-             class="org.eclipse.buildship.core.internal.workspace.impl.GradleClasspathContainerRuntimeClasspathEntryResolver"
+             class="org.eclipse.buildship.core.internal.workspace.GradleClasspathContainerRuntimeClasspathEntryResolver"
              container="org.eclipse.buildship.core.gradleclasspathcontainer"
              id="org.eclipse.buildship.core.classpathcontainerentryresolver">
        </runtimeClasspathEntryResolver>

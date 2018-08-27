@@ -23,12 +23,11 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.workspace.impl.DefaultGradleClasspathContainer;
 
 /**
  * API to define classpath container for Buildship project and external dependencies.
  */
-public abstract class GradleClasspathContainer implements IClasspathContainer {
+abstract class GradleClasspathContainer implements IClasspathContainer {
 
     /**
      * The path where all Gradle projects store their external
