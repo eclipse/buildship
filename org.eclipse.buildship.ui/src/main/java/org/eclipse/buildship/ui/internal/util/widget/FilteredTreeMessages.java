@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.internal.extviewer;
+package org.eclipse.buildship.ui.internal.util.widget;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -25,7 +25,7 @@ import org.eclipse.osgi.util.NLS;
  *******************************************************************************/
 public class FilteredTreeMessages extends NLS {
 
-    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.internal.extviewer.FilteredTreeMessages";//$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.internal.util.widget.FilteredTreeMessages";//$NON-NLS-1$
 
     public static String FilteredTree_AccessibleListenerClearButton;
     public static String FilteredTree_ClearToolTip;

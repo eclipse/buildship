@@ -44,11 +44,11 @@ import org.eclipse.ui.wizards.IWizardDescriptor;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
 import org.eclipse.buildship.ui.internal.UiPluginConstants;
-import org.eclipse.buildship.ui.internal.extviewer.FilteredTree;
-import org.eclipse.buildship.ui.internal.extviewer.PatternFilter;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelectionProvider;
 import org.eclipse.buildship.ui.internal.util.nodeselection.SelectionHistoryManager;
+import org.eclipse.buildship.ui.internal.util.widget.FilteredTree;
+import org.eclipse.buildship.ui.internal.util.widget.PatternFilter;
 
 /**
  * A view displaying the Gradle tasks of the Gradle projects in the workspace.

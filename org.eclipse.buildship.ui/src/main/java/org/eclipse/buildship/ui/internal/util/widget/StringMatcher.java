@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.internal.extviewer;
+package org.eclipse.buildship.ui.internal.util.widget;
 
 import java.util.Vector;
 

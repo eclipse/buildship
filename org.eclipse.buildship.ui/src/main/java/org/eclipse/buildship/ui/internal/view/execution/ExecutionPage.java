@@ -54,13 +54,13 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
 
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
-import org.eclipse.buildship.ui.internal.extviewer.FilteredTree;
-import org.eclipse.buildship.ui.internal.extviewer.PatternFilter;
 import org.eclipse.buildship.ui.internal.util.nodeselection.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelectionProvider;
 import org.eclipse.buildship.ui.internal.util.nodeselection.SelectionHistoryManager;
 import org.eclipse.buildship.ui.internal.util.nodeselection.SelectionSpecificAction;
+import org.eclipse.buildship.ui.internal.util.widget.FilteredTree;
+import org.eclipse.buildship.ui.internal.util.widget.PatternFilter;
 import org.eclipse.buildship.ui.internal.view.BasePage;
 import org.eclipse.buildship.ui.internal.view.CollapseAllTreeNodesAction;
 import org.eclipse.buildship.ui.internal.view.ExpandAllTreeNodesAction;
