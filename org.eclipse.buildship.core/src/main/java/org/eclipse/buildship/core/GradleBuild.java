@@ -8,21 +8,21 @@
 
 package org.eclipse.buildship.core;
 
-import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
- * Manages the Gradle builds contained in the current Eclipse workspace.
+ * Represents a Gradle build that can be imported into or synchronized with the workspace.
  *
  * @author Donat Csikos
  * @since 3.0
  */
-public interface GradleWorkspace {
+public interface GradleBuild {
 
     /**
-     * Returns a reference to a Gradle build containing the target project.
+     * Synchronizes this build with the workspace.
      *
-     * @param project the target project
-     * @return the Gradle build
+     * @param monitor the progress monitor
+     * @return the synchronization result
      */
-    GradleBuild getBuild(IProject project);
+    SynchronizationResult synchronize(IProgressMonitor monitor);
 }

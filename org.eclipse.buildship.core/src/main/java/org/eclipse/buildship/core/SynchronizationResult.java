@@ -8,21 +8,21 @@
 
 package org.eclipse.buildship.core;
 
-import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
 
 /**
- * Manages the Gradle builds contained in the current Eclipse workspace.
+ * Contains the result of a Gradle project synchronization.
  *
  * @author Donat Csikos
  * @since 3.0
+ *
  */
-public interface GradleWorkspace {
+public interface SynchronizationResult {
 
     /**
-     * Returns a reference to a Gradle build containing the target project.
+     * Returns the status object containing the result status.
      *
-     * @param project the target project
-     * @return the Gradle build
+     * @return the result status
      */
-    GradleBuild getBuild(IProject project);
+    IStatus getStatus();
 }

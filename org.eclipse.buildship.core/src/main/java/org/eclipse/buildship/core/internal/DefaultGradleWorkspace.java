@@ -8,6 +8,9 @@
 
 package org.eclipse.buildship.core.internal;
 
+import org.eclipse.core.resources.IProject;
+
+import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.GradleWorkspace;
 
 /**
@@ -17,4 +20,9 @@ import org.eclipse.buildship.core.GradleWorkspace;
  */
 public final class DefaultGradleWorkspace implements GradleWorkspace {
 
+    @Override
+    public GradleBuild getBuild(IProject project) {
+        // TODO (donat) implement
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
 }
