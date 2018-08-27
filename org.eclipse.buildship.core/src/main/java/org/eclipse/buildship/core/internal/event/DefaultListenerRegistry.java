@@ -9,13 +9,9 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.event.impl;
+package org.eclipse.buildship.core.internal.event;
 
 import com.google.common.collect.ImmutableList;
-
-import org.eclipse.buildship.core.internal.event.Event;
-import org.eclipse.buildship.core.internal.event.EventListener;
-import org.eclipse.buildship.core.internal.event.ListenerRegistry;
 
 import java.util.LinkedHashSet;
 import java.util.List;
