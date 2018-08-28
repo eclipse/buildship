@@ -68,7 +68,8 @@ class RefreshingTheGradleClasspathContainer extends ProjectSynchronizationSpecif
         defineLocalGroovyDependency(new File(secondLocation, 'build.gradle'))
 
         when:
-        synchronizeAndWait(firstProject.project, secondProject.project)
+        synchronizeAndWait(firstProject.project)
+        synchronizeAndWait(secondProject.project)
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(firstProject)

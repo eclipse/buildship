@@ -40,10 +40,8 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(newProjectHandler, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
     }
 
-    protected void synchronizeAndWait(IProject... projects) {
-        for (IProject project : projects) {
-            GradleCore.workspace.getBuild(project).synchronize(new NullProgressMonitor())
-        }
+    protected void synchronizeAndWait(IProject project) {
+        GradleCore.workspace.getBuild(project).synchronize(new NullProgressMonitor())
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
     }
