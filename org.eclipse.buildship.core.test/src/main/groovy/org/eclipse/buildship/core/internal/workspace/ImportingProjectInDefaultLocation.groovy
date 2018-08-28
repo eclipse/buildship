@@ -9,7 +9,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
 
     def "Can import projects located in workspace folder with default name"() {
         when:
-        synchronizeAndWait(workspaceDir('sample'))
+        importAndWait(workspaceDir('sample'))
 
         then:
         findProject("sample")
@@ -22,7 +22,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         }
 
         when:
-        synchronizeAndWait(rootProject)
+        importAndWait(rootProject)
 
         then:
         thrown(UnsupportedConfigurationException)
@@ -31,11 +31,11 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
     def "Disallow synchornizing projects located in workspace folder and with custom root name"() {
         setup:
         File rootProject = workspaceDir('sample2')
-        synchronizeAndWait(rootProject)
+        importAndWait(rootProject)
 
         when:
         new File(rootProject, 'settings.gradle') << "rootProject.name = 'my-project-name-is-different-than-the-folder'"
-        synchronizeAndWait(rootProject)
+        importAndWait(rootProject)
 
         then:
         thrown(UnsupportedConfigurationException)
@@ -43,7 +43,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
 
     def "Disallow importing the workspace root"() {
         when:
-        synchronizeAndWait(workspaceDir)
+        importAndWait(workspaceDir)
 
         then:
         thrown(ImportRootProjectException)
@@ -56,7 +56,7 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         }
 
         when:
-        synchronizeAndWait(workspaceDir)
+        importAndWait(workspaceDir)
 
         then:
         thrown(ImportRootProjectException)

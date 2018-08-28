@@ -18,7 +18,7 @@ class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecificati
             dir 'subproject-b'
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         expect:
         findProject('subproject-a').hasNature(GradleProjectNature.ID)
@@ -38,7 +38,7 @@ class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecificati
             dir 'subproject-b'
             file 'settings.gradle', "include 'subproject-a', 'subproject-b'"
         }
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         expect:
         IProject project = findProject('subproject-a')
@@ -60,7 +60,7 @@ class UncouplingProjectFromGradleBuild extends ProjectSynchronizationSpecificati
             file 'build.gradle', "apply plugin: 'java'"
             file 'settings.gradle', "include 'sample-sub'"
         }
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         expect:
         CorePlugin.modelPersistence().loadModel(findProject('sample-root')).present

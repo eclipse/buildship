@@ -14,7 +14,7 @@ class ImportingProjectWithoutDescriptor extends SingleProjectSynchronizationSpec
         CorePlugin.workspaceOperations().allProjects.empty
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         CorePlugin.workspaceOperations().allProjects.size() == 1

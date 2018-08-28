@@ -12,7 +12,7 @@ class ExecutionViewTest extends BaseExecutionViewTest {
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
         launchTaskAndWait(projectDir, 'foo')
 
         then:

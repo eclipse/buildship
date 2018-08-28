@@ -33,7 +33,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')
@@ -76,7 +76,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')
@@ -93,7 +93,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')
@@ -113,7 +113,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         environment.registerService(Logger, logger)
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         0 * logger.error(*_)
@@ -134,7 +134,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')
@@ -156,7 +156,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         def project = findProject('sample-project')
@@ -325,7 +325,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         def project = findProject("sample-project")
@@ -341,7 +341,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         List<IClasspathEntry> containers = findJavaProject('sample-project').rawClasspath.findAll {
@@ -789,7 +789,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
            }
 
            when:
-           synchronizeAndWait(projectDir)
+           importAndWait(projectDir)
 
            then:
            IJavaProject project = findJavaProject('sample-project')
