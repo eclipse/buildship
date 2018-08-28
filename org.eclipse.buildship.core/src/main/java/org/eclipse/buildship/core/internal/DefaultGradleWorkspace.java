@@ -8,10 +8,13 @@
 
 package org.eclipse.buildship.core.internal;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.GradleWorkspace;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 
 /**
  * Default implementation for {@link GradleWorkspace}.
@@ -22,6 +25,8 @@ public final class DefaultGradleWorkspace implements GradleWorkspace {
 
     @Override
     public GradleBuild getBuild(IProject project) {
+        Preconditions.checkNotNull(project);
+        Preconditions.checkArgument(GradleProjectNature.isPresentOn(project));
         return DefaultGradleBuild.from(project);
     }
 }

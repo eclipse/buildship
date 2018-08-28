@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
+import org.eclipse.buildship.core.GradleCore
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
@@ -40,7 +41,9 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void synchronizeAndWait(IProject... projects) {
-        CorePlugin.gradleWorkspaceManager().getGradleBuilds(projects as Set).synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        for (IProject project : projects) {
+            GradleCore.workspace.getBuild(project).synchronize(new NullProgressMonitor())
+        }
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
     }
