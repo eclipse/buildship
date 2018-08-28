@@ -23,6 +23,8 @@ public interface GradleWorkspace {
      *
      * @param project the target project
      * @return the Gradle build
+     * @throws NullPointerException if project is null
+     * @throws IllegalArgumentException if the project is closed or not a Gradle project
      */
     GradleBuild getBuild(IProject project);
 }
