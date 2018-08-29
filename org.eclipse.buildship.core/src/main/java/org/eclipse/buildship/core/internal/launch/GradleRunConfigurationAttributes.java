@@ -24,10 +24,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 
 /**
@@ -219,7 +220,7 @@ public final class GradleRunConfigurationAttributes {
         launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, gradleDistribution);
     }
 
-    public static void applyGradleDistribution(GradleDistribution gradleDistribution, ILaunchConfigurationWorkingCopy launchConfiguration) {
+    public static void applyGradleDistribution(DefaultGradleDistribution gradleDistribution, ILaunchConfigurationWorkingCopy launchConfiguration) {
         launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, gradleDistribution.serializeToString());
     }
 
@@ -263,7 +264,7 @@ public final class GradleRunConfigurationAttributes {
         Preconditions.checkNotNull(launchConfiguration);
         List<String> tasks = getListAttribute(TASKS, launchConfiguration);
         String workingDirExpression = getStringAttribute(WORKING_DIR, "", launchConfiguration);
-        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, GradleDistribution.fromBuild().serializeToString(), launchConfiguration);
+        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, ((DefaultGradleDistribution) GradleDistribution.fromBuild()).serializeToString(), launchConfiguration);
         String gradleUserHomeExpression = getStringAttribute(GRADLE_USER_HOME, null, launchConfiguration);
         String javaHomeExpression = getStringAttribute(JAVA_HOME, null, launchConfiguration);
         List<String> jvmArgumentExpressions = getListAttribute(JVM_ARGUMENTS, launchConfiguration);

@@ -13,8 +13,8 @@ import java.util.Optional;
 
 import com.google.common.base.Preconditions;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.GradleWorkspace;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 
 /**
  * Describes a configuration of a Gradle build.
@@ -69,7 +69,6 @@ public final class BuildConfiguration {
     public File getRootProjectDirectory() {
         return this.rootProjectDirectory;
     }
-
     /**
      * Returns Gradle user home for this configuration.
      * <p>

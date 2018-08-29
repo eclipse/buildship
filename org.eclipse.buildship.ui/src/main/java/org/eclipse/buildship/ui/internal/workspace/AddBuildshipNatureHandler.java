@@ -21,11 +21,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.internal.workspace.SynchronizationJob;

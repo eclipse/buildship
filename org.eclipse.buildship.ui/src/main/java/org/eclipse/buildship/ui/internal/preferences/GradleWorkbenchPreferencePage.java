@@ -17,13 +17,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 import org.eclipse.buildship.ui.internal.util.widget.GradleUserHomeGroup;
@@ -66,7 +67,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         File gradleUserHome = config.getGradleUserHome();
         String gradleUserHomePath = gradleUserHome == null ? "" : gradleUserHome.getPath();
 
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(gradleDistribution.getDistributionInfo());
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(((DefaultGradleDistribution) gradleDistribution).getDistributionInfo());
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(gradleUserHomePath);
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(config.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(config.isBuildScansEnabled());
@@ -95,7 +96,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     @Override
     protected void performDefaults() {
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText("");
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(GradleDistribution.fromBuild().getDistributionInfo());
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(((DefaultGradleDistribution) GradleDistribution.fromBuild()).getDistributionInfo());
         super.performDefaults();
     }
 

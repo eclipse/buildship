@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.internal.wizard.project;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.model.build.BuildEnvironment;
@@ -52,7 +53,9 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.PageBook;
 
+import org.eclipse.buildship.core.GradleDistribution.Type;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.gradle.MissingFeatures;
@@ -63,7 +66,6 @@ import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType;
 import org.eclipse.buildship.core.internal.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.internal.util.binding.Property;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.Pair;
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
@@ -237,18 +239,23 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             return;
         }
 
-        switch (distributionInfo.getType()) {
-            case INVALID:
-            case WRAPPER:
-            case LOCAL_INSTALLATION:
-            case REMOTE_DISTRIBUTION:
-                target.setText(defaultMessage);
-                break;
-            case VERSION:
-                target.setText(distributionInfo.getConfiguration());
-                break;
-            default:
-                throw new GradlePluginsRuntimeException("Unrecognized Gradle distribution type: " + distributionInfo.getType()); //$NON-NLS-1$
+        Optional<Type> typeOrNull = distributionInfo.getType();
+        if (!typeOrNull.isPresent()) {
+            target.setText(defaultMessage);
+        } else {
+            Type type = typeOrNull.get();
+            switch (type) {
+                case WRAPPER:
+                case LOCAL_INSTALLATION:
+                case REMOTE_DISTRIBUTION:
+                    target.setText(defaultMessage);
+                    break;
+                case VERSION:
+                    target.setText(distributionInfo.getConfiguration());
+                    break;
+                default:
+                    throw new GradlePluginsRuntimeException("Unrecognized Gradle distribution type: " + distributionInfo.getType()); //$NON-NLS-1$
+            }
         }
 
         // if the length of the text is changed and the version warning is visible then we have to

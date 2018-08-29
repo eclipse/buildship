@@ -1,7 +1,8 @@
 package org.eclipse.buildship.core
 
+
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution.Type
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution.Type
 
 class GradleDistributionTest extends WorkspaceSpecification {
 
@@ -10,7 +11,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistribution.fromBuild();
 
         expect:
-        distribution.distributionType == Type.WRAPPER
+        distribution.type == Type.WRAPPER
         distribution.configuration == ''
     }
 
@@ -20,7 +21,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistribution.forLocalInstallation(dir)
 
         expect:
-        distribution.distributionType == Type.LOCAL_INSTALLATION
+        distribution.type == Type.LOCAL_INSTALLATION
         distribution.configuration == dir.absolutePath
     }
 
@@ -49,7 +50,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistribution.forRemoteDistribution(new URI('https://example.com/gradle-dist'))
 
         expect:
-        distribution.distributionType == Type.REMOTE_DISTRIBUTION
+        distribution.type == Type.REMOTE_DISTRIBUTION
         distribution.configuration == 'https://example.com/gradle-dist'
     }
 
@@ -66,7 +67,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistribution.forVersion("4.9")
 
         expect:
-        distribution.distributionType == Type.VERSION
+        distribution.type == Type.VERSION
         distribution.configuration == '4.9'
     }
 

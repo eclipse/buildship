@@ -20,12 +20,13 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 import org.eclipse.buildship.ui.internal.util.widget.GradleUserHomeGroup;
 
@@ -65,7 +66,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
         IProject project = getTargetProject();
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
         boolean overrideWorkspaceSettings = buildConfig.isOverrideWorkspaceSettings();
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(buildConfig.getGradleDistribution().getDistributionInfo());
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(((DefaultGradleDistribution) buildConfig.getGradleDistribution()).getDistributionInfo());
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().setGradleUserHome(buildConfig.getGradleUserHome());
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(overrideWorkspaceSettings);
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(buildConfig.isBuildScansEnabled());

@@ -15,10 +15,11 @@ import com.google.common.base.Preconditions;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 
 /**
  * Provides capability to read and save configuration properties on a target project.
@@ -130,7 +131,7 @@ final class BuildConfigurationPersistence {
 
     private static void savePreferences(DefaultBuildConfigurationProperties properties, PreferenceStore preferences) {
         if (properties.isOverrideWorkspaceSettings()) {
-            String gradleDistribution = properties.getGradleDistribution().serializeToString();
+            String gradleDistribution = ((DefaultGradleDistribution) properties.getGradleDistribution()).serializeToString();
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
             preferences.write(PREF_KEY_GRADLE_USER_HOME, toPortableString(properties.getGradleUserHome()));
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());

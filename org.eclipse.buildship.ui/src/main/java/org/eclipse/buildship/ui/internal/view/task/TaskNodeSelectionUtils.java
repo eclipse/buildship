@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
@@ -109,7 +110,7 @@ public final class TaskNodeSelectionUtils {
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadBuildConfiguration(rootDir);
         return new GradleRunConfigurationAttributes(tasks,
                                                     projectDirectoryExpression(workingDir),
-                                                    buildConfig.getGradleDistribution().serializeToString(),
+                                                    ((DefaultGradleDistribution) buildConfig.getGradleDistribution()).serializeToString(),
                                                     gradleUserHomeExpression(buildConfig.getGradleUserHome()),
                                                     null,
                                                     Collections.<String>emptyList(),

@@ -11,6 +11,8 @@ package org.eclipse.buildship.core;
 import java.io.File;
 import java.net.URI;
 
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+
 /**
  * Represents a Gradle distribution.
  *
@@ -27,7 +29,7 @@ public abstract class GradleDistribution {
      * @return a new distribution instance
      */
     public static GradleDistribution forLocalInstallation(File installationDir) {
-        return org.eclipse.buildship.core.internal.util.gradle.GradleDistribution.forLocalInstallation(installationDir);
+        return DefaultGradleDistribution.forLocalInstallation(installationDir);
     }
 
     /**
@@ -38,7 +40,7 @@ public abstract class GradleDistribution {
      * @return a new distribution instance
      */
     public static GradleDistribution forRemoteDistribution(URI distributionUri) {
-        return org.eclipse.buildship.core.internal.util.gradle.GradleDistribution.forRemoteDistribution(distributionUri);
+        return DefaultGradleDistribution.forRemoteDistribution(distributionUri);
     }
 
     /**
@@ -49,7 +51,7 @@ public abstract class GradleDistribution {
      * @return a new distribution instance
      */
     public static GradleDistribution forVersion(String version) {
-        return org.eclipse.buildship.core.internal.util.gradle.GradleDistribution.forVersion(version);
+        return DefaultGradleDistribution.forVersion(version);
     }
 
     /**
@@ -59,6 +61,6 @@ public abstract class GradleDistribution {
      * @see org.gradle.tooling.GradleConnector#useBuildDistribution()
      */
     public static GradleDistribution fromBuild() {
-        return org.eclipse.buildship.core.internal.util.gradle.GradleDistribution.fromBuild();
+        return DefaultGradleDistribution.fromBuild();
     }
 }

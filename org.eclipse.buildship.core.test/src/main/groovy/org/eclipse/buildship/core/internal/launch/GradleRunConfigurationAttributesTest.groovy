@@ -15,10 +15,10 @@ import spock.lang.Shared
 
 import org.eclipse.debug.core.ILaunchConfiguration
 
+import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.GradleDistributionInfo
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo
 
 class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
 

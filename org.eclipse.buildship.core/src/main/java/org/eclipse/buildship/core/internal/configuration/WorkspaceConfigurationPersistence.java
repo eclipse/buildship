@@ -17,10 +17,11 @@ import com.google.common.base.Preconditions;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 
 
 /**
@@ -54,7 +55,7 @@ final class WorkspaceConfigurationPersistence {
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
         Preconditions.checkNotNull(config);
         IEclipsePreferences preferences = getPreferences();
-        preferences.put(GRADLE_DISTRIBUTION, config.getGradleDistribution().serializeToString());
+        preferences.put(GRADLE_DISTRIBUTION, ((DefaultGradleDistribution) config.getGradleDistribution()).serializeToString());
         if (config.getGradleUserHome() == null) {
             preferences.remove(GRADLE_USER_HOME);
         } else {
