@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspace
+import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.ILogListener
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.Path
@@ -76,7 +77,12 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected void deleteAllProjects(boolean includingContent) {
         for (IProject project : CorePlugin.workspaceOperations().allProjects) {
-            project.delete(includingContent, true, null)
+             try {
+                project.delete(includingContent, true, null)
+            } catch(CoreException e) {
+               CorePlugin.logger().warn("Cannot delete test project ${project.name}; falling back to workspace cleaning", e)
+               project.delete(false, true, null)
+            }
         }
         workspaceDir.listFiles().findAll { it.isDirectory() && it.name != '.metadata' }.each { File it -> it.deleteDir() }
     }

@@ -16,6 +16,7 @@ import org.junit.Rule
 import org.junit.rules.ExternalResource
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.jobs.Job
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView
@@ -52,7 +53,12 @@ abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
 
     protected void deleteAllProjects(boolean includingContent) {
         for (IProject project : CorePlugin.workspaceOperations().allProjects) {
-            project.delete(includingContent, true, null)
+            try {
+                project.delete(includingContent, true, null)
+            } catch(CoreException e) {
+               CorePlugin.logger().warn("Cannot delete test project ${project.name}; falling back to workspace cleaning", e)
+               project.delete(false, true, null)
+            }
         }
     }
 
