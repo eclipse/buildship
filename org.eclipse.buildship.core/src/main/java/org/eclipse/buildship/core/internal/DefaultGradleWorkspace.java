@@ -29,7 +29,7 @@ public final class DefaultGradleWorkspace implements GradleWorkspace {
     public Optional<GradleBuild> getBuild(IProject project) {
         Preconditions.checkNotNull(project);
         if (GradleProjectNature.isPresentOn(project)) {
-            return Optional.of(DefaultGradleBuild.from(project));
+            return Optional.of(new DefaultGradleBuild(project));
         } else {
             return Optional.empty();
         }

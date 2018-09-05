@@ -60,9 +60,4 @@ public final class DefaultGradleBuild implements GradleBuild {
             }
         };
     }
-
-    public static GradleBuild from(IProject project) {
-        return new DefaultGradleBuild(project);
-    }
-
 }
