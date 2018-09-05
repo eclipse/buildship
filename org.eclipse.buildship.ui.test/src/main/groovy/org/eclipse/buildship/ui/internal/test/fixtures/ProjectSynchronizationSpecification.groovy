@@ -25,7 +25,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void synchronizeAndWait(IProject project) {
-        GradleCore.workspace.getBuild(project).synchronize(new NullProgressMonitor());
+        GradleCore.workspace.getBuild(project).get().synchronize(new NullProgressMonitor());
         waitForGradleJobsToFinish()
     }
 
