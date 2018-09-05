@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.core;
 
+import java.util.Optional;
+
 import org.eclipse.core.resources.IProject;
 
 /**
@@ -20,11 +22,13 @@ public interface GradleWorkspace {
 
     /**
      * Returns a reference to a Gradle build containing the target project.
+     * <p>
+     * If the target project is not accessible or not part of a Gradle build then the method returns
+     * {@code Optional#empty()}.
      *
      * @param project the target project
-     * @return the Gradle build
+     * @return the Gradle build or {@code Optional#empty()} for non-Gradle projects.
      * @throws NullPointerException if project is null
-     * @throws IllegalArgumentException if the project is closed or not a Gradle project
      */
-    GradleBuild getBuild(IProject project);
+    Optional<GradleBuild> getBuild(IProject project);
 }
