@@ -11,7 +11,7 @@ package org.eclipse.buildship.core;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
- * Represents a Gradle build that can be imported into or synchronized with the workspace.
+ * Represents a Gradle build.
  *
  * @author Donat Csikos
  * @since 3.0
