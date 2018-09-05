@@ -23,9 +23,6 @@
     </module>
 
     <module name="TreeWalker">
-        <!-- ensure class and interface Javadoc is available -->
-        <module name="JavadocType"/>
-
         <!-- ensure consistent style of Javadoc -->
         <module name="JavadocStyle"/>
 

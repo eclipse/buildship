@@ -24,9 +24,6 @@ import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
-/**
- * Default implementation for {@link GradleBuild}.
- */
 public final class DefaultGradleBuild implements GradleBuild {
 
     private final IProject project;
