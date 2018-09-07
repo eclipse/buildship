@@ -22,7 +22,7 @@ class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronization
         Long[] modifiedTimes = projectFiles.collect { it.lastModified() }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
         def updatedProjectFiles = dir('sample-project').listFiles().findAll { it.name != '.gradle' }
 
         then:
@@ -48,7 +48,7 @@ class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronization
         !javaProject.getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         javaProject.getResolvedClasspath(false).find{ it.path.toPortableString().endsWith('spring-beans-1.2.8.jar') }

@@ -42,7 +42,7 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         File projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
         LongRunningOperation operation = Mock(LongRunningOperation)
         BuildEnvironment buildEnvironment = defaultBuildEnvironment()
 
@@ -59,7 +59,7 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         File projectDir = dir('sample-project') {
             file 'settings.gradle'
         }
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
         IProject project = findProject('sample-project')
         LongRunningOperation operation = Mock(LongRunningOperation)
         BuildEnvironment buildEnvironment = defaultBuildEnvironment()

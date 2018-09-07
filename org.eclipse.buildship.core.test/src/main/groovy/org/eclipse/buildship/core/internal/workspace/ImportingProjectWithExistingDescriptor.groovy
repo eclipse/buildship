@@ -29,7 +29,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         CorePlugin.workspaceOperations().getAllProjects().isEmpty()
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         CorePlugin.workspaceOperations().allProjects.size() == 1
@@ -45,7 +45,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
         project.hasNature(JavaCore.NATURE_ID)
@@ -57,7 +57,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         def projectDir = dir('sample-project') {
             file 'build.gradle', "apply plugin: 'java'"
         }
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
         deleteAllProjects(false)
 
         Logger logger = Mock(Logger)

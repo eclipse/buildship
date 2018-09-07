@@ -14,7 +14,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
         launchTaskAndWait(projectDir, 'foo')
         consoles.waitForConsoleOutput()
 
@@ -37,7 +37,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
         launchTaskAndWait(projectDir, 'publishFakeBuildScan')
         consoles.waitForConsoleOutput()
 
@@ -67,7 +67,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         }
 
         when:
-        synchronizeAndWait(projectDir)
+        importAndWait(projectDir)
         launchTaskAndWait(projectDir, 'publishFakeBuildScanA')
         consoles.waitForConsoleOutput()
         launchTaskAndWait(projectDir, 'publishFakeBuildScanB')

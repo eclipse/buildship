@@ -2,12 +2,16 @@ package org.eclipse.buildship.core.internal.test.fixtures
 
 import org.gradle.tooling.GradleConnector
 
+import com.google.common.base.Optional
+import com.google.common.base.Preconditions
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
+import org.eclipse.buildship.core.GradleCore
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
@@ -18,29 +22,21 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected static final GradleDistribution DEFAULT_DISTRIBUTION = GradleDistribution.fromBuild()
 
-    protected void synchronizeAndWait(File location, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
-        startSynchronization(location, DEFAULT_DISTRIBUTION, newProjectHandler)
+    protected void synchronizeAndWait(File location) {
+        Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(location.canonicalFile)
+        Preconditions.checkState(project.present, "Workspace does not have project located at ${location.absolutePath}")
+        synchronizeAndWait(project.get())
+    }
+
+    protected void synchronizeAndWait(IProject project) {
+        GradleCore.workspace.getBuild(project).get().synchronize(new NullProgressMonitor())
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
     }
 
     protected void importAndWait(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION) {
-        startSynchronization(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
-        waitForGradleJobsToFinish()
-        waitForResourceChangeEvents()
-    }
-
-    protected void importProject(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION) {
-        startSynchronization(location, distribution, NewProjectHandler.IMPORT_AND_MERGE)
-    }
-
-    protected void startSynchronization(File location, GradleDistribution distribution = DEFAULT_DISTRIBUTION, NewProjectHandler newProjectHandler = NewProjectHandler.IMPORT_AND_MERGE) {
         BuildConfiguration buildConfiguration = createOverridingBuildConfiguration(location, distribution)
-        CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(newProjectHandler, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
-    }
-
-    protected void synchronizeAndWait(IProject... projects) {
-        CorePlugin.gradleWorkspaceManager().getGradleBuilds(projects as Set).synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
     }
