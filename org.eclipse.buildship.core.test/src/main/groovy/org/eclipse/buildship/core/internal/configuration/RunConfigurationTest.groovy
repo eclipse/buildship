@@ -14,7 +14,7 @@ import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.GradleDistribution
 
 class RunConfigurationTest extends ProjectSynchronizationSpecification {
 

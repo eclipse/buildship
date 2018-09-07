@@ -1,7 +1,5 @@
 package org.eclipse.buildship.core.internal.test.fixtures
 
-import org.gradle.tooling.GradleConnector
-
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 
@@ -13,10 +11,8 @@ import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.GradleBuild
 import org.eclipse.buildship.core.GradleCore
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
-import org.eclipse.buildship.core.internal.workspace.NewProjectHandler
 
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
@@ -35,17 +31,14 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         waitForResourceChangeEvents()
     }
 
-    protected void importAndWait(File location) {
-        org.eclipse.buildship.core.configuration.BuildConfiguration configuration = org.eclipse.buildship.core.configuration.BuildConfiguration.forRootProjectDirectory(location).build()
+    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
+        org.eclipse.buildship.core.configuration.BuildConfiguration configuration = org.eclipse.buildship.core.configuration.BuildConfiguration
+             .forRootProjectDirectory(location)
+             .gradleDistribution(gradleDistribution)
+             .overrideWorkspaceConfiguration(true)
+             .build()
         GradleBuild gradleBuild = GradleCore.workspace.createBuild(configuration)
         gradleBuild.synchronize(new NullProgressMonitor())
-        waitForGradleJobsToFinish()
-        waitForResourceChangeEvents()
-    }
-
-    protected void importAndWait(File location, GradleDistribution distribution) {
-        BuildConfiguration buildConfiguration = createOverridingBuildConfiguration(location, distribution)
-        CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
     }

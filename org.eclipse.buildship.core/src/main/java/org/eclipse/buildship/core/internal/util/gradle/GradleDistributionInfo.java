@@ -68,6 +68,8 @@ public final class GradleDistributionInfo {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
             } else if (!new File(this.configuration).exists()) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+            } else if (!new File(this.configuration).isDirectory()) {
+                return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeDirectory, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
             } else {
                 return Optional.absent();
             }

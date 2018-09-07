@@ -11,7 +11,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
 

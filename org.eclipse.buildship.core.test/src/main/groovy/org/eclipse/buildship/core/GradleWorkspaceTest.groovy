@@ -25,7 +25,7 @@ class GradleWorkspaceTest extends WorkspaceSpecification {
         !GradleCore.workspace.getBuild(newProject("GradleWorkspaceTest")).present
     }
 
-    def "Can get a Gradle build via valid Gradle proejct"() {
+    def "Can get a Gradle build via valid Gradle project"() {
         setup:
         IProject project = newProject("GradleWorkspaceTest")
         CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, new NullProgressMonitor())

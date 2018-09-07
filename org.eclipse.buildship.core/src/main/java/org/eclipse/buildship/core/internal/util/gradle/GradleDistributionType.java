@@ -8,9 +8,20 @@
 
 package org.eclipse.buildship.core.internal.util.gradle;
 
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution.Type;
+
 /**
  * Enumerates the different types of Gradle distributions.
  */
 public enum GradleDistributionType {
-    INVALID, WRAPPER, LOCAL_INSTALLATION, REMOTE_DISTRIBUTION, VERSION
+    INVALID, WRAPPER, LOCAL_INSTALLATION, REMOTE_DISTRIBUTION, VERSION;
+
+    Type toType() {
+        if (this == INVALID) {
+            throw new GradlePluginsRuntimeException("Invalid gradle distribution");
+        } else {
+            return Type.valueOf(name());
+        }
+    }
 }

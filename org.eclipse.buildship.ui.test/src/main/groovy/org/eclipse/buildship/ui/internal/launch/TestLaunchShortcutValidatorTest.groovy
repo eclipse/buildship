@@ -3,7 +3,7 @@ package org.eclipse.buildship.ui.internal.launch
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.IType
 
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.eclipse.buildship.ui.internal.launch.TestLaunchShortcutValidator.PropertyTester
 import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpecification

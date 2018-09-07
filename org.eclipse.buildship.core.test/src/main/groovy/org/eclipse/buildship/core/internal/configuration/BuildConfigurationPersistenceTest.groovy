@@ -8,7 +8,7 @@ import org.eclipse.core.resources.IResource
 
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution
+import org.eclipse.buildship.core.GradleDistribution
 
 class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
 
