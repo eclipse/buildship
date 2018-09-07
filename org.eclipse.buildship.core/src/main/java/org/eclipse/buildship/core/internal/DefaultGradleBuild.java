@@ -11,9 +11,6 @@ package org.eclipse.buildship.core.internal;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,25 +19,30 @@ import org.eclipse.core.runtime.Status;
 
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.SynchronizationResult;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
 public final class DefaultGradleBuild implements GradleBuild {
 
-    private final IProject project;
-    private final CancellationTokenSource tokenSource;
+    private final org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild;
+    private final CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource();
 
     public DefaultGradleBuild(IProject project) {
-        this.project = Preconditions.checkNotNull(project);
-        this.tokenSource = GradleConnector.newCancellationTokenSource();
+        this.gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project).orNull();
+    }
+
+    public DefaultGradleBuild(BuildConfiguration configuration) {
+        org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfiguration = CorePlugin.configurationManager()
+                .createBuildConfiguration(configuration.getRootProjectDirectory(), true, GradleDistribution.fromBuild(), null, false, false, false);
+        this.gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration);
     }
 
     @Override
     public SynchronizationResult synchronize(IProgressMonitor monitor) {
-        Optional<org.eclipse.buildship.core.internal.workspace.GradleBuild> buildOrNull = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.project);
-        if (buildOrNull.isPresent()) {
-            org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild = buildOrNull.get();
+        if (this.gradleBuild != null) {
             try {
-                gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE, this.tokenSource, monitor);
+                this.gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE, this.tokenSource, monitor);
             } catch (final CoreException e) {
                 return newSynchronizationResult(e.getStatus());
             }

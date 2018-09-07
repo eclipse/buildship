@@ -12,6 +12,8 @@ import java.util.Optional;
 
 import org.eclipse.core.resources.IProject;
 
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
+
 /**
  * Manages the Gradle builds contained in the current Eclipse workspace.
  *
@@ -30,4 +32,13 @@ public interface GradleWorkspace {
      * @return the Gradle build or {@code Optional#empty()} on {@code null} or non-Gradle projects.
      */
     Optional<GradleBuild> getBuild(IProject project);
+
+    /**
+     * Creates a new build with the target configuration. When synchronized, the build configuration
+     * will be associated with all workspace projects from the build.
+     *
+     * @param configuration the build configuration
+     * @return the created Gradle build
+     */
+    GradleBuild createBuild(BuildConfiguration configuration);
 }

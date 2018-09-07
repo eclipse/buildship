@@ -22,13 +22,13 @@ Require-Bundle: org.eclipse.core.expressions,
  com.google.gson;bundle-version="[2.7.0,3.0.0)"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.buildship.core,
+ org.eclipse.buildship.core.configuration,
  org.eclipse.buildship.core.internal;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.configuration;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.console;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.event;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.gradle;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.i18n;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
- org.eclipse.buildship.core.invocation,
  org.eclipse.buildship.core.internal.launch;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.marker;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.operation;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
@@ -45,4 +45,5 @@ Export-Package: org.eclipse.buildship.core,
  org.eclipse.buildship.core.internal.util.progress;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.util.string;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
  org.eclipse.buildship.core.internal.util.variable;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
- org.eclipse.buildship.core.internal.workspace;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin"
+ org.eclipse.buildship.core.internal.workspace;x-friends:="org.eclipse.buildship.ui,org.eclipse.buildship.kotlin",
+ org.eclipse.buildship.core.invocation

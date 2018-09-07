@@ -20,7 +20,8 @@ import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
  *
  * @author Donat Csikos
  */
-final class DefaultBuildConfiguration implements BuildConfiguration {
+// TODO (donat) remove public modifier
+public final class DefaultBuildConfiguration implements BuildConfiguration {
 
     private final DefaultBuildConfigurationProperties properties;
     private final WorkspaceConfiguration workspaceConfiguration;

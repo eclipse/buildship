@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.GradleWorkspace;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 
 /**
@@ -30,5 +31,11 @@ public final class DefaultGradleWorkspace implements GradleWorkspace {
         } else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public GradleBuild createBuild(BuildConfiguration configuration) {
+        Preconditions.checkNotNull(configuration);
+        return new DefaultGradleBuild(configuration);
     }
 }
