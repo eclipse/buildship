@@ -9,6 +9,7 @@
 package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
+import java.util.Optional;
 
 import com.google.common.base.Preconditions;
 
@@ -76,12 +77,12 @@ public final class BuildConfiguration {
      * this object is returned. Otherwise, the Gradle user home for the workspace configuration is
      * returned.
      * <p>
-     * If no Gradle user home is specified then this method returns {@code null}.
+     * If no Gradle user home is specified then this method returns {@link Optional#empty()} .
      *
      * @return the Gradle user home
      */
-    public File getGradleUserHome() {
-        return this.gradleUserHome;
+    public Optional<File> getGradleUserHome() {
+        return Optional.ofNullable(this.gradleUserHome);
     }
 
     /**
