@@ -10,11 +10,8 @@ import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 class GradleWorkspaceTest extends WorkspaceSpecification {
 
     def "Cannot get reference to a null Gradle build"() {
-        when:
-        GradleCore.workspace.getBuild(null)
-
-        then:
-        thrown(NullPointerException)
+        expect:
+        !GradleCore.workspace.getBuild(null).present
     }
 
     def "Cannot get reference to Gradle build if target project is inaccessible"() {

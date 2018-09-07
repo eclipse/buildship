@@ -10,8 +10,6 @@ package org.eclipse.buildship.core.internal;
 
 import java.util.Optional;
 
-import com.google.common.base.Preconditions;
-
 import org.eclipse.core.resources.IProject;
 
 import org.eclipse.buildship.core.GradleBuild;
@@ -27,7 +25,6 @@ public final class DefaultGradleWorkspace implements GradleWorkspace {
 
     @Override
     public Optional<GradleBuild> getBuild(IProject project) {
-        Preconditions.checkNotNull(project);
         if (GradleProjectNature.isPresentOn(project)) {
             return Optional.of(new DefaultGradleBuild(project));
         } else {

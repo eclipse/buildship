@@ -27,8 +27,7 @@ public interface GradleWorkspace {
      * {@code Optional#empty()}.
      *
      * @param project the target project
-     * @return the Gradle build or {@code Optional#empty()} for non-Gradle projects.
-     * @throws NullPointerException if project is null
+     * @return the Gradle build or {@code Optional#empty()} on {@code null} or non-Gradle projects.
      */
     Optional<GradleBuild> getBuild(IProject project);
 }
