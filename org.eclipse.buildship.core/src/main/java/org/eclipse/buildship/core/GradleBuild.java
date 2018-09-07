@@ -26,8 +26,8 @@ public interface GradleBuild {
      * retrieved information.The algorithm is as follows:
      * <ul>
      *   <li>Synchronize all Gradle projects of the Gradle build with the Eclipse workspace
-     *       project counterparts. If there is a project in the workspace at the location of the
-     *       Gradle project, the synchronization is as follows:
+     *       project counterparts. If there are no projects in the workspace at the location then a new
+     *       project is created. Then, based on the workspace project state, the synchronization is as follows:
      *     <ul>
      *       <li>If the workspace project is closed, the project is left unchanged.</li>
      *       <li>If the workspace project is open, the project configuration (name, source directories,
