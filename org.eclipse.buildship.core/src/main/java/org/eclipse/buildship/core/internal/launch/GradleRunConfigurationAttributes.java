@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
-import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.*;
 import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
 import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
@@ -264,7 +264,7 @@ public final class GradleRunConfigurationAttributes {
         Preconditions.checkNotNull(launchConfiguration);
         List<String> tasks = getListAttribute(TASKS, launchConfiguration);
         String workingDirExpression = getStringAttribute(WORKING_DIR, "", launchConfiguration);
-        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, ((DefaultGradleDistribution) GradleDistribution.fromBuild()).serializeToString(), launchConfiguration);
+        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, ((DefaultGradleDistribution) GradleDistributions.fromBuild()).serializeToString(), launchConfiguration);
         String gradleUserHomeExpression = getStringAttribute(GRADLE_USER_HOME, null, launchConfiguration);
         String javaHomeExpression = getStringAttribute(JAVA_HOME, null, launchConfiguration);
         List<String> jvmArgumentExpressions = getListAttribute(JVM_ARGUMENTS, launchConfiguration);

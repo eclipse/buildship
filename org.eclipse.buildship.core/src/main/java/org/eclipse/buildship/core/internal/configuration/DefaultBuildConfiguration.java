@@ -13,7 +13,7 @@ import java.util.Collections;
 
 import com.google.common.base.Objects;
 
-import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.*;
 
 /**
  * Default implementation for {@link BuildConfiguration}.

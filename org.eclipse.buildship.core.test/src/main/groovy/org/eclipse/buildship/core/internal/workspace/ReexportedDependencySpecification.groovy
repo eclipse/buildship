@@ -12,7 +12,7 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
 class ReexportedDependencySpecification extends ProjectSynchronizationSpecification {
@@ -32,7 +32,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         resolvedClasspath(moduleB).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-beans-1.2.8.jar' && !entry.isExported() }
 
         where:
-        distribution << [ GradleDistribution.forVersion('2.5'), GradleDistribution.forVersion('2.6') ]
+        distribution << [ GradleDistributions.forVersion('2.5'), GradleDistributions.forVersion('2.6') ]
     }
 
     def "Transitive dependencies are acessible via exports from dependent projects when using Gradle <2.5"(GradleDistribution distribution) {
@@ -50,7 +50,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         resolvedClasspath(moduleB).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-beans-1.2.8.jar' && entry.isExported() }
 
         where:
-        distribution << [ GradleDistribution.forVersion('2.3'), GradleDistribution.forVersion('2.4') ]
+        distribution << [ GradleDistributions.forVersion('2.3'), GradleDistributions.forVersion('2.4') ]
     }
 
     def "Excluded dependencies (incorrectly) resolved from dependent projects when using Gradle <2.5"(GradleDistribution distribution) {
@@ -69,7 +69,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         resolvedClasspath(moduleB).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-1.2.8.jar' && entry.isExported() }
 
         where:
-        distribution << [ GradleDistribution.forVersion('2.3'), GradleDistribution.forVersion('2.4') ]
+        distribution << [ GradleDistributions.forVersion('2.3'), GradleDistributions.forVersion('2.4') ]
     }
 
     def "Excluded dependencies are not resolved when using Gradle 2.5+"(GradleDistribution distribution) {
@@ -89,7 +89,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         resolvedClasspath(moduleB).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-1.2.8.jar' && !entry.isExported() }
 
         where:
-        distribution << [ GradleDistribution.forVersion('2.5'), GradleDistribution.forVersion('2.6') ]
+        distribution << [ GradleDistributions.forVersion('2.5'), GradleDistributions.forVersion('2.6') ]
     }
 
     def "Sample with transitive dependency exclusion should compile when imported by Buildship"(GradleDistribution distribution) {
@@ -105,7 +105,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         errorMarkers(findProject("moduleB")) == []
 
         where:
-        distribution << [ GradleDistribution.forVersion('2.1'), GradleDistribution.forVersion('2.6') ]
+        distribution << [ GradleDistributions.forVersion('2.1'), GradleDistributions.forVersion('2.6') ]
     }
 
     private List<String> errorMarkers(IProject project) {

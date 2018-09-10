@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification;
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 @SuppressWarnings("GroovyAccessibility")
 class BuildConfigurationTest extends ProjectSynchronizationSpecification {
@@ -26,11 +26,11 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         File projectDir = dir('project-dir').canonicalFile
         File gradleUserHome = dir('gradle-user-home').canonicalFile
 
-        BuildConfiguration configuration = createOverridingBuildConfiguration(dir('project-dir'), GradleDistribution.forVersion('2.0'), false, false, false, gradleUserHome)
+        BuildConfiguration configuration = createOverridingBuildConfiguration(dir('project-dir'), GradleDistributions.forVersion('2.0'), false, false, false, gradleUserHome)
 
         expect:
         configuration.rootProjectDirectory == projectDir
-        configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
+        configuration.gradleDistribution == GradleDistributions.forVersion('2.0')
         configuration.gradleUserHome == gradleUserHome
         configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == false
@@ -61,10 +61,10 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
 
         where:
         distribution                                                                 | offlineMode  | buildScansEnabled | autoSync
-        GradleDistribution.fromBuild()                                               | false        | false             | true
-        GradleDistribution.forVersion("3.2.1")                                       | false        | true              | false
-        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | true         | true              | false
-        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true
+        GradleDistributions.fromBuild()                                               | false        | false             | true
+        GradleDistributions.forVersion("3.2.1")                                       | false        | true              | false
+        GradleDistributions.forLocalInstallation(new File('/').canonicalFile)         | true         | true              | false
+        GradleDistributions.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true
     }
 
     def "new build configuration can override workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync) {
@@ -85,10 +85,10 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
 
         where:
         distribution                                                                 | offlineMode  | buildScansEnabled | autoSync
-        GradleDistribution.fromBuild()                                               | false        | false             | true
-        GradleDistribution.forVersion("3.2.1")                                       | false        | true              | false
-        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | true         | true              | false
-        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true
+        GradleDistributions.fromBuild()                                               | false        | false             | true
+        GradleDistributions.forVersion("3.2.1")                                       | false        | true              | false
+        GradleDistributions.forLocalInstallation(new File('/').canonicalFile)         | true         | true              | false
+        GradleDistributions.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true
     }
 
     def "can't load invalid build configuration"() {
@@ -108,7 +108,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         BuildConfiguration configuration = configurationManager.loadBuildConfiguration(projectDir)
 
         then:
-        configuration.gradleDistribution == GradleDistribution.fromBuild()
+        configuration.gradleDistribution == GradleDistributions.fromBuild()
         configuration.gradleUserHome == null
         configuration.overrideWorkspaceSettings == false
         configuration.buildScansEnabled == false
@@ -119,7 +119,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
     def "can save and load build configuration"() {
         setup:
         File projectDir = dir('project-dir').canonicalFile
-        BuildConfiguration configuration = createOverridingBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'))
+        BuildConfiguration configuration = createOverridingBuildConfiguration(projectDir, GradleDistributions.forVersion('2.0'))
 
         when:
         configurationManager.saveBuildConfiguration(configuration)
@@ -127,7 +127,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
 
         then:
         configuration.rootProjectDirectory == projectDir
-        configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
+        configuration.gradleDistribution == GradleDistributions.forVersion('2.0')
         configuration.gradleUserHome == null
         configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == false
@@ -139,7 +139,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         setup:
         IProject project = newProject('project')
         File projectDir = project.location.toFile()
-        BuildConfiguration configuration = createOverridingBuildConfiguration(projectDir, GradleDistribution.forVersion('2.0'))
+        BuildConfiguration configuration = createOverridingBuildConfiguration(projectDir, GradleDistributions.forVersion('2.0'))
 
         when:
         project.close(new NullProgressMonitor())
@@ -148,7 +148,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
 
         then:
         configuration.rootProjectDirectory == projectDir
-        configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
+        configuration.gradleDistribution == GradleDistributions.forVersion('2.0')
         configuration.gradleUserHome == null
         configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == false
@@ -181,10 +181,10 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
 
         where:
         distribution                                                                 | offlineMode  | buildScansEnabled | autoSync
-        GradleDistribution.fromBuild()                                               | false        | false             | true
-        GradleDistribution.forVersion("3.2.1")                                       | false        | true              | false
-        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | true         | true              | false
-        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true
+        GradleDistributions.fromBuild()                                               | false        | false             | true
+        GradleDistributions.forVersion("3.2.1")                                       | false        | true              | false
+        GradleDistributions.forLocalInstallation(new File('/').canonicalFile)         | true         | true              | false
+        GradleDistributions.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true
     }
 
     def "load build configuration overriding workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync) {
@@ -212,10 +212,10 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
 
         where:
         distribution                                                                 | offlineMode  | buildScansEnabled | autoSync
-        GradleDistribution.fromBuild()                                               | false        | false             | true
-        GradleDistribution.forVersion("3.2.1")                                       | false        | true              | false
-        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | true         | true              | false
-        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true
+        GradleDistributions.fromBuild()                                               | false        | false             | true
+        GradleDistributions.forVersion("3.2.1")                                       | false        | true              | false
+        GradleDistributions.forLocalInstallation(new File('/').canonicalFile)         | true         | true              | false
+        GradleDistributions.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true
     }
 
     private void setInvalidPreferenceOn(IProject project) {

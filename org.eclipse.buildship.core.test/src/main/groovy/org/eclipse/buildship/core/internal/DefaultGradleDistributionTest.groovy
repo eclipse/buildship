@@ -19,7 +19,7 @@ package org.eclipse.buildship.core.internal
 import org.gradle.tooling.GradleConnector
 import spock.lang.Specification
 
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class DefaultGradleDistributionTest extends Specification {
 
@@ -65,7 +65,7 @@ class DefaultGradleDistributionTest extends Specification {
     def "GradleDistrubution configures GradleConnector to use default distibution defined by the Tooling API library"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
-        DefaultGradleDistribution distribution = GradleDistribution.fromBuild()
+        DefaultGradleDistribution distribution = GradleDistributions.fromBuild()
 
         when:
         distribution.apply(connector)

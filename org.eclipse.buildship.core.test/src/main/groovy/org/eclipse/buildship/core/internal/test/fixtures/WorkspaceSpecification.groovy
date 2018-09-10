@@ -42,7 +42,7 @@ import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker
 import org.eclipse.buildship.core.internal.preferences.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.preferences.PersistentModel
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 
@@ -194,10 +194,10 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected BuildConfiguration createInheritingBuildConfiguration(File projectDir) {
-        configurationManager.createBuildConfiguration(projectDir, false, GradleDistribution.fromBuild(), null, false, false, false)
+        configurationManager.createBuildConfiguration(projectDir, false, GradleDistributions.fromBuild(), null, false, false, false)
     }
 
-    protected BuildConfiguration createOverridingBuildConfiguration(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild(),
+    protected BuildConfiguration createOverridingBuildConfiguration(File projectDir, GradleDistribution distribution = GradleDistributions.fromBuild(),
                                                                   boolean buildScansEnabled = false, boolean offlineMode = false, boolean autoSync = false, File gradleUserHome = null) {
         configurationManager.createBuildConfiguration(projectDir, true, distribution, gradleUserHome, buildScansEnabled, offlineMode, autoSync)
     }
