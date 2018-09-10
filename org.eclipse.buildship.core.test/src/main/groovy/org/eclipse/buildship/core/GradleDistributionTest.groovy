@@ -1,14 +1,14 @@
 package org.eclipse.buildship.core
 
 
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution.Type
+import org.eclipse.buildship.core.internal.BaseGradleDistribution.Type
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing the wrapper"() {
         setup:
-        GradleDistribution distribution = GradleDistribution.fromBuild();
+        GradleDistribution distribution = GradleDistributions.fromBuild();
 
         expect:
         distribution.type == Type.WRAPPER
@@ -18,7 +18,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
     def "Can create a Gradle distribution referencing a valid local installation"() {
         setup:
         File dir = dir('existing')
-        GradleDistribution distribution = GradleDistribution.forLocalInstallation(dir)
+        GradleDistribution distribution = GradleDistributions.forLocalInstallation(dir)
 
         expect:
         distribution.type == Type.LOCAL_INSTALLATION
@@ -27,19 +27,19 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Gradle distribution cannot be created with invalid local installation"() {
         when:
-        GradleDistribution.forLocalInstallation(null)
+        GradleDistributions.forLocalInstallation(null)
 
         then:
         thrown(RuntimeException)
 
         when:
-        GradleDistribution.forLocalInstallation(new File('nonexisting'))
+        GradleDistributions.forLocalInstallation(new File('nonexisting'))
 
         then:
         thrown(RuntimeException)
 
         when:
-        GradleDistribution.forLocalInstallation(file('plainfile'))
+        GradleDistributions.forLocalInstallation(file('plainfile'))
 
         then:
         thrown(RuntimeException)
@@ -47,7 +47,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing a valid remote installation"() {
         setup:
-        GradleDistribution distribution = GradleDistribution.forRemoteDistribution(new URI('https://example.com/gradle-dist'))
+        GradleDistribution distribution = GradleDistributions.forRemoteDistribution(new URI('https://example.com/gradle-dist'))
 
         expect:
         distribution.type == Type.REMOTE_DISTRIBUTION
@@ -56,7 +56,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing an invalid remote installation"() {
         when:
-        GradleDistribution.forRemoteDistribution(null)
+        GradleDistributions.forRemoteDistribution(null)
 
         then:
         thrown(RuntimeException)
@@ -64,7 +64,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing a valid version"() {
         setup:
-        GradleDistribution distribution = GradleDistribution.forVersion("4.9")
+        GradleDistribution distribution = GradleDistributions.forVersion("4.9")
 
         expect:
         distribution.type == Type.VERSION
@@ -73,14 +73,14 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing an invalid version"() {
         when:
-        GradleDistribution.forVersion(null)
-        GradleDistribution.forVersion(null)
+        GradleDistributions.forVersion(null)
+        GradleDistributions.forVersion(null)
 
         then:
         thrown(RuntimeException)
 
         when:
-        GradleDistribution.forVersion('')
+        GradleDistributions.forVersion('')
 
         then:
         thrown(RuntimeException)

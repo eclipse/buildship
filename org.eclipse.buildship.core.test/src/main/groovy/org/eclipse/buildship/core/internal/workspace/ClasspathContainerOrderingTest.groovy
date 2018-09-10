@@ -11,7 +11,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
 
@@ -30,7 +30,7 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         }
 
         when:
-        importAndWait(location, GradleDistribution.forVersion('2.14.1'))
+        importAndWait(location, GradleDistributions.forVersion('2.14.1'))
         IProject project = findProject('sample-project')
 
         then:
@@ -52,7 +52,7 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         }
 
         when:
-        importAndWait(location, GradleDistribution.forVersion('2.14.1'))
+        importAndWait(location, GradleDistributions.forVersion('2.14.1'))
         IProject project = findProject('sample-project')
 
         then:
@@ -241,7 +241,7 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         }
 
         when:
-        importAndWait(location, GradleDistribution.forVersion('2.14.1'))
+        importAndWait(location, GradleDistributions.forVersion('2.14.1'))
         IProject project = findProject('sample-project')
 
         then:

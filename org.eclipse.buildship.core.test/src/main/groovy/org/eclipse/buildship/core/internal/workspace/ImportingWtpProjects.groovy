@@ -13,7 +13,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.workspace.DefaultWorkspaceOperations
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.internal.workspace.ProjectNatureUpdater
@@ -130,7 +130,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         registerService(WorkspaceOperations, operations)
 
         when:
-        importAndWait(root, GradleDistribution.forVersion('2.13'))
+        importAndWait(root, GradleDistributions.forVersion('2.13'))
 
         then:
         !hasComponentDescriptor(root)
@@ -173,7 +173,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         when:
-        importAndWait(root, GradleDistribution.forVersion('2.13'))
+        importAndWait(root, GradleDistributions.forVersion('2.13'))
 
         then:
         def project = findProject('project')

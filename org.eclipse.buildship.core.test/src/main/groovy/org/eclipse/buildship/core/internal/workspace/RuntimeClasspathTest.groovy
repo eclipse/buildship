@@ -12,7 +12,7 @@ import org.eclipse.jdt.launching.IRuntimeClasspathEntry
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
 
@@ -130,7 +130,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         classpathC.find { it.path.toPortableString().contains('guava') }
 
         where:
-        distribution << [ GradleDistribution.forVersion('2.4'), DEFAULT_DISTRIBUTION ]
+        distribution << [ GradleDistributions.forVersion('2.4'), DEFAULT_DISTRIBUTION ]
     }
 
     def "Dependencies are still on the runtime classpath"() {
@@ -146,7 +146,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
             }
         '''
         // TODO (donat) add test coverage for more recent versions
-        importAndWait(location, GradleDistribution.forVersion('4.3'))
+        importAndWait(location, GradleDistributions.forVersion('4.3'))
 
         when:
         IJavaProject javaProject = JavaCore.create(findProject('b'))
@@ -189,7 +189,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
             }
         '''
         // TODO (donat) add test coverage for more recent versions
-        importAndWait(location, GradleDistribution.forVersion("4.3"))
+        importAndWait(location, GradleDistributions.forVersion("4.3"))
 
         when:
         IJavaProject javaProject = JavaCore.create(findProject('b'))

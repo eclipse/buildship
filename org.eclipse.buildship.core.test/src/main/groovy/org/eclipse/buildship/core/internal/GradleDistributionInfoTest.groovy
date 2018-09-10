@@ -8,7 +8,7 @@ import spock.lang.Specification
 import com.google.common.base.Strings
 
 import org.eclipse.buildship.core.GradleDistribution
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution.Type
+import org.eclipse.buildship.core.internal.BaseGradleDistribution.Type
 
 class GradleDistributionInfoTest extends Specification {
 

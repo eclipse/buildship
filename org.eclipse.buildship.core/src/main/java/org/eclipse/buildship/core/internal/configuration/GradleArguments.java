@@ -22,9 +22,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.*;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.BaseGradleDistribution;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
@@ -94,7 +94,7 @@ public final class GradleArguments {
     public void applyTo(GradleConnector connector) {
         connector.forProjectDirectory(this.rootDir);
         connector.useGradleUserHomeDir(this.gradleUserHome);
-        ((DefaultGradleDistribution)this.gradleDistribution).apply(connector);
+        ((BaseGradleDistribution)this.gradleDistribution).apply(connector);
     }
 
     public void applyTo(LongRunningOperation operation, BuildEnvironment environment) {

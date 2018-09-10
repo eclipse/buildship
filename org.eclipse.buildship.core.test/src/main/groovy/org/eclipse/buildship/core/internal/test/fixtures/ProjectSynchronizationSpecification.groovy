@@ -9,15 +9,13 @@ import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
-import org.eclipse.buildship.core.GradleBuild
-import org.eclipse.buildship.core.GradleCore
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.CorePlugin
 
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
 
-    protected static final GradleDistribution DEFAULT_DISTRIBUTION = GradleDistribution.fromBuild()
+    protected static final GradleDistribution DEFAULT_DISTRIBUTION = GradleDistributions.fromBuild()
 
     protected void synchronizeAndWait(File location) {
         Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(location.canonicalFile)
@@ -31,7 +29,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         waitForResourceChangeEvents()
     }
 
-    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
+    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistributions.fromBuild()) {
         org.eclipse.buildship.core.configuration.BuildConfiguration configuration = org.eclipse.buildship.core.configuration.BuildConfiguration
              .forRootProjectDirectory(location)
              .gradleDistribution(gradleDistribution)

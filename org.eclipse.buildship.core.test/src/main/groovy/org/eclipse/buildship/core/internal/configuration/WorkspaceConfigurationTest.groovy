@@ -1,14 +1,14 @@
 package org.eclipse.buildship.core.internal.configuration
 
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class WorkspaceConfigurationTest extends WorkspaceSpecification {
 
     def "Can load workspace configuration"() {
         expect:
         WorkspaceConfiguration configuration = configurationManager.loadWorkspaceConfiguration()
-        configuration.gradleDistribution == GradleDistribution.fromBuild()
+        configuration.gradleDistribution == GradleDistributions.fromBuild()
         configuration.gradleUserHome == null
         configuration.offline == false
         configuration.buildScansEnabled == false
@@ -36,9 +36,9 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
 
         where:
         distribution                                                                 | gradleUserHome    | offlineMode  | buildScansEnabled | autoSync
-        GradleDistribution.fromBuild()                                               | 'customUserHome1' |  false       | false             | true
-        GradleDistribution.forVersion("3.2.1")                                       | 'customUserHome2' |  false       | true              | false
-        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | 'customUserHome3' |  true        | true              | true
-        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | 'customUserHome4' |  true        | false             | false
+        GradleDistributions.fromBuild()                                               | 'customUserHome1' |  false       | false             | true
+        GradleDistributions.forVersion("3.2.1")                                       | 'customUserHome2' |  false       | true              | false
+        GradleDistributions.forLocalInstallation(new File('/').canonicalFile)         | 'customUserHome3' |  true        | true              | true
+        GradleDistributions.forRemoteDistribution(new URI('http://example.com/gd'))   | 'customUserHome4' |  true        | false             | false
     }
 }

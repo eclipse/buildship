@@ -3,7 +3,7 @@ package org.eclipse.buildship.ui.internal.view.execution
 import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class OpenBuildScanActionTest extends BaseExecutionViewTest {
 
@@ -101,7 +101,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         }
 
         when:
-        importAndWait(projectDir, GradleDistribution.forVersion(gradleVersion))
+        importAndWait(projectDir, GradleDistributions.forVersion(gradleVersion))
         launchTaskAndWait(projectDir, 'somethingFunky', arguments)
         consoles.waitForConsoleOutput()
 

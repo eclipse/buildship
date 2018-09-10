@@ -15,7 +15,7 @@ import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.configuration.BuildConfigurationPersistence
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.util.gradle.JavaVersionUtil
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
@@ -206,7 +206,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        importAndWait(projectDir, GradleDistribution.forVersion('2.10'))
+        importAndWait(projectDir, GradleDistributions.forVersion('2.10'))
         IJavaProject javaProject = findJavaProject('sample-project')
         String sourceCompliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)
         String sourceCompatibility = javaProject.getOption(JavaCore.COMPILER_SOURCE, true)

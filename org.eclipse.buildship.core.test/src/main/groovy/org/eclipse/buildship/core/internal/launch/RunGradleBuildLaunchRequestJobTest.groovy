@@ -6,7 +6,7 @@ import spock.lang.Unroll
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
@@ -65,8 +65,8 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
     @Timeout(60)
     def "Can launch continuous builds"() {
         setup:
-        def RunGradleBuildLaunchRequestJob continousJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, GradleDistribution.fromBuild(), ['clean','build'], ['-t']))
-        def RunGradleBuildLaunchRequestJob normalJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, GradleDistribution.fromBuild(), ['build'], ['']))
+        def RunGradleBuildLaunchRequestJob continousJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, GradleDistributions.fromBuild(), ['clean','build'], ['-t']))
+        def RunGradleBuildLaunchRequestJob normalJob = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, GradleDistributions.fromBuild(), ['build'], ['']))
 
         when:
         continousJob.schedule()
@@ -81,7 +81,7 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         continousJob.cancel()
     }
 
-    ILaunch createLaunch(File projectDir, GradleDistribution distribution = GradleDistribution.fromBuild(), tasks = ['clean', 'build'], arguments = []) {
+    ILaunch createLaunch(File projectDir, GradleDistribution distribution = GradleDistributions.fromBuild(), tasks = ['clean', 'build'], arguments = []) {
         ILaunchConfiguration launchConfiguration = createLaunchConfiguration(projectDir, tasks, distribution, arguments)
         ILaunch launch = Mock(ILaunch)
         launch.launchConfiguration >> launchConfiguration

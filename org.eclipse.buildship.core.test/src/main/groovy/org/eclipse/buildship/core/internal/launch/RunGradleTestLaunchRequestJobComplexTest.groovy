@@ -15,7 +15,7 @@ import org.eclipse.buildship.core.internal.configuration.RunConfiguration
 import org.eclipse.buildship.core.internal.event.Event
 import org.eclipse.buildship.core.internal.event.EventListener
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification;
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpecification {
 
@@ -33,7 +33,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
             ['clean', 'test'],
             project.getLocation().toFile().absolutePath,
-            GradleDistribution.fromBuild().serializeToString(),
+            GradleDistributions.fromBuild().serializeToString(),
             "",
             null,
             [],

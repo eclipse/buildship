@@ -8,7 +8,7 @@ import org.eclipse.core.resources.IResource
 
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
 
@@ -89,7 +89,7 @@ class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
         then:
         properties.rootProjectDirectory == project.location.toFile()
         properties.overrideWorkspaceSettings == false
-        properties.gradleDistribution == GradleDistribution.fromBuild()
+        properties.gradleDistribution == GradleDistributions.fromBuild()
         properties.gradleUserHome == null
         properties.buildScansEnabled == false
         properties.offlineMode == false
@@ -101,7 +101,7 @@ class BuildConfigurationPersistenceTest extends WorkspaceSpecification {
         then:
         properties.rootProjectDirectory == projectDir.canonicalFile
         properties.overrideWorkspaceSettings == false
-        properties.gradleDistribution == GradleDistribution.fromBuild()
+        properties.gradleDistribution == GradleDistributions.fromBuild()
         properties.gradleUserHome == null
         properties.buildScansEnabled == false
         properties.offlineMode == false
@@ -121,7 +121,7 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
 
         then:
         properties.overrideWorkspaceSettings == false
-        properties.gradleDistribution == GradleDistribution.fromBuild()
+        properties.gradleDistribution == GradleDistributions.fromBuild()
         properties.gradleUserHome == null
         properties.buildScansEnabled == false
         properties.offlineMode == false
@@ -132,7 +132,7 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
 
         then:
         properties.overrideWorkspaceSettings == false
-        properties.gradleDistribution == GradleDistribution.fromBuild()
+        properties.gradleDistribution == GradleDistributions.fromBuild()
         properties.gradleUserHome == null
         properties.buildScansEnabled == false
         properties.offlineMode == false
@@ -141,7 +141,7 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
 
     def "If workspace override is not set then overridden configuration properties are ignored"() {
         setup:
-        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.forVersion('2.0'), dir('gradle-user-home'), false, true, true, true)
+        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, GradleDistributions.forVersion('2.0'), dir('gradle-user-home'), false, true, true, true)
         persistence.saveBuildConfiguration(project, properties)
         persistence.saveBuildConfiguration(projectDir, properties)
 
@@ -151,14 +151,14 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
 
         then:
         importedProjectProperties.overrideWorkspaceSettings == false
-        importedProjectProperties.gradleDistribution == GradleDistribution.fromBuild()
+        importedProjectProperties.gradleDistribution == GradleDistributions.fromBuild()
         importedProjectProperties.gradleUserHome == null
         importedProjectProperties.buildScansEnabled == false
         importedProjectProperties.offlineMode == false
         importedProjectProperties.autoSync == false
 
         externalProjectProperties.overrideWorkspaceSettings == false
-        externalProjectProperties.gradleDistribution == GradleDistribution.fromBuild()
+        externalProjectProperties.gradleDistribution == GradleDistributions.fromBuild()
         externalProjectProperties.gradleUserHome == null
         externalProjectProperties.buildScansEnabled == false
         externalProjectProperties.offlineMode == false
@@ -193,10 +193,10 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
 
         where:
         distribution                         | buildScansEnabled | offlineMode | autoSync
-        GradleDistribution.forVersion('3.5') | false             | false       | true
-        GradleDistribution.forVersion('3.4') | false             | true        | false
-        GradleDistribution.forVersion('3.3') | true              | false       | false
-        GradleDistribution.forVersion('3.2') | true              | true        | true
+        GradleDistributions.forVersion('3.5') | false             | false       | true
+        GradleDistributions.forVersion('3.4') | false             | true        | false
+        GradleDistributions.forVersion('3.3') | true              | false       | false
+        GradleDistributions.forVersion('3.2') | true              | true        | true
     }
 
     def "pathToRoot methods validate input"() {
@@ -298,10 +298,10 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
     }
 
     private DefaultBuildConfigurationProperties validProperties(IProject project) {
-        new DefaultBuildConfigurationProperties(project.getLocation().toFile(), GradleDistribution.fromBuild(), null, false, false, false, false)
+        new DefaultBuildConfigurationProperties(project.getLocation().toFile(), GradleDistributions.fromBuild(), null, false, false, false, false)
     }
 
     private DefaultBuildConfigurationProperties validProperties(File projectDir) {
-        new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.fromBuild(), null, false, false, false, false)
+        new DefaultBuildConfigurationProperties(projectDir, GradleDistributions.fromBuild(), null, false, false, false, false)
     }
 }

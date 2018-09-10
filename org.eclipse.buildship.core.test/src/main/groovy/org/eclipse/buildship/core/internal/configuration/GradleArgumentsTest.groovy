@@ -5,13 +5,13 @@ import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.build.GradleEnvironment
 import spock.lang.Specification
 
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class GradleArgumentsTest extends Specification {
 
     def "Assigns proper arguments to target operation"(baseArgs, buildScans, offlineMode, gradleVersion, List expected) {
         setup:
-        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistribution.fromBuild(), null, null, buildScans, offlineMode, baseArgs, [])
+        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistributions.fromBuild(), null, null, buildScans, offlineMode, baseArgs, [])
         LongRunningOperation operation = Mock(LongRunningOperation)
         GradleEnvironment gradleEnvironment = Mock(GradleEnvironment)
         gradleEnvironment.gradleVersion >> gradleVersion

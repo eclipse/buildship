@@ -10,7 +10,7 @@ import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchManager
 
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 
 class ClasspathSeparationTest extends SwtBotSpecification {
@@ -22,7 +22,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
     def "All dependencies are available when Gradle doesn't supply scope information"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('3.5'))
+        importAndWait(createSampleProject('sample-project'), GradleDistributions.forVersion('3.5'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main'))
@@ -41,7 +41,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         setup:
         File projectDir = createSampleProject('sample-project')
 
-        importAndWait(projectDir, GradleDistribution.forVersion('4.4'))
+        importAndWait(projectDir, GradleDistributions.forVersion('4.4'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.CustomMain'))
@@ -60,7 +60,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         setup:
         File projectDir = createSampleProject('sample-project')
 
-        importAndWait(projectDir, GradleDistribution.forVersion('4.4'))
+        importAndWait(projectDir, GradleDistributions.forVersion('4.4'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.CustomMain'))
@@ -73,7 +73,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Only main dependencies are available when Java application launched from src/main/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
+        importAndWait(createSampleProject('sample-project'), GradleDistributions.forVersion('4.4'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main'))
@@ -90,7 +90,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when Java application launched from src/test/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
+        importAndWait(createSampleProject('sample-project'), GradleDistributions.forVersion('4.4'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.JunitTest'))
@@ -107,7 +107,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when JUnit test method executed"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
+        importAndWait(createSampleProject('sample-project'), GradleDistributions.forVersion('4.4'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project', 'pkg.JunitTest', 'test'))
@@ -124,7 +124,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when JUnit test project executedt"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
+        importAndWait(createSampleProject('sample-project'), GradleDistributions.forVersion('4.4'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project'))
