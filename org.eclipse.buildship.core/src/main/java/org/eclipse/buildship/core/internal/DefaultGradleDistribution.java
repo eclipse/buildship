@@ -26,7 +26,7 @@ import org.eclipse.buildship.core.*;
  *
  * @author Etienne Studer
  */
-public class DefaultGradleDistribution extends GradleDistribution {
+public class DefaultGradleDistribution implements GradleDistribution {
 
     /**
      * The available Gradle distributions types.

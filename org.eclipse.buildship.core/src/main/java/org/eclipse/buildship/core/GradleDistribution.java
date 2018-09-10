@@ -15,6 +15,6 @@ package org.eclipse.buildship.core;
  * @since 3.0
  * @noimplement this interface is not intended to be implemented by clients
  */
-public abstract class GradleDistribution {
+public interface GradleDistribution {
 
 }
