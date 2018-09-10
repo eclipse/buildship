@@ -9,8 +9,6 @@ import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
-import org.eclipse.buildship.core.GradleBuild
-import org.eclipse.buildship.core.GradleCore
 import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.CorePlugin
 

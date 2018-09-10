@@ -6,9 +6,9 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.*
 
 class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
@@ -209,7 +209,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         configurationManager.saveProjectConfiguration(projectConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, !buildScansEnabled, !offlineMode, !autoSync))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistributions.fromBuild(), null, !buildScansEnabled, !offlineMode, !autoSync))
         projectConfig = configurationManager.loadProjectConfiguration(project)
 
         then:

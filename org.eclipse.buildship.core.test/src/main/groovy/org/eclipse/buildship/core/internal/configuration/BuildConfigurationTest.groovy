@@ -14,9 +14,9 @@ package org.eclipse.buildship.core.internal.configuration
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification;
-import org.eclipse.buildship.core.*
 
 @SuppressWarnings("GroovyAccessibility")
 class BuildConfigurationTest extends ProjectSynchronizationSpecification {
@@ -196,7 +196,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, !buildScansEnabled, !offlineMode, !autoSync))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistributions.fromBuild(), null, !buildScansEnabled, !offlineMode, !autoSync))
         buildConfig = configurationManager.loadBuildConfiguration(projectDir)
 
         then:

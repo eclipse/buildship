@@ -21,7 +21,8 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.buildship.core.*;
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributions;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**

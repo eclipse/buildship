@@ -35,6 +35,7 @@ import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager
@@ -42,7 +43,6 @@ import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker
 import org.eclipse.buildship.core.internal.preferences.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.preferences.PersistentModel
-import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 
