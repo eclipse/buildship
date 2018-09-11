@@ -98,7 +98,7 @@ public class ProjectImportWizardController {
 
         this.configuration.setProjectDir(projectDir.orNull());
         this.configuration.setOverwriteWorkspaceSettings(false);
-        this.configuration.setDistributionInfo(GradleDistributionInfo.deserializeFromString(gradleDistribution).toGradleDistributionOrDefault().getDistributionInfo());
+        this.configuration.setDistributionInfo(GradleDistributionInfo.from(GradleDistributionInfo.deserializeFromString(gradleDistribution).toGradleDistributionOrDefault()));
         this.configuration.setGradleUserHome(gradleUserHome.orNull());
         this.configuration.setApplyWorkingSets(applyWorkingSets);
         this.configuration.setWorkingSets(workingSets);

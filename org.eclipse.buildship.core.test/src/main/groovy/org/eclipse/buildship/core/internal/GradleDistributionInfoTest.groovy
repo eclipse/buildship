@@ -7,7 +7,11 @@ import spock.lang.Specification
 
 import com.google.common.base.Strings
 
+import org.eclipse.buildship.core.FixedVersionGradleDistribution
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.LocalGradleDistribution
+import org.eclipse.buildship.core.RemoteGradleDistribution
+import org.eclipse.buildship.core.WrapperGradleDistribution
 import org.eclipse.buildship.core.internal.GradleDistributionInfo.Type
 
 class GradleDistributionInfoTest extends Specification {
@@ -82,21 +86,46 @@ class GradleDistributionInfoTest extends Specification {
         Type.VERSION             | ''
     }
 
-    def "Can convert valid distribution info objects to Gradle distributions"(GradleDistributionInfo.Type type, String configuration) {
+    def "Can convert valid wrapper distribution info objects to Gradle distribution"() {
         setup:
-        GradleDistributionInfo distributionInfo = new GradleDistributionInfo(type, configuration)
+        GradleDistributionInfo distributionInfo = new GradleDistributionInfo(Type.WRAPPER , null)
 
         expect:
         GradleDistribution distribution = distributionInfo.toGradleDistribution()
-        distribution.type == type
-        distribution.configuration == Strings.nullToEmpty(configuration)
+        distribution instanceof WrapperGradleDistribution
+    }
 
-        where:
-        type                     | configuration
-        Type.WRAPPER             | null
-        Type.LOCAL_INSTALLATION  | tempFolder.newFolder().absolutePath
-        Type.REMOTE_DISTRIBUTION | 'http://remote.distribution'
-        Type.VERSION             | '2.4'
+    def "Can convert valid local distribution info objects to Gradle distribution"() {
+        setup:
+        String location = tempFolder.newFolder().absolutePath
+        GradleDistributionInfo distributionInfo = new GradleDistributionInfo(Type.LOCAL_INSTALLATION , location)
+
+        expect:
+        GradleDistribution distribution = distributionInfo.toGradleDistribution()
+        distribution instanceof LocalGradleDistribution
+        distribution.location.absolutePath == location
+    }
+
+    def "Can convert valid remote distribution info objects to Gradle distribution"() {
+        setup:
+        String url = 'http://remote.distribution'
+        GradleDistributionInfo distributionInfo = new GradleDistributionInfo(Type.REMOTE_DISTRIBUTION , url)
+
+        expect:
+        GradleDistribution distribution = distributionInfo.toGradleDistribution()
+        distribution instanceof RemoteGradleDistribution
+        distribution.url.toString() == url
+    }
+
+    def "Can convert valid fixed version distribution info objects to Gradle distribution"() {
+        setup:
+        String version = '4.10'
+        GradleDistributionInfo distributionInfo = new GradleDistributionInfo(Type.VERSION , version)
+
+        expect:
+        GradleDistribution distribution = distributionInfo.toGradleDistribution()
+        distribution instanceof FixedVersionGradleDistribution
+        distribution.version == version
     }
 
     def "Converting invalid distribution info objects to Gradle distribution throw runtime exception"(GradleDistributionInfo.Type type, String configuration) {

@@ -17,9 +17,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import org.eclipse.buildship.core.*;
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributions;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.BaseGradleDistribution;
 import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
@@ -67,7 +67,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         File gradleUserHome = config.getGradleUserHome();
         String gradleUserHomePath = gradleUserHome == null ? "" : gradleUserHome.getPath();
 
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(((BaseGradleDistribution) gradleDistribution).getDistributionInfo());
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(GradleDistributionInfo.from(gradleDistribution));
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(gradleUserHomePath);
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(config.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(config.isBuildScansEnabled());
@@ -96,7 +96,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     @Override
     protected void performDefaults() {
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText("");
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(((BaseGradleDistribution) GradleDistributions.fromBuild()).getDistributionInfo());
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(GradleDistributionInfo.from(GradleDistributions.fromBuild()));
         super.performDefaults();
     }
 

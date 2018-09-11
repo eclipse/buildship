@@ -18,6 +18,11 @@ import com.google.common.base.Strings;
 
 import org.eclipse.osgi.util.NLS;
 
+import org.eclipse.buildship.core.FixedVersionGradleDistribution;
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.LocalGradleDistribution;
+import org.eclipse.buildship.core.RemoteGradleDistribution;
+import org.eclipse.buildship.core.WrapperGradleDistribution;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 
@@ -227,6 +232,20 @@ public final class GradleDistributionInfo {
                 return String.valueOf("GRADLE_DISTRIBUTION(WRAPPER)");
             default:
                 throw new GradlePluginsRuntimeException("Invalid distribution type: " + type);
+        }
+    }
+
+    public static GradleDistributionInfo from(GradleDistribution gradleDistribution) {
+        if (gradleDistribution instanceof LocalGradleDistribution) {
+            return new GradleDistributionInfo(Type.LOCAL_INSTALLATION, ((LocalGradleDistribution)gradleDistribution).getLocation().getAbsolutePath());
+        } else if (gradleDistribution instanceof RemoteGradleDistribution) {
+            return new GradleDistributionInfo(Type.REMOTE_DISTRIBUTION, ((RemoteGradleDistribution)gradleDistribution).getUrl().toString());
+        } else if (gradleDistribution instanceof FixedVersionGradleDistribution) {
+            return new GradleDistributionInfo(Type.VERSION, ((FixedVersionGradleDistribution)gradleDistribution).getVersion());
+        } else if (gradleDistribution instanceof WrapperGradleDistribution) {
+            return new GradleDistributionInfo(Type.WRAPPER, null);
+        } else {
+            throw new GradlePluginsRuntimeException("Invalid distribution type: " + gradleDistribution);
         }
     }
 

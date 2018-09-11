@@ -8,16 +8,21 @@
 
 package org.eclipse.buildship.core.internal;
 
+import com.google.common.base.Preconditions;
+
 import org.eclipse.buildship.core.FixedVersionGradleDistribution;
 
 public final class DefaultFixedVersionGradleDistribution extends BaseGradleDistribution implements FixedVersionGradleDistribution {
 
+    private final String version;
+
     public DefaultFixedVersionGradleDistribution(String version) {
         super(new GradleDistributionInfo(GradleDistributionInfo.Type.VERSION, version));
+        this.version = Preconditions.checkNotNull(version);
     }
 
     @Override
     public String getVersion() {
-        return getDistributionInfo().getConfiguration();
+        return this.version;
     }
 }

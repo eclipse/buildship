@@ -6,7 +6,9 @@ import spock.lang.Unroll
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 
-import org.eclipse.buildship.core.*
+import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.GradleDistributions
+
 
 class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
@@ -56,7 +58,7 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
         then:
         job.getResult().isOK()
-        buildConfig.contains "Gradle Version: $distribution.configuration"
+        buildConfig.contains "Gradle Version: $distribution.version"
 
         where:
         distribution << supportedGradleDistributions

@@ -34,10 +34,6 @@ public abstract class BaseGradleDistribution implements GradleDistribution {
         return this.distributionInfo;
     }
 
-    public String getConfiguration() {
-        return this.distributionInfo.getConfiguration();
-    }
-
     public String serializeToString() {
         return this.distributionInfo.serializeToString();
     }
