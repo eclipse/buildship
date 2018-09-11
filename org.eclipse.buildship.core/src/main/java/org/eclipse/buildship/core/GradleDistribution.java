@@ -10,6 +10,15 @@ package org.eclipse.buildship.core;
 
 /**
  * Represents a Gradle distribution.
+ * <p>
+ * Currently four different Gradle distribution types are supported.
+ * <ul>
+ * <li>{@link WrapperGradleDistribution}</li>
+ * <li>{@link LocalGradleDistribution}</li>
+ * <li>{@link RemoteGradleDistribution}</li>
+ * <li>{@link FixedVersionGradleDistribution}</li>
+ * </ul>
+ * New instances can be created with the factory methods in {@link GradleDistributions}.
  *
  * @author Donat Csikos
  * @since 3.0

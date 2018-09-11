@@ -14,7 +14,7 @@ import java.net.URI;
 import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
 
 /**
- * Represents a Gradle distribution.
+ * Contains factory methods for all supported Gradle distribution types.
  *
  * @author Donat Csikos
  * @since 3.0
@@ -33,8 +33,7 @@ public abstract class GradleDistributions {
     }
 
     /**
-     * Creates a reference to a remote Gradle distribution. The appropriate distribution is
-     * downloaded and installed into the user's Gradle home directory.
+     * Creates a reference to a remote Gradle distribution.
      *
      * @param distributionUri the remote Gradle distribution location to use
      * @return a new distribution instance
@@ -44,8 +43,7 @@ public abstract class GradleDistributions {
     }
 
     /**
-     * Creates a reference to a specific version of Gradle. The appropriate distribution is
-     * downloaded and installed into the user's Gradle home directory.
+     * Creates a reference to a specific version of Gradle.
      *
      * @param version the Gradle version to use
      * @return a new distribution instance
