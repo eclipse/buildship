@@ -26,9 +26,7 @@ import org.eclipse.buildship.core.GradleDistribution;
  *
  * @author Etienne Studer
  */
-
-// TODO (donat) make it abstract
-public class DefaultGradleDistribution implements GradleDistribution {
+public abstract class DefaultGradleDistribution implements GradleDistribution {
 
     /**
      * The available Gradle distributions types.
@@ -161,6 +159,18 @@ public class DefaultGradleDistribution implements GradleDistribution {
     }
 
     public static DefaultGradleDistribution fromDistributionInfo(GradleDistributionInfo distributionInfo) {
-        return new DefaultGradleDistribution(distributionInfo);
+        Type type = distributionInfo.getType().get();
+        switch (distributionInfo.getType().get()) {
+            case WRAPPER:
+                return fromBuild();
+            case LOCAL_INSTALLATION:
+                return forLocalInstallation(distributionInfo.getConfiguration());
+            case REMOTE_DISTRIBUTION:
+                return forRemoteDistribution(distributionInfo.getConfiguration());
+            case VERSION:
+                return forVersion(distributionInfo.getConfiguration());
+        }
+
+        throw new GradlePluginsRuntimeException("Invalid distribution type: " + type);
     }
 }
