@@ -9,6 +9,7 @@
 package org.eclipse.buildship.core.configuration;
 
 import java.io.File;
+import java.util.Optional;
 
 import com.google.common.base.Preconditions;
 
@@ -27,13 +28,21 @@ public final class BuildConfiguration {
 
     private final File rootProjectDirectory;
 
-    private boolean overrideWorkspaceConfiguration;
+    private final boolean overrideWorkspaceConfiguration;
     private final GradleDistribution gradleDistribution;
+    private final File gradleUserHome;
+    private final boolean buildScansEnabled;
+    private final boolean offlineMode;
+    private final boolean autoSync;
 
     private BuildConfiguration(BuildConfigurationBuilder builder) {
         this.rootProjectDirectory = Preconditions.checkNotNull(builder.rootProjectDirectory);
         this.overrideWorkspaceConfiguration = builder.overrideWorkspaceConfiguration;
         this.gradleDistribution = Preconditions.checkNotNull(builder.gradleDistribution);
+        this.gradleUserHome = builder.gradleUserHome;
+        this.buildScansEnabled = builder.buildScansEnabled;
+        this.offlineMode = builder.offlineMode;
+        this.autoSync = builder.autoSync;
     }
 
     public static BuildConfigurationBuilder forRootProjectDirectory(File rootProjectDirectory) {
@@ -62,6 +71,68 @@ public final class BuildConfiguration {
     }
 
     /**
+     * Returns Gradle user home for this configuration.
+     * <p>
+     * If {@link #isOverrideWorkspaceConfiguration()} returns true then the Gradle user home from
+     * this object is returned. Otherwise, the Gradle user home for the workspace configuration is
+     * returned.
+     * <p>
+     * If no Gradle user home is specified then this method returns {@link Optional#empty()} .
+     *
+     * @return the Gradle user home
+     */
+    public Optional<File> getGradleUserHome() {
+        return Optional.ofNullable(this.gradleUserHome);
+    }
+
+    /**
+     * Returns whether build scans are enabled for this configuration.
+     * <p>
+     * If this attribute is enabled then the Gradle task executions automatically create a build.
+     * scan.
+     * <p>
+     * If {@link #isOverrideWorkspaceConfiguration()} returns true then value from this object is
+     * returned. Otherwise, the value for the workspace configuration is returned.
+     *
+     * @return whether build scans are enabled
+     */
+    public boolean isBuildScansEnabled() {
+        return this.buildScansEnabled;
+    }
+
+    /**
+     * Returns whether the offline mode is enabled for this configuration.
+     * <p>
+     * If the offline mode is enabled then all project synchronizations and the task executions are
+     * executed in offline mode (e.g. the {@code --offline} parameter is added to all invocations).
+     * <p>
+     * If {@link #isOverrideWorkspaceConfiguration()} returns true then value from this object is
+     * returned. Otherwise, the value for the workspace configuration is returned.
+     * <p>
+     *
+     * @return whether offline mode is enabled
+     */
+    public boolean isOfflineMode() {
+        return this.offlineMode;
+    }
+
+    /**
+     * Returns whether auto-sync feature is enabled for this configuration.
+     * <p>
+     * If the auto-sync feature is enabled then the project synchronization is triggered every time
+     * the content of the build script changes.
+     * <p>
+     * If {@link #isOverrideWorkspaceConfiguration()} returns true then value from this object is
+     * returned. Otherwise, the value for the workspace configuration is returned.
+     * <p>
+     *
+     * @return whether the auto-sync feature is enabled
+     */
+    public boolean isAutoSync() {
+        return this.autoSync;
+    }
+
+    /**
      * Returns the Gradle distribution for this configuration.
      * <p>
      * If {@link #isOverrideWorkspaceConfiguration()} returns true then the Gradle distribution from
@@ -79,6 +150,10 @@ public final class BuildConfiguration {
         private final File rootProjectDirectory;
         private boolean overrideWorkspaceConfiguration = false;
         private GradleDistribution gradleDistribution = GradleDistribution.fromBuild();
+        private File gradleUserHome = null;
+        private boolean buildScansEnabled = false;
+        private boolean offlineMode = false;
+        private boolean autoSync = false;
 
         private BuildConfigurationBuilder(File rootProjectDirectory) {
             this.rootProjectDirectory = rootProjectDirectory;
@@ -91,6 +166,26 @@ public final class BuildConfiguration {
 
          public BuildConfigurationBuilder gradleDistribution(org.eclipse.buildship.core.GradleDistribution gradleDistribution) {
              this.gradleDistribution = (GradleDistribution) gradleDistribution;
+             return this;
+         }
+
+         public BuildConfigurationBuilder gradleUserHome(File gradleUserHome) {
+             this.gradleUserHome = gradleUserHome;
+             return this;
+         }
+
+         public BuildConfigurationBuilder buildScansEnabled(boolean buildScansEnabled) {
+             this.buildScansEnabled = buildScansEnabled;
+             return this;
+         }
+
+         public BuildConfigurationBuilder offlineMode(boolean offlineMode) {
+             this.offlineMode = offlineMode;
+             return this;
+         }
+
+         public BuildConfigurationBuilder autoSync(boolean autoSync) {
+             this.autoSync = autoSync;
              return this;
          }
 
