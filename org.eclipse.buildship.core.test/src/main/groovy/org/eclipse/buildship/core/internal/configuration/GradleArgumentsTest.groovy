@@ -7,7 +7,6 @@ import org.gradle.tooling.model.build.GradleEnvironment
 import spock.lang.Specification
 
 import org.eclipse.buildship.core.GradleDistributions
-import org.eclipse.buildship.core.internal.BaseGradleDistribution
 
 class GradleArgumentsTest extends Specification {
 

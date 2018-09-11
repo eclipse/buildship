@@ -25,6 +25,8 @@ import org.eclipse.buildship.core.internal.DefaultWrapperGradleDistribution;
  */
 public abstract class GradleDistributions {
 
+    private static final WrapperGradleDistribution WRAPPER_DISTRIBUTION = new DefaultWrapperGradleDistribution();
+
     private GradleDistributions() {
     }
 
@@ -45,7 +47,7 @@ public abstract class GradleDistributions {
      * @return a new distribution instance
      */
     public static RemoteGradleDistribution forRemoteDistribution(URI distributionUri) {
-        return new DefaultRemoteGradleDistribution(distributionUri.toString());
+        return new DefaultRemoteGradleDistribution(distributionUri);
     }
 
     /**
@@ -65,6 +67,6 @@ public abstract class GradleDistributions {
      * @see org.gradle.tooling.GradleConnector#useBuildDistribution()
      */
     public static WrapperGradleDistribution fromBuild() {
-        return new DefaultWrapperGradleDistribution();
+        return WRAPPER_DISTRIBUTION;
     }
 }

@@ -34,7 +34,6 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.internal.GradleDistributionInfo;
-import org.eclipse.buildship.core.internal.GradleDistributionInfo.Type;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;

@@ -20,6 +20,7 @@ import org.eclipse.osgi.util.NLS;
 
 import org.eclipse.buildship.core.FixedVersionGradleDistribution;
 import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributions;
 import org.eclipse.buildship.core.LocalGradleDistribution;
 import org.eclipse.buildship.core.RemoteGradleDistribution;
 import org.eclipse.buildship.core.WrapperGradleDistribution;
@@ -141,7 +142,7 @@ public final class GradleDistributionInfo {
         }
     }
 
-    public BaseGradleDistribution toGradleDistribution() {
+    public GradleDistribution toGradleDistribution() {
        Optional<String> errorMessage = validate();
        if (errorMessage.isPresent()) {
            throw new GradlePluginsRuntimeException(errorMessage.get());
@@ -149,16 +150,24 @@ public final class GradleDistributionInfo {
 
         switch (getType().get()) {
             case WRAPPER:
-                return new DefaultWrapperGradleDistribution();
+                return GradleDistributions.fromBuild();
             case LOCAL_INSTALLATION:
-                return new DefaultLocalGradleDistribution(this.configuration);
+                return new DefaultLocalGradleDistribution(new File(this.configuration));
             case REMOTE_DISTRIBUTION:
-                return new DefaultRemoteGradleDistribution(this.configuration);
+                return new DefaultRemoteGradleDistribution(createUrl(this.configuration));
             case VERSION:
                 return new DefaultFixedVersionGradleDistribution(this.configuration);
         }
 
         throw new GradlePluginsRuntimeException("Invalid distribution type: " + getType().get());
+    }
+
+    private static URI createUrl(String url) {
+        try {
+            return new URI(url);
+        } catch (URISyntaxException e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
     }
 
     /**
@@ -167,8 +176,8 @@ public final class GradleDistributionInfo {
      *
      * @return the created Gradle distribution
      */
-    public BaseGradleDistribution toGradleDistributionOrDefault() {
-        return isValid() ? toGradleDistribution() : new DefaultWrapperGradleDistribution();
+    public GradleDistribution toGradleDistributionOrDefault() {
+        return isValid() ? toGradleDistribution() : GradleDistributions.fromBuild();
     }
 
     @Override

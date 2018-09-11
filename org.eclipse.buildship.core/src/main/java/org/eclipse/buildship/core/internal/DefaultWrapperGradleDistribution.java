@@ -9,10 +9,12 @@
 package org.eclipse.buildship.core.internal;
 
 import org.eclipse.buildship.core.WrapperGradleDistribution;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 
 public final class DefaultWrapperGradleDistribution extends BaseGradleDistribution implements WrapperGradleDistribution {
 
-    public DefaultWrapperGradleDistribution() {
-        super(new GradleDistributionInfo(GradleDistributionInfo.Type.WRAPPER, null));
+    @Override
+    public String toString() {
+        return CoreMessages.GradleDistribution_Value_UseGradleWrapper;
     }
 }

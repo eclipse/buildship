@@ -25,7 +25,7 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
     @Shared def Attributes validAttributes = new Attributes (
         tasks : ['clean'],
         workingDir : "/home/user/workspace",
-        gradleDistr : GradleDistributions.fromBuild().serializeToString(),
+        gradleDistr : GradleDistributionInfo.from(GradleDistributions.fromBuild()).serializeToString(),
         gradleUserHome: '/.gradlehome',
         javaHome : "/.java",
         arguments : ["-q"],

@@ -2,10 +2,12 @@ package org.eclipse.buildship.core.internal.launch
 
 import org.eclipse.debug.core.ILaunchConfiguration
 
+import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.GradleDistributions
+import org.eclipse.buildship.core.internal.GradleDistributionInfo
 import org.eclipse.buildship.core.internal.console.ProcessStreams
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.*
 
 class BaseLaunchRequestJobTest extends WorkspaceSpecification {
 
@@ -41,7 +43,7 @@ class BaseLaunchRequestJobTest extends WorkspaceSpecification {
         launchConfiguration.getAttribute('override_workspace_settings', _) >> 'true'
         launchConfiguration.getAttribute('tasks', _) >> tasks
         launchConfiguration.getAttribute('working_dir', _) >> projectDir
-        launchConfiguration.getAttribute('gradle_distribution', _) >> distribution.serializeToString()
+        launchConfiguration.getAttribute('gradle_distribution', _) >> GradleDistributionInfo.from(distribution).serializeToString()
         launchConfiguration.getAttribute('arguments', _) >> arguments
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
         launchConfiguration

@@ -9,26 +9,60 @@
 package org.eclipse.buildship.core.internal;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+
+import com.google.common.base.Preconditions;
+
+import org.eclipse.osgi.util.NLS;
 
 import org.eclipse.buildship.core.RemoteGradleDistribution;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 
 public final class DefaultRemoteGradleDistribution extends BaseGradleDistribution implements RemoteGradleDistribution {
 
-    public DefaultRemoteGradleDistribution(URI url) {
-        this(url.toString());
-    }
+    private final URI url;
 
-    public DefaultRemoteGradleDistribution(String url) {
-        super(new GradleDistributionInfo(GradleDistributionInfo.Type.REMOTE_DISTRIBUTION, url));
+    public DefaultRemoteGradleDistribution(URI url) {
+        this.url = Preconditions.checkNotNull(url);
+        validate();
     }
 
     @Override
     public URI getUrl() {
-        try {
-            return new URI(getDistributionInfo().getConfiguration());
-        } catch (URISyntaxException e) {
-            throw new GradlePluginsRuntimeException(e);
+        return this.url;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((this.url == null) ? 0 : this.url.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        DefaultRemoteGradleDistribution other = (DefaultRemoteGradleDistribution) obj;
+        if (this.url == null) {
+            if (other.url != null) {
+                return false;
+            }
+        } else if (!this.url.equals(other.url)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return NLS.bind(CoreMessages.GradleDistribution_Value_UseRemoteDistribution_0, this.url.toString());
     }
 }
