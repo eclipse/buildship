@@ -13,7 +13,8 @@ import java.util.Optional;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.*;
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistributions;
 import org.eclipse.buildship.core.GradleWorkspace;
 
 /**
@@ -163,8 +164,8 @@ public final class BuildConfiguration {
             return this;
         }
 
-         public BuildConfigurationBuilder gradleDistribution(org.eclipse.buildship.core.GradleDistribution gradleDistribution) {
-             this.gradleDistribution = (GradleDistribution) gradleDistribution;
+         public BuildConfigurationBuilder gradleDistribution(GradleDistribution gradleDistribution) {
+             this.gradleDistribution = gradleDistribution;
              return this;
          }
 

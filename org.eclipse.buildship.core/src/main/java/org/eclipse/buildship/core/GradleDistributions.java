@@ -11,7 +11,10 @@ package org.eclipse.buildship.core;
 import java.io.File;
 import java.net.URI;
 
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.DefaultFixedVersionGradleDistribution;
+import org.eclipse.buildship.core.internal.DefaultLocalGradleDistribution;
+import org.eclipse.buildship.core.internal.DefaultRemoteGradleDistribution;
+import org.eclipse.buildship.core.internal.DefaultWrapperGradleDistribution;
 
 /**
  * Contains factory methods for all supported Gradle distribution types.
@@ -22,6 +25,9 @@ import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
  */
 public abstract class GradleDistributions {
 
+    private GradleDistributions() {
+    }
+
     /**
      * Creates a reference to a local Gradle installation.
      *
@@ -29,7 +35,7 @@ public abstract class GradleDistributions {
      * @return a new distribution instance
      */
     public static LocalGradleDistribution forLocalInstallation(File installationDir) {
-        return DefaultGradleDistribution.forLocalInstallation(installationDir);
+        return new DefaultLocalGradleDistribution(installationDir);
     }
 
     /**
@@ -39,7 +45,7 @@ public abstract class GradleDistributions {
      * @return a new distribution instance
      */
     public static RemoteGradleDistribution forRemoteDistribution(URI distributionUri) {
-        return DefaultGradleDistribution.forRemoteDistribution(distributionUri);
+        return new DefaultRemoteGradleDistribution(distributionUri.toString());
     }
 
     /**
@@ -49,7 +55,7 @@ public abstract class GradleDistributions {
      * @return a new distribution instance
      */
     public static FixedVersionGradleDistribution forVersion(String version) {
-        return DefaultGradleDistribution.forVersion(version);
+        return new DefaultFixedVersionGradleDistribution(version);
     }
 
     /**
@@ -59,6 +65,6 @@ public abstract class GradleDistributions {
      * @see org.gradle.tooling.GradleConnector#useBuildDistribution()
      */
     public static WrapperGradleDistribution fromBuild() {
-        return DefaultGradleDistribution.fromBuild();
+        return new DefaultWrapperGradleDistribution();
     }
 }

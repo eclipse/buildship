@@ -12,7 +12,7 @@ import java.io.File;
 
 import org.eclipse.buildship.core.LocalGradleDistribution;
 
-public final class DefaultLocalGradleDistribution extends DefaultGradleDistribution implements LocalGradleDistribution {
+public final class DefaultLocalGradleDistribution extends BaseGradleDistribution implements LocalGradleDistribution {
 
     public DefaultLocalGradleDistribution(File location) {
         this(location.getAbsolutePath());

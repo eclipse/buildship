@@ -25,7 +25,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 import org.eclipse.buildship.core.*;
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.BaseGradleDistribution;
 import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
@@ -220,7 +220,7 @@ public final class GradleRunConfigurationAttributes {
         launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, gradleDistribution);
     }
 
-    public static void applyGradleDistribution(DefaultGradleDistribution gradleDistribution, ILaunchConfigurationWorkingCopy launchConfiguration) {
+    public static void applyGradleDistribution(BaseGradleDistribution gradleDistribution, ILaunchConfigurationWorkingCopy launchConfiguration) {
         launchConfiguration.setAttribute(GRADLE_DISTRIBUTION, gradleDistribution.serializeToString());
     }
 
@@ -264,7 +264,7 @@ public final class GradleRunConfigurationAttributes {
         Preconditions.checkNotNull(launchConfiguration);
         List<String> tasks = getListAttribute(TASKS, launchConfiguration);
         String workingDirExpression = getStringAttribute(WORKING_DIR, "", launchConfiguration);
-        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, ((DefaultGradleDistribution) GradleDistributions.fromBuild()).serializeToString(), launchConfiguration);
+        String gradleDistribution = getStringAttribute(GRADLE_DISTRIBUTION, ((BaseGradleDistribution) GradleDistributions.fromBuild()).serializeToString(), launchConfiguration);
         String gradleUserHomeExpression = getStringAttribute(GRADLE_USER_HOME, null, launchConfiguration);
         String javaHomeExpression = getStringAttribute(JAVA_HOME, null, launchConfiguration);
         List<String> jvmArgumentExpressions = getListAttribute(JVM_ARGUMENTS, launchConfiguration);

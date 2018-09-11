@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.Path;
 
 import org.eclipse.buildship.core.*;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.BaseGradleDistribution;
 import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 
@@ -131,7 +131,7 @@ final class BuildConfigurationPersistence {
 
     private static void savePreferences(DefaultBuildConfigurationProperties properties, PreferenceStore preferences) {
         if (properties.isOverrideWorkspaceSettings()) {
-            String gradleDistribution = ((DefaultGradleDistribution) properties.getGradleDistribution()).serializeToString();
+            String gradleDistribution = ((BaseGradleDistribution) properties.getGradleDistribution()).serializeToString();
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
             preferences.write(PREF_KEY_GRADLE_USER_HOME, toPortableString(properties.getGradleUserHome()));
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());

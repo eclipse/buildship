@@ -13,7 +13,7 @@ import java.net.URISyntaxException;
 
 import org.eclipse.buildship.core.RemoteGradleDistribution;
 
-public final class DefaultRemoteGradleDistribution extends DefaultGradleDistribution implements RemoteGradleDistribution {
+public final class DefaultRemoteGradleDistribution extends BaseGradleDistribution implements RemoteGradleDistribution {
 
     public DefaultRemoteGradleDistribution(URI url) {
         this(url.toString());

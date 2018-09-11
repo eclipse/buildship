@@ -28,7 +28,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.BaseGradleDistribution;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
@@ -121,7 +121,7 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
         environment.put(GSK_OPTIONS, Collections.<String>emptyList());
         environment.put(GSK_JVM_OPTIONS, Collections.<String>emptyList());
 
-        DefaultGradleDistribution gradleDistribution = (DefaultGradleDistribution) buildConfig.getGradleDistribution();
+        BaseGradleDistribution gradleDistribution = (BaseGradleDistribution) buildConfig.getGradleDistribution();
         switch (gradleDistribution.getType()) {
         case LOCAL_INSTALLATION:
             environment.put(GSK_INSTALLATION_LOCAL, new File(gradleDistribution.getConfiguration()));

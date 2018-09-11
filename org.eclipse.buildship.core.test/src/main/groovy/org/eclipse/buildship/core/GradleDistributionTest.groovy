@@ -1,7 +1,7 @@
 package org.eclipse.buildship.core
 
 
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution.Type
+import org.eclipse.buildship.core.internal.BaseGradleDistribution.Type
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class GradleDistributionTest extends WorkspaceSpecification {

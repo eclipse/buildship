@@ -26,7 +26,7 @@ import org.eclipse.buildship.core.GradleDistribution;
  *
  * @author Etienne Studer
  */
-public abstract class DefaultGradleDistribution implements GradleDistribution {
+public abstract class BaseGradleDistribution implements GradleDistribution {
 
     /**
      * The available Gradle distributions types.
@@ -56,7 +56,7 @@ public abstract class DefaultGradleDistribution implements GradleDistribution {
 
     private final GradleDistributionInfo distributionInfo;
 
-    protected DefaultGradleDistribution(GradleDistributionInfo distributionInfo) {
+    protected BaseGradleDistribution(GradleDistributionInfo distributionInfo) {
         Optional<String> validationError = distributionInfo.validate();
         Preconditions.checkArgument(!validationError.isPresent(), validationError.or(""));
         this.distributionInfo = distributionInfo;
@@ -120,7 +120,7 @@ public abstract class DefaultGradleDistribution implements GradleDistribution {
             return false;
         }
 
-        DefaultGradleDistribution that = (DefaultGradleDistribution) other;
+        BaseGradleDistribution that = (BaseGradleDistribution) other;
         return Objects.equal(this.distributionInfo, that.distributionInfo);
     }
 
@@ -132,45 +132,5 @@ public abstract class DefaultGradleDistribution implements GradleDistribution {
     @Override
     public String toString() {
         return this.distributionInfo.toString();
-    }
-
-    public static DefaultLocalGradleDistribution forLocalInstallation(String installationDir) {
-        return new DefaultLocalGradleDistribution(installationDir);
-    }
-
-    public static DefaultLocalGradleDistribution forLocalInstallation(File installationDir) {
-        return new DefaultLocalGradleDistribution(installationDir);
-    }
-
-    public static DefaultRemoteGradleDistribution forRemoteDistribution(String distributionUri) {
-        return new DefaultRemoteGradleDistribution(distributionUri);
-    }
-
-    public static DefaultRemoteGradleDistribution forRemoteDistribution(URI distributionUri) {
-        return new DefaultRemoteGradleDistribution(distributionUri.toString());
-    }
-
-    public static DefaultFixedVersionGradleDistribution forVersion(String version) {
-        return new DefaultFixedVersionGradleDistribution(version);
-    }
-
-    public static DefaultWrapperGradleDistribution fromBuild() {
-        return new DefaultWrapperGradleDistribution();
-    }
-
-    public static DefaultGradleDistribution fromDistributionInfo(GradleDistributionInfo distributionInfo) {
-        Type type = distributionInfo.getType().get();
-        switch (distributionInfo.getType().get()) {
-            case WRAPPER:
-                return fromBuild();
-            case LOCAL_INSTALLATION:
-                return forLocalInstallation(distributionInfo.getConfiguration());
-            case REMOTE_DISTRIBUTION:
-                return forRemoteDistribution(distributionInfo.getConfiguration());
-            case VERSION:
-                return forVersion(distributionInfo.getConfiguration());
-        }
-
-        throw new GradlePluginsRuntimeException("Invalid distribution type: " + type);
     }
 }
