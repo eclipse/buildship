@@ -83,4 +83,31 @@ class GradleDistributionTest extends WorkspaceSpecification {
         then:
         thrown(RuntimeException)
     }
+
+    def "GradleDistrubution has human-readable toString() implementation"() {
+        when:
+        File file = new File('.')
+        GradleDistribution distribution = GradleDistributions.forLocalInstallation(file)
+
+        then:
+        distribution.toString() == "Local installation at " + file.absolutePath
+
+        when:
+        distribution = GradleDistributions.forRemoteDistribution(file.toURI())
+
+        then:
+        distribution.toString() == "Remote distribution from " + file.toURI().toString()
+
+        when:
+        distribution = GradleDistributions.forVersion('2.1')
+
+        then:
+        distribution.toString() == "Specific Gradle version 2.1"
+
+        when:
+        distribution = GradleDistributions.fromBuild()
+
+        then:
+        distribution.toString() == "Gradle wrapper from target build"
+    }
 }

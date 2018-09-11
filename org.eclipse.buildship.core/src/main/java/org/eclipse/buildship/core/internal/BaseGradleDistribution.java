@@ -8,12 +8,6 @@
 
 package org.eclipse.buildship.core.internal;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.gradle.tooling.GradleConnector;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -44,40 +38,8 @@ public abstract class BaseGradleDistribution implements GradleDistribution {
         return this.distributionInfo.getConfiguration();
     }
 
-    /**
-     * Configures the specified connector with this distribution.
-     *
-     * @param connector the connector to configure
-     */
-    public void apply(GradleConnector connector) {
-        switch (this.distributionInfo.getType().get()) {
-            case LOCAL_INSTALLATION:
-                connector.useInstallation(new File(this.distributionInfo.getConfiguration()));
-                break;
-            case REMOTE_DISTRIBUTION:
-                connector.useDistribution(createURI(this.distributionInfo.getConfiguration()));
-                break;
-            case VERSION:
-                connector.useGradleVersion(this.distributionInfo.getConfiguration());
-                break;
-            case WRAPPER:
-                connector.useBuildDistribution();
-                break;
-            default:
-                throw new GradlePluginsRuntimeException("Invalid distribution type: " + this.distributionInfo.getType());
-        }
-    }
-
     public String serializeToString() {
         return this.distributionInfo.serializeToString();
-    }
-
-    private static URI createURI(String path) {
-        try {
-            return new URI(path);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e.getMessage());
-        }
     }
 
     @Override

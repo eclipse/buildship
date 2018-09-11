@@ -22,9 +22,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-import org.eclipse.buildship.core.*;
+import org.eclipse.buildship.core.FixedVersionGradleDistribution;
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.LocalGradleDistribution;
+import org.eclipse.buildship.core.RemoteGradleDistribution;
+import org.eclipse.buildship.core.WrapperGradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.BaseGradleDistribution;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
@@ -94,7 +98,17 @@ public final class GradleArguments {
     public void applyTo(GradleConnector connector) {
         connector.forProjectDirectory(this.rootDir);
         connector.useGradleUserHomeDir(this.gradleUserHome);
-        ((BaseGradleDistribution)this.gradleDistribution).apply(connector);
+        if (this.gradleDistribution instanceof LocalGradleDistribution) {
+            connector.useInstallation(((LocalGradleDistribution)this.gradleDistribution).getLocation());
+        } else if (this.gradleDistribution instanceof RemoteGradleDistribution) {
+            connector.useDistribution(((RemoteGradleDistribution)this.gradleDistribution).getUrl());
+        } else if (this.gradleDistribution instanceof FixedVersionGradleDistribution) {
+            connector.useGradleVersion(((FixedVersionGradleDistribution)this.gradleDistribution).getVersion());
+        } else if (this.gradleDistribution instanceof WrapperGradleDistribution) {
+            connector.useBuildDistribution();
+        } else {
+            throw new GradlePluginsRuntimeException("Invalid distribution type: " + this.gradleDistribution);
+        }
     }
 
     public void applyTo(LongRunningOperation operation, BuildEnvironment environment) {
