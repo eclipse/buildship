@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.*;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
@@ -82,7 +82,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
                                                                         true,
                                                                         true,
                                                                         false,
-                                                                        GradleDistribution.fromBuild(),
+                                                                        GradleDistributions.fromBuild(),
                                                                         null,
                                                                         false,
                                                                         false);

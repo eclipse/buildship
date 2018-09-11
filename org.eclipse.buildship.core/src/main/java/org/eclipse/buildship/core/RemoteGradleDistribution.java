@@ -8,22 +8,21 @@
 
 package org.eclipse.buildship.core;
 
+import java.net.URI;
+
 /**
- * Represents a Gradle distribution.
- * <p>
- * Currently four different Gradle distribution types are supported.
- * <ul>
- * <li>{@link WrapperGradleDistribution}</li>
- * <li>{@link LocalGradleDistribution}</li>
- * <li>{@link RemoteGradleDistribution}</li>
- * <li>{@link FixedVersionGradleDistribution}</li>
- * </ul>
- * New instances can be created with the factory methods in {@link GradleDistributions}.
+ * A reference to a remote Gradle distribution.
  *
  * @author Donat Csikos
  * @since 3.0
  * @noimplement this interface is not intended to be implemented by clients
  */
-public interface GradleDistribution {
+public interface RemoteGradleDistribution extends GradleDistribution {
 
+    /**
+     * The URL pointing to the the remote Gradle distribution.
+     *
+     * @return the remote distribution location
+     */
+    URI getUrl();
 }

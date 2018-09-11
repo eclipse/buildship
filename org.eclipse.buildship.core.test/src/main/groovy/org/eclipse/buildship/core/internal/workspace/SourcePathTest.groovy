@@ -8,7 +8,7 @@ import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.internal.launch.SupportedLaunchConfigType
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class SourcePathTest extends ProjectSynchronizationSpecification {
 
@@ -30,7 +30,7 @@ class SourcePathTest extends ProjectSynchronizationSpecification {
          }
 
          when:
-         importAndWait(projectDir, GradleDistribution.forVersion(version))
+         importAndWait(projectDir, GradleDistributions.forVersion(version))
          IRuntimeClasspathEntry[] p1sources = sourceEntries(findProject('p1'))
          IRuntimeClasspathEntry[] p2sources = sourceEntries(findProject('p2'))
 

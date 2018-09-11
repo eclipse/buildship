@@ -6,9 +6,9 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
 
 class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
@@ -34,7 +34,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "can save and load project configuration"() {
         given:
-        BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootProjectDir, GradleDistribution.forVersion('2.0'))
+        BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootProjectDir, GradleDistributions.forVersion('2.0'))
         ProjectConfiguration projectConfig = configurationManager.createProjectConfiguration(buildConfig, projectDir);
 
         when:
@@ -194,10 +194,10 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
         where:
         distribution                         | buildScansEnabled | offlineMode | autoSync
-        GradleDistribution.forVersion('3.5') | false             | false       | true
-        GradleDistribution.forVersion('3.4') | false             | true        | false
-        GradleDistribution.forVersion('3.3') | true              | false       | false
-        GradleDistribution.forVersion('3.2') | true              | true        | true
+        GradleDistributions.forVersion('3.5') | false             | false       | true
+        GradleDistributions.forVersion('3.4') | false             | true        | false
+        GradleDistributions.forVersion('3.3') | true              | false       | false
+        GradleDistributions.forVersion('3.2') | true              | true        | true
     }
 
     def "load project configuration overriding workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync) {
@@ -209,7 +209,7 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         configurationManager.saveProjectConfiguration(projectConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, !buildScansEnabled, !offlineMode, !autoSync))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistributions.fromBuild(), null, !buildScansEnabled, !offlineMode, !autoSync))
         projectConfig = configurationManager.loadProjectConfiguration(project)
 
         then:
@@ -225,10 +225,10 @@ class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 
         where:
         distribution                         | buildScansEnabled | offlineMode | autoSync
-        GradleDistribution.forVersion('3.5') | false             | false       | true
-        GradleDistribution.forVersion('3.4') | false             | true        | false
-        GradleDistribution.forVersion('3.3') | true              | false       | false
-        GradleDistribution.forVersion('3.2') | true              | true        | true
+        GradleDistributions.forVersion('3.5') | false             | false       | true
+        GradleDistributions.forVersion('3.4') | false             | true        | false
+        GradleDistributions.forVersion('3.3') | true              | false       | false
+        GradleDistributions.forVersion('3.2') | true              | true        | true
     }
 
     def "can delete project configuration"() {

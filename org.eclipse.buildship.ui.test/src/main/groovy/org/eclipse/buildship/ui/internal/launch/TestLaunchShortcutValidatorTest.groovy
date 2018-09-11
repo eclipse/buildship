@@ -3,7 +3,7 @@ package org.eclipse.buildship.ui.internal.launch
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.IType
 
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.eclipse.buildship.ui.internal.launch.TestLaunchShortcutValidator.PropertyTester
 import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpecification
@@ -12,7 +12,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
 
     def "Launch shortcut enabled on test sources"(String gradleVersion) {
         setup:
-        importAndWait(projectWithSources, GradleDistribution.forVersion(gradleVersion))
+        importAndWait(projectWithSources, GradleDistributions.forVersion(gradleVersion))
 
         expect:
         numOfGradleErrorMarkers == 0
@@ -30,7 +30,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
 
     def "Launch shortcut disabled on production sources"(String gradleVersion) {
         setup:
-        importAndWait(projectWithSources, GradleDistribution.forVersion(gradleVersion))
+        importAndWait(projectWithSources, GradleDistributions.forVersion(gradleVersion))
 
         expect:
         numOfGradleErrorMarkers == 0

@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
-import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.*;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
@@ -191,7 +191,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                 false,
                 false,
                 false,
-                GradleDistribution.fromBuild(),
+                GradleDistributions.fromBuild(),
                 null,
                 false,
                 false);

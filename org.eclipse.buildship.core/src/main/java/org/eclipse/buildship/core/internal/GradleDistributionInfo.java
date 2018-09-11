@@ -18,12 +18,12 @@ import com.google.common.base.Strings;
 
 import org.eclipse.osgi.util.NLS;
 
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution.Type;
+import org.eclipse.buildship.core.internal.BaseGradleDistribution.Type;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 
 /**
- * Describes a valid or invalid {@link DefaultGradleDistribution}.
+ * Describes a valid or invalid {@link BaseGradleDistribution}.
  *
  * @author Donat Csikos
  */
@@ -54,7 +54,7 @@ public final class GradleDistributionInfo {
     /**
      * Returns whether instance describes a valid Gradle distribution.
      *
-     * @return true if can be converted to a {@link DefaultGradleDistribution} object
+     * @return true if can be converted to a {@link BaseGradleDistribution} object
      */
     public boolean isValid() {
         return !validate().isPresent();
@@ -62,7 +62,7 @@ public final class GradleDistributionInfo {
 
     /**
      * Returns an error message if the current instance represents an invalid
-     * {@link DefaultGradleDistribution}.
+     * {@link BaseGradleDistribution}.
      *
      * @return a human-readable error message describing the problem
      */
@@ -111,18 +111,34 @@ public final class GradleDistributionInfo {
         }
     }
 
-    public DefaultGradleDistribution toGradleDistribution() {
-        return DefaultGradleDistribution.fromDistributionInfo(this);
+    public BaseGradleDistribution toGradleDistribution() {
+       Optional<String> errorMessage = validate();
+       if (errorMessage.isPresent()) {
+           throw new GradlePluginsRuntimeException(errorMessage.get());
+       }
+
+        switch (getType().get()) {
+            case WRAPPER:
+                return new DefaultWrapperGradleDistribution();
+            case LOCAL_INSTALLATION:
+                return new DefaultLocalGradleDistribution(this.configuration);
+            case REMOTE_DISTRIBUTION:
+                return new DefaultRemoteGradleDistribution(this.configuration);
+            case VERSION:
+                return new DefaultFixedVersionGradleDistribution(this.configuration);
+        }
+
+        throw new GradlePluginsRuntimeException("Invalid distribution type: " + getType().get());
     }
 
     /**
-     * Converts the current object to a {@link DefaultGradleDistribution} or returns
-     * {@link DefaultGradleDistribution#fromBuild()} if invalid.
+     * Converts the current object to a {@link BaseGradleDistribution} or returns
+     * {@link BaseGradleDistribution#fromBuild()} if invalid.
      *
      * @return the created Gradle distribution
      */
-    public DefaultGradleDistribution toGradleDistributionOrDefault() {
-        return isValid() ? toGradleDistribution() : DefaultGradleDistribution.fromBuild();
+    public BaseGradleDistribution toGradleDistributionOrDefault() {
+        return isValid() ? toGradleDistribution() : new DefaultWrapperGradleDistribution();
     }
 
     @Override

@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.DefaultGradleDistribution;
+import org.eclipse.buildship.core.internal.BaseGradleDistribution;
 import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
@@ -95,7 +95,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     public void initializeFrom(ILaunchConfiguration configuration) {
         this.attributes = GradleRunConfigurationAttributes.from(configuration);
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(this.attributes.isOverrideBuildSettings());
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(((DefaultGradleDistribution) this.attributes.getGradleDistribution()).getDistributionInfo());
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(((BaseGradleDistribution) this.attributes.getGradleDistribution()).getDistributionInfo());
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(this.attributes.getGradleUserHomeHomeExpression()));
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(this.attributes.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(this.attributes.isBuildScansEnabled());

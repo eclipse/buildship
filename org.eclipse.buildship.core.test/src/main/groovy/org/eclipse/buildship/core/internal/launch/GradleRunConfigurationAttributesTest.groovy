@@ -15,7 +15,7 @@ import spock.lang.Shared
 
 import org.eclipse.debug.core.ILaunchConfiguration
 
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.GradleDistributions
 import org.eclipse.buildship.core.internal.GradleDistributionInfo
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
@@ -25,7 +25,7 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
     @Shared def Attributes validAttributes = new Attributes (
         tasks : ['clean'],
         workingDir : "/home/user/workspace",
-        gradleDistr : GradleDistribution.fromBuild().serializeToString(),
+        gradleDistr : GradleDistributions.fromBuild().serializeToString(),
         gradleUserHome: '/.gradlehome',
         javaHome : "/.java",
         arguments : ["-q"],
@@ -47,7 +47,7 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
         then:
         attributes.tasks == []
         attributes.workingDir.absolutePath == new File('').absolutePath
-        attributes.gradleDistribution == GradleDistribution.fromBuild()
+        attributes.gradleDistribution == GradleDistributions.fromBuild()
         attributes.gradleUserHome == null
         attributes.javaHome == null
         attributes.arguments == []

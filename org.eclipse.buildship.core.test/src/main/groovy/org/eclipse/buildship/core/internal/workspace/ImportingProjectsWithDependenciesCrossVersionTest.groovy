@@ -6,7 +6,7 @@ import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.*
 
 class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchronizationSpecification {
 

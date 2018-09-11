@@ -13,7 +13,7 @@ import java.io.IOException;
 
 import com.google.common.base.Objects;
 
-import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.*;
 
 /**
  * Properties backing a {@code BuildConfiguration} instance.

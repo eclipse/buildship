@@ -9,21 +9,14 @@
 package org.eclipse.buildship.core;
 
 /**
- * Represents a Gradle distribution.
- * <p>
- * Currently four different Gradle distribution types are supported.
- * <ul>
- * <li>{@link WrapperGradleDistribution}</li>
- * <li>{@link LocalGradleDistribution}</li>
- * <li>{@link RemoteGradleDistribution}</li>
- * <li>{@link FixedVersionGradleDistribution}</li>
- * </ul>
- * New instances can be created with the factory methods in {@link GradleDistributions}.
+ * Specifies to use the Gradle distribution defined by the target Gradle build. If the target build
+ * has no Gradle distribution specified (i.e. no Gradle wrapper is used in the project) then the
+ * Tooling API plug-in version will be picked.
  *
  * @author Donat Csikos
  * @since 3.0
  * @noimplement this interface is not intended to be implemented by clients
  */
-public interface GradleDistribution {
+public interface WrapperGradleDistribution extends GradleDistribution {
 
 }
