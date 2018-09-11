@@ -20,7 +20,7 @@ public final class DefaultRemoteGradleDistribution extends BaseGradleDistributio
     }
 
     public DefaultRemoteGradleDistribution(String url) {
-        super(new GradleDistributionInfo(Type.REMOTE_DISTRIBUTION, url));
+        super(new GradleDistributionInfo(GradleDistributionInfo.Type.REMOTE_DISTRIBUTION, url));
     }
 
     @Override

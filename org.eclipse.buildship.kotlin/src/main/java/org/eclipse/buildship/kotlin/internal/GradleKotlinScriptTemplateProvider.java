@@ -10,7 +10,6 @@ package org.eclipse.buildship.kotlin.internal;
 
 import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,9 +26,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import org.eclipse.buildship.core.FixedVersionGradleDistribution;
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.LocalGradleDistribution;
+import org.eclipse.buildship.core.RemoteGradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.BaseGradleDistribution;
-import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 
@@ -121,19 +122,13 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
         environment.put(GSK_OPTIONS, Collections.<String>emptyList());
         environment.put(GSK_JVM_OPTIONS, Collections.<String>emptyList());
 
-        BaseGradleDistribution gradleDistribution = (BaseGradleDistribution) buildConfig.getGradleDistribution();
-        switch (gradleDistribution.getType()) {
-        case LOCAL_INSTALLATION:
-            environment.put(GSK_INSTALLATION_LOCAL, new File(gradleDistribution.getConfiguration()));
-            break;
-        case REMOTE_DISTRIBUTION:
-            environment.put(GSK_INSTALLATION_REMOTE, createURI(gradleDistribution.getConfiguration()));
-            break;
-        case VERSION:
-            environment.put(GSK_INSTALLATION_VERSION, gradleDistribution.getConfiguration());
-            break;
-        default:
-            break;
+        GradleDistribution gradleDistribution = buildConfig.getGradleDistribution();
+        if (gradleDistribution instanceof LocalGradleDistribution) {
+            environment.put(GSK_INSTALLATION_LOCAL, ((LocalGradleDistribution)gradleDistribution).getLocation());
+        } else if (gradleDistribution instanceof RemoteGradleDistribution) {
+            environment.put(GSK_INSTALLATION_REMOTE, ((RemoteGradleDistribution)gradleDistribution).getUrl());
+        } else if (gradleDistribution instanceof FixedVersionGradleDistribution) {
+            environment.put(GSK_INSTALLATION_VERSION, ((FixedVersionGradleDistribution)gradleDistribution).getVersion());
         }
 
         return environment;
@@ -142,13 +137,5 @@ public final class GradleKotlinScriptTemplateProvider implements ScriptTemplateP
     @Override
     public String getTemplateClassName() {
         return "org.gradle.kotlin.dsl.KotlinBuildScript";
-    }
-
-    private URI createURI(String uri) {
-        try {
-            return new URI(uri);
-        } catch (URISyntaxException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
     }
 }

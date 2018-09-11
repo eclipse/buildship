@@ -28,32 +28,6 @@ import org.eclipse.buildship.core.GradleDistribution;
  */
 public abstract class BaseGradleDistribution implements GradleDistribution {
 
-    /**
-     * The available Gradle distributions types.
-     */
-    public enum Type {
-
-        /**
-         * Distribution handled via the wrapper script.
-         */
-        WRAPPER,
-
-        /**
-         * Distribution loaded from the the disk.
-         */
-        LOCAL_INSTALLATION,
-
-        /**
-         * Distribution downloaded from a remote URI.
-         */
-        REMOTE_DISTRIBUTION,
-
-        /**
-         * A specific Gradle version.
-         */
-        VERSION
-    }
-
     private final GradleDistributionInfo distributionInfo;
 
     protected BaseGradleDistribution(GradleDistributionInfo distributionInfo) {
@@ -64,10 +38,6 @@ public abstract class BaseGradleDistribution implements GradleDistribution {
 
     public GradleDistributionInfo getDistributionInfo() {
         return this.distributionInfo;
-    }
-
-    public Type getType() {
-        return this.distributionInfo.getType().get();
     }
 
     public String getConfiguration() {

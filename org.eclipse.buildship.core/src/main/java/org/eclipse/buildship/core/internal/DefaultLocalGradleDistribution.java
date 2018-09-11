@@ -19,7 +19,7 @@ public final class DefaultLocalGradleDistribution extends BaseGradleDistribution
     }
 
     public DefaultLocalGradleDistribution(String location) {
-        super(new GradleDistributionInfo(Type.LOCAL_INSTALLATION, location));
+        super(new GradleDistributionInfo(GradleDistributionInfo.Type.LOCAL_INSTALLATION, location));
     }
 
     @Override

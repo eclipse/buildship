@@ -13,7 +13,7 @@ import org.eclipse.buildship.core.FixedVersionGradleDistribution;
 public final class DefaultFixedVersionGradleDistribution extends BaseGradleDistribution implements FixedVersionGradleDistribution {
 
     public DefaultFixedVersionGradleDistribution(String version) {
-        super(new GradleDistributionInfo(Type.VERSION, version));
+        super(new GradleDistributionInfo(GradleDistributionInfo.Type.VERSION, version));
     }
 
     @Override

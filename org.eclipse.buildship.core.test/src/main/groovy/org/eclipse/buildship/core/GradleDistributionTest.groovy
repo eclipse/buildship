@@ -1,7 +1,6 @@
 package org.eclipse.buildship.core
 
 
-import org.eclipse.buildship.core.internal.BaseGradleDistribution.Type
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class GradleDistributionTest extends WorkspaceSpecification {
@@ -11,8 +10,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistributions.fromBuild();
 
         expect:
-        distribution.type == Type.WRAPPER
-        distribution.configuration == ''
+        distribution instanceof WrapperGradleDistribution
     }
 
     def "Can create a Gradle distribution referencing a valid local installation"() {
@@ -21,8 +19,8 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistributions.forLocalInstallation(dir)
 
         expect:
-        distribution.type == Type.LOCAL_INSTALLATION
-        distribution.configuration == dir.absolutePath
+        distribution instanceof LocalGradleDistribution
+        distribution.location == dir
     }
 
     def "Gradle distribution cannot be created with invalid local installation"() {
@@ -50,8 +48,8 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistributions.forRemoteDistribution(new URI('https://example.com/gradle-dist'))
 
         expect:
-        distribution.type == Type.REMOTE_DISTRIBUTION
-        distribution.configuration == 'https://example.com/gradle-dist'
+        distribution instanceof RemoteGradleDistribution
+        distribution.url.toString() == 'https://example.com/gradle-dist'
     }
 
     def "Can create a Gradle distribution referencing an invalid remote installation"() {
@@ -67,8 +65,8 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistributions.forVersion("4.9")
 
         expect:
-        distribution.type == Type.VERSION
-        distribution.configuration == '4.9'
+        distribution instanceof FixedVersionGradleDistribution
+        distribution.version  == '4.9'
     }
 
     def "Can create a Gradle distribution referencing an invalid version"() {

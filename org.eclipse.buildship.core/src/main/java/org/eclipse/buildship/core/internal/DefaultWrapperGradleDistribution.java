@@ -13,6 +13,6 @@ import org.eclipse.buildship.core.WrapperGradleDistribution;
 public final class DefaultWrapperGradleDistribution extends BaseGradleDistribution implements WrapperGradleDistribution {
 
     public DefaultWrapperGradleDistribution() {
-        super(new GradleDistributionInfo(Type.WRAPPER, null));
+        super(new GradleDistributionInfo(GradleDistributionInfo.Type.WRAPPER, null));
     }
 }

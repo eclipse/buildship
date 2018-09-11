@@ -8,7 +8,7 @@ import spock.lang.Specification
 import com.google.common.base.Strings
 
 import org.eclipse.buildship.core.GradleDistribution
-import org.eclipse.buildship.core.internal.BaseGradleDistribution.Type
+import org.eclipse.buildship.core.internal.GradleDistributionInfo.Type
 
 class GradleDistributionInfoTest extends Specification {
 
@@ -16,7 +16,7 @@ class GradleDistributionInfoTest extends Specification {
     @Shared
     TemporaryFolder tempFolder
 
-    def "Validation passes for valid objects"(Type type, String configuration) {
+    def "Validation passes for valid objects"(GradleDistributionInfo.Type type, String configuration) {
         setup:
         GradleDistributionInfo distributionInfo = new GradleDistributionInfo(type, configuration)
 
@@ -32,7 +32,7 @@ class GradleDistributionInfoTest extends Specification {
         Type.VERSION             | '2.4'
     }
 
-    def "Validation fails for invalid objects"(Type type, String configuration) {
+    def "Validation fails for invalid objects"(GradleDistributionInfo.Type type, String configuration) {
         setup:
         GradleDistributionInfo distributionInfo = new GradleDistributionInfo(type, configuration)
 
@@ -54,7 +54,7 @@ class GradleDistributionInfoTest extends Specification {
         Type.VERSION             | ''
     }
 
-    def "Can serialize and deserialize valid and invalid distributions"(Type type, String configuration) {
+    def "Can serialize and deserialize valid and invalid distributions"(GradleDistributionInfo.Type type, String configuration) {
         setup:
         GradleDistributionInfo distributionInfo1 = new GradleDistributionInfo(type, configuration)
         GradleDistributionInfo distributionInfo2 = GradleDistributionInfo.deserializeFromString(distributionInfo1.serializeToString())
@@ -82,7 +82,7 @@ class GradleDistributionInfoTest extends Specification {
         Type.VERSION             | ''
     }
 
-    def "Can convert valid distribution info objects to Gradle distributions"(Type type, String configuration) {
+    def "Can convert valid distribution info objects to Gradle distributions"(GradleDistributionInfo.Type type, String configuration) {
         setup:
         GradleDistributionInfo distributionInfo = new GradleDistributionInfo(type, configuration)
 
@@ -99,7 +99,7 @@ class GradleDistributionInfoTest extends Specification {
         Type.VERSION             | '2.4'
     }
 
-    def "Converting invalid distribution info objects to Gradle distribution throw runtime exception"(Type type, String configuration) {
+    def "Converting invalid distribution info objects to Gradle distribution throw runtime exception"(GradleDistributionInfo.Type type, String configuration) {
         setup:
         GradleDistributionInfo distributionInfo = new GradleDistributionInfo(type, configuration)
 

@@ -33,8 +33,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.internal.BaseGradleDistribution.Type;
 import org.eclipse.buildship.core.internal.GradleDistributionInfo;
+import org.eclipse.buildship.core.internal.GradleDistributionInfo.Type;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
@@ -133,13 +133,13 @@ public final class GradleDistributionGroup extends Group {
 
     public GradleDistributionInfo getDistributionInfo() {
         if (this.useGradleWrapperOption.getSelection()) {
-            return new GradleDistributionInfo(Type.WRAPPER, "");
+            return new GradleDistributionInfo(GradleDistributionInfo.Type.WRAPPER, "");
         } else if (this.useLocalInstallationDirOption.getSelection()) {
-            return new GradleDistributionInfo(Type.LOCAL_INSTALLATION, this.localInstallationDirText.getText());
+            return new GradleDistributionInfo(GradleDistributionInfo.Type.LOCAL_INSTALLATION, this.localInstallationDirText.getText());
         } else if (this.useRemoteDistributionUriOption.getSelection()) {
-            return new GradleDistributionInfo(Type.REMOTE_DISTRIBUTION, this.remoteDistributionUriText.getText());
+            return new GradleDistributionInfo(GradleDistributionInfo.Type.REMOTE_DISTRIBUTION, this.remoteDistributionUriText.getText());
         } else if (this.useGradleVersionOption.getSelection()) {
-            return new GradleDistributionInfo(Type.VERSION, getSpecificVersion());
+            return new GradleDistributionInfo(GradleDistributionInfo.Type.VERSION, getSpecificVersion());
         } else {
             throw new GradlePluginsRuntimeException("No Gradle distribution type selected");
         }
@@ -153,7 +153,7 @@ public final class GradleDistributionGroup extends Group {
     }
 
     public void setDistributionInfo(GradleDistributionInfo distributionInfo) {
-        Type type = distributionInfo.getType().get();
+        GradleDistributionInfo.Type type = distributionInfo.getType().get();
         String configuration = Strings.nullToEmpty(distributionInfo.getConfiguration());
         ImmutableList<Button> allRadios = ImmutableList.of(this.useGradleWrapperOption, this.useLocalInstallationDirOption, this.useRemoteDistributionUriOption, this.useGradleVersionOption);
         switch (type) {
