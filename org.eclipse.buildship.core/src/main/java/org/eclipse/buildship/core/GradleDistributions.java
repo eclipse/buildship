@@ -28,7 +28,7 @@ public abstract class GradleDistributions {
      * @param installationDir the local Gradle installation directory to use
      * @return a new distribution instance
      */
-    public static GradleDistribution forLocalInstallation(File installationDir) {
+    public static LocalGradleDistribution forLocalInstallation(File installationDir) {
         return DefaultGradleDistribution.forLocalInstallation(installationDir);
     }
 
@@ -39,7 +39,7 @@ public abstract class GradleDistributions {
      * @param distributionUri the remote Gradle distribution location to use
      * @return a new distribution instance
      */
-    public static GradleDistribution forRemoteDistribution(URI distributionUri) {
+    public static RemoteGradleDistribution forRemoteDistribution(URI distributionUri) {
         return DefaultGradleDistribution.forRemoteDistribution(distributionUri);
     }
 
@@ -50,7 +50,7 @@ public abstract class GradleDistributions {
      * @param version the Gradle version to use
      * @return a new distribution instance
      */
-    public static GradleDistribution forVersion(String version) {
+    public static FixedVersionGradleDistribution forVersion(String version) {
         return DefaultGradleDistribution.forVersion(version);
     }
 
@@ -60,7 +60,7 @@ public abstract class GradleDistributions {
      * @return a new distribution instance
      * @see org.gradle.tooling.GradleConnector#useBuildDistribution()
      */
-    public static GradleDistribution fromBuild() {
+    public static WrapperGradleDistribution fromBuild() {
         return DefaultGradleDistribution.fromBuild();
     }
 }

@@ -18,7 +18,11 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.*;
+import org.eclipse.buildship.core.FixedVersionGradleDistribution;
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.LocalGradleDistribution;
+import org.eclipse.buildship.core.RemoteGradleDistribution;
+import org.eclipse.buildship.core.WrapperGradleDistribution;
 
 /**
  * Represents a Gradle distribution that can be located locally or remotely, be a fixed version, or
@@ -26,6 +30,8 @@ import org.eclipse.buildship.core.*;
  *
  * @author Etienne Studer
  */
+
+// TODO (donat) make it abstract
 public class DefaultGradleDistribution implements GradleDistribution {
 
     /**
@@ -56,11 +62,7 @@ public class DefaultGradleDistribution implements GradleDistribution {
 
     private final GradleDistributionInfo distributionInfo;
 
-    private DefaultGradleDistribution(Type type, String configuration) {
-        this(new GradleDistributionInfo(type, configuration));
-    }
-
-    private DefaultGradleDistribution(GradleDistributionInfo distributionInfo) {
+    protected DefaultGradleDistribution(GradleDistributionInfo distributionInfo) {
         Optional<String> validationError = distributionInfo.validate();
         Preconditions.checkArgument(!validationError.isPresent(), validationError.or(""));
         this.distributionInfo = distributionInfo;
@@ -138,28 +140,28 @@ public class DefaultGradleDistribution implements GradleDistribution {
         return this.distributionInfo.toString();
     }
 
-    public static DefaultGradleDistribution forLocalInstallation(String installationDir) {
-        return new DefaultGradleDistribution(Type.LOCAL_INSTALLATION, installationDir);
+    public static DefaultLocalGradleDistribution forLocalInstallation(String installationDir) {
+        return new DefaultLocalGradleDistribution(installationDir);
     }
 
-    public static DefaultGradleDistribution forLocalInstallation(File installationDir) {
-        return new DefaultGradleDistribution(Type.LOCAL_INSTALLATION, installationDir.getAbsolutePath());
+    public static DefaultLocalGradleDistribution forLocalInstallation(File installationDir) {
+        return new DefaultLocalGradleDistribution(installationDir);
     }
 
-    public static DefaultGradleDistribution forRemoteDistribution(String distributionUri) {
-        return new DefaultGradleDistribution(Type.REMOTE_DISTRIBUTION, distributionUri);
+    public static DefaultRemoteGradleDistribution forRemoteDistribution(String distributionUri) {
+        return new DefaultRemoteGradleDistribution(distributionUri);
     }
 
-    public static DefaultGradleDistribution forRemoteDistribution(URI distributionUri) {
-        return new DefaultGradleDistribution(Type.REMOTE_DISTRIBUTION, distributionUri.toString());
+    public static DefaultRemoteGradleDistribution forRemoteDistribution(URI distributionUri) {
+        return new DefaultRemoteGradleDistribution(distributionUri.toString());
     }
 
-    public static DefaultGradleDistribution forVersion(String version) {
-        return new DefaultGradleDistribution(Type.VERSION, version);
+    public static DefaultFixedVersionGradleDistribution forVersion(String version) {
+        return new DefaultFixedVersionGradleDistribution(version);
     }
 
-    public static DefaultGradleDistribution fromBuild() {
-        return new DefaultGradleDistribution(Type.WRAPPER, null);
+    public static DefaultWrapperGradleDistribution fromBuild() {
+        return new DefaultWrapperGradleDistribution();
     }
 
     public static DefaultGradleDistribution fromDistributionInfo(GradleDistributionInfo distributionInfo) {
