@@ -18,7 +18,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.GradleDistributions;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
@@ -96,7 +95,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     @Override
     protected void performDefaults() {
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText("");
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(GradleDistributionInfo.from(GradleDistributions.fromBuild()));
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(GradleDistributionInfo.from(GradleDistribution.fromBuild()));
         super.performDefaults();
     }
 

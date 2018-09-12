@@ -65,7 +65,7 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
     private Set<BuildConfiguration> createBuildConfigsFor(Set<IProject> projects) {
         Set<BuildConfiguration> buildConfigs = Sets.newLinkedHashSet();
         for (IProject project : projects) {
-            buildConfigs.add(CorePlugin.configurationManager().createBuildConfiguration(project.getLocation().toFile(), false, GradleDistributions.fromBuild(), null, false, false, false));
+            buildConfigs.add(CorePlugin.configurationManager().createBuildConfiguration(project.getLocation().toFile(), false, GradleDistribution.fromBuild(), null, false, false, false));
         }
         return buildConfigs;
     }

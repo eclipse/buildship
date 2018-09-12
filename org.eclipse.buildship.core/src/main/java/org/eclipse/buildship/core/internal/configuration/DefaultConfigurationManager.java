@@ -191,7 +191,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                 false,
                 false,
                 false,
-                GradleDistributions.fromBuild(),
+                GradleDistribution.fromBuild(),
                 null,
                 false,
                 false);

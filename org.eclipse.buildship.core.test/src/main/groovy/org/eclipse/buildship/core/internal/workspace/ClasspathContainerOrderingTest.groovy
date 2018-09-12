@@ -30,7 +30,7 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         }
 
         when:
-        importAndWait(location, GradleDistributions.forVersion('2.14.1'))
+        importAndWait(location, GradleDistribution.forVersion('2.14.1'))
         IProject project = findProject('sample-project')
 
         then:
@@ -52,7 +52,7 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         }
 
         when:
-        importAndWait(location, GradleDistributions.forVersion('2.14.1'))
+        importAndWait(location, GradleDistribution.forVersion('2.14.1'))
         IProject project = findProject('sample-project')
 
         then:
@@ -241,7 +241,7 @@ class ClasspathContainerOrderingTest extends ProjectSynchronizationSpecification
         }
 
         when:
-        importAndWait(location, GradleDistributions.forVersion('2.14.1'))
+        importAndWait(location, GradleDistribution.forVersion('2.14.1'))
         IProject project = findProject('sample-project')
 
         then:

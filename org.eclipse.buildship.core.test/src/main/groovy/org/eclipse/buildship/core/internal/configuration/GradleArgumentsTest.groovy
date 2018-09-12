@@ -6,13 +6,13 @@ import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.build.GradleEnvironment
 import spock.lang.Specification
 
-import org.eclipse.buildship.core.GradleDistributions
+import org.eclipse.buildship.core.GradleDistribution
 
 class GradleArgumentsTest extends Specification {
 
     def "Assigns proper arguments to target operation"(baseArgs, buildScans, offlineMode, gradleVersion, List expected) {
         setup:
-        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistributions.fromBuild(), null, null, buildScans, offlineMode, baseArgs, [])
+        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistribution.fromBuild(), null, null, buildScans, offlineMode, baseArgs, [])
         LongRunningOperation operation = Mock(LongRunningOperation)
         GradleEnvironment gradleEnvironment = Mock(GradleEnvironment)
         gradleEnvironment.gradleVersion >> gradleVersion
@@ -41,7 +41,7 @@ class GradleArgumentsTest extends Specification {
     def "Configures GradleConnector to use local installation"() {
         setup:
         File file = new File('.')
-        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistributions.forLocalInstallation(file), null, null, false, false, [], [])
+        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistribution.forLocalInstallation(file), null, null, false, false, [], [])
         GradleConnector connector = Mock(GradleConnector.class)
 
         when:
@@ -54,7 +54,7 @@ class GradleArgumentsTest extends Specification {
     def "Configures GradleConnector to use remote distribution"() {
         setup:
         URI uri = new File('.').toURI()
-        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistributions.forRemoteDistribution(uri), null, null, false, false, [], [])
+        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistribution.forRemoteDistribution(uri), null, null, false, false, [], [])
         GradleConnector connector = Mock(GradleConnector.class)
 
         when:
@@ -66,7 +66,7 @@ class GradleArgumentsTest extends Specification {
 
     def "Configures GradleConnector to use version number"() {
         setup:
-        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistributions.forVersion('2.0'), null, null, false, false, [], [])
+        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistribution.forVersion('2.0'), null, null, false, false, [], [])
         GradleConnector connector = Mock(GradleConnector.class)
 
         when:
@@ -78,7 +78,7 @@ class GradleArgumentsTest extends Specification {
 
     def "Configures GradleConnector to use default distibution defined by the Tooling API library"() {
         setup:
-        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistributions.fromBuild(), null, null, false, false, [], [])
+        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistribution.fromBuild(), null, null, false, false, [], [])
         GradleConnector connector = Mock(GradleConnector.class)
 
         when:

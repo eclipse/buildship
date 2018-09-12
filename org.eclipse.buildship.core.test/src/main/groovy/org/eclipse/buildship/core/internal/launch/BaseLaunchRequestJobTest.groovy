@@ -3,7 +3,7 @@ package org.eclipse.buildship.core.internal.launch
 import org.eclipse.debug.core.ILaunchConfiguration
 
 import org.eclipse.buildship.core.GradleDistribution
-import org.eclipse.buildship.core.GradleDistributions
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.GradleDistributionInfo
 import org.eclipse.buildship.core.internal.console.ProcessStreams
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
@@ -37,7 +37,7 @@ class BaseLaunchRequestJobTest extends WorkspaceSpecification {
         buildConfigurationStream.toString()
     }
 
-    ILaunchConfiguration createLaunchConfiguration(File projectDir, tasks = ['clean', 'build'], GradleDistribution distribution = GradleDistributions.fromBuild(), arguments = []) {
+    ILaunchConfiguration createLaunchConfiguration(File projectDir, tasks = ['clean', 'build'], GradleDistribution distribution = GradleDistribution.fromBuild(), arguments = []) {
         ILaunchConfiguration launchConfiguration = Mock(ILaunchConfiguration)
         launchConfiguration.getName() >> 'name'
         launchConfiguration.getAttribute('override_workspace_settings', _) >> 'true'

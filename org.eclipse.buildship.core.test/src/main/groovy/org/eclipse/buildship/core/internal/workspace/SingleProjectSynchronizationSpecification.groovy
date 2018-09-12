@@ -206,7 +206,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        importAndWait(projectDir, GradleDistributions.forVersion('2.10'))
+        importAndWait(projectDir, GradleDistribution.forVersion('2.10'))
         IJavaProject javaProject = findJavaProject('sample-project')
         String sourceCompliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)
         String sourceCompatibility = javaProject.getOption(JavaCore.COMPILER_SOURCE, true)

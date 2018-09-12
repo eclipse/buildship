@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.viewers.StructuredSelection
 
-import org.eclipse.buildship.core.GradleDistributions
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration
@@ -31,7 +31,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
     def "Uses configuration from workspace settings"() {
         setup:
         WorkspaceConfiguration originalWorkspaceConfig = configurationManager.loadWorkspaceConfiguration()
-        WorkspaceConfiguration config = new WorkspaceConfiguration(GradleDistributions.forVersion("3.0"), dir('custom-gradle-home'), false, false, false)
+        WorkspaceConfiguration config = new WorkspaceConfiguration(GradleDistribution.forVersion("3.0"), dir('custom-gradle-home'), false, false, false)
         configurationManager.saveWorkspaceConfiguration(config)
 
         IProject project = EclipseProjects.newProject('add-buildship-nature')

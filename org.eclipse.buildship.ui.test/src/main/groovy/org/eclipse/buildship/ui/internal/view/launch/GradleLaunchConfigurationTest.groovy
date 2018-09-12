@@ -2,7 +2,7 @@ package org.eclipse.buildship.ui.internal.view.launch
 
 import org.eclipse.debug.core.ILaunchConfiguration
 
-import org.eclipse.buildship.core.GradleDistributions
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.GradleDistributionInfo
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
@@ -38,7 +38,7 @@ class GradleLaunchConfigurationTest extends ProjectSynchronizationSpecification 
     private GradleRunConfigurationAttributes attributes(String projectLoc) {
         new GradleRunConfigurationAttributes([],
             projectLoc,
-            GradleDistributionInfo.from(GradleDistributions.fromBuild()).serializeToString(),
+            GradleDistributionInfo.from(GradleDistribution.fromBuild()).serializeToString(),
             "",
             null,
             [],

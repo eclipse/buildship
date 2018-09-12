@@ -22,7 +22,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.GradleDistributions;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
@@ -100,9 +99,9 @@ public abstract class GradleVersionParameterization {
             public GradleDistribution apply(GradleVersion input) {
                 if (input.isSnapshot()) {
                     URI distributionLocation = new DistributionLocator().getDistributionFor(input);
-                    return GradleDistributions.forRemoteDistribution(distributionLocation);
+                    return GradleDistribution.forRemoteDistribution(distributionLocation);
                 } else {
-                    return GradleDistributions.forVersion(input.getVersion());
+                    return GradleDistribution.forVersion(input.getVersion());
                 }
             }
         }).toList();

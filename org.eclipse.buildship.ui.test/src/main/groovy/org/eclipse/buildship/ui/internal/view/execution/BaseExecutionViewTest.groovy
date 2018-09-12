@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Tree
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.ui.IWorkbenchPage
 
-import org.eclipse.buildship.core.GradleDistributions
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.GradleDistributionInfo
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
@@ -44,7 +44,7 @@ abstract class BaseExecutionViewTest extends SwtBotSpecification {
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
                 [task],
                 projectDir.absolutePath,
-                GradleDistributionInfo.from(GradleDistributions.fromBuild()).serializeToString(),
+                GradleDistributionInfo.from(GradleDistribution.fromBuild()).serializeToString(),
                 "",
                 null,
                 [],

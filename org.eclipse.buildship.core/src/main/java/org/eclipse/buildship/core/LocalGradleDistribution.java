@@ -25,7 +25,7 @@ import org.eclipse.buildship.core.internal.i18n.CoreMessages;
  * @since 3.0
  * @noimplement this interface is not intended to be implemented by clients
  */
-public final class LocalGradleDistribution implements GradleDistribution {
+public final class LocalGradleDistribution extends GradleDistribution {
 
     private final File location;
 

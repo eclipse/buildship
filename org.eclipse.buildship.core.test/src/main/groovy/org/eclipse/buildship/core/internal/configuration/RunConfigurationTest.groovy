@@ -22,7 +22,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         setup:
         List<String> tasks = ['compileGroovy', 'publish']
         File javaHome = dir('java-home')
-        GradleDistribution gradleDistribution = GradleDistributions.forVersion('3.2')
+        GradleDistribution gradleDistribution = GradleDistribution.forVersion('3.2')
         List arguments = ['-q', '-Pkey=value']
         List jvmArguments = ['-ea', '-Dkey=value']
         boolean showConsoleView = false
@@ -33,7 +33,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootDir,
-            GradleDistributions.fromBuild(),
+            GradleDistribution.fromBuild(),
             buildBuildScansEnabled,
             buildOfflineMode,
             false,
@@ -54,7 +54,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         then:
         runConfig.tasks == tasks
         runConfig.javaHome == javaHome
-        runConfig.gradleDistribution == (runConfigOverride ? GradleDistributions.forVersion('3.2') : GradleDistributions.fromBuild())
+        runConfig.gradleDistribution == (runConfigOverride ? GradleDistribution.forVersion('3.2') : GradleDistribution.fromBuild())
         runConfig.gradleUserHome == (runConfigOverride ? runGradleUserHome : buildGradleUserHome)
         runConfig.arguments == arguments
         runConfig.jvmArguments == jvmArguments
@@ -64,7 +64,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.offlineMode == expectedRunConfigOfflineMode
         runConfig.projectConfiguration.projectDir == rootDir
         runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory == rootDir
-        runConfig.projectConfiguration.buildConfiguration.gradleDistribution == GradleDistributions.fromBuild()
+        runConfig.projectConfiguration.buildConfiguration.gradleDistribution == GradleDistribution.fromBuild()
         runConfig.projectConfiguration.buildConfiguration.gradleUserHome == buildGradleUserHome
         runConfig.projectConfiguration.buildConfiguration.overrideWorkspaceSettings == true
         runConfig.projectConfiguration.buildConfiguration.buildScansEnabled == buildBuildScansEnabled
@@ -95,7 +95,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.showConsoleView == true
         runConfig.projectConfiguration.projectDir.path == new File('').canonicalPath
         runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory.path == new File('').canonicalPath
-        runConfig.projectConfiguration.buildConfiguration.gradleDistribution == GradleDistributions.fromBuild()
+        runConfig.projectConfiguration.buildConfiguration.gradleDistribution == GradleDistribution.fromBuild()
         runConfig.projectConfiguration.buildConfiguration.overrideWorkspaceSettings == false
         runConfig.projectConfiguration.buildConfiguration.buildScansEnabled == false
         runConfig.projectConfiguration.buildConfiguration.offlineMode == false
@@ -113,7 +113,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         boolean showConsoleView = false
         boolean showExecutionView = false
         File rootDir = dir('projectDir').canonicalFile
-        GradleDistribution distribution = GradleDistributions.forVersion("3.3")
+        GradleDistribution distribution = GradleDistribution.forVersion("3.3")
         boolean overrideBuildSettings = true
         boolean buildScansEnabled = true
         boolean offlineMode = true

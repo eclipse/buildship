@@ -8,6 +8,9 @@
 
 package org.eclipse.buildship.core;
 
+import java.io.File;
+import java.net.URI;
+
 /**
  * Represents a Gradle distribution.
  * <p>
@@ -18,12 +21,55 @@ package org.eclipse.buildship.core;
  * <li>{@link RemoteGradleDistribution}</li>
  * <li>{@link FixedVersionGradleDistribution}</li>
  * </ul>
- * New instances can be created with the factory methods in {@link GradleDistributions}.
  *
  * @author Donat Csikos
  * @since 3.0
  * @noimplement this interface is not intended to be implemented by clients
  */
-public interface GradleDistribution {
+public abstract class GradleDistribution {
 
+    private static final WrapperGradleDistribution WRAPPER_DISTRIBUTION = new WrapperGradleDistribution();
+
+    GradleDistribution() {
+    }
+
+    /**
+     * Creates a reference to a local Gradle installation.
+     *
+     * @param installationDir the local Gradle installation directory to use
+     * @return a new distribution instance
+     */
+    public static LocalGradleDistribution forLocalInstallation(File installationDir) {
+        return new LocalGradleDistribution(installationDir);
+    }
+
+    /**
+     * Creates a reference to a remote Gradle distribution.
+     *
+     * @param distributionUri the remote Gradle distribution location to use
+     * @return a new distribution instance
+     */
+    public static RemoteGradleDistribution forRemoteDistribution(URI distributionUri) {
+        return new RemoteGradleDistribution(distributionUri);
+    }
+
+    /**
+     * Creates a reference to a specific version of Gradle.
+     *
+     * @param version the Gradle version to use
+     * @return a new distribution instance
+     */
+    public static FixedVersionGradleDistribution forVersion(String version) {
+        return new FixedVersionGradleDistribution(version);
+    }
+
+    /**
+     * Creates a reference to a project-specific version of Gradle.
+     *
+     * @return a new distribution instance
+     * @see org.gradle.tooling.GradleConnector#useBuildDistribution()
+     */
+    public static WrapperGradleDistribution fromBuild() {
+        return WRAPPER_DISTRIBUTION;
+    }
 }

@@ -7,7 +7,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing the wrapper"() {
         setup:
-        GradleDistribution distribution = GradleDistributions.fromBuild();
+        GradleDistribution distribution = GradleDistribution.fromBuild();
 
         expect:
         distribution instanceof WrapperGradleDistribution
@@ -16,7 +16,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
     def "Can create a Gradle distribution referencing a valid local installation"() {
         setup:
         File dir = dir('existing')
-        GradleDistribution distribution = GradleDistributions.forLocalInstallation(dir)
+        GradleDistribution distribution = GradleDistribution.forLocalInstallation(dir)
 
         expect:
         distribution instanceof LocalGradleDistribution
@@ -25,19 +25,19 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Gradle distribution cannot be created with invalid local installation"() {
         when:
-        GradleDistributions.forLocalInstallation(null)
+        GradleDistribution.forLocalInstallation(null)
 
         then:
         thrown(RuntimeException)
 
         when:
-        GradleDistributions.forLocalInstallation(new File('nonexisting'))
+        GradleDistribution.forLocalInstallation(new File('nonexisting'))
 
         then:
         thrown(RuntimeException)
 
         when:
-        GradleDistributions.forLocalInstallation(file('plainfile'))
+        GradleDistribution.forLocalInstallation(file('plainfile'))
 
         then:
         thrown(RuntimeException)
@@ -45,7 +45,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing a valid remote installation"() {
         setup:
-        GradleDistribution distribution = GradleDistributions.forRemoteDistribution(new URI('https://example.com/gradle-dist'))
+        GradleDistribution distribution = GradleDistribution.forRemoteDistribution(new URI('https://example.com/gradle-dist'))
 
         expect:
         distribution instanceof RemoteGradleDistribution
@@ -54,7 +54,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing an invalid remote installation"() {
         when:
-        GradleDistributions.forRemoteDistribution(null)
+        GradleDistribution.forRemoteDistribution(null)
 
         then:
         thrown(RuntimeException)
@@ -62,7 +62,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing a valid version"() {
         setup:
-        GradleDistribution distribution = GradleDistributions.forVersion("4.9")
+        GradleDistribution distribution = GradleDistribution.forVersion("4.9")
 
         expect:
         distribution instanceof FixedVersionGradleDistribution
@@ -71,14 +71,14 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
     def "Can create a Gradle distribution referencing an invalid version"() {
         when:
-        GradleDistributions.forVersion(null)
-        GradleDistributions.forVersion(null)
+        GradleDistribution.forVersion(null)
+        GradleDistribution.forVersion(null)
 
         then:
         thrown(RuntimeException)
 
         when:
-        GradleDistributions.forVersion('')
+        GradleDistribution.forVersion('')
 
         then:
         thrown(RuntimeException)
@@ -87,25 +87,25 @@ class GradleDistributionTest extends WorkspaceSpecification {
     def "GradleDistrubution has human-readable toString() implementation"() {
         when:
         File file = new File('.')
-        GradleDistribution distribution = GradleDistributions.forLocalInstallation(file)
+        GradleDistribution distribution = GradleDistribution.forLocalInstallation(file)
 
         then:
         distribution.toString() == "Local installation at " + file.absolutePath
 
         when:
-        distribution = GradleDistributions.forRemoteDistribution(file.toURI())
+        distribution = GradleDistribution.forRemoteDistribution(file.toURI())
 
         then:
         distribution.toString() == "Remote distribution from " + file.toURI().toString()
 
         when:
-        distribution = GradleDistributions.forVersion('2.1')
+        distribution = GradleDistribution.forVersion('2.1')
 
         then:
         distribution.toString() == "Specific Gradle version 2.1"
 
         when:
-        distribution = GradleDistributions.fromBuild()
+        distribution = GradleDistribution.fromBuild()
 
         then:
         distribution.toString() == "Gradle wrapper from target build"

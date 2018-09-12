@@ -20,7 +20,6 @@ import org.eclipse.osgi.util.NLS;
 
 import org.eclipse.buildship.core.FixedVersionGradleDistribution;
 import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.GradleDistributions;
 import org.eclipse.buildship.core.LocalGradleDistribution;
 import org.eclipse.buildship.core.RemoteGradleDistribution;
 import org.eclipse.buildship.core.WrapperGradleDistribution;
@@ -158,13 +157,13 @@ public final class GradleDistributionInfo {
 
         switch (getType().get()) {
             case WRAPPER:
-                return GradleDistributions.fromBuild();
+                return GradleDistribution.fromBuild();
             case LOCAL_INSTALLATION:
-                return GradleDistributions.forLocalInstallation(new File(this.configuration));
+                return GradleDistribution.forLocalInstallation(new File(this.configuration));
             case REMOTE_DISTRIBUTION:
-                return GradleDistributions.forRemoteDistribution(createUrl(this.configuration));
+                return GradleDistribution.forRemoteDistribution(createUrl(this.configuration));
             case VERSION:
-                return GradleDistributions.forVersion(this.configuration);
+                return GradleDistribution.forVersion(this.configuration);
         }
 
         throw new GradlePluginsRuntimeException("Invalid distribution type: " + getType().get());
@@ -185,7 +184,7 @@ public final class GradleDistributionInfo {
      * @return the created Gradle distribution
      */
     public GradleDistribution toGradleDistributionOrDefault() {
-        return isValid() ? toGradleDistribution() : GradleDistributions.fromBuild();
+        return isValid() ? toGradleDistribution() : GradleDistribution.fromBuild();
     }
 
     @Override

@@ -14,7 +14,6 @@ import java.util.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.GradleDistributions;
 import org.eclipse.buildship.core.GradleWorkspace;
 
 /**
@@ -149,7 +148,7 @@ public final class BuildConfiguration {
 
         private final File rootProjectDirectory;
         private boolean overrideWorkspaceConfiguration = false;
-        private GradleDistribution gradleDistribution = GradleDistributions.fromBuild();
+        private GradleDistribution gradleDistribution = GradleDistribution.fromBuild();
         private File gradleUserHome = null;
         private boolean buildScansEnabled = false;
         private boolean offlineMode = false;

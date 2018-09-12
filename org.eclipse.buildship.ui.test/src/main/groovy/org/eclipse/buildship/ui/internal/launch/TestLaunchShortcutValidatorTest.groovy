@@ -12,7 +12,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
 
     def "Launch shortcut enabled on test sources"(String gradleVersion) {
         setup:
-        importAndWait(projectWithSources, GradleDistributions.forVersion(gradleVersion))
+        importAndWait(projectWithSources, GradleDistribution.forVersion(gradleVersion))
 
         expect:
         numOfGradleErrorMarkers == 0
@@ -30,7 +30,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
 
     def "Launch shortcut disabled on production sources"(String gradleVersion) {
         setup:
-        importAndWait(projectWithSources, GradleDistributions.forVersion(gradleVersion))
+        importAndWait(projectWithSources, GradleDistribution.forVersion(gradleVersion))
 
         expect:
         numOfGradleErrorMarkers == 0

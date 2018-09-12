@@ -101,7 +101,7 @@ class OpenBuildScanActionTest extends BaseExecutionViewTest {
         }
 
         when:
-        importAndWait(projectDir, GradleDistributions.forVersion(gradleVersion))
+        importAndWait(projectDir, GradleDistribution.forVersion(gradleVersion))
         launchTaskAndWait(projectDir, 'somethingFunky', arguments)
         consoles.waitForConsoleOutput()
 

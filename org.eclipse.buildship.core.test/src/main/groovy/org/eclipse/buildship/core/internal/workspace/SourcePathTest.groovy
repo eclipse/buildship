@@ -30,7 +30,7 @@ class SourcePathTest extends ProjectSynchronizationSpecification {
          }
 
          when:
-         importAndWait(projectDir, GradleDistributions.forVersion(version))
+         importAndWait(projectDir, GradleDistribution.forVersion(version))
          IRuntimeClasspathEntry[] p1sources = sourceEntries(findProject('p1'))
          IRuntimeClasspathEntry[] p2sources = sourceEntries(findProject('p2'))
 

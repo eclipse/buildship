@@ -130,7 +130,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         registerService(WorkspaceOperations, operations)
 
         when:
-        importAndWait(root, GradleDistributions.forVersion('2.13'))
+        importAndWait(root, GradleDistribution.forVersion('2.13'))
 
         then:
         !hasComponentDescriptor(root)
@@ -173,7 +173,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
 
         when:
-        importAndWait(root, GradleDistributions.forVersion('2.13'))
+        importAndWait(root, GradleDistribution.forVersion('2.13'))
 
         then:
         def project = findProject('project')

@@ -13,7 +13,7 @@ import org.eclipse.buildship.core.internal.CorePlugin
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
 
-    protected static final GradleDistribution DEFAULT_DISTRIBUTION = GradleDistributions.fromBuild()
+    protected static final GradleDistribution DEFAULT_DISTRIBUTION = GradleDistribution.fromBuild()
 
     protected void synchronizeAndWait(File location) {
         Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(location.canonicalFile)
@@ -26,7 +26,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         waitForGradleJobsToFinish()
     }
 
-    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistributions.fromBuild()) {
+    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
         org.eclipse.buildship.core.configuration.BuildConfiguration configuration = org.eclipse.buildship.core.configuration.BuildConfiguration
              .forRootProjectDirectory(location)
              .gradleDistribution(gradleDistribution)

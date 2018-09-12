@@ -82,7 +82,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
                                                                         true,
                                                                         true,
                                                                         false,
-                                                                        GradleDistributions.fromBuild(),
+                                                                        GradleDistribution.fromBuild(),
                                                                         null,
                                                                         false,
                                                                         false);
