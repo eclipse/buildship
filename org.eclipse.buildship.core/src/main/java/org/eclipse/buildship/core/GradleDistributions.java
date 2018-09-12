@@ -11,11 +11,6 @@ package org.eclipse.buildship.core;
 import java.io.File;
 import java.net.URI;
 
-import org.eclipse.buildship.core.internal.DefaultFixedVersionGradleDistribution;
-import org.eclipse.buildship.core.internal.DefaultLocalGradleDistribution;
-import org.eclipse.buildship.core.internal.DefaultRemoteGradleDistribution;
-import org.eclipse.buildship.core.internal.DefaultWrapperGradleDistribution;
-
 /**
  * Contains factory methods for all supported Gradle distribution types.
  *
@@ -25,7 +20,7 @@ import org.eclipse.buildship.core.internal.DefaultWrapperGradleDistribution;
  */
 public abstract class GradleDistributions {
 
-    private static final WrapperGradleDistribution WRAPPER_DISTRIBUTION = new DefaultWrapperGradleDistribution();
+    private static final WrapperGradleDistribution WRAPPER_DISTRIBUTION = new WrapperGradleDistribution();
 
     private GradleDistributions() {
     }
@@ -37,7 +32,7 @@ public abstract class GradleDistributions {
      * @return a new distribution instance
      */
     public static LocalGradleDistribution forLocalInstallation(File installationDir) {
-        return new DefaultLocalGradleDistribution(installationDir);
+        return new LocalGradleDistribution(installationDir);
     }
 
     /**
@@ -47,7 +42,7 @@ public abstract class GradleDistributions {
      * @return a new distribution instance
      */
     public static RemoteGradleDistribution forRemoteDistribution(URI distributionUri) {
-        return new DefaultRemoteGradleDistribution(distributionUri);
+        return new RemoteGradleDistribution(distributionUri);
     }
 
     /**
@@ -57,7 +52,7 @@ public abstract class GradleDistributions {
      * @return a new distribution instance
      */
     public static FixedVersionGradleDistribution forVersion(String version) {
-        return new DefaultFixedVersionGradleDistribution(version);
+        return new FixedVersionGradleDistribution(version);
     }
 
     /**

@@ -107,12 +107,8 @@ public final class GradleDistributionInfo {
         if (type == GradleDistributionInfo.Type.LOCAL_INSTALLATION) {
             if (Strings.isNullOrEmpty(this.configuration)) {
                 return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
-            } else if (!new File(this.configuration).exists()) {
-                return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
-            } else if (!new File(this.configuration).isDirectory()) {
-                return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeDirectory, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
             } else {
-                return Optional.absent();
+                return validateLocalInstallationLocation(new File(this.configuration));
             }
         } else if (type == GradleDistributionInfo.Type.REMOTE_DISTRIBUTION) {
             if (Strings.isNullOrEmpty(this.configuration)) {
@@ -128,6 +124,18 @@ public final class GradleDistributionInfo {
             } else {
                 return Optional.absent();
             }
+        } else {
+            return Optional.absent();
+        }
+    }
+
+    public static Optional<String> validateLocalInstallationLocation(File location) {
+        if (location == null) {
+            return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+        } else if (!location.exists()) {
+            return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+        } else if (!location.isDirectory()) {
+            return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeDirectory, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
         } else {
             return Optional.absent();
         }
@@ -152,11 +160,11 @@ public final class GradleDistributionInfo {
             case WRAPPER:
                 return GradleDistributions.fromBuild();
             case LOCAL_INSTALLATION:
-                return new DefaultLocalGradleDistribution(new File(this.configuration));
+                return GradleDistributions.forLocalInstallation(new File(this.configuration));
             case REMOTE_DISTRIBUTION:
-                return new DefaultRemoteGradleDistribution(createUrl(this.configuration));
+                return GradleDistributions.forRemoteDistribution(createUrl(this.configuration));
             case VERSION:
-                return new DefaultFixedVersionGradleDistribution(this.configuration);
+                return GradleDistributions.forVersion(this.configuration);
         }
 
         throw new GradlePluginsRuntimeException("Invalid distribution type: " + getType().get());
