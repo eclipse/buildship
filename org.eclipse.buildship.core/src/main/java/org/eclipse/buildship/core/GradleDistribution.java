@@ -11,6 +11,8 @@ package org.eclipse.buildship.core;
 import java.io.File;
 import java.net.URI;
 
+import org.gradle.tooling.GradleConnector;
+
 /**
  * Represents a Gradle distribution.
  * <p>
@@ -32,6 +34,13 @@ public abstract class GradleDistribution {
 
     GradleDistribution() {
     }
+
+    /**
+     * Configures the specified connector with this distribution.
+     *
+     * @param connector the connector to configure
+     */
+    public abstract void apply(GradleConnector connector);
 
     /**
      * Creates a reference to a local Gradle installation.

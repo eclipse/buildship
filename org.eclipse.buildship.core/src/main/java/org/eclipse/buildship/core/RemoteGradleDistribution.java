@@ -10,6 +10,8 @@ package org.eclipse.buildship.core;
 
 import java.net.URI;
 
+import org.gradle.tooling.GradleConnector;
+
 import com.google.common.base.Preconditions;
 
 import org.eclipse.osgi.util.NLS;
@@ -38,6 +40,11 @@ public final class RemoteGradleDistribution extends GradleDistribution {
      */
     public URI getUrl() {
         return this.url;
+    }
+
+    @Override
+    public void apply(GradleConnector connector) {
+        connector.useDistribution(this.url);
     }
 
     @Override

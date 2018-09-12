@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.core;
 
+import org.gradle.tooling.GradleConnector;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
@@ -38,6 +40,11 @@ public final class FixedVersionGradleDistribution extends GradleDistribution {
      */
     public String getVersion() {
         return this.version;
+    }
+
+    @Override
+    public void apply(GradleConnector connector) {
+        connector.useGradleVersion(this.version);
     }
 
     @Override

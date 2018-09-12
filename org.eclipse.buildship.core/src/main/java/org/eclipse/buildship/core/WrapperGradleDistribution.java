@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.core;
 
+import org.gradle.tooling.GradleConnector;
+
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 
 /**
@@ -22,6 +24,11 @@ import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 public final class WrapperGradleDistribution extends GradleDistribution {
 
     WrapperGradleDistribution() {
+    }
+
+    @Override
+    public void apply(GradleConnector connector) {
+        connector.useBuildDistribution();
     }
 
     @Override

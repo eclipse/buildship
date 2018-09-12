@@ -9,6 +9,8 @@ package org.eclipse.buildship.core;
 
 import java.io.File;
 
+import org.gradle.tooling.GradleConnector;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
@@ -42,6 +44,11 @@ public final class LocalGradleDistribution extends GradleDistribution {
      */
     public File getLocation() {
         return this.location;
+    }
+
+    @Override
+    public void apply(GradleConnector connector) {
+        connector.useInstallation(this.location);
     }
 
     @Override

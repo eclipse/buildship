@@ -1,6 +1,9 @@
 package org.eclipse.buildship.core
 
 
+import org.gradle.tooling.GradleConnector
+
+import org.eclipse.buildship.core.internal.configuration.GradleArguments
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class GradleDistributionTest extends WorkspaceSpecification {
@@ -109,5 +112,51 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
         then:
         distribution.toString() == "Gradle wrapper from target build"
+    }
+
+    def "GradleDistrubution configures GradleConnector to use local installation"() {
+        setup:
+        File file = new File('.')
+        GradleConnector connector = Mock(GradleConnector.class)
+
+        when:
+        GradleDistribution.forLocalInstallation(file).apply(connector)
+
+        then:
+        1 * connector.useInstallation(file)
+    }
+
+    def "GradleDistrubution configures GradleConnector to use remote distribution"() {
+        setup:
+        URI uri = new File('.').toURI()
+        GradleConnector connector = Mock(GradleConnector.class)
+
+        when:
+        GradleDistribution.forRemoteDistribution(uri).apply(connector)
+
+        then:
+        1 * connector.useDistribution(uri)
+    }
+
+    def "GradleDistrubution configures GradleConnector to use version number"() {
+        setup:
+        GradleConnector connector = Mock(GradleConnector.class)
+
+        when:
+        GradleDistribution.forVersion('2.0').apply(connector)
+
+        then:
+        1 * connector.useGradleVersion('2.0')
+    }
+
+    def "GradleDistrubution configures GradleConnector to use default distibution defined by the Tooling API library"() {
+        setup:
+        GradleConnector connector = Mock(GradleConnector.class)
+
+        when:
+        GradleDistribution.fromBuild().apply(connector)
+
+        then:
+        1 * connector.useBuildDistribution()
     }
 }
