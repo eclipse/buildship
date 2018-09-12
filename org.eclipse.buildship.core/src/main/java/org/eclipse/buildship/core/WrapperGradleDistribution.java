@@ -10,8 +10,6 @@ package org.eclipse.buildship.core;
 
 import org.gradle.tooling.GradleConnector;
 
-import org.eclipse.buildship.core.internal.i18n.CoreMessages;
-
 /**
  * Specifies to use the Gradle distribution defined by the target Gradle build. If the target build
  * has no Gradle distribution specified (i.e. no Gradle wrapper is used in the project) then the
@@ -33,6 +31,6 @@ public final class WrapperGradleDistribution extends GradleDistribution {
 
     @Override
     public String toString() {
-        return CoreMessages.GradleDistribution_Value_UseGradleWrapper;
+        return String.valueOf("GRADLE_DISTRIBUTION(WRAPPER)");
     }
 }

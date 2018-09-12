@@ -3,7 +3,6 @@ package org.eclipse.buildship.core
 
 import org.gradle.tooling.GradleConnector
 
-import org.eclipse.buildship.core.internal.configuration.GradleArguments
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class GradleDistributionTest extends WorkspaceSpecification {
@@ -87,34 +86,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         thrown(RuntimeException)
     }
 
-    def "GradleDistrubution has human-readable toString() implementation"() {
-        when:
-        File file = new File('.')
-        GradleDistribution distribution = GradleDistribution.forLocalInstallation(file)
-
-        then:
-        distribution.toString() == "Local installation at " + file.absolutePath
-
-        when:
-        distribution = GradleDistribution.forRemoteDistribution(file.toURI())
-
-        then:
-        distribution.toString() == "Remote distribution from " + file.toURI().toString()
-
-        when:
-        distribution = GradleDistribution.forVersion('2.1')
-
-        then:
-        distribution.toString() == "Specific Gradle version 2.1"
-
-        when:
-        distribution = GradleDistribution.fromBuild()
-
-        then:
-        distribution.toString() == "Gradle wrapper from target build"
-    }
-
-    def "GradleDistrubution configures GradleConnector to use local installation"() {
+    def "GradleDistribution configures GradleConnector to use local installation"() {
         setup:
         File file = new File('.')
         GradleConnector connector = Mock(GradleConnector.class)
@@ -123,10 +95,10 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution.forLocalInstallation(file).apply(connector)
 
         then:
-        1 * connector.useInstallation(file)
+        1 * connector.useInstallation(file.absoluteFile)
     }
 
-    def "GradleDistrubution configures GradleConnector to use remote distribution"() {
+    def "GradleDistribution configures GradleConnector to use remote distribution"() {
         setup:
         URI uri = new File('.').toURI()
         GradleConnector connector = Mock(GradleConnector.class)
@@ -138,7 +110,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         1 * connector.useDistribution(uri)
     }
 
-    def "GradleDistrubution configures GradleConnector to use version number"() {
+    def "GradleDistribution configures GradleConnector to use version number"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
 
@@ -149,7 +121,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         1 * connector.useGradleVersion('2.0')
     }
 
-    def "GradleDistrubution configures GradleConnector to use default distibution defined by the Tooling API library"() {
+    def "GradleDistribution configures GradleConnector to use default distibution defined by the Tooling API library"() {
         setup:
         GradleConnector connector = Mock(GradleConnector.class)
 
@@ -158,5 +130,60 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
         then:
         1 * connector.useBuildDistribution()
+    }
+
+    def "GradleDistrubution has specific deserializable toString() implementation"() {
+        when:
+        File file = new File('.')
+        GradleDistribution distribution = GradleDistribution.forLocalInstallation(file)
+        String distributionString = distribution.toString()
+
+        then:
+        distributionString == "GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(${file.absolutePath}))"
+        distribution == GradleDistribution.fromString(distributionString)
+
+        when:
+        distribution = GradleDistribution.forRemoteDistribution(file.toURI())
+        distributionString = distribution.toString()
+
+        then:
+        distributionString == "GRADLE_DISTRIBUTION(REMOTE_DISTRIBUTION(${file.toURI().toString()}))"
+        distribution == GradleDistribution.fromString(distributionString)
+
+        when:
+        distribution = GradleDistribution.forVersion('2.1')
+        distributionString = distribution.toString()
+
+        then:
+        distributionString == "GRADLE_DISTRIBUTION(VERSION(2.1))"
+        distribution == GradleDistribution.fromString(distributionString)
+
+        when:
+        distribution = GradleDistribution.fromBuild()
+        distributionString = distribution.toString()
+
+        then:
+        distributionString == "GRADLE_DISTRIBUTION(WRAPPER)"
+        distribution == GradleDistribution.fromString(distributionString)
+    }
+
+    def "Deserializing an invalid distribution throws a runtime exception"() {
+        when:
+        GradleDistribution.fromString(null)
+
+        then:
+        thrown(NullPointerException)
+
+        when:
+        GradleDistribution.fromString("")
+
+        then:
+        thrown(IllegalArgumentException)
+
+        when:
+         GradleDistribution.fromString("GRADLE_DISTRIBUTION(REMOTE_DISTRIBUTION(invalid url))")
+
+        then:
+        thrown(IllegalArgumentException)
     }
 }

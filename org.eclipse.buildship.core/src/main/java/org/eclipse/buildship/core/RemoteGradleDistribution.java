@@ -14,10 +14,6 @@ import org.gradle.tooling.GradleConnector;
 
 import com.google.common.base.Preconditions;
 
-import org.eclipse.osgi.util.NLS;
-
-import org.eclipse.buildship.core.internal.i18n.CoreMessages;
-
 /**
  * A reference to a remote Gradle distribution.
  *
@@ -79,6 +75,6 @@ public final class RemoteGradleDistribution extends GradleDistribution {
 
     @Override
     public String toString() {
-        return NLS.bind(CoreMessages.GradleDistribution_Value_UseRemoteDistribution_0, this.url.toString());
+        return String.format("GRADLE_DISTRIBUTION(REMOTE_DISTRIBUTION(%s))", this.url.toString());
     }
 }
