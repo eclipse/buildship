@@ -13,7 +13,7 @@ import java.util.List;
 
 import com.google.common.base.Objects;
 
-import org.eclipse.buildship.core.*;
+import org.eclipse.buildship.core.GradleDistribution;
 
 /**
  * Properties backing a {@code RunConfiguration} instance.

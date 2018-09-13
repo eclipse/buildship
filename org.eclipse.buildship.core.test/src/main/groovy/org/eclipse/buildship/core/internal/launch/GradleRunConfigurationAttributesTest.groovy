@@ -81,7 +81,7 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
         configuration.getJvmArgumentExpressions() == validAttributes.jvmArguments
         configuration.getWorkingDir().getAbsolutePath() == new File(validAttributes.workingDir).getAbsolutePath()
         configuration.getJavaHome().getAbsolutePath() == new File(validAttributes.javaHome).getAbsolutePath()
-        configuration.getGradleDistribution() == GradleDistributionInfo.deserializeFromString(validAttributes.gradleDistr).toGradleDistribution()
+        configuration.getGradleDistribution() == GradleDistribution.fromString(validAttributes.gradleDistr)
         configuration.getGradleUserHome().getAbsolutePath() == new File(validAttributes.gradleUserHome).getAbsolutePath()
     }
 

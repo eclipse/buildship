@@ -1,6 +1,5 @@
 package org.eclipse.buildship.core.internal.configuration
 
-import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.LongRunningOperation
 import org.gradle.tooling.model.build.BuildEnvironment
 import org.gradle.tooling.model.build.GradleEnvironment

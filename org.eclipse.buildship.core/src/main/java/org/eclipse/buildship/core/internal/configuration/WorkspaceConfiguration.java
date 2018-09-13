@@ -11,7 +11,7 @@ import java.io.File;
 
 import com.google.common.base.Objects;
 
-import org.eclipse.buildship.core.*;
+import org.eclipse.buildship.core.GradleDistribution;;
 
 /**
  * Encapsulates settings that are the same for all Gradle projects in the workspace.

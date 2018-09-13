@@ -15,7 +15,7 @@ import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.configuration.BuildConfigurationPersistence
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.*
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.util.gradle.JavaVersionUtil
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 

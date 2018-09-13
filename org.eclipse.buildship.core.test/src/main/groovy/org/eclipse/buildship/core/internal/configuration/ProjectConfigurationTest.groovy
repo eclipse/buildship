@@ -6,9 +6,9 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
 
-import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.GradleDistribution
 
 class ProjectConfigurationTest extends ProjectSynchronizationSpecification {
 

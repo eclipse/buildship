@@ -13,7 +13,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.*
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.DefaultWorkspaceOperations
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.internal.workspace.ProjectNatureUpdater

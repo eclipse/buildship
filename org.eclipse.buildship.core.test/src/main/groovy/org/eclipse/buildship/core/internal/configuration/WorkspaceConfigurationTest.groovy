@@ -1,7 +1,7 @@
 package org.eclipse.buildship.core.internal.configuration
 
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.*
+import org.eclipse.buildship.core.GradleDistribution
 
 class WorkspaceConfigurationTest extends WorkspaceSpecification {
 

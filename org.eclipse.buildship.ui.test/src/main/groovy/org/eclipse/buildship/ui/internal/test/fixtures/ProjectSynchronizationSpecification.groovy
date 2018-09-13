@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.GradleBuild
 import org.eclipse.buildship.core.GradleCore
-import org.eclipse.buildship.core.*
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {

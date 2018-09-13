@@ -38,7 +38,7 @@ import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker
-import org.eclipse.buildship.core.*
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView
 

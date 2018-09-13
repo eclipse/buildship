@@ -19,10 +19,10 @@ import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchManager
 
-import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.GradleDistribution
 
 class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {
     GradleRunConfigurationAttributes validAttribute = createValidAttributes()

@@ -7,9 +7,9 @@ import org.eclipse.swt.widgets.Tree
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree
 import org.eclipse.ui.IWorkbenchPage
 
-import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 import org.eclipse.buildship.ui.internal.util.widget.FilteredTree
 import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils

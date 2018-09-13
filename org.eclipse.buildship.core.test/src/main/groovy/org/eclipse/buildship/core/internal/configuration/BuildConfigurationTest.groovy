@@ -14,9 +14,9 @@ package org.eclipse.buildship.core.internal.configuration
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
-import org.eclipse.buildship.core.*
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.GradleDistribution
 
 @SuppressWarnings("GroovyAccessibility")
 class BuildConfigurationTest extends ProjectSynchronizationSpecification {
