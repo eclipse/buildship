@@ -33,6 +33,7 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
@@ -40,16 +41,15 @@ import org.eclipse.buildship.core.internal.operation.ToolingApiOperation;
 import org.eclipse.buildship.core.internal.operation.ToolingApiOperations;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType;
-import org.eclipse.buildship.core.internal.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.core.internal.util.binding.ValidationListener;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
+import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.internal.util.workbench.WorkingSetUtils;
 import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView;
@@ -78,7 +78,7 @@ public class ProjectImportWizardController {
         Validator<File> projectDirValidator = Validators.and(
                 Validators.requiredDirectoryValidator(ProjectWizardMessages.Label_ProjectRootDirectory),
                 Validators.nonWorkspaceFolderValidator(ProjectWizardMessages.Label_ProjectRootDirectory));
-        Validator<GradleDistributionInfo> gradleDistributionValidator = GradleDistributionInfo.validator();
+        Validator<GradleDistributionViewModel> gradleDistributionValidator = GradleDistributionViewModel.validator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
         Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
@@ -88,7 +88,7 @@ public class ProjectImportWizardController {
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectImportWizard.getDialogSettings();
         Optional<File> projectDir = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_PROJECT_DIR));
-        String gradleDistribution = dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION);
+        String gradleDistributionString = dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION);
         Optional<File> gradleUserHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_GRADLE_USER_HOME));
         boolean applyWorkingSets = dialogSettings.get(SETTINGS_KEY_APPLY_WORKING_SETS) != null && dialogSettings.getBoolean(SETTINGS_KEY_APPLY_WORKING_SETS);
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
@@ -98,7 +98,13 @@ public class ProjectImportWizardController {
 
         this.configuration.setProjectDir(projectDir.orNull());
         this.configuration.setOverwriteWorkspaceSettings(false);
-        this.configuration.setDistributionInfo(GradleDistributionInfo.deserializeFromString(gradleDistribution).toGradleDistributionOrDefault().getDistributionInfo());
+        GradleDistribution distribution;
+        try {
+            distribution = GradleDistribution.fromString(gradleDistributionString);
+        } catch (RuntimeException ignore) {
+            distribution = GradleDistribution.fromBuild();
+        }
+        this.configuration.setDistribution(GradleDistributionViewModel.from(distribution));
         this.configuration.setGradleUserHome(gradleUserHome.orNull());
         this.configuration.setApplyWorkingSets(applyWorkingSets);
         this.configuration.setWorkingSets(workingSets);
@@ -108,7 +114,7 @@ public class ProjectImportWizardController {
 
         // store the values every time they change
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_PROJECT_DIR, this.configuration.getProjectDir());
-        saveDistributionInfoPropertyWhenChanged(dialogSettings, this.configuration.getDistributionInfo());
+        saveDistributionPropertyWhenChanged(dialogSettings, this.configuration.getDistribution());
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_GRADLE_USER_HOME, this.configuration.getGradleUserHome());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_APPLY_WORKING_SETS, this.configuration.getApplyWorkingSets());
         saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_WORKING_SETS, this.configuration.getWorkingSets());
@@ -148,12 +154,16 @@ public class ProjectImportWizardController {
         });
     }
 
-    private void saveDistributionInfoPropertyWhenChanged(final IDialogSettings settings, final Property<GradleDistributionInfo> target) {
+    private void saveDistributionPropertyWhenChanged(final IDialogSettings settings, final Property<GradleDistributionViewModel> target) {
         target.addValidationListener(new ValidationListener() {
 
             @Override
             public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
-                settings.put(SETTINGS_KEY_GRADLE_DISTRIBUTION, target.getValue().serializeToString());
+                if (!validationErrorMessage.isPresent()) {
+                    settings.put(SETTINGS_KEY_GRADLE_DISTRIBUTION, target.getValue().toGradleDistribution().toString());
+                } else {
+                    settings.put(SETTINGS_KEY_GRADLE_DISTRIBUTION, GradleDistribution.fromBuild().toString());
+                }
             }
         });
     }

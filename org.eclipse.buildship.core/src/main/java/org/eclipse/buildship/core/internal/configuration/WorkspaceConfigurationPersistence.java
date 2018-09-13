@@ -17,10 +17,9 @@ import com.google.common.base.Preconditions;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 
 
 /**
@@ -39,7 +38,12 @@ final class WorkspaceConfigurationPersistence {
     public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();
         String distributionString = preferences.get(GRADLE_DISTRIBUTION, null);
-        GradleDistribution distribution = GradleDistributionInfo.deserializeFromString(distributionString).toGradleDistributionOrDefault();
+        GradleDistribution distribution;
+        try {
+            distribution = GradleDistribution.fromString(distributionString);
+        } catch (RuntimeException ignore) {
+            distribution = GradleDistribution.fromBuild();
+        }
         String gradleUserHomeString = preferences.get(GRADLE_USER_HOME, null);
         File gradleUserHome = gradleUserHomeString == null
                 ? null
@@ -54,7 +58,7 @@ final class WorkspaceConfigurationPersistence {
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
         Preconditions.checkNotNull(config);
         IEclipsePreferences preferences = getPreferences();
-        preferences.put(GRADLE_DISTRIBUTION, config.getGradleDistribution().serializeToString());
+        preferences.put(GRADLE_DISTRIBUTION, config.getGradleDistribution().toString());
         if (config.getGradleUserHome() == null) {
             preferences.remove(GRADLE_USER_HOME);
         } else {

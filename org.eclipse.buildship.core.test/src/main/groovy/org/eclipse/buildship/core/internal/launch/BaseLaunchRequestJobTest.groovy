@@ -41,7 +41,7 @@ class BaseLaunchRequestJobTest extends WorkspaceSpecification {
         launchConfiguration.getAttribute('override_workspace_settings', _) >> 'true'
         launchConfiguration.getAttribute('tasks', _) >> tasks
         launchConfiguration.getAttribute('working_dir', _) >> projectDir
-        launchConfiguration.getAttribute('gradle_distribution', _) >> distribution.serializeToString()
+        launchConfiguration.getAttribute('gradle_distribution', _) >> distribution.toString()
         launchConfiguration.getAttribute('arguments', _) >> arguments
         launchConfiguration.getAttribute('jvm_arguments', _) >> []
         launchConfiguration

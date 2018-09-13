@@ -37,7 +37,7 @@ import org.eclipse.buildship.core.internal.launch.RunGradleJvmTestLaunchRequestJ
 import org.eclipse.buildship.core.internal.launch.TestMethod;
 import org.eclipse.buildship.core.internal.launch.TestTarget;
 import org.eclipse.buildship.core.internal.launch.TestType;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistribution;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.

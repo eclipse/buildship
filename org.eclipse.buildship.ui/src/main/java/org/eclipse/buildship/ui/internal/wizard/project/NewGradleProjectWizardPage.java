@@ -12,7 +12,7 @@
 package org.eclipse.buildship.ui.internal.wizard.project;
 
 import com.google.common.collect.ImmutableList;
-import org.eclipse.buildship.core.internal.projectimport.ProjectImportConfiguration;
+
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
 import org.eclipse.buildship.ui.internal.UiPlugin;
 import org.eclipse.buildship.ui.internal.UiPluginConstants;

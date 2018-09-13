@@ -24,7 +24,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
+import org.eclipse.buildship.core.GradleDistribution;
 
 /**
  * Default implementation for {@link ConfigurationManager}.

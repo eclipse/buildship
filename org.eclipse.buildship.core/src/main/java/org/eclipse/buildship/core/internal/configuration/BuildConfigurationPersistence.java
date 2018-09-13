@@ -15,10 +15,9 @@ import com.google.common.base.Preconditions;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
 
 /**
  * Provides capability to read and save configuration properties on a target project.
@@ -114,7 +113,12 @@ final class BuildConfigurationPersistence {
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
 
         String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
-        GradleDistribution distribution = GradleDistributionInfo.deserializeFromString(distributionString).toGradleDistributionOrDefault();
+        GradleDistribution distribution;
+        try {
+            distribution = GradleDistribution.fromString(distributionString);
+        } catch (RuntimeException ignore) {
+            distribution = GradleDistribution.fromBuild();
+        }
 
         String gradleUserHomeString = preferences.readString(PREF_KEY_GRADLE_USER_HOME, "");
         File gradleUserHome = gradleUserHomeString.isEmpty()
@@ -130,7 +134,8 @@ final class BuildConfigurationPersistence {
 
     private static void savePreferences(DefaultBuildConfigurationProperties properties, PreferenceStore preferences) {
         if (properties.isOverrideWorkspaceSettings()) {
-            String gradleDistribution = properties.getGradleDistribution().serializeToString();
+
+            String gradleDistribution = properties.getGradleDistribution().toString();
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
             preferences.write(PREF_KEY_GRADLE_USER_HOME, toPortableString(properties.getGradleUserHome()));
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());

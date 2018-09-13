@@ -1,7 +1,9 @@
 package org.eclipse.buildship.core
 
+
+import org.gradle.tooling.GradleConnector
+
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistribution.Type
 
 class GradleDistributionTest extends WorkspaceSpecification {
 
@@ -10,8 +12,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistribution.fromBuild();
 
         expect:
-        distribution.distributionType == Type.WRAPPER
-        distribution.configuration == ''
+        distribution instanceof WrapperGradleDistribution
     }
 
     def "Can create a Gradle distribution referencing a valid local installation"() {
@@ -20,25 +21,13 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistribution.forLocalInstallation(dir)
 
         expect:
-        distribution.distributionType == Type.LOCAL_INSTALLATION
-        distribution.configuration == dir.absolutePath
+        distribution instanceof LocalGradleDistribution
+        distribution.location == dir
     }
 
-    def "Gradle distribution cannot be created with invalid local installation"() {
+    def "Gradle distribution cannot be created with null local installation"() {
         when:
         GradleDistribution.forLocalInstallation(null)
-
-        then:
-        thrown(RuntimeException)
-
-        when:
-        GradleDistribution.forLocalInstallation(new File('nonexisting'))
-
-        then:
-        thrown(RuntimeException)
-
-        when:
-        GradleDistribution.forLocalInstallation(file('plainfile'))
 
         then:
         thrown(RuntimeException)
@@ -49,8 +38,8 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistribution.forRemoteDistribution(new URI('https://example.com/gradle-dist'))
 
         expect:
-        distribution.distributionType == Type.REMOTE_DISTRIBUTION
-        distribution.configuration == 'https://example.com/gradle-dist'
+        distribution instanceof RemoteGradleDistribution
+        distribution.url.toString() == 'https://example.com/gradle-dist'
     }
 
     def "Can create a Gradle distribution referencing an invalid remote installation"() {
@@ -66,8 +55,8 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution distribution = GradleDistribution.forVersion("4.9")
 
         expect:
-        distribution.distributionType == Type.VERSION
-        distribution.configuration == '4.9'
+        distribution instanceof FixedVersionGradleDistribution
+        distribution.version  == '4.9'
     }
 
     def "Can create a Gradle distribution referencing an invalid version"() {
@@ -83,5 +72,106 @@ class GradleDistributionTest extends WorkspaceSpecification {
 
         then:
         thrown(RuntimeException)
+    }
+
+    def "GradleDistribution configures GradleConnector to use local installation"() {
+        setup:
+        File file = new File('.')
+        GradleConnector connector = Mock(GradleConnector.class)
+
+        when:
+        GradleDistribution.forLocalInstallation(file).apply(connector)
+
+        then:
+        1 * connector.useInstallation(file)
+    }
+
+    def "GradleDistribution configures GradleConnector to use remote distribution"() {
+        setup:
+        URI uri = new File('.').toURI()
+        GradleConnector connector = Mock(GradleConnector.class)
+
+        when:
+        GradleDistribution.forRemoteDistribution(uri).apply(connector)
+
+        then:
+        1 * connector.useDistribution(uri)
+    }
+
+    def "GradleDistribution configures GradleConnector to use version number"() {
+        setup:
+        GradleConnector connector = Mock(GradleConnector.class)
+
+        when:
+        GradleDistribution.forVersion('2.0').apply(connector)
+
+        then:
+        1 * connector.useGradleVersion('2.0')
+    }
+
+    def "GradleDistribution configures GradleConnector to use default distibution defined by the Tooling API library"() {
+        setup:
+        GradleConnector connector = Mock(GradleConnector.class)
+
+        when:
+        GradleDistribution.fromBuild().apply(connector)
+
+        then:
+        1 * connector.useBuildDistribution()
+    }
+
+    def "GradleDistrubution has specific deserializable toString() implementation"() {
+        when:
+        File file = new File('.')
+        GradleDistribution distribution = GradleDistribution.forLocalInstallation(file)
+        String distributionString = distribution.toString()
+
+        then:
+        distributionString == "GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(${file.path}))"
+        distribution == GradleDistribution.fromString(distributionString)
+
+        when:
+        distribution = GradleDistribution.forRemoteDistribution(file.toURI())
+        distributionString = distribution.toString()
+
+        then:
+        distributionString == "GRADLE_DISTRIBUTION(REMOTE_DISTRIBUTION(${file.toURI().toString()}))"
+        distribution == GradleDistribution.fromString(distributionString)
+
+        when:
+        distribution = GradleDistribution.forVersion('2.1')
+        distributionString = distribution.toString()
+
+        then:
+        distributionString == "GRADLE_DISTRIBUTION(VERSION(2.1))"
+        distribution == GradleDistribution.fromString(distributionString)
+
+        when:
+        distribution = GradleDistribution.fromBuild()
+        distributionString = distribution.toString()
+
+        then:
+        distributionString == "GRADLE_DISTRIBUTION(WRAPPER)"
+        distribution == GradleDistribution.fromString(distributionString)
+    }
+
+    def "Deserializing an invalid distribution throws a runtime exception"() {
+        when:
+        GradleDistribution.fromString(null)
+
+        then:
+        thrown(NullPointerException)
+
+        when:
+        GradleDistribution.fromString("")
+
+        then:
+        thrown(IllegalArgumentException)
+
+        when:
+         GradleDistribution.fromString("GRADLE_DISTRIBUTION(REMOTE_DISTRIBUTION(invalid url))")
+
+        then:
+        thrown(IllegalArgumentException)
     }
 }

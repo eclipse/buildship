@@ -27,7 +27,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.internal.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.internal.util.binding.Property;
 
 /**

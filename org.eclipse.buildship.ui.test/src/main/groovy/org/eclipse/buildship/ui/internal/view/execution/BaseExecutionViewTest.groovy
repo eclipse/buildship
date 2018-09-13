@@ -43,7 +43,7 @@ abstract class BaseExecutionViewTest extends SwtBotSpecification {
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
                 [task],
                 projectDir.absolutePath,
-                GradleDistribution.fromBuild().serializeToString(),
+                GradleDistribution.fromBuild().toString(),
                 "",
                 null,
                 [],

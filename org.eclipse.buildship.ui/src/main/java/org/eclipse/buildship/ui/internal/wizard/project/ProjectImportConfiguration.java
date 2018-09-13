@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.core.internal.projectimport;
+package org.eclipse.buildship.ui.internal.wizard.project;
 
 import java.io.File;
 import java.util.List;
@@ -19,7 +19,7 @@ import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
-import org.eclipse.buildship.core.internal.util.gradle.GradleDistributionInfo;
+import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 
 /**
  * Serves as the data model of the project import wizard.
@@ -28,7 +28,7 @@ public final class ProjectImportConfiguration {
 
     private final Property<File> projectDir;
     private final Property<Boolean> overwriteWorkspaceSettings;
-    private final Property<GradleDistributionInfo> distributionInfo;
+    private final Property<GradleDistributionViewModel> distribution;
     private final Property<File> gradleUserHome;
     private final Property<Boolean> applyWorkingSets;
     private final Property<List<String>> workingSets;
@@ -37,14 +37,14 @@ public final class ProjectImportConfiguration {
     private final Property<Boolean> autoSync;
 
     public ProjectImportConfiguration() {
-        this(Validators.<File>noOp(), Validators.<GradleDistributionInfo>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
+        this(Validators.<File>noOp(), Validators.<GradleDistributionViewModel>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
     }
 
-    public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionInfo> distributionInfoValidator,
+    public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionViewModel> distributionValidator,
             Validator<File> gradleUserHomeValidator, Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
         this.projectDir = Property.create(projectDirValidator);
         this.overwriteWorkspaceSettings = Property.<Boolean>create(Validators.<Boolean>noOp());
-        this.distributionInfo = Property.create(distributionInfoValidator);
+        this.distribution = Property.create(distributionValidator);
         this.gradleUserHome = Property.create(gradleUserHomeValidator);
         this.applyWorkingSets = Property.create(applyWorkingSetsValidator);
         this.workingSets = Property.create(workingSetsValidators);
@@ -70,12 +70,12 @@ public final class ProjectImportConfiguration {
         this.overwriteWorkspaceSettings.setValue(Boolean.valueOf(overwriteWorkspaceSettings));
     }
 
-    public Property<GradleDistributionInfo> getDistributionInfo() {
-        return this.distributionInfo;
+    public Property<GradleDistributionViewModel> getDistribution() {
+        return this.distribution;
     }
 
-    public void setDistributionInfo(GradleDistributionInfo distributionInfo) {
-        this.distributionInfo.setValue(distributionInfo);
+    public void setDistribution(GradleDistributionViewModel distribution) {
+        this.distribution.setValue(distribution);
     }
 
     public Property<File> getGradleUserHome() {
@@ -129,7 +129,7 @@ public final class ProjectImportConfiguration {
     public BuildConfiguration toBuildConfig() {
         return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(),
                 getOverwriteWorkspaceSettings().getValue(),
-                getDistributionInfo().getValue().toGradleDistribution(),
+                getDistribution().getValue().toGradleDistribution(),
                 getGradleUserHome().getValue(),
                 getBuildScansEnabled().getValue(),
                 getOfflineMode().getValue(),
