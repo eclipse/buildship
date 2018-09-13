@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.Path;
 
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 
 /**
@@ -114,7 +113,12 @@ final class BuildConfigurationPersistence {
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
 
         String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
-        GradleDistribution distribution = GradleDistributionInfo.deserializeFromString(distributionString).toGradleDistributionOrDefault();
+        GradleDistribution distribution;
+        try {
+            distribution = GradleDistribution.fromString(distributionString);
+        } catch (RuntimeException ignore) {
+            distribution = GradleDistribution.fromBuild();
+        }
 
         String gradleUserHomeString = preferences.readString(PREF_KEY_GRADLE_USER_HOME, "");
         File gradleUserHome = gradleUserHomeString.isEmpty()

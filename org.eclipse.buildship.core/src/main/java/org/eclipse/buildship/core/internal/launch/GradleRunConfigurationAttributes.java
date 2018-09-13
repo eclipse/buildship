@@ -25,7 +25,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
 import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
@@ -96,7 +95,11 @@ public final class GradleRunConfigurationAttributes {
     }
 
     public GradleDistribution getGradleDistribution() {
-        return GradleDistributionInfo.deserializeFromString(this.gradleDistribution).toGradleDistributionOrDefault();
+        try {
+            return GradleDistribution.fromString(this.gradleDistribution);
+        } catch (RuntimeException ignore) {
+            return GradleDistribution.fromBuild();
+        }
     }
 
     public String getGradleUserHomeHomeExpression() {

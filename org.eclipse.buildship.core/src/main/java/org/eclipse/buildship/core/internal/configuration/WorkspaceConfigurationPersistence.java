@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 
 
@@ -39,7 +38,12 @@ final class WorkspaceConfigurationPersistence {
     public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();
         String distributionString = preferences.get(GRADLE_DISTRIBUTION, null);
-        GradleDistribution distribution = GradleDistributionInfo.deserializeFromString(distributionString).toGradleDistributionOrDefault();
+        GradleDistribution distribution;
+        try {
+            distribution = GradleDistribution.fromString(distributionString);
+        } catch (RuntimeException ignore) {
+            distribution = GradleDistribution.fromBuild();
+        }
         String gradleUserHomeString = preferences.get(GRADLE_USER_HOME, null);
         File gradleUserHome = gradleUserHomeString == null
                 ? null

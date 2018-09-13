@@ -7,7 +7,6 @@ import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 
 import org.eclipse.buildship.core.GradleDistribution
-import org.eclipse.buildship.core.GradleDistribution
 
 
 class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {

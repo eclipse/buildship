@@ -22,11 +22,10 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import org.eclipse.buildship.core.internal.GradleDistributionInfo;
-import org.eclipse.buildship.core.internal.projectimport.ProjectImportConfiguration;
 import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.ui.internal.preferences.GradleWorkbenchPreferencePage;
 import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
+import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 
 /**
@@ -44,7 +43,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     }
 
     public GradleOptionsWizardPage(ProjectImportConfiguration configuration, String title, String defaultMessage, String pageContextInformation) {
-        super("GradleOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getDistributionInfo(), configuration.getGradleUserHome()));
+        super("GradleOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getDistribution(), configuration.getGradleUserHome()));
         this.pageContextInformation = pageContextInformation;
     }
 
@@ -65,7 +64,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
     private void initValues() {
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(getConfiguration().getOverwriteWorkspaceSettings().getValue());
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(getConfiguration().getDistributionInfo().getValue());
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(getConfiguration().getDistribution().getValue());
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().setGradleUserHome(getConfiguration().getGradleUserHome().getValue());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(getConfiguration().getBuildScansEnabled().getValue());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(getConfiguration().getOfflineMode().getValue());
@@ -91,8 +90,8 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new DistributionChangedListener() {
 
             @Override
-            public void distributionUpdated(GradleDistributionInfo distributionInfo) {
-                getConfiguration().setDistributionInfo(distributionInfo);
+            public void distributionUpdated(GradleDistributionViewModel distribution) {
+                getConfiguration().setDistribution(distribution);
             }
         });
 

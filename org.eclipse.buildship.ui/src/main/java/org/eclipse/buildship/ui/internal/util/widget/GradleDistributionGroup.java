@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
@@ -41,6 +40,7 @@ import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersionsWr
 import org.eclipse.buildship.ui.internal.i18n.UiMessages;
 import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
+import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.internal.util.widget.UiBuilder.UiBuilderFactory;
 
@@ -55,7 +55,7 @@ public final class GradleDistributionGroup extends Group {
      * Event raised when the distribution changes in the widget.
      */
     public interface DistributionChangedListener {
-        void distributionUpdated(GradleDistributionInfo distributionInfo);
+        void distributionUpdated(GradleDistributionViewModel distribution);
     }
 
     private final List<DistributionChangedListener> listeners;
@@ -130,15 +130,15 @@ public final class GradleDistributionGroup extends Group {
         this.gradleVersionCombo.setEnabled(groupEnabled && this.useGradleVersionOption.getSelection());
     }
 
-    public GradleDistributionInfo getDistributionInfo() {
+    public GradleDistributionViewModel getDistribution() {
         if (this.useGradleWrapperOption.getSelection()) {
-            return new GradleDistributionInfo(GradleDistributionInfo.Type.WRAPPER, "");
+            return new GradleDistributionViewModel(GradleDistributionViewModel.Type.WRAPPER, "");
         } else if (this.useLocalInstallationDirOption.getSelection()) {
-            return new GradleDistributionInfo(GradleDistributionInfo.Type.LOCAL_INSTALLATION, this.localInstallationDirText.getText());
+            return new GradleDistributionViewModel(GradleDistributionViewModel.Type.LOCAL_INSTALLATION, this.localInstallationDirText.getText());
         } else if (this.useRemoteDistributionUriOption.getSelection()) {
-            return new GradleDistributionInfo(GradleDistributionInfo.Type.REMOTE_DISTRIBUTION, this.remoteDistributionUriText.getText());
+            return new GradleDistributionViewModel(GradleDistributionViewModel.Type.REMOTE_DISTRIBUTION, this.remoteDistributionUriText.getText());
         } else if (this.useGradleVersionOption.getSelection()) {
-            return new GradleDistributionInfo(GradleDistributionInfo.Type.VERSION, getSpecificVersion());
+            return new GradleDistributionViewModel(GradleDistributionViewModel.Type.VERSION, getSpecificVersion());
         } else {
             throw new GradlePluginsRuntimeException("No Gradle distribution type selected");
         }
@@ -151,9 +151,9 @@ public final class GradleDistributionGroup extends Group {
                 this.gradleVersionCombo.getItem(selectionIndex));
     }
 
-    public void setDistributionInfo(GradleDistributionInfo distributionInfo) {
-        GradleDistributionInfo.Type type = distributionInfo.getType().get();
-        String configuration = Strings.nullToEmpty(distributionInfo.getConfiguration());
+    public void setDistribution(GradleDistributionViewModel distribution) {
+        GradleDistributionViewModel.Type type = distribution.getType().get();
+        String configuration = Strings.nullToEmpty(distribution.getConfiguration());
         ImmutableList<Button> allRadios = ImmutableList.of(this.useGradleWrapperOption, this.useLocalInstallationDirOption, this.useRemoteDistributionUriOption, this.useGradleVersionOption);
         switch (type) {
             case WRAPPER:
@@ -266,7 +266,7 @@ public final class GradleDistributionGroup extends Group {
         private void updateAndNotify() {
             updateEnablement();
             for (DistributionChangedListener listener : GradleDistributionGroup.this.listeners) {
-                listener.distributionUpdated(getDistributionInfo());
+                listener.distributionUpdated(getDistribution());
             }
         }
     }

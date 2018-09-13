@@ -14,7 +14,9 @@ import org.gradle.tooling.GradleConnector;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.buildship.core.internal.GradleDistributionInfo;
+import org.eclipse.osgi.util.NLS;
+
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 
 /**
  * A reference to a local Gradle installation. The appropriate distribution is downloaded and
@@ -30,8 +32,20 @@ public final class LocalGradleDistribution extends GradleDistribution {
 
     LocalGradleDistribution(File location) {
         this.location = Preconditions.checkNotNull(location).getAbsoluteFile();
-        Optional<String> error = GradleDistributionInfo.validateLocalInstallationLocation(location);
+        Optional<String> error = validate(location);
         Preconditions.checkArgument(!error.isPresent(), error.or(""));
+    }
+
+    private static  Optional<String> validate(File location) {
+        if (location == null) {
+            return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+        } else if (!location.exists()) {
+            return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_DoesNotExist, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+        } else if (!location.isDirectory()) {
+            return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeDirectory, CoreMessages.GradleDistribution_Label_LocalInstallationDirectory));
+        } else {
+            return Optional.absent();
+        }
     }
 
     /**

@@ -19,12 +19,12 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
+import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 import org.eclipse.buildship.ui.internal.util.widget.GradleUserHomeGroup;
 
@@ -38,14 +38,14 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
     private final Font defaultFont;
     private final Validator<File> gradleUserHomeValidator;
-    private final Validator<GradleDistributionInfo> distributionInfoValidator;
+    private final Validator<GradleDistributionViewModel> distributionValidator;
 
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_GradleUserHome);
-        this.distributionInfoValidator = GradleDistributionInfo.validator();
+        this.distributionValidator = GradleDistributionViewModel.validator();
     }
 
     @Override
@@ -66,7 +66,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         File gradleUserHome = config.getGradleUserHome();
         String gradleUserHomePath = gradleUserHome == null ? "" : gradleUserHome.getPath();
 
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(GradleDistributionInfo.from(gradleDistribution));
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(gradleDistribution));
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(gradleUserHomePath);
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(config.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(config.isBuildScansEnabled());
@@ -76,12 +76,12 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     private void addListeners() {
         GradleUserHomeGroup gradleUserHomeGroup = this.gradleProjectSettingsComposite.getGradleUserHomeGroup();
         gradleUserHomeGroup.getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener(this, gradleUserHomeGroup, this.gradleUserHomeValidator));
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionInfoValidatingListener(this, this.distributionInfoValidator));
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionValidatingListener(this, this.distributionValidator));
     }
 
     @Override
     public boolean performOk() {
-        GradleDistribution distribution = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistributionInfo().toGradleDistribution();
+        GradleDistribution distribution = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution();
         String gradleUserHomeString = this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().getText();
         File gradleUserHome = gradleUserHomeString.isEmpty() ? null : new File(gradleUserHomeString);
         boolean offlineMode = this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection();
@@ -95,7 +95,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     @Override
     protected void performDefaults() {
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText("");
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistributionInfo(GradleDistributionInfo.from(GradleDistribution.fromBuild()));
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(GradleDistribution.fromBuild()));
         super.performDefaults();
     }
 

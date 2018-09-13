@@ -12,7 +12,6 @@ import org.eclipse.debug.core.ILaunchConfiguration
 
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.GradleDistributionInfo
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration
 import org.eclipse.buildship.core.internal.event.Event
 import org.eclipse.buildship.core.internal.event.EventListener
@@ -35,7 +34,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
             ['clean', 'test'],
             project.getLocation().toFile().absolutePath,
-            GradleDistributionInfo.from(GradleDistribution.fromBuild()).serializeToString(),
+            GradleDistribution.fromBuild().toString(),
             "",
             null,
             [],

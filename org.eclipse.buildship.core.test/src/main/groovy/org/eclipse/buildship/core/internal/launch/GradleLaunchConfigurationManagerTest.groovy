@@ -21,7 +21,6 @@ import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.GradleDistributionInfo
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
@@ -97,7 +96,7 @@ class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {
     private GradleRunConfigurationAttributes createValidAttributes() {
         new GradleRunConfigurationAttributes(['clean'],
             '/home/user/workspace/project',
-            GradleDistributionInfo.from(GradleDistribution.forVersion('2.3')).serializeToString(),
+            GradleDistribution.forVersion('2.3').toString(),
             null,
             '/.java',
             ['-ea'],

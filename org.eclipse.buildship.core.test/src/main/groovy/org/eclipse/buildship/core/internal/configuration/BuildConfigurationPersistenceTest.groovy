@@ -7,7 +7,6 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 
 import org.eclipse.buildship.core.GradleDistribution
-import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 

@@ -12,8 +12,8 @@ import com.google.common.base.Optional;
 
 import org.eclipse.jface.preference.PreferencePage;
 
-import org.eclipse.buildship.core.internal.GradleDistributionInfo;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
+import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
 
 /**
@@ -21,19 +21,19 @@ import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.Dis
  *
  * @author Donat Csikos
  */
-final class GradleDistributionInfoValidatingListener implements DistributionChangedListener {
+final class GradleDistributionValidatingListener implements DistributionChangedListener {
 
     private final PreferencePage preferencePage;
-    private final Validator<GradleDistributionInfo> distributionInfoValidator;
+    private final Validator<GradleDistributionViewModel> distributionValidator;
 
-    public GradleDistributionInfoValidatingListener(PreferencePage preferencePage, Validator<GradleDistributionInfo> distributionInfoValidator) {
+    public GradleDistributionValidatingListener(PreferencePage preferencePage, Validator<GradleDistributionViewModel> distributionInfoValidator) {
         this.preferencePage = preferencePage;
-        this.distributionInfoValidator = distributionInfoValidator;
+        this.distributionValidator = distributionInfoValidator;
     }
 
     @Override
-    public void distributionUpdated(GradleDistributionInfo distributionInfo) {
-        Optional<String> error = this.distributionInfoValidator.validate(distributionInfo);
+    public void distributionUpdated(GradleDistributionViewModel distribution) {
+        Optional<String> error = this.distributionValidator.validate(distribution);
         this.preferencePage.setValid(!error.isPresent());
         this.preferencePage.setErrorMessage(error.orNull());
     }
