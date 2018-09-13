@@ -35,16 +35,6 @@ public abstract class GradleDistribution {
 
     private static final WrapperGradleDistribution WRAPPER_DISTRIBUTION = new WrapperGradleDistribution();
 
-    GradleDistribution() {
-    }
-
-    /**
-     * Configures the specified connector with this distribution.
-     *
-     * @param connector the connector to configure
-     */
-    public abstract void apply(GradleConnector connector);
-
     /**
      * Creates a reference to a local Gradle installation.
      *
@@ -130,4 +120,14 @@ public abstract class GradleDistribution {
             throw new IllegalArgumentException(e);
         }
     }
+
+    GradleDistribution() {
+    }
+
+    /**
+     * Configures the specified connector with this distribution.
+     *
+     * @param connector the connector to configure
+     */
+    public abstract void apply(GradleConnector connector);
 }
