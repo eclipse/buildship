@@ -31,7 +31,7 @@ public final class LocalGradleDistribution extends GradleDistribution {
     private final File location;
 
     LocalGradleDistribution(File location) {
-        this.location = Preconditions.checkNotNull(location).getAbsoluteFile();
+        this.location = Preconditions.checkNotNull(location);
         Optional<String> error = validate(location);
         Preconditions.checkArgument(!error.isPresent(), error.or(""));
     }
@@ -94,6 +94,6 @@ public final class LocalGradleDistribution extends GradleDistribution {
 
     @Override
     public String toString() {
-        return String.format("GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(%s))", this.location.getAbsolutePath());
+        return String.format("GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(%s))", this.location.getPath());
     }
 }

@@ -95,7 +95,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         GradleDistribution.forLocalInstallation(file).apply(connector)
 
         then:
-        1 * connector.useInstallation(file.absoluteFile)
+        1 * connector.useInstallation(file)
     }
 
     def "GradleDistribution configures GradleConnector to use remote distribution"() {
@@ -139,7 +139,7 @@ class GradleDistributionTest extends WorkspaceSpecification {
         String distributionString = distribution.toString()
 
         then:
-        distributionString == "GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(${file.absolutePath}))"
+        distributionString == "GRADLE_DISTRIBUTION(LOCAL_INSTALLATION(${file.path}))"
         distribution == GradleDistribution.fromString(distributionString)
 
         when:
