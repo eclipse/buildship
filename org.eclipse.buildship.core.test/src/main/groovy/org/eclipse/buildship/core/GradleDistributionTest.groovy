@@ -25,21 +25,9 @@ class GradleDistributionTest extends WorkspaceSpecification {
         distribution.location == dir
     }
 
-    def "Gradle distribution cannot be created with invalid local installation"() {
+    def "Gradle distribution cannot be created with null local installation"() {
         when:
         GradleDistribution.forLocalInstallation(null)
-
-        then:
-        thrown(RuntimeException)
-
-        when:
-        GradleDistribution.forLocalInstallation(new File('nonexisting'))
-
-        then:
-        thrown(RuntimeException)
-
-        when:
-        GradleDistribution.forLocalInstallation(file('plainfile'))
 
         then:
         thrown(RuntimeException)
