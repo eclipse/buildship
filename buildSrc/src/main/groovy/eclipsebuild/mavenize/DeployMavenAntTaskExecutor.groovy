@@ -29,7 +29,7 @@ class DeployMavenAntTaskExecutor {
      */
     DeployMavenAntTaskExecutor(AntBuilder ant, File target) {
         this.ant = ant
-        this.ant.taskdef(resource: 'org/apache/maven/artifact/ant/antlib.xml', classpath: Mvn.class.getProtectionDomain().getCodeSource().getLocation())
+        this.ant.taskdef(resource: 'org/apache/maven/artifact/ant/antlib.xml', classpath: new File(Mvn.class.getProtectionDomain().getCodeSource().getLocation().toURI()))
         this.target = target
         this.workFolder = new File(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString())
     }
