@@ -21,12 +21,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.GradleBuild;
+import org.eclipse.buildship.core.GradleCore;
+import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.internal.workspace.SynchronizationJob;
 
@@ -65,7 +64,7 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
     private Set<BuildConfiguration> createBuildConfigsFor(Set<IProject> projects) {
         Set<BuildConfiguration> buildConfigs = Sets.newLinkedHashSet();
         for (IProject project : projects) {
-            buildConfigs.add(CorePlugin.configurationManager().createBuildConfiguration(project.getLocation().toFile(), false, GradleDistribution.fromBuild(), null, false, false, false));
+            buildConfigs.add(BuildConfiguration.forRootProjectDirectory(project.getLocation().toFile()).build());
         }
         return buildConfigs;
     }
@@ -73,7 +72,7 @@ public class AddBuildshipNatureHandler extends AbstractHandler {
     private void synchronize(Set<BuildConfiguration> buildConfigs) {
         Set<GradleBuild> gradleBuilds = Sets.newHashSet();
         for (BuildConfiguration buildConfig : buildConfigs) {
-            gradleBuilds.add(CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig));
+            gradleBuilds.add(GradleCore.getWorkspace().createBuild(buildConfig));
         }
 
         new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds).schedule();

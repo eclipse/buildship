@@ -33,8 +33,10 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.core.GradleCore;
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.operation.ToolingApiOperation;
@@ -47,7 +49,6 @@ import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils;
@@ -178,13 +179,13 @@ public class ProjectImportWizardController {
 
                 @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                    BuildConfiguration buildConfig = ProjectImportWizardController.this.configuration.toBuildConfig();
-                    GradleBuild build = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
+                    BuildConfiguration internalBuildConfiguration = ProjectImportWizardController.this.configuration.toBuildConfig();
+                    org.eclipse.buildship.core.configuration.BuildConfiguration buildConfiguration = ProjectImportWizardController.this.configuration.toPublicBuildConfig();
+                    org.eclipse.buildship.core.GradleBuild gradleBuild = GradleCore.getWorkspace().createBuild(buildConfiguration);
+
                     ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
-
-                    InitializeNewProjectOperation initializeOperation = new InitializeNewProjectOperation(buildConfig);
-                    ToolingApiOperation synchronizeOperation = new SynchronizeOperation(build, workingSetsAddingNewProjectHandler);
-
+                    InitializeNewProjectOperation initializeOperation = new InitializeNewProjectOperation(internalBuildConfiguration);
+                    ToolingApiOperation synchronizeOperation = new SynchronizeOperation(buildConfiguration.getRootProjectDirectory().getName(), gradleBuild, workingSetsAddingNewProjectHandler);
                     try {
                         CorePlugin.operationManager().run(ToolingApiOperations.concat(initializeOperation, synchronizeOperation), monitor);
                     } catch (Exception e) {
@@ -208,18 +209,18 @@ public class ProjectImportWizardController {
      */
     private static class SynchronizeOperation extends BaseToolingApiOperation {
 
-        private final GradleBuild gradleBuild;
+        private final org.eclipse.buildship.core.GradleBuild gradleBuild;
         private final ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler;
 
-        public SynchronizeOperation(GradleBuild gradleBuild, ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler) {
-            super("Synchronize project " + gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
+        public SynchronizeOperation(String projectName, org.eclipse.buildship.core.GradleBuild gradleBuild, ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler) {
+            super("Synchronize project " + projectName);
             this.gradleBuild = gradleBuild;
             this.workingSetsAddingNewProjectHandler = workingSetsAddingNewProjectHandler;
         }
 
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
-            this.gradleBuild.synchronize(this.workingSetsAddingNewProjectHandler, tokenSource, monitor);
+            ((DefaultGradleBuild)this.gradleBuild).synchronize(this.workingSetsAddingNewProjectHandler, tokenSource, monitor);
         }
 
         @Override

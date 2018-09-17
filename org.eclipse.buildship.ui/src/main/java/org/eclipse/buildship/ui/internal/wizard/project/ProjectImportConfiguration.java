@@ -126,7 +126,7 @@ public final class ProjectImportConfiguration {
         this.autoSync.setValue(Boolean.valueOf(autoSync));
     }
 
-    public BuildConfiguration toBuildConfig() {
+    public BuildConfiguration toBuildConfig() { // TODO (donat) rename to toInternalBuildConfiguration()
         return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(),
                 getOverwriteWorkspaceSettings().getValue(),
                 getDistribution().getValue().toGradleDistribution(),
@@ -134,5 +134,16 @@ public final class ProjectImportConfiguration {
                 getBuildScansEnabled().getValue(),
                 getOfflineMode().getValue(),
                 getAutoSync().getValue());
+    }
+
+    public org.eclipse.buildship.core.configuration.BuildConfiguration toPublicBuildConfig() { // TODO (donat) rename to toBuildConfiguration()
+        return org.eclipse.buildship.core.configuration.BuildConfiguration.forRootProjectDirectory(getProjectDir().getValue())
+                .overrideWorkspaceConfiguration(getOverwriteWorkspaceSettings().getValue()) // TODO (donat) rename to overrideWorkspaceConfiguration
+                .gradleDistribution(getDistribution().getValue().toGradleDistribution())
+                .gradleUserHome(getGradleUserHome().getValue())
+                .buildScansEnabled(getBuildScansEnabled().getValue())
+                .offlineMode(getOfflineMode().getValue())
+                .autoSync(getAutoSync().getValue())
+                .build();
     }
 }

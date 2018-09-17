@@ -21,15 +21,12 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
+import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJob;
 
-/**
- * Base job to execute project synchronization.
- *
- * @author Donat Csikos
- */
-public class SynchronizationJob extends ToolingApiJob<Void> {
+public final class SynchronizationJob extends ToolingApiJob<Void> {
 
     private final Iterable<GradleBuild> gradleBuilds;
     private final NewProjectHandler newProjectHandler;
@@ -67,7 +64,7 @@ public class SynchronizationJob extends ToolingApiJob<Void> {
             if (monitor.isCanceled()) {
                 throw new OperationCanceledException();
             }
-            build.synchronize(SynchronizationJob.this.newProjectHandler, tokenSource, progress.newChild(1));
+            ((DefaultGradleBuild)build).synchronize(SynchronizationJob.this.newProjectHandler, tokenSource, progress.newChild(1));
         }
 
         return null;
