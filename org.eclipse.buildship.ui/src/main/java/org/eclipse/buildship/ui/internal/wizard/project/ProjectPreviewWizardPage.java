@@ -306,7 +306,7 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
                 @Override
                 public void run(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
                     try {
-                        BuildConfiguration buildConfig = getConfiguration().toBuildConfig();
+                        BuildConfiguration buildConfig = getConfiguration().toInternalBuildConfiguration();
                         InitializeNewProjectOperation initializeOperation = new InitializeNewProjectOperation(buildConfig);
                         UpdatePreviewOperation updatePreviewOperation = new UpdatePreviewOperation(buildConfig);
                         CorePlugin.operationManager().run(ToolingApiOperations.concat(initializeOperation, updatePreviewOperation), monitor);

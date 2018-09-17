@@ -62,7 +62,7 @@ public final class ProjectImportConfiguration {
     }
 
 
-    public Property<Boolean> getOverwriteWorkspaceSettings() {
+    public Property<Boolean> getOverrideWorkspaceConfiguration() {
         return this.overwriteWorkspaceSettings;
     }
 
@@ -126,9 +126,9 @@ public final class ProjectImportConfiguration {
         this.autoSync.setValue(Boolean.valueOf(autoSync));
     }
 
-    public BuildConfiguration toBuildConfig() { // TODO (donat) rename to toInternalBuildConfiguration()
+    public BuildConfiguration toInternalBuildConfiguration() {
         return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(),
-                getOverwriteWorkspaceSettings().getValue(),
+                getOverrideWorkspaceConfiguration().getValue(),
                 getDistribution().getValue().toGradleDistribution(),
                 getGradleUserHome().getValue(),
                 getBuildScansEnabled().getValue(),
@@ -136,9 +136,9 @@ public final class ProjectImportConfiguration {
                 getAutoSync().getValue());
     }
 
-    public org.eclipse.buildship.core.configuration.BuildConfiguration toPublicBuildConfig() { // TODO (donat) rename to toBuildConfiguration()
+    public org.eclipse.buildship.core.configuration.BuildConfiguration toBuildConfiguration() {
         return org.eclipse.buildship.core.configuration.BuildConfiguration.forRootProjectDirectory(getProjectDir().getValue())
-                .overrideWorkspaceConfiguration(getOverwriteWorkspaceSettings().getValue()) // TODO (donat) rename to overrideWorkspaceConfiguration
+                .overrideWorkspaceConfiguration(getOverrideWorkspaceConfiguration().getValue())
                 .gradleDistribution(getDistribution().getValue().toGradleDistribution())
                 .gradleUserHome(getGradleUserHome().getValue())
                 .buildScansEnabled(getBuildScansEnabled().getValue())
