@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
+import org.eclipse.buildship.core.BuildConfiguration
 import org.eclipse.buildship.core.GradleBuild
 import org.eclipse.buildship.core.GradleCore
 import org.eclipse.buildship.core.GradleDistribution
@@ -27,7 +28,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
-        org.eclipse.buildship.core.configuration.BuildConfiguration configuration = org.eclipse.buildship.core.configuration.BuildConfiguration
+        BuildConfiguration configuration = BuildConfiguration
              .forRootProjectDirectory(location)
              .gradleDistribution(gradleDistribution)
              .overrideWorkspaceConfiguration(true)

@@ -6,15 +6,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.configuration;
+package org.eclipse.buildship.core;
 
 import java.io.File;
 import java.util.Optional;
 
 import com.google.common.base.Preconditions;
-
-import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.GradleWorkspace;
 
 /**
  * Describes a configuration of a Gradle build.

@@ -14,9 +14,9 @@ import com.google.common.base.Preconditions;
 
 import org.eclipse.core.resources.IProject;
 
+import org.eclipse.buildship.core.BuildConfiguration;
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.GradleWorkspace;
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 
 /**

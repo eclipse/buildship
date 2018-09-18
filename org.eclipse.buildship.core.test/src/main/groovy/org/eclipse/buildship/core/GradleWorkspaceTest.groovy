@@ -3,7 +3,6 @@ package org.eclipse.buildship.core
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
-import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification

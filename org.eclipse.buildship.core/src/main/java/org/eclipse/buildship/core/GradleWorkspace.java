@@ -12,8 +12,6 @@ import java.util.Optional;
 
 import org.eclipse.core.resources.IProject;
 
-import org.eclipse.buildship.core.configuration.BuildConfiguration;
-
 /**
  * Manages the Gradle builds contained in the current Eclipse workspace.
  *
