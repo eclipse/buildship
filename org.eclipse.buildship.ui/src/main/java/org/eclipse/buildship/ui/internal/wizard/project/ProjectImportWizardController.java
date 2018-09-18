@@ -180,7 +180,7 @@ public class ProjectImportWizardController {
                 @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     BuildConfiguration internalBuildConfiguration = ProjectImportWizardController.this.configuration.toInternalBuildConfiguration();
-                    org.eclipse.buildship.core.configuration.BuildConfiguration buildConfiguration = ProjectImportWizardController.this.configuration.toBuildConfiguration();
+                    org.eclipse.buildship.core.BuildConfiguration buildConfiguration = ProjectImportWizardController.this.configuration.toBuildConfiguration();
                     org.eclipse.buildship.core.GradleBuild gradleBuild = GradleCore.getWorkspace().createBuild(buildConfiguration);
 
                     ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);

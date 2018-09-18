@@ -136,8 +136,8 @@ public final class ProjectImportConfiguration {
                 getAutoSync().getValue());
     }
 
-    public org.eclipse.buildship.core.configuration.BuildConfiguration toBuildConfiguration() {
-        return org.eclipse.buildship.core.configuration.BuildConfiguration.forRootProjectDirectory(getProjectDir().getValue())
+    public org.eclipse.buildship.core.BuildConfiguration toBuildConfiguration() {
+        return org.eclipse.buildship.core.BuildConfiguration.forRootProjectDirectory(getProjectDir().getValue())
                 .overrideWorkspaceConfiguration(getOverrideWorkspaceConfiguration().getValue())
                 .gradleDistribution(getDistribution().getValue().toGradleDistribution())
                 .gradleUserHome(getGradleUserHome().getValue())
