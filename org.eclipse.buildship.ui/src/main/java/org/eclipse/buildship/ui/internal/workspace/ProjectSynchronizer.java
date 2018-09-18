@@ -30,9 +30,9 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.part.FileEditorInput;
 
-import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.GradleBuild;
+import org.eclipse.buildship.core.GradleCore;
 import org.eclipse.buildship.core.internal.util.collections.AdapterFunction;
-import org.eclipse.buildship.core.internal.workspace.GradleBuilds;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.internal.workspace.SynchronizationJob;
 
@@ -50,7 +50,10 @@ public final class ProjectSynchronizer {
             return;
         }
 
-        final GradleBuilds gradleBuilds = CorePlugin.gradleWorkspaceManager().getGradleBuilds(selectedProjects);
+        Set<GradleBuild> gradleBuilds = Sets.newLinkedHashSet();
+        for (IProject project : selectedProjects) {
+            GradleCore.getWorkspace().getBuild(project).ifPresent(gradleBuild -> gradleBuilds.add(gradleBuild));
+        }
 
         new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, gradleBuilds).schedule();
     }

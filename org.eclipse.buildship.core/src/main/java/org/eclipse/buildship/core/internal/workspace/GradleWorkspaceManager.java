@@ -42,24 +42,10 @@ public interface GradleWorkspaceManager {
     public Optional<GradleBuild> getGradleBuild(IProject project);
 
     /**
-     * Returns an aggregate of Gradle builds for all projects in the workspace. It can be used to
-     * perform synchronization on all participant within the same job.
-     * <p/>
-     * Non-Gradle projects are ignored.
+     * Returns all Gradle builds from the workspace.
      *
      * @param projects the projects for which to find the corresponding builds
-     * @return the build aggregate, never null
+     * @return the set of Gradle builds
      */
-    public GradleBuilds getGradleBuilds();
-
-    /**
-     * Returns an aggregate of Gradle builds for the target projects. It can be used to perform
-     * synchronization on all participant within the same job.
-     * <p/>
-     * Non-Gradle projects are ignored.
-     *
-     * @param projects the projects for which to find the corresponding builds
-     * @return the build aggregate, never null
-     */
-    public GradleBuilds getGradleBuilds(Set<IProject> projects);
+    public Set<GradleBuild> getGradleBuilds();
 }

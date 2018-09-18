@@ -31,6 +31,8 @@ import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.GradleBuild;
+import org.eclipse.buildship.core.GradleCore;
 
 /**
  * Executes project synchronization if the corresponding preference is enabled and the user changes
@@ -90,7 +92,7 @@ public final class SynchronizingBuildScriptUpdateListener implements IResourceCh
 
     private void executeSyncIfBuildScriptChanged(final IProject project, IResourceDelta delta) {
         if (hasBuildScriptFileChanged(project, delta.getAffectedChildren())) {
-            GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project).get();
+            GradleBuild gradleBuild = GradleCore.getWorkspace().getBuild(project).get();
             SynchronizationJob job = new SynchronizationJob(gradleBuild);
             job.setResultHandler(new ResultHander());
             job.schedule();

@@ -25,7 +25,6 @@ import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 public final class DefaultGradleBuild implements GradleBuild {
 
     private final org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild;
-    private final CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource();
 
     public DefaultGradleBuild(IProject project) {
         this.gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(project).orNull();
@@ -45,9 +44,13 @@ public final class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public SynchronizationResult synchronize(IProgressMonitor monitor) {
+        return synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), monitor);
+    }
+
+    public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         if (this.gradleBuild != null) {
             try {
-                this.gradleBuild.synchronize(NewProjectHandler.IMPORT_AND_MERGE, this.tokenSource, monitor);
+                this.gradleBuild.synchronize(newProjectHandler, tokenSource, monitor);
             } catch (final CoreException e) {
                 return newSynchronizationResult(e.getStatus());
             }

@@ -62,7 +62,7 @@ public final class ProjectImportConfiguration {
     }
 
 
-    public Property<Boolean> getOverwriteWorkspaceSettings() {
+    public Property<Boolean> getOverrideWorkspaceConfiguration() {
         return this.overwriteWorkspaceSettings;
     }
 
@@ -126,13 +126,24 @@ public final class ProjectImportConfiguration {
         this.autoSync.setValue(Boolean.valueOf(autoSync));
     }
 
-    public BuildConfiguration toBuildConfig() {
+    public BuildConfiguration toInternalBuildConfiguration() {
         return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(),
-                getOverwriteWorkspaceSettings().getValue(),
+                getOverrideWorkspaceConfiguration().getValue(),
                 getDistribution().getValue().toGradleDistribution(),
                 getGradleUserHome().getValue(),
                 getBuildScansEnabled().getValue(),
                 getOfflineMode().getValue(),
                 getAutoSync().getValue());
+    }
+
+    public org.eclipse.buildship.core.configuration.BuildConfiguration toBuildConfiguration() {
+        return org.eclipse.buildship.core.configuration.BuildConfiguration.forRootProjectDirectory(getProjectDir().getValue())
+                .overrideWorkspaceConfiguration(getOverrideWorkspaceConfiguration().getValue())
+                .gradleDistribution(getDistribution().getValue().toGradleDistribution())
+                .gradleUserHome(getGradleUserHome().getValue())
+                .buildScansEnabled(getBuildScansEnabled().getValue())
+                .offlineMode(getOfflineMode().getValue())
+                .autoSync(getAutoSync().getValue())
+                .build();
     }
 }

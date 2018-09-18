@@ -63,7 +63,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     }
 
     private void initValues() {
-        this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(getConfiguration().getOverwriteWorkspaceSettings().getValue());
+        this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(getConfiguration().getOverrideWorkspaceConfiguration().getValue());
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(getConfiguration().getDistribution().getValue());
         this.gradleProjectSettingsComposite.getGradleUserHomeGroup().setGradleUserHome(getConfiguration().getGradleUserHome().getValue());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(getConfiguration().getBuildScansEnabled().getValue());
@@ -77,13 +77,13 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                getConfiguration().getOverwriteWorkspaceSettings().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection());
+                getConfiguration().getOverrideWorkspaceConfiguration().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection());
 
             }
 
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
-                getConfiguration().getOverwriteWorkspaceSettings().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection());
+                getConfiguration().getOverrideWorkspaceConfiguration().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection());
             }
         });
 
