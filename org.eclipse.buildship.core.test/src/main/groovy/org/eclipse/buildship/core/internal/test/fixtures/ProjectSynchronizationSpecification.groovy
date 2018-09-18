@@ -9,7 +9,10 @@ import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
-import org.eclipse.buildship.core.*
+import org.eclipse.buildship.core.GradleBuild
+import org.eclipse.buildship.core.GradleCore
+import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.CorePlugin
 
 
@@ -30,8 +33,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
-        org.eclipse.buildship.core.configuration.BuildConfiguration configuration = org.eclipse.buildship.core.configuration.BuildConfiguration
-             .forRootProjectDirectory(location)
+        BuildConfiguration configuration = BuildConfiguration.forRootProjectDirectory(location)
              .gradleDistribution(gradleDistribution)
              .overrideWorkspaceConfiguration(true)
              .build()

@@ -1,7 +1,7 @@
 package org.eclipse.buildship.core.internal.workspace
 
 import org.eclipse.buildship.core.GradleCore
-import org.eclipse.buildship.core.configuration.BuildConfiguration
+import org.eclipse.buildship.core.BuildConfiguration
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecification {
