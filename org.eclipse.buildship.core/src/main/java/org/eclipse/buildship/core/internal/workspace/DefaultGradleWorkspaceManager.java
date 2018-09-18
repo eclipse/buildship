@@ -7,16 +7,14 @@
  */
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.FluentIterable;
 
 import org.eclipse.core.resources.IProject;
 
@@ -59,24 +57,17 @@ public final class DefaultGradleWorkspaceManager implements GradleWorkspaceManag
     }
 
     @Override
-    public GradleBuilds getGradleBuilds() {
-        return new DefaultGradleBuilds(getBuildConfigs(CorePlugin.workspaceOperations().getAllProjects()));
+    public Set<GradleBuild> getGradleBuilds() {
+        return CorePlugin.workspaceOperations().getAllProjects().stream()
+                .filter(GradleProjectNature.isPresentOn())
+                .map(project -> toBuildConfigurationOrNull(project))
+                .filter(Objects::nonNull)
+                .map(buildConfig -> new DefaultGradleBuild(buildConfig))
+                .collect(Collectors.toSet());
     }
 
-    @Override
-    public GradleBuilds getGradleBuilds(Set<IProject> projects) {
-        return new DefaultGradleBuilds(getBuildConfigs(projects));
+    private static BuildConfiguration toBuildConfigurationOrNull(IProject project) {
+        ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().tryLoadProjectConfiguration(project);
+        return projectConfiguration != null ? projectConfiguration.getBuildConfiguration() : null;
     }
-
-    private Set<BuildConfiguration> getBuildConfigs(Collection<IProject> projects) {
-        return FluentIterable.from(projects).filter(GradleProjectNature.isPresentOn()).transform(new Function<IProject, BuildConfiguration>() {
-
-            @Override
-            public BuildConfiguration apply(IProject project) {
-                ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().tryLoadProjectConfiguration(project);
-                return projectConfiguration != null ? projectConfiguration.getBuildConfiguration() : null;
-            }
-        }).filter(Predicates.notNull()).toSet();
-    }
-
 }
