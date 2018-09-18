@@ -27,5 +27,4 @@
     <launcherArgs>
         <vmArgs>-XX:MaxPermSize=128M</vmArgs>
     </launcherArgs>
->>>>>>> master
 </target>
