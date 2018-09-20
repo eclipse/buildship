@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core.internal.workspace
 
+import org.eclipse.core.runtime.IStatus
+
+import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
@@ -12,10 +15,9 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
 
         when:
         importAndWait(firstProject)
-        importAndWait(secondProject)
+        tryImportAndWait(secondProject)
 
         then:
-        thrown(UnsupportedConfigurationException)
         allProjects().size() == 2
         findProject('root')
         findProject('second')
@@ -44,9 +46,10 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         findProject('subsub')
 
         when:
-        importAndWait(secondProject)
+        SynchronizationResult result = tryImportAndWait(secondProject)
 
         then:
-        thrown(UnsupportedConfigurationException)
+        result.status.severity == IStatus.WARNING
+        result.status.exception instanceof UnsupportedConfigurationException
     }
 }

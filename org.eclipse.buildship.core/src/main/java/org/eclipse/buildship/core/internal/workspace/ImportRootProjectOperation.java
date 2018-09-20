@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
@@ -48,7 +49,7 @@ public final class ImportRootProjectOperation {
         try {
             runInWorkspace(monitor);
         } catch (Exception e) {
-            throw new ImportRootProjectException(e);
+            throw e instanceof OperationCanceledException ? (OperationCanceledException) e : new ImportRootProjectException(e);
         }
     }
 

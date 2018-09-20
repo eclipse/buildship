@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.GradleBuild;
+import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJob;
@@ -64,7 +65,10 @@ public final class SynchronizationJob extends ToolingApiJob<Void> {
             if (monitor.isCanceled()) {
                 throw new OperationCanceledException();
             }
-            ((DefaultGradleBuild)build).synchronize(SynchronizationJob.this.newProjectHandler, tokenSource, progress.newChild(1));
+            SynchronizationResult result = ((DefaultGradleBuild)build).synchronize(SynchronizationJob.this.newProjectHandler, tokenSource, progress.newChild(1));
+            if (result.getStatus().getException() instanceof Exception) {
+                throw (Exception) result.getStatus().getException();
+            }
         }
 
         return null;

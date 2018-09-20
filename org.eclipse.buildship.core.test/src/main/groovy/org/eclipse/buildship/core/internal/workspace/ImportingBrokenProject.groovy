@@ -23,10 +23,9 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
 
     def "can import the root project of a broken build"() {
         when:
-        boolean result = importAndWait(projectDir)
+        boolean result = tryImportAndWait(projectDir)
 
         then:
-        thrown(BuildException)
         findProject('broken-project')
         !findProject('sub')
     }
@@ -34,10 +33,9 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
     def "if the root project of a broken build is already part of the workspace then the Gradle nature is assigned to it"() {
         when:
         newProject('broken-project')
-        importAndWait(projectDir)
+        tryImportAndWait(projectDir)
 
         then:
-        thrown(BuildException)
         CorePlugin.workspaceOperations().allProjects.size() == 1
         GradleProjectNature.isPresentOn(findProject('broken-project'))
     }
@@ -50,19 +48,17 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
         }
 
         when:
-        importAndWait(projectDir)
+        tryImportAndWait(projectDir)
 
         then:
-        thrown(BuildException)
         findProject("broken-project_").location.toFile() == projectDir.canonicalFile
     }
 
     def "importing the root project of a broken build fails if the root dir is the workspace root"() {
         when:
-        importAndWait(getWorkspaceDir())
+        tryImportAndWait(getWorkspaceDir())
 
         then:
-        thrown(ImportRootProjectException)
         allProjects().empty
     }
 }

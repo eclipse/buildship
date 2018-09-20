@@ -79,11 +79,4 @@ class MergingSynchronizeGradleBuildsJobs extends ProjectSynchronizationSpecifica
         then:
         jobs.findAll { it.result != null }.size() == 2
     }
-
-    private def gradleBuildFor(File projectLocation) {
-        def buildConfiguration = BuildConfiguration.forRootProjectDirectory(projectLocation)
-                .overrideWorkspaceConfiguration(true)
-                .build()
-        GradleCore.workspace.createBuild(buildConfiguration)
-    }
 }

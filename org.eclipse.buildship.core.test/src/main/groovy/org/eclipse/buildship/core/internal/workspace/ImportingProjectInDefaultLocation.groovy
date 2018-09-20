@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core.internal.workspace
 
+import org.eclipse.core.runtime.IStatus
+
+import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.ImportRootProjectException
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
@@ -22,10 +25,11 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         }
 
         when:
-        importAndWait(rootProject)
+        SynchronizationResult result = tryImportAndWait(rootProject)
 
         then:
-        thrown(UnsupportedConfigurationException)
+        result.status.severity == IStatus.WARNING
+        result.status.exception instanceof UnsupportedConfigurationException
     }
 
     def "Disallow synchornizing projects located in workspace folder and with custom root name"() {
@@ -35,18 +39,20 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
 
         when:
         new File(rootProject, 'settings.gradle') << "rootProject.name = 'my-project-name-is-different-than-the-folder'"
-        importAndWait(rootProject)
+        SynchronizationResult result = tryImportAndWait(rootProject)
 
         then:
-        thrown(UnsupportedConfigurationException)
+        result.status.severity == IStatus.WARNING
+        result.status.exception instanceof UnsupportedConfigurationException
     }
 
     def "Disallow importing the workspace root"() {
         when:
-        importAndWait(workspaceDir)
+        SynchronizationResult result = tryImportAndWait(workspaceDir)
 
         then:
-        thrown(ImportRootProjectException)
+        result.status.severity == IStatus.WARNING
+        result.status.exception instanceof ImportRootProjectException
     }
 
     def "Disallow importing any modules located at the workspace root"() {
@@ -56,10 +62,11 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
         }
 
         when:
-        importAndWait(workspaceDir)
+        SynchronizationResult result = tryImportAndWait(workspaceDir)
 
         then:
-        thrown(ImportRootProjectException)
+        result.status.severity == IStatus.WARNING
+        result.status.exception instanceof ImportRootProjectException
     }
 
 }

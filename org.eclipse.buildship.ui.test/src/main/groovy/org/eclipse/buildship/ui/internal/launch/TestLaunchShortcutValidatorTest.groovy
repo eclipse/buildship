@@ -14,14 +14,12 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
         setup:
         importAndWait(projectWithSources, GradleDistribution.forVersion(gradleVersion))
 
-        expect:
-        numOfGradleErrorMarkers == 0
-
         when:
         IJavaProject project = findJavaProject('project-with-sources')
         IType type = project.findType('LibrarySpec')
 
         then:
+        type != null
         testLaunchShortcutEnabledOn(type)
 
         where:
@@ -32,14 +30,12 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
         setup:
         importAndWait(projectWithSources, GradleDistribution.forVersion(gradleVersion))
 
-        expect:
-        numOfGradleErrorMarkers == 0
-
         when:
         IJavaProject project = findJavaProject('project-with-sources')
         IType type = project.findType('Library')
 
         then:
+        type != null
         !testLaunchShortcutEnabledOn(type)
 
         where:
@@ -50,14 +46,12 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
         setup:
         importAndWait(projectWithSources)
 
-        expect:
-        numOfGradleErrorMarkers == 0
-
         when:
         IJavaProject project = findJavaProject('project-with-sources')
         IType type = project.findType('com.google.common.base.Predicate')
 
         then:
+        type != null
         !testLaunchShortcutEnabledOn(type)
     }
 

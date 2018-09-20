@@ -85,7 +85,7 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
     class FaultyWorkspaceOperations {
         @Delegate WorkspaceOperations delegate = CorePlugin.workspaceOperations()
 
-        void addNature(IProject project, String natureId, IProgressMonitor monitor) {
+        IProject createProject(String name, File location, List<String> natureIds, IProgressMonitor monitor) {
             throw new UnsupportedConfigurationException('test')
         }
     }

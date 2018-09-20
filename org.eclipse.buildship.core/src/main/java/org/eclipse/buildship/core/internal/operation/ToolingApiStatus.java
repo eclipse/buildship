@@ -33,7 +33,7 @@ public final class ToolingApiStatus extends Status implements IStatus {
      */
     public static enum ToolingApiStatusType {
 
-        BUILD_CANCELLED(IStatus.CANCEL, "%s"),
+        BUILD_CANCELLED(IStatus.CANCEL, "%s cancelled."),
         IMPORT_ROOT_DIR_FAILED(IStatus.WARNING, "%s failed due to an error while importing the root project."),
         BUILD_FAILED(IStatus.WARNING, "%s failed due to an error in the referenced Gradle build."),
         CONNECTION_FAILED(IStatus.WARNING, "%s failed due to an error connecting to the Gradle build."),

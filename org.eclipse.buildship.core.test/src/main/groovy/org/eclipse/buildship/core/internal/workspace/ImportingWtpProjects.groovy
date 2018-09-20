@@ -5,20 +5,17 @@ import spock.lang.IgnoreIf
 import spock.lang.Issue
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.IStatus
 import org.eclipse.jdt.core.IAccessRule
 import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
-import org.eclipse.buildship.core.internal.workspace.DefaultWorkspaceOperations
-import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.internal.workspace.ProjectNatureUpdater
-import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
-
 
 class ImportingWtpProjects extends ProjectSynchronizationSpecification {
 
@@ -46,10 +43,10 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         registerService(WorkspaceOperations, operations)
 
         when:
-        importAndWait(root)
+        SynchronizationResult result = tryImportAndWait(root)
 
         then:
-        notThrown(Exception)
+        result.status.severity == IStatus.OK
     }
 
     def "Check mixed deployment paths with WTP installed"() {
@@ -70,11 +67,12 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         registerService(WorkspaceOperations, operations)
 
         when:
-        importAndWait(root)
+        SynchronizationResult result = tryImportAndWait(root)
 
         then:
-        Exception e = thrown(Exception)
-        e.message == "WTP currently does not support mixed deployment paths."
+        result.status.severity == IStatus.WARNING
+        result.status.exception instanceof UnsupportedConfigurationException
+        result.status.exception.message == "WTP currently does not support mixed deployment paths."
     }
 
     def "The eclipseWtp task is run before importing WTP projects"() {
@@ -311,10 +309,10 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         environment.registerService(Logger, logger)
 
         when:
-        importAndWait(root)
+        SynchronizationResult result = tryImportAndWait(root)
 
         then:
-        thrown(UnsupportedConfigurationException)
+        result.status.exception instanceof UnsupportedConfigurationException
     }
 
     def "Does not override classpath container customisation"() {
