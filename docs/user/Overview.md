@@ -62,7 +62,7 @@ If you import a web project and your Eclipse contains the Web Tools Platform plu
 
 ## Build scans
 
-You can easily enable build scans from the preferences for the entire workspace as well as per project. If the preference is enabled and the project applies the com.gradle.build-scan plugin then a build scan is published for each build. You can open the published build scans by clicking on the URL in the console view or by clicking on the 'Open build scan' button on the Execution view's toolbar.
+You can enable [build scans](https://scans.gradle.com/) from the preferences for the entire workspace as well as per project. If the preference is enabled and the project applies the `com.gradle.build-scan` plugin then a build scan is published for each build. You can open the published build scans by clicking on the URL in the console view or by clicking on the 'Open build scan' button on the Execution view's toolbar.
 
 ## Hierarchical preferences
 
