@@ -2,7 +2,16 @@
 
 ## Requirements
 
-Buildship 2.x can be installed into Eclipse 4.2 or newer, whereas Buildship 1.x can be installed into Eclipse 3.6-4.6. 
+- Buildship 3.x
+  - Minimum Java version: 1.8
+  - Eclipse version: 4.3, or newer
+- Buildship 2.x
+  - Minimum Java version: 1.7
+  - Eclipse version: 4.2, or newer
+- Buildship 1.x
+  - Minimum Java version: 1.6
+  - Eclipse version: 4.2 - 4.6
+ 
 Different Eclipse versions might be compatible but they aren't explicitly tested. 
 Depending on the Gradle version that Buildship uses for a project import, certain features may not be available.
 
