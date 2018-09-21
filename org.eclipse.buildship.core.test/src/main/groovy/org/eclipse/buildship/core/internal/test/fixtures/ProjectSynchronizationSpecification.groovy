@@ -68,7 +68,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected static GradleBuild gradleBuildFor(IProject project) {
-        GradleCore.workspace.getBuild(project).orElseGet({ throw new RuntimeException("No Gradle build for $project") } as Supplier)
+        GradleCore.workspace.getBuild(project).orElseThrow({ new RuntimeException("No Gradle build for $project") })
     }
     protected def waitForGradleJobsToFinish() {
         Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
