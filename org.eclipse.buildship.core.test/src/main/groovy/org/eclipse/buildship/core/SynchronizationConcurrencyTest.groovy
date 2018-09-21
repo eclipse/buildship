@@ -16,7 +16,7 @@ import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent
 
 class SynchronizationConcurrencyTest extends ProjectSynchronizationSpecification {
 
-    def "Concurrently executed synchronizations runs sequencially"() {
+    def "Concurrently executed synchronizations runs sequentially"() {
         setup:
         List<Job> syncJobs = (1..5).collect {
             new SyncJob(dir("location_$it") { file "build.gradle", "Thread.sleep(500)" })
@@ -44,11 +44,11 @@ class SynchronizationConcurrencyTest extends ProjectSynchronizationSpecification
         Job syncJob = new SyncJob(location)
         when:
         // start and wait for synchronization with workspace root rule already used
-        Closure synOperation = {
+        ICoreRunnable syncOperation = {
             syncJob.schedule()
             assert !syncJob.join(1000, new NullProgressMonitor())
         }
-        workspace.run(synOperation as ICoreRunnable, workspace.root, IResource.NONE, new NullProgressMonitor())
+        workspace.run(syncOperation, workspace.root, IResource.NONE, new NullProgressMonitor())
 
         then:
         // synchronization won't start until the job with the workspace rule finishes

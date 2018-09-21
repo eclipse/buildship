@@ -1,12 +1,13 @@
 package org.eclipse.buildship.core.internal.test.fixtures
 
+import java.util.function.Supplier
+
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspaceRunnable
-import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
@@ -37,12 +38,12 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected void synchronizeAndWait(File location) {
         SynchronizationResult result = trySynchronizeAndWait(location)
-        assert result.status.severity == IStatus.OK
+        assert result.status.isOK()
     }
 
     protected void synchronizeAndWait(IProject project) {
         SynchronizationResult result = trySynchronizeAndWait(project)
-        assert result.status.severity == IStatus.OK
+        assert result.status.isOK()
     }
 
     protected SynchronizationResult tryImportAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
@@ -55,7 +56,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
         SynchronizationResult result = tryImportAndWait(location, gradleDistribution)
-        assert result.status.severity == IStatus.OK
+        assert result.status.isOK()
     }
 
     protected static GradleBuild gradleBuildFor(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
@@ -67,7 +68,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     }
 
     protected static GradleBuild gradleBuildFor(IProject project) {
-        GradleCore.workspace.getBuild(project).get()
+        GradleCore.workspace.getBuild(project).orElseGet({ throw new RuntimeException("No Gradle build for $project") } as Supplier)
     }
     protected def waitForGradleJobsToFinish() {
         Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)

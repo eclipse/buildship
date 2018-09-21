@@ -1,10 +1,10 @@
 package org.eclipse.buildship.core.internal.workspace
 
-import org.gradle.tooling.BuildException
-
+import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.ImportRootProjectException
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class ImportingBrokenProject extends ProjectSynchronizationSpecification {
@@ -23,9 +23,10 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
 
     def "can import the root project of a broken build"() {
         when:
-        boolean result = tryImportAndWait(projectDir)
+        SynchronizationResult result = tryImportAndWait(projectDir)
 
         then:
+        ToolingApiStatusType.BUILD_FAILED.matches(result.status)
         findProject('broken-project')
         !findProject('sub')
     }
@@ -33,9 +34,10 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
     def "if the root project of a broken build is already part of the workspace then the Gradle nature is assigned to it"() {
         when:
         newProject('broken-project')
-        tryImportAndWait(projectDir)
+        SynchronizationResult result = tryImportAndWait(projectDir)
 
         then:
+        ToolingApiStatusType.BUILD_FAILED.matches(result.status)
         CorePlugin.workspaceOperations().allProjects.size() == 1
         GradleProjectNature.isPresentOn(findProject('broken-project'))
     }
@@ -48,17 +50,19 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
         }
 
         when:
-        tryImportAndWait(projectDir)
+        SynchronizationResult result = tryImportAndWait(projectDir)
 
         then:
+        ToolingApiStatusType.BUILD_FAILED.matches(result.status)
         findProject("broken-project_").location.toFile() == projectDir.canonicalFile
     }
 
     def "importing the root project of a broken build fails if the root dir is the workspace root"() {
         when:
-        tryImportAndWait(getWorkspaceDir())
+        SynchronizationResult result = tryImportAndWait(getWorkspaceDir())
 
         then:
+        ToolingApiStatusType.IMPORT_ROOT_DIR_FAILED.matches(result.status)
         allProjects().empty
     }
 }
