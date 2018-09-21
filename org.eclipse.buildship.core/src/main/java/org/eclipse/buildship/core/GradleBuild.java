@@ -27,12 +27,13 @@ public interface GradleBuild {
      * retrieved information.The algorithm is as follows:
      * <ul>
      *   <li>Synchronize all Gradle projects of the Gradle build with the Eclipse workspace
-     *       project counterparts. If there are no projects in the workspace at the location then a new
-     *       project is created. Then, based on the workspace project state, the synchronization is as follows:
+     *       project counterparts. If there are no projects in the workspace at the location then a
+     *       new project is created. Then, based on the workspace project state, the synchronization
+     *       is as follows:
      *     <ul>
      *       <li>If the workspace project is closed, the project is left unchanged.</li>
-     *       <li>If the workspace project is open, the project configuration (name, source directories,
-     *           dependencies, etc.) is updated.</li>
+     *       <li>If the workspace project is open, the project configuration (name, source
+     *           directories, dependencies, etc.) is updated.</li>
      *     </ul>
      *   </li>
      *   <li>Uncouple all open workspace projects for which there is no corresponding Gradle project
@@ -42,11 +43,13 @@ public interface GradleBuild {
      *
      * <p>
      * This is a long-running operation which blocks the current thread until completion. Progress
-     *  and cancellation are provided via the monitor.
+     * and cancellation are provided via the monitor. Also, since the synchronization might modify
+     * more than one project, the workspace root scheduling rule is acquired for the current thread
+     * internally.
      * <p>
      *
-     * The result of the synchronization - let it be a success or a failure - is described by the returned
-     * {@link SynchronizationResult} instance.
+     * The result of the synchronization - let it be a success or a failure - is described by the
+     * returned {@link SynchronizationResult} instance.
      *
      * @param monitor the monitor to report progress on
      * @return the synchronization result
