@@ -1,7 +1,7 @@
 package org.eclipse.buildship.core
 
 import org.eclipse.core.resources.IResource
-import org.eclipse.core.runtime.ICoreRunnable
+import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -44,15 +44,19 @@ class SynchronizationConcurrencyTest extends ProjectSynchronizationSpecification
         Job syncJob = new SyncJob(location)
         when:
         // start and wait for synchronization with workspace root rule already used
-        ICoreRunnable syncOperation = {
+        IWorkspaceRunnable syncOperation = {
             syncJob.schedule()
-            assert !syncJob.join(1000, new NullProgressMonitor())
+            try { // Eclipse 4.3 did not implement Job#join(timeout, monitor)
+                waitFor(1000) { syncJob.state == Job.NONE }
+            } catch (RuntimeException e) {
+            }
+            assert syncJob.state != Job.NONE
         }
         workspace.run(syncOperation, workspace.root, IResource.NONE, new NullProgressMonitor())
 
         then:
         // synchronization won't start until the job with the workspace rule finishes
-        syncJob.join(1000, new NullProgressMonitor())
+        waitFor(1000) { syncJob.state == Job.NONE }
     }
 
     class SyncJob extends Job {
