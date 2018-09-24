@@ -8,6 +8,10 @@
 
 package org.eclipse.buildship.core;
 
+import java.util.function.Function;
+
+import org.gradle.tooling.ProjectConnection;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -55,4 +59,21 @@ public interface GradleBuild {
      * @return the synchronization result
      */
     SynchronizationResult synchronize(IProgressMonitor monitor);
+
+    /**
+     * Executes an action in the Gradle runtime.
+     * <p>
+     * TODO (donat) explain how the action is executed (refer to Tooling API documentation)
+     * TODO (donat) explain common use-cases: task execution, test execution, and model loading
+     * TODO (donat) explain how the project connection is preconfigured: outputs and outputs to IDE console, progress and cancellation are wired to the monitor object
+     * TODO (donat) document exception handling
+     * TODO (donat) document scheduling rules
+     * TODO (donat) document how to load custom models (here or link to external documentation)
+     *
+     * @param action the action to execute
+     * @param monitor the monitor to report progress on, or {@code null} if progress reporting is not desired
+     * @return the result of the action
+     * @throws Exception when the action fails
+     */
+    <T> T withConnection(Function<ProjectConnection, ? extends T> action, IProgressMonitor monitor) throws Exception;
 }
