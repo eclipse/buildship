@@ -24,8 +24,8 @@ def eclipseVersionAgnosticDependencies = [
     'org.apache.log4j'                      : '1.2.15',
     'org.eclipse.swtbot.eclipse.finder'     : '2.2.1',
     'org.eclipse.swtbot.junit4_x'           : '2.2.1',
-    'org.jetbrains.kotlin.bundled-compiler' : '0.8.5',
-    'org.jetbrains.kotlin.core'             : '0.8.5'
+    'org.jetbrains.kotlin.bundled-compiler' : '0.8.7',
+    'org.jetbrains.kotlin.core'             : '0.8.7'
 ]
 
 // target platform definition for all major Eclipse releases between version 4.3 and 4.8
