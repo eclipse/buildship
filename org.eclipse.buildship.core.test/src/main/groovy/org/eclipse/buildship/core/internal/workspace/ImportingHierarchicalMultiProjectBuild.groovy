@@ -1,7 +1,10 @@
 package org.eclipse.buildship.core.internal.workspace
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.Path
+
+import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature

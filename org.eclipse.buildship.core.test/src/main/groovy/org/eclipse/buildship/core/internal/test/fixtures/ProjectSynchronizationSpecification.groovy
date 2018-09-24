@@ -1,5 +1,7 @@
 package org.eclipse.buildship.core.internal.test.fixtures
 
+import java.util.function.Supplier
+
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 
@@ -13,6 +15,7 @@ import org.eclipse.buildship.core.BuildConfiguration
 import org.eclipse.buildship.core.GradleBuild
 import org.eclipse.buildship.core.GradleCore
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.CorePlugin
 
 
@@ -20,29 +23,53 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected static final GradleDistribution DEFAULT_DISTRIBUTION = GradleDistribution.fromBuild()
 
-    protected void synchronizeAndWait(File location) {
+    protected SynchronizationResult trySynchronizeAndWait(File location) {
         Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(location.canonicalFile)
         Preconditions.checkState(project.present, "Workspace does not have project located at ${location.absolutePath}")
-        synchronizeAndWait(project.get())
+        trySynchronizeAndWait(project.get())
+    }
+
+    protected SynchronizationResult trySynchronizeAndWait(IProject project) {
+        SynchronizationResult result = gradleBuildFor(project).synchronize(new NullProgressMonitor())
+        waitForGradleJobsToFinish()
+        waitForResourceChangeEvents()
+        result
+    }
+
+    protected void synchronizeAndWait(File location) {
+        SynchronizationResult result = trySynchronizeAndWait(location)
+        assert result.status.isOK()
     }
 
     protected void synchronizeAndWait(IProject project) {
-        GradleCore.workspace.getBuild(project).get().synchronize(new NullProgressMonitor())
+        SynchronizationResult result = trySynchronizeAndWait(project)
+        assert result.status.isOK()
+    }
+
+    protected SynchronizationResult tryImportAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
+        GradleBuild gradleBuild = gradleBuildFor(location, gradleDistribution)
+        SynchronizationResult result = gradleBuild.synchronize(new NullProgressMonitor())
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
+        result
     }
 
     protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
-        BuildConfiguration configuration = BuildConfiguration.forRootProjectDirectory(location)
-             .gradleDistribution(gradleDistribution)
-             .overrideWorkspaceConfiguration(true)
-             .build()
-        GradleBuild gradleBuild = GradleCore.workspace.createBuild(configuration)
-        gradleBuild.synchronize(new NullProgressMonitor())
-        waitForGradleJobsToFinish()
-        waitForResourceChangeEvents()
+        SynchronizationResult result = tryImportAndWait(location, gradleDistribution)
+        assert result.status.isOK()
     }
 
+    protected static GradleBuild gradleBuildFor(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
+        BuildConfiguration configuration = BuildConfiguration.forRootProjectDirectory(location)
+            .gradleDistribution(gradleDistribution)
+            .overrideWorkspaceConfiguration(true)
+            .build()
+        GradleCore.workspace.createBuild(configuration)
+    }
+
+    protected static GradleBuild gradleBuildFor(IProject project) {
+        GradleCore.workspace.getBuild(project).orElseThrow({ new RuntimeException("No Gradle build for $project") })
+    }
     protected def waitForGradleJobsToFinish() {
         Job.jobManager.join(CorePlugin.GRADLE_JOB_FAMILY, null)
     }

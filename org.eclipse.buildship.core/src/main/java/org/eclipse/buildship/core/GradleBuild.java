@@ -51,7 +51,7 @@ public interface GradleBuild {
      * The result of the synchronization - let it be a success or a failure - is described by the
      * returned {@link SynchronizationResult} instance.
      *
-     * @param monitor the monitor to report progress on
+     * @param monitor the monitor to report progress on, or {@code null} if progress reporting is not desired
      * @return the synchronization result
      */
     SynchronizationResult synchronize(IProgressMonitor monitor);

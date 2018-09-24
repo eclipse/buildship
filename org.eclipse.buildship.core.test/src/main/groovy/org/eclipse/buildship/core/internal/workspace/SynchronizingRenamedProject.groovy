@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.internal.workspace
 
+import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
@@ -43,10 +44,10 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
 
         when:
         renameInGradle(sample, "already-there")
-        synchronizeAndWait(sample)
+        SynchronizationResult result = trySynchronizeAndWait(sample)
 
         then:
-        thrown(UnsupportedConfigurationException)
+        result.status.exception instanceof UnsupportedConfigurationException
         findProject('already-there') == alreadyThere
     }
 

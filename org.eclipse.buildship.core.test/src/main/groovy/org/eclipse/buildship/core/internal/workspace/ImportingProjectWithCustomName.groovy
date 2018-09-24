@@ -18,15 +18,16 @@ import org.gradle.tooling.model.gradle.GradleBuild
 import com.google.common.util.concurrent.FutureCallback
 
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.internal.util.gradle.Pair
-import org.eclipse.buildship.core.internal.workspace.FetchStrategy
 
 class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification {
 
@@ -64,10 +65,11 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
         }
 
         when:
-        importAndWait(location)
+        SynchronizationResult result = tryImportAndWait(location)
 
         then:
-        thrown(UnsupportedConfigurationException)
+        result.status.severity == IStatus.WARNING
+        result.status.exception instanceof UnsupportedConfigurationException
         findProject('app')
     }
 

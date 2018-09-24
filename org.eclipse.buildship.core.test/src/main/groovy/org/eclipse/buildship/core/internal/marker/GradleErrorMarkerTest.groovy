@@ -19,10 +19,9 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
         when:
         File buildFile = new File(projectDir, 'build.gradle')
         buildFile.text = 'I_AM_ERROR'
-        synchronizeAndWait(projectDir)
+        trySynchronizeAndWait(projectDir)
 
         then:
-        thrown BuildException
         numOfGradleErrorMarkers == 1
     }
 
@@ -36,15 +35,14 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
         buildFile.text = 'I_AM_ERROR'
 
         when:
-        synchronizeAndWait(projectDir)
+        trySynchronizeAndWait(projectDir)
 
         then:
-        thrown BuildException
         numOfGradleErrorMarkers == 1
 
         when:
         buildFile.text = ''
-        synchronizeAndWait(projectDir)
+        trySynchronizeAndWait(projectDir)
 
         then:
         numOfGradleErrorMarkers == 0
@@ -66,22 +64,20 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
         buildFile2.text = 'I_AM_ERROR'
 
         when:
-        synchronizeAndWait(projectDir1)
+        trySynchronizeAndWait(projectDir1)
 
         then:
-        thrown BuildException
         numOfGradleErrorMarkers == 1
 
         when:
-        synchronizeAndWait(projectDir2)
+        trySynchronizeAndWait(projectDir2)
 
         then:
-        thrown BuildException
         numOfGradleErrorMarkers == 2
 
         when:
         buildFile1.text = ''
-        synchronizeAndWait(projectDir1)
+        trySynchronizeAndWait(projectDir1)
 
         then:
         numOfGradleErrorMarkers == 1
@@ -102,15 +98,14 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
         subBuildFile.text = 'I_AM_ERROR'
 
         when:
-        synchronizeAndWait(projectDir)
+        trySynchronizeAndWait(projectDir)
 
         then:
-        thrown BuildException
         numOfGradleErrorMarkers == 1
 
         when:
         settingsFile.text = ''
-        synchronizeAndWait(projectDir)
+        trySynchronizeAndWait(projectDir)
 
         then:
         findProject('sub')

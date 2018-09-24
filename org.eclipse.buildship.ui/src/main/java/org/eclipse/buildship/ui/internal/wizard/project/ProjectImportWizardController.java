@@ -15,15 +15,14 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.GradleConnector;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizard;
@@ -35,12 +34,10 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.GradleCore;
 import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
-import org.eclipse.buildship.core.internal.operation.ToolingApiOperation;
-import org.eclipse.buildship.core.internal.operation.ToolingApiOperations;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType;
 import org.eclipse.buildship.core.internal.util.binding.Property;
@@ -185,11 +182,15 @@ public class ProjectImportWizardController {
 
                     ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
                     InitializeNewProjectOperation initializeOperation = new InitializeNewProjectOperation(internalBuildConfiguration);
-                    ToolingApiOperation synchronizeOperation = new SynchronizeOperation(buildConfiguration.getRootProjectDirectory().getName(), gradleBuild, workingSetsAddingNewProjectHandler);
                     try {
-                        CorePlugin.operationManager().run(ToolingApiOperations.concat(initializeOperation, synchronizeOperation), monitor);
+                        CorePlugin.operationManager().run(initializeOperation, monitor);
                     } catch (Exception e) {
                         throw new InvocationTargetException(e);
+                    }
+
+                    SynchronizationResult result = ((DefaultGradleBuild)gradleBuild).synchronize(workingSetsAddingNewProjectHandler, GradleConnector.newCancellationTokenSource(), monitor);
+                    if (!result.getStatus().isOK()) {
+                        throw new InvocationTargetException(new CoreException(result.getStatus()));
                     }
                 }
             });
@@ -202,31 +203,6 @@ public class ProjectImportWizardController {
         }
 
         return true;
-    }
-
-    /**
-     * Executes the synchronization on the target Gradle build.
-     */
-    private static class SynchronizeOperation extends BaseToolingApiOperation {
-
-        private final org.eclipse.buildship.core.GradleBuild gradleBuild;
-        private final ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler;
-
-        public SynchronizeOperation(String projectName, org.eclipse.buildship.core.GradleBuild gradleBuild, ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler) {
-            super("Synchronize project " + projectName);
-            this.gradleBuild = gradleBuild;
-            this.workingSetsAddingNewProjectHandler = workingSetsAddingNewProjectHandler;
-        }
-
-        @Override
-        public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
-            ((DefaultGradleBuild)this.gradleBuild).synchronize(this.workingSetsAddingNewProjectHandler, tokenSource, monitor);
-        }
-
-        @Override
-        public ISchedulingRule getRule() {
-            return ResourcesPlugin.getWorkspace().getRoot();
-        }
     }
 
     /**

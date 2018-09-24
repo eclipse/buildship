@@ -12,14 +12,18 @@ import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import org.eclipse.buildship.core.BuildConfiguration;
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.SynchronizationResult;
+import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
 public final class DefaultGradleBuild implements GradleBuild {
@@ -48,14 +52,14 @@ public final class DefaultGradleBuild implements GradleBuild {
     }
 
     public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        if (this.gradleBuild != null) {
-            try {
-                this.gradleBuild.synchronize(newProjectHandler, tokenSource, monitor);
-            } catch (final CoreException e) {
-                return newSynchronizationResult(e.getStatus());
-            }
+        monitor = monitor != null ? monitor : new NullProgressMonitor();
+        SynchronizeOperation operation = new SynchronizeOperation(this.gradleBuild, newProjectHandler);
+        try {
+            CorePlugin.operationManager().run(operation, tokenSource, monitor);
+            return newSynchronizationResult(Status.OK_STATUS);
+        } catch (CoreException e) {
+            return newSynchronizationResult(e.getStatus());
         }
-        return newSynchronizationResult(Status.OK_STATUS);
     }
 
     private static SynchronizationResult newSynchronizationResult(final IStatus result) {
@@ -66,5 +70,30 @@ public final class DefaultGradleBuild implements GradleBuild {
                 return result;
             }
         };
+    }
+
+    /**
+     * Executes the synchronization on the target Gradle build.
+     */
+    private static class SynchronizeOperation extends BaseToolingApiOperation {
+
+        private final org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild;
+        private final NewProjectHandler newProjectHandler;
+
+        public SynchronizeOperation(org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild, NewProjectHandler newProjectHandler) {
+            super("Synchronize project " + gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
+            this.gradleBuild = gradleBuild;
+            this.newProjectHandler = newProjectHandler;
+        }
+
+        @Override
+        public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
+            this.gradleBuild.synchronize(this.newProjectHandler, tokenSource, monitor);
+        }
+
+        @Override
+        public ISchedulingRule getRule() {
+            return ResourcesPlugin.getWorkspace().getRoot();
+        }
     }
 }
