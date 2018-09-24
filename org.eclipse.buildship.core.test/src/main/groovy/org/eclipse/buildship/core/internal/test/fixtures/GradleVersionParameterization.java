@@ -12,6 +12,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.gradle.api.JavaVersion;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -122,7 +124,9 @@ public abstract class GradleVersionParameterization {
 
         Predicate<GradleVersion> versionConstraint = GradleVersionConstraints.toPredicate(gradleVersionPattern);
         Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.9");
-        Predicate<GradleVersion> matchingVersions = Predicates.and(versionConstraint, toolingApiConstraint);
+        Predicate<GradleVersion> javaVersionConstraint = JavaVersion.current().isJava9Compatible() ? GradleVersionConstraints.toPredicate(">=4.3") : Predicates.alwaysTrue();
+        @SuppressWarnings("unchecked")
+        Predicate<GradleVersion> matchingVersions = Predicates.and(versionConstraint, toolingApiConstraint, javaVersionConstraint);
 
         ImmutableList<GradleVersion> configuredGradleVersions = this.gradleVersionProvider.getConfiguredGradleVersions();
         ImmutableList<GradleVersion> result = FluentIterable.from(configuredGradleVersions).filter(matchingVersions).toList();

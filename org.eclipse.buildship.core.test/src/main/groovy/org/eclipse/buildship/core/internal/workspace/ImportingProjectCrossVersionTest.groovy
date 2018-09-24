@@ -1,10 +1,12 @@
 package org.eclipse.buildship.core.internal.workspace
 
+import org.gradle.api.JavaVersion
 import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
-import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecification {
 
@@ -150,6 +152,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
     }
 
     @Unroll
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
     def "Included builds ignored for #distribution.configuration"(GradleDistribution distribution) {
         when:
         importAndWait(compositeProjectDir, distribution)

@@ -115,6 +115,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         !hasFacetDescriptor(root)
     }
 
+    @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
     def "The eclipseWtp task is not run if for Gradle < 3.0"() {
         setup:
         File root = dir("project") {
