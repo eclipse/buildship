@@ -50,28 +50,8 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
     }
 
     @Override
-    public void close() {
-        this.delegate.close();
-    }
-
-    @Override
     public <T> BuildActionExecuter<T> action(BuildAction<T> buildAction) {
-        throw new UnsupportedOperationConfigurationException("Cannot call ProjectConnection.action(BuildAction) method. Supported methods: [model, newBuild, newTestLauncher]");
-    }
-
-    @Override
-    public Builder action() {
-        throw new UnsupportedOperationConfigurationException("Cannot call ProjectConnection.action() method. Supported methods: [model, newBuild, newTestLauncher]");
-    }
-
-    @Override
-    public <T> T getModel(Class<T> modelType) throws GradleConnectionException, IllegalStateException {
-        throw new UnsupportedOperationConfigurationException("Cannot call ProjectConnection.getModel(Class) method. Supported methods: [model, newBuild, newTestLauncher]");
-    }
-
-    @Override
-    public <T> void getModel(Class<T> modelType, ResultHandler<? super T> handler) throws IllegalStateException {
-        throw new UnsupportedOperationConfigurationException("Cannot call ProjectConnection.getModel(Class, ResultHandler) method. Supported methods: [model, newBuild, newTestLauncher]");
+        return configuratOperation(() -> this.delegate.action(buildAction));
     }
 
     private <T extends LongRunningOperation> T configuratOperation(Supplier<T> operationSupplier) {
@@ -81,6 +61,30 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
         this.gradleArguments.describe(this.progressAttributes, buildEnvironment);
         this.progressAttributes.applyTo(operation);
         return operation;
+    }
+
+    @Override
+    public void close() {
+        this.delegate.close();
+    }
+
+    @Override
+    public Builder action() {
+        throw new UnsupportedOperationConfigurationException(explainUsage("action()", "action(BuildAction)"));
+    }
+
+    @Override
+    public <T> T getModel(Class<T> modelType) throws GradleConnectionException, IllegalStateException {
+        throw new UnsupportedOperationConfigurationException(explainUsage("getModel(Class)", "model(Class)"));
+    }
+
+    @Override
+    public <T> void getModel(Class<T> modelType, ResultHandler<? super T> handler) throws IllegalStateException {
+        throw new UnsupportedOperationConfigurationException(explainUsage("getModel(Class, ResultHandler)", "model(Class)"));
+    }
+
+    private static String explainUsage(String methodSignature, String alternativeSignature) {
+        return "Cannot call ProjectConnection." + methodSignature + " as it is not possible to hook it's progress into the IDE. Use ProjectConnection." + alternativeSignature + " instead";
     }
 
     public static ProjectConnection newInstance(CancellationTokenSource tokenSource, GradleArguments gradleArguments, IProgressMonitor monitor) {
