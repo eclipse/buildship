@@ -8,8 +8,13 @@
 
 package org.eclipse.buildship.core.internal;
 
+import java.util.function.Function;
+
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProjectConnection;
+
+import com.google.common.base.Preconditions;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -53,7 +58,7 @@ public final class DefaultGradleBuild implements GradleBuild {
 
     public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         monitor = monitor != null ? monitor : new NullProgressMonitor();
-        SynchronizeOperation operation = new SynchronizeOperation(this.gradleBuild, newProjectHandler);
+        SynchronizeOperation operation = new SynchronizeOperation(newProjectHandler);
         try {
             CorePlugin.operationManager().run(operation, tokenSource, monitor);
             return newSynchronizationResult(Status.OK_STATUS);
@@ -72,23 +77,70 @@ public final class DefaultGradleBuild implements GradleBuild {
         };
     }
 
+    @Override
+    public <T> T withConnection(Function<ProjectConnection, ? extends T> action, IProgressMonitor monitor) throws Exception {
+        Preconditions.checkNotNull(action);
+        monitor = monitor != null ? monitor : new NullProgressMonitor();
+
+        GradleConnectionOperation<T> operation = new GradleConnectionOperation<>(action);
+        try {
+            CorePlugin.operationManager().run(operation, GradleConnector.newCancellationTokenSource(), monitor);
+            return operation.result;
+        } catch (CoreException e) {
+            if (e.getStatus().getException() instanceof Exception) {
+                throw (Exception) e.getStatus().getException();
+            } else {
+                throw e;
+            }
+        }
+    }
+
     /**
      * Executes the synchronization on the target Gradle build.
      */
-    private static class SynchronizeOperation extends BaseToolingApiOperation {
+    private class SynchronizeOperation extends BaseToolingApiOperation {
 
-        private final org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild;
         private final NewProjectHandler newProjectHandler;
 
-        public SynchronizeOperation(org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild, NewProjectHandler newProjectHandler) {
-            super("Synchronize project " + gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
-            this.gradleBuild = gradleBuild;
+        public SynchronizeOperation(NewProjectHandler newProjectHandler) {
+            super("Synchronize project " + DefaultGradleBuild.this.gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
             this.newProjectHandler = newProjectHandler;
         }
 
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
-            this.gradleBuild.synchronize(this.newProjectHandler, tokenSource, monitor);
+            DefaultGradleBuild.this.gradleBuild.synchronize(this.newProjectHandler, tokenSource, monitor);
+        }
+
+        @Override
+        public ISchedulingRule getRule() {
+            return ResourcesPlugin.getWorkspace().getRoot();
+        }
+    }
+
+    private class GradleConnectionOperation<T> extends BaseToolingApiOperation {
+
+        private final Function<ProjectConnection, ? extends T> action;
+        private T result;
+
+        public GradleConnectionOperation(Function<ProjectConnection, ? extends T> action) {
+            super("Connecting to Gradle");
+            this.action = action;
+        }
+
+        @Override
+        public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
+            // TODO (donat) use proxy for ProjectConnection to preconfigure inputs, progress logging, etc for all long-running operations
+            // TODO (donat) use proxy for long-running operations to auto-close connections (see ConnectionAwareLauncherProxy)
+            // TODO (donat) use AutoCloseable once we update to Tooling API 5.0
+            GradleConnector connector = GradleConnector.newConnector();
+            DefaultGradleBuild.this.gradleBuild.getBuildConfig().toGradleArguments().applyTo(connector);
+            ProjectConnection connection = connector.connect();
+            try {
+                this.result = this.action.apply(connection);
+            } finally {
+                connection.close();
+            }
         }
 
         @Override
