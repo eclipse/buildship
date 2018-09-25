@@ -28,7 +28,7 @@ For manual installation use one of the update sites below.
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
-Oxygen (4.8)    | snapshot  | `http://download.eclipse.org/buildship/updates/e48/snapshots/3.x`
+Photon (4.8)    | snapshot  | `http://download.eclipse.org/buildship/updates/e48/snapshots/3.x`
 Oxygen (4.7)    | snapshot  | `http://download.eclipse.org/buildship/updates/e47/snapshots/3.x`
 Neon (4.6)      | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/3.x`
 Mars (4.5)      | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/3.x`
