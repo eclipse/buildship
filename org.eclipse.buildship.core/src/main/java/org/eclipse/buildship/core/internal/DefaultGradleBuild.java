@@ -8,6 +8,7 @@
 
 package org.eclipse.buildship.core.internal;
 
+import java.util.Collections;
 import java.util.function.Function;
 
 import org.gradle.tooling.CancellationTokenSource;
@@ -28,6 +29,7 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.buildship.core.BuildConfiguration;
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.SynchronizationResult;
+import org.eclipse.buildship.core.internal.configuration.GradleArguments;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
@@ -130,17 +132,26 @@ public final class DefaultGradleBuild implements GradleBuild {
 
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
-            // TODO (donat) use proxy for ProjectConnection to preconfigure inputs, progress logging, etc for all long-running operations
-            // TODO (donat) use proxy for long-running operations to auto-close connections (see ConnectionAwareLauncherProxy)
             // TODO (donat) use AutoCloseable once we update to Tooling API 5.0
-            GradleConnector connector = GradleConnector.newConnector();
-            DefaultGradleBuild.this.gradleBuild.getBuildConfig().toGradleArguments().applyTo(connector);
-            ProjectConnection connection = connector.connect();
+            ProjectConnection connection = IdeAttachedProjectConnection.newInstance(tokenSource, getGradleArguments(), monitor);
             try {
                 this.result = this.action.apply(connection);
             } finally {
                 connection.close();
             }
+        }
+
+        private  GradleArguments getGradleArguments() {
+            org.eclipse.buildship.core.internal.configuration.BuildConfiguration config = DefaultGradleBuild.this.gradleBuild.getBuildConfig();
+            return GradleArguments.from(
+                    config.getRootProjectDirectory(),
+                    config.getGradleDistribution(),
+                    config.getGradleUserHome(),
+                    null,
+                    config.isBuildScansEnabled(),
+                    config.isOfflineMode(),
+                    Collections.emptyList(),
+                    Collections.emptyList());
         }
 
         @Override
