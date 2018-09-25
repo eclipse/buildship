@@ -130,4 +130,10 @@ public abstract class GradleDistribution {
      * @param connector the connector to configure
      */
     public abstract void apply(GradleConnector connector);
+
+    /**
+     * Returns the human-readable representation of this distribution that can be displayed on the
+     * UI.
+     */
+    public abstract String getDisplayName();
 }

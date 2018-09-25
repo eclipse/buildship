@@ -13,6 +13,10 @@ import org.gradle.tooling.GradleConnector;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
+import org.eclipse.osgi.util.NLS;
+
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
+
 /**
  * A a reference to a specific version of Gradle. The appropriate distribution is downloaded and
  * installed into the user's Gradle home directory.
@@ -76,5 +80,10 @@ public final class FixedVersionGradleDistribution extends GradleDistribution {
     @Override
     public String toString() {
         return String.format("GRADLE_DISTRIBUTION(VERSION(%s))", this.version);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return NLS.bind(CoreMessages.GradleDistribution_Value_UseGradleVersion_0, this.version);
     }
 }
