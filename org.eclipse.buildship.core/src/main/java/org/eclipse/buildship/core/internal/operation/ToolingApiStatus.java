@@ -72,9 +72,9 @@ public final class ToolingApiStatus extends Status implements IStatus {
 
     public static ToolingApiStatus from(String workName, Throwable failure) {
         if (failure instanceof OperationCanceledException) {
-            return new ToolingApiStatus(ToolingApiStatusType.BUILD_CANCELLED, workName, null);
+            return new ToolingApiStatus(ToolingApiStatusType.BUILD_CANCELLED, workName, failure);
         } else if (failure instanceof BuildCancelledException) {
-            return new ToolingApiStatus(ToolingApiStatusType.BUILD_CANCELLED, workName, null);
+            return new ToolingApiStatus(ToolingApiStatusType.BUILD_CANCELLED, workName, failure);
         } else if (failure instanceof BuildException) {
             return new ToolingApiStatus(ToolingApiStatusType.BUILD_FAILED, workName, (BuildException) failure);
         } else if (failure instanceof GradleConnectionException) {

@@ -2,37 +2,26 @@ package org.eclipse.buildship.core.internal.launch
 
 import org.eclipse.debug.core.ILaunchConfiguration
 
-import org.eclipse.buildship.core.internal.console.ProcessStreams
-import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
-import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
+import org.eclipse.buildship.core.internal.test.fixtures.TestProcessStreamProvider
+import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class BaseLaunchRequestJobTest extends WorkspaceSpecification {
 
-    private ProcessStreamsProvider processStreamsProvider
-    private ByteArrayOutputStream buildOutputStream
-    private ByteArrayOutputStream buildConfigurationStream
-
     def setup() {
-        ProcessStreams processStreams = Mock(ProcessStreams)
-        buildOutputStream = new ByteArrayOutputStream()
-        buildConfigurationStream = new ByteArrayOutputStream()
-        processStreams.output >> buildOutputStream
-        processStreams.configuration >> buildConfigurationStream
-
-        processStreamsProvider = Mock(ProcessStreamsProvider)
-        processStreamsProvider.createProcessStreams(_) >> processStreams
-        processStreamsProvider.getBackgroundJobProcessStreams() >> processStreams
-
-        environment.registerService(ProcessStreamsProvider, processStreamsProvider)
+        environment.registerService(ProcessStreamsProvider, new TestProcessStreamProvider() {})
     }
 
     String getBuildOutput() {
-        buildOutputStream.toString()
+        TestProcessStreamProvider testStreams = CorePlugin.processStreamsProvider()
+        testStreams.processStreams.last().out
     }
 
     String getBuildConfig() {
-        buildConfigurationStream.toString()
+        TestProcessStreamProvider testStreams = CorePlugin.processStreamsProvider()
+        testStreams.processStreams.last().conf
     }
 
     ILaunchConfiguration createLaunchConfiguration(File projectDir, tasks = ['clean', 'build'], GradleDistribution distribution = GradleDistribution.fromBuild(), arguments = []) {

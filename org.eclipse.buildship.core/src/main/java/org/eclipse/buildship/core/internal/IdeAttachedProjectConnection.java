@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2018 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
 package org.eclipse.buildship.core.internal;
 
 import java.util.function.Supplier;
@@ -14,7 +22,6 @@ import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.TestLauncher;
-import org.gradle.tooling.exceptions.UnsupportedOperationConfigurationException;
 import org.gradle.tooling.model.build.BuildEnvironment;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -70,17 +77,17 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
 
     @Override
     public Builder action() {
-        throw new UnsupportedOperationConfigurationException(explainUsage("action()", "action(BuildAction)"));
+        throw new UnsupportedOperationException(explainUsage("action()", "action(BuildAction)"));
     }
 
     @Override
     public <T> T getModel(Class<T> modelType) throws GradleConnectionException, IllegalStateException {
-        throw new UnsupportedOperationConfigurationException(explainUsage("getModel(Class)", "model(Class)"));
+        throw new UnsupportedOperationException(explainUsage("getModel(Class)", "model(Class)"));
     }
 
     @Override
     public <T> void getModel(Class<T> modelType, ResultHandler<? super T> handler) throws IllegalStateException {
-        throw new UnsupportedOperationConfigurationException(explainUsage("getModel(Class, ResultHandler)", "model(Class)"));
+        throw new UnsupportedOperationException(explainUsage("getModel(Class, ResultHandler)", "model(Class)"));
     }
 
     private static String explainUsage(String methodSignature, String alternativeSignature) {
