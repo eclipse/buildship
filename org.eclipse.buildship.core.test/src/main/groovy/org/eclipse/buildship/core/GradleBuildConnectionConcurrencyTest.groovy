@@ -48,22 +48,22 @@ class GradleBuildConnectionConcurrencyTest extends ProjectSynchronizationSpecifi
         File location = dir('GradleBuildConnectionConcurrencyTest')
         BuildConfiguration buildConfiguration = BuildConfiguration.forRootProjectDirectory(location).build()
         GradleBuild gradleBuild = GradleCore.workspace.createBuild(buildConfiguration)
-        Job modelQuertJob = new ModelQueryJob(gradleBuild)
+        Job modelQueryJob = new ModelQueryJob(gradleBuild)
 
         when:
         IWorkspaceRunnable modelQueryOperation = {
-            modelQuertJob.schedule()
+            modelQueryJob.schedule()
             try { // Eclipse 4.3 did not implement Job#join(timeout, monitor)
-                waitFor(1000) { modelQuertJob.state == Job.NONE }
+                waitFor(1000) { modelQueryJob.state == Job.NONE }
             } catch (RuntimeException e) {
             }
-            assert modelQuertJob.state != Job.NONE
+            assert modelQueryJob.state != Job.NONE
         }
         workspace.run(modelQueryOperation, workspace.root, IResource.NONE, new NullProgressMonitor())
 
         then:
         // synchronization won't start until the job with the workspace rule finishes
-        waitFor(1000) { modelQuertJob.state == Job.NONE }
+        waitFor(1000) { modelQueryJob.state == Job.NONE }
     }
 
     class ModelQueryJob extends Job {

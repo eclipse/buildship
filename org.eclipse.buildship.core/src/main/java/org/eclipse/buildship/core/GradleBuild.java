@@ -70,14 +70,14 @@ public interface GradleBuild {
      * inputs/outputs/cancellation/etc.
      *
      * <p>
-     * The following sections will show examples how can this API be used.
+     * The following sections show examples how can this API be used.
      * TODO (donat) explain common use-cases: task execution, test execution, and model loading
      * TODO (donat) document how to load custom models (here or link to external documentation)
      *
      * <p>
-     * The following {@link ProjectConnection} methods that can't be wired into the Eclipse
-     * services. For that reason the target action cannot use them, otherwise an
-     * {@link UnsupportedOperationException} is thrown.
+     * The following {@link ProjectConnection} methods can't be wired into the Eclipse services.
+     * For that reason the target action cannot use them, otherwise an {@link UnsupportedOperationException}
+     * is thrown.
      * <ul>
      * <li>{@link ProjectConnection#model(Class)}</li>
      * <li>{@link ProjectConnection#getModel(Class, org.gradle.tooling.ResultHandler))}</li>

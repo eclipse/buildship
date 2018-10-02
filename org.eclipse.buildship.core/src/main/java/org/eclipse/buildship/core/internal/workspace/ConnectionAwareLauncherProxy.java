@@ -44,7 +44,7 @@ import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
  * @author Donat Csikos
  */
 @SuppressWarnings("unchecked")
-public final class ConnectionAwareLauncherProxy implements InvocationHandler {
+final class ConnectionAwareLauncherProxy implements InvocationHandler {
 
     private final LongRunningOperation launcher;
     private final ProjectConnection connection;

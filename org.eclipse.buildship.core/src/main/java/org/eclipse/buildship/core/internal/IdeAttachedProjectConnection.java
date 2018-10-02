@@ -8,8 +8,6 @@
 
 package org.eclipse.buildship.core.internal;
 
-import java.util.function.Supplier;
-
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildActionExecuter.Builder;
@@ -43,26 +41,25 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
 
     @Override
     public BuildLauncher newBuild() {
-        return configuratOperation(() -> this.delegate.newBuild());
+        return configureOperation(this.delegate.newBuild());
     }
 
     @Override
     public TestLauncher newTestLauncher() {
-        return configuratOperation(() -> this.delegate.newTestLauncher());
+        return configureOperation(this.delegate.newTestLauncher());
     }
 
     @Override
     public <T> ModelBuilder<T> model(Class<T> modelType) {
-        return configuratOperation(() -> this.delegate.model(modelType));
+        return configureOperation(this.delegate.model(modelType));
     }
 
     @Override
     public <T> BuildActionExecuter<T> action(BuildAction<T> buildAction) {
-        return configuratOperation(() -> this.delegate.action(buildAction));
+        return configureOperation(this.delegate.action(buildAction));
     }
 
-    private <T extends LongRunningOperation> T configuratOperation(Supplier<T> operationSupplier) {
-        T operation = operationSupplier.get();
+    private <T extends LongRunningOperation> T configureOperation(T operation) {
         BuildEnvironment buildEnvironment = this.delegate.getModel(BuildEnvironment.class);
         this.gradleArguments.applyTo(operation, buildEnvironment);
         this.gradleArguments.describe(this.progressAttributes, buildEnvironment);
@@ -91,7 +88,7 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
     }
 
     private static String explainUsage(String methodSignature, String alternativeSignature) {
-        return "Cannot call ProjectConnection." + methodSignature + " as it is not possible to hook it's progress into the IDE. Use ProjectConnection." + alternativeSignature + " instead";
+        return "Cannot call ProjectConnection." + methodSignature + " as it is not possible to hook its progress into the IDE. Use ProjectConnection." + alternativeSignature + " instead";
     }
 
     public static ProjectConnection newInstance(CancellationTokenSource tokenSource, GradleArguments gradleArguments, IProgressMonitor monitor) {
@@ -106,6 +103,4 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
 
         return new IdeAttachedProjectConnection(connection, gradleArguments, progressAttributes);
     }
-
-
 }

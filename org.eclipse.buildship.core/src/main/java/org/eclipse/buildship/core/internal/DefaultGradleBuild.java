@@ -141,17 +141,9 @@ public final class DefaultGradleBuild implements GradleBuild {
             }
         }
 
-        private  GradleArguments getGradleArguments() {
+        private GradleArguments getGradleArguments() {
             org.eclipse.buildship.core.internal.configuration.BuildConfiguration config = DefaultGradleBuild.this.gradleBuild.getBuildConfig();
-            return GradleArguments.from(
-                    config.getRootProjectDirectory(),
-                    config.getGradleDistribution(),
-                    config.getGradleUserHome(),
-                    null,
-                    config.isBuildScansEnabled(),
-                    config.isOfflineMode(),
-                    Collections.emptyList(),
-                    Collections.emptyList());
+            return config.toGradleArguments();
         }
 
         @Override
