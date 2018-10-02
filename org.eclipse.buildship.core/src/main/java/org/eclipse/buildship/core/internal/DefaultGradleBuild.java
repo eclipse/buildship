@@ -8,7 +8,6 @@
 
 package org.eclipse.buildship.core.internal;
 
-import java.util.Collections;
 import java.util.function.Function;
 
 import org.gradle.tooling.CancellationTokenSource;
