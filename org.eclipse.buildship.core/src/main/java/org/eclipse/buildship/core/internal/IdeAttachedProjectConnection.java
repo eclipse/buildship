@@ -15,6 +15,7 @@ import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.IntermediateResultHandler;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProjectConnection;
@@ -74,21 +75,17 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
 
     @Override
     public Builder action() {
-        throw new UnsupportedOperationException(explainUsage("action()", "action(BuildAction)"));
+        return new IdeAttachedBuilder(this.delegate.action());
     }
 
     @Override
     public <T> T getModel(Class<T> modelType) throws GradleConnectionException, IllegalStateException {
-        throw new UnsupportedOperationException(explainUsage("getModel(Class)", "model(Class)"));
+        return model(modelType).get();
     }
 
     @Override
     public <T> void getModel(Class<T> modelType, ResultHandler<? super T> handler) throws IllegalStateException {
-        throw new UnsupportedOperationException(explainUsage("getModel(Class, ResultHandler)", "model(Class)"));
-    }
-
-    private static String explainUsage(String methodSignature, String alternativeSignature) {
-        return "Cannot call ProjectConnection." + methodSignature + " as it is not possible to hook its progress into the IDE. Use ProjectConnection." + alternativeSignature + " instead";
+        model(modelType).get(handler);
     }
 
     public static ProjectConnection newInstance(CancellationTokenSource tokenSource, GradleArguments gradleArguments, IProgressMonitor monitor) {
@@ -102,5 +99,31 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
                 .build();
 
         return new IdeAttachedProjectConnection(connection, gradleArguments, progressAttributes);
+    }
+
+    private class IdeAttachedBuilder implements Builder {
+
+        private final Builder action;
+
+        IdeAttachedBuilder(Builder action) {
+            this.action = action;
+        }
+
+        @Override
+        public <T> Builder projectsLoaded(BuildAction<T> buildAction, IntermediateResultHandler<? super T> handler) throws IllegalArgumentException {
+            this.action.projectsLoaded(buildAction, handler);
+            return this;
+        }
+
+        @Override
+        public <T> Builder buildFinished(BuildAction<T> buildAction, IntermediateResultHandler<? super T> handler) throws IllegalArgumentException {
+            this.action.buildFinished(buildAction, handler);
+            return this;
+        }
+
+        @Override
+        public BuildActionExecuter<Void> build() {
+            return configureOperation(this.action.build());
+        }
     }
 }

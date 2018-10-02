@@ -75,18 +75,7 @@ public interface GradleBuild {
      * TODO (donat) document how to load custom models (here or link to external documentation)
      *
      * <p>
-     * The following {@link ProjectConnection} methods can't be wired into the Eclipse services.
-     * For that reason the target action cannot use them, otherwise an {@link UnsupportedOperationException}
-     * is thrown.
-     * <ul>
-     * <li>{@link ProjectConnection#model(Class)}</li>
-     * <li>{@link ProjectConnection#getModel(Class, org.gradle.tooling.ResultHandler))}</li>
-     * <li>{@link ProjectConnection#action()}</li>
-     * </ul>
-     *
-     * <p>
-     * It's the client's responsibility to handle failures: all thrown exceptions are directly
-     * re-thrown.
+     * This method does not do exception handling. All exceptions are propagated directly to the client.
      *
      * <p>
      * This is a long-running operation which blocks the current thread until completion. Progress

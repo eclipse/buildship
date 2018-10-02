@@ -3,9 +3,7 @@ package org.eclipse.buildship.core
 import java.util.function.Function
 
 import org.gradle.tooling.BuildAction
-import org.gradle.tooling.BuildController
-import org.gradle.tooling.BuildException
-import org.gradle.tooling.GradleConnectionException
+import org.gradle.tooling.IntermediateResultHandler
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.UnknownModelException
@@ -38,15 +36,34 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
 
    def "Can query a model"() {
        setup:
-       File location = dir('GradleBuildConnectionTest')
+       ResultHandler resultHandler = Mock(ResultHandler)
 
        when:
+       File location = dir('GradleBuildConnectionTest_1')
        GradleBuild gradleBuild = gradleBuildFor(location)
        Function query = { ProjectConnection c -> c.model(GradleProject).get() }
        GradleProject model = gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
        model.projectDirectory == location.canonicalFile
+
+       when:
+       location = dir('GradleBuildConnectionTest_2')
+       gradleBuild = gradleBuildFor(location)
+       query = { ProjectConnection c -> c.getModel(GradleProject) }
+       model = gradleBuild.withConnection(query, new NullProgressMonitor())
+
+       then:
+       model.projectDirectory == location.canonicalFile
+
+       when:
+       location = dir('GradleBuildConnectionTest_3')
+       gradleBuild = gradleBuildFor(location)
+       query = { ProjectConnection c -> c.getModel(GradleProject, resultHandler) }
+       gradleBuild.withConnection(query, new NullProgressMonitor())
+
+       then:
+       1 * resultHandler.onComplete({ GradleProject p -> p.projectDirectory == location.canonicalFile })
    }
 
    def "Can run a build"() {
@@ -114,15 +131,34 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
 
    def "Can execute an action"() {
        setup:
-       File location = dir('GradleBuildConnectionTest')
+       IntermediateResultHandler resultHandler = Mock(IntermediateResultHandler)
 
        when:
+       File location = dir('GradleBuildConnectionTest_1')
        GradleBuild gradleBuild = gradleBuildFor(location)
        Function query = { ProjectConnection c -> c.action(ideFriendlyCompositeModelQuery(GradleProject)).run() }
        Collection<GradleProject> result= gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
        result[0].projectDirectory == location.canonicalFile
+
+       when:
+       location = dir('GradleBuildConnectionTest_2')
+       gradleBuild = gradleBuildFor(location)
+       query = { ProjectConnection c -> c.action().projectsLoaded(ideFriendlyCompositeModelQuery(GradleProject), resultHandler).build().run() }
+       result = gradleBuild.withConnection(query, new NullProgressMonitor())
+
+       then:
+       1 * resultHandler.onComplete({ GradleProject p -> p.projectDirectory == location.canonicalFile })
+
+       when:
+       location = dir('GradleBuildConnectionTest_3')
+       gradleBuild = gradleBuildFor(location)
+       query = { ProjectConnection c -> c.action().buildFinished(ideFriendlyCompositeModelQuery(GradleProject), resultHandler).build().run() }
+       result = gradleBuild.withConnection(query, new NullProgressMonitor())
+
+       then:
+       1 * resultHandler.onComplete({ GradleProject p -> p.projectDirectory == location.canonicalFile })
    }
 
    def "Exceptions are re-thrown to the client"() {
@@ -136,33 +172,6 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
 
        then:
        thrown UnknownModelException
-   }
-
-   def "Unsupported methods throw exception"() {
-       setup:
-       File location = dir('GradleBuildConnectionTest')
-       GradleBuild gradleBuild = gradleBuildFor(location)
-
-       when:
-       Function action = { ProjectConnection c -> c.action() }
-       gradleBuild.withConnection(action, new NullProgressMonitor())
-
-       then:
-       thrown UnsupportedOperationException
-
-       when:
-       action = { ProjectConnection c ->  c.getModel(GradleProject) }
-       gradleBuild.withConnection(action, new NullProgressMonitor())
-
-       then:
-       thrown UnsupportedOperationException
-
-       when:
-       action = { ProjectConnection c -> c.getModel(GradleProject, Mock(ResultHandler)) }
-       gradleBuild.withConnection(action, new NullProgressMonitor())
-
-       then:
-       thrown UnsupportedOperationException
    }
 
    private BuildAction ideFriendlyCompositeModelQuery(Class model) {
