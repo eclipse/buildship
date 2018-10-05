@@ -62,13 +62,25 @@ public interface GradleBuild {
 
     /**
      * Executes an action in the Gradle runtime.
+     *
      * <p>
-     * TODO (donat) explain how the action is executed (refer to Tooling API documentation)
+     * This method instantiates a new connection to the Tooling API, pre-configures it with IDE
+     * services and executes the target action. Clients can use this method to load models and
+     * execute tasks, tests and custom build actions without explicitly configuring
+     * inputs/outputs/cancellation/etc.
+     *
+     * <p>
+     * The following sections show examples how can this API be used.
      * TODO (donat) explain common use-cases: task execution, test execution, and model loading
-     * TODO (donat) explain how the project connection is preconfigured: outputs and outputs to IDE console, progress and cancellation are wired to the monitor object
-     * TODO (donat) document exception handling
-     * TODO (donat) document scheduling rules
      * TODO (donat) document how to load custom models (here or link to external documentation)
+     *
+     * <p>
+     * This method does not do exception handling. All exceptions are propagated directly to the client.
+     *
+     * <p>
+     * This is a long-running operation which blocks the current thread until completion. Progress
+     * and cancellation are provided via the monitor. Also, the workspace root scheduling rule is
+     * acquired for the current thread internally.
      *
      * @param action the action to execute
      * @param monitor the monitor to report progress on, or {@code null} if progress reporting is not desired
