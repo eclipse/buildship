@@ -314,7 +314,7 @@
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
         <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.19.5-20180904115035/p2-repository-0.19.5-20180904115035.zip!/"/>
+            url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.19.5-20181001144510/p2-repository-0.19.5-20181001144510.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Oxygen">
