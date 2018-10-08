@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.eclipse.buildship.sample.custommodel.feature_1.0.0.201810081129.jar" id="org.eclipse.buildship.sample.custommodel.feature" version="1.0.0.201810081129">
+      <category name="org.eclipse.buildship.sample.custommodel.site.category"/>
+   </feature>
+   <category-def name="org.eclipse.buildship.sample.custommodel.site.category" label="Buildship Samples"/>
+</site>

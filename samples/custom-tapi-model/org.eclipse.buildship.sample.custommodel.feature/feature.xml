@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.buildship.sample.custommodel.feature"
+      label="Query custom Gradle model via Tooling API"
+      version="1.0.0.qualifier">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <plugin
+         id="org.eclipse.buildship.sample.custommodel"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>

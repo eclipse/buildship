@@ -1,0 +1,25 @@
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    group = 'org.gradle.sample.plugins.toolingapi'
+    version = '1.0'
+
+    dependencies {
+        compile gradleApi()
+    }    
+    
+    publishing {
+        repositories {
+            maven { 
+                url "$rootProject.projectDir/repo"
+            }
+        }
+
+        publications {
+            maven(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+}
