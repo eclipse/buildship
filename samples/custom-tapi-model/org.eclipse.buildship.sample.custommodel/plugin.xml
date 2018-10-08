@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="org.eclipse.buildship.sample.custommodel.commands.category"
+            name="Sample Category">
+      </category>
+      <command
+            categoryId="org.eclipse.buildship.sample.custommodel.commands.category"
+            id="org.eclipse.buildship.sample.custommodel.commands.sampleCommand"
+            name="Sample Command">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.eclipse.buildship.sample.ShowJavaPluginApplicationHandler"
+            commandId="org.eclipse.buildship.sample.custommodel.commands.sampleCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.eclipse.buildship.sample.custommodel.commands.sampleCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+6">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.eclipse.buildship.sample.custommodel.toolbars.sampleToolbar">
+            <command
+                  commandId="org.eclipse.buildship.sample.custommodel.commands.sampleCommand"
+                  icon="icons/gradle.png"
+                  id="org.eclipse.buildship.sample.custommodel.toolbars.sampleCommand"
+                  tooltip="Print java plugin application information">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+
+</plugin>
