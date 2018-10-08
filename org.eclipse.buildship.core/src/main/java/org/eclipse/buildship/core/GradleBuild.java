@@ -83,8 +83,8 @@ public interface GradleBuild {
      *     GradleProject model = build.withConnection(connection -> connection.getModel(GradleProject.class), monitor);
      *     System.out.println(model.getBuildDirectory());
      * </code></pre>
-     * Clients can load the <a href="https://docs.gradle.org/current/javadoc/org/gradle/tooling/ProjectConnection.html#model-java.lang.Class-"> default models</a>.
-     * Also, custom model loading possible with using {@code --init-script}:
+     * You can load the <a href="https://docs.gradle.org/current/javadoc/org/gradle/tooling/ProjectConnection.html#model-java.lang.Class-"> default models</a>.
+     * Also, You can load custom models provided by Gradle plugins or even inject your own with an init script:
      * <pre><code>
      *     connection.model(CustomModel.class).withArguments("--init-script", "/path/to/init-script/with/model").get();
      * </code></pre>
