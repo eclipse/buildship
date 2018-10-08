@@ -70,9 +70,59 @@ public interface GradleBuild {
      * inputs/outputs/cancellation/etc.
      *
      * <p>
-     * The following sections show examples how can this API be used.
-     * TODO (donat) explain common use-cases: task execution, test execution, and model loading
-     * TODO (donat) document how to load custom models (here or link to external documentation)
+     * The following sections show examples how this API can be used.
+     *
+     * <p>
+     * <i>1. Load models</i>
+     *
+     * <p>
+     * <pre><code>
+     *     IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject("project-name");
+     *     GradleBuild build = GradleCore.getWorkspace().getBuild(project).get();
+     *
+     *     GradleProject model = build.withConnection(connection -> connection.getModel(GradleProject.class), monitor);
+     *     System.out.println(model.getBuildDirectory());
+     * </code></pre>
+     * Clients can load the <a href="https://docs.gradle.org/current/javadoc/org/gradle/tooling/ProjectConnection.html#model-java.lang.Class-"> default models</a>.
+     * Also, custom model loading possible with using {@code --init-script}:
+     * <pre><code>
+     *     connection.model(CustomModel.class).withArguments("--init-script", "/path/to/init-script/with/model").get();
+     * </code></pre>
+     * An example project with custom model loading is available at <a href="https://github.com/donat/buildship-custom-tapi-model">https://github.com/donat/buildship-custom-tapi-model</a>.
+     *
+     * <p>
+     * <i>2. Load the available tasks</i>
+     *
+     * <p>
+     * <pre><code>
+     *     GradleBuild build = ...
+     *     List<String> tasks = build.withConnection(connection -> {
+     *         GradleProject model = connection.getModel(GradleProject.class);
+     *         return model.getTasks().stream().map(Task::getPath).collect(Collectors.toList());
+     *     }, monitor);
+     *
+     *     tasks.forEach(task -> System.out.println(task));
+     * </code></pre>
+     *
+     * <p>
+     * <i>3. Execute a task</i>
+     *
+     * <p>
+     * <pre><code>
+     *     GradleBuild build = ...
+     *     build.withConnection(connection -> { connection.newBuild().forTasks("build").run(); return null; }, monitor);
+     * </code></pre>
+     *
+     * <p>
+     * <i>4. Execute a test</i>
+     *
+     * <p>
+     * <pre><code>
+     *     GradleBuild build = ...
+     *     build.withConnection(connection -> { connection.newTestLauncher().withJvmTestClasses("org.example.MyTest").run(); return null; }, monitor);
+     * </code></pre>
+     *
+     * <p>
      *
      * <p>
      * This method does not do exception handling. All exceptions are propagated directly to the client.
