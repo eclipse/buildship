@@ -88,7 +88,7 @@ public interface GradleBuild {
      * <pre><code>
      *     connection.model(CustomModel.class).withArguments("--init-script", "/path/to/init-script/with/model").get();
      * </code></pre>
-     * An example project with custom model loading is available at <a href="https://github.com/donat/buildship-custom-tapi-model">https://github.com/donat/buildship-custom-tapi-model</a>.
+     * An example project with custom model loading is available at <a href="https://github.com/eclipse/buildship/tree/master/samples/custom-model">https://github.com/eclipse/buildship/tree/master/samples/custom-model</a>.
      *
      * <p>
      * <i>2. Load the available tasks</i>
