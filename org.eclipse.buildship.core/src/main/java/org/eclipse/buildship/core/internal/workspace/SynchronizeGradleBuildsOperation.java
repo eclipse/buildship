@@ -8,7 +8,9 @@
 
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import org.gradle.tooling.CancellationTokenSource;
@@ -16,11 +18,16 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 
+import org.eclipse.buildship.core.ProjectConfigurator;
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 
@@ -45,7 +52,21 @@ final class SynchronizeGradleBuildsOperation {
         Set<EclipseProject> allProjects = fetchEclipseProjects(this.build, tokenSource, progress.newChild(1));
         new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
         new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource);
-        new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler).run(progress.newChild(1));
+        new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler, loadConfigurators()).run(progress.newChild(1));
+    }
+
+    private static List<ProjectConfigurator> loadConfigurators() {
+        IConfigurationElement[] elements = Platform.getExtensionRegistry().getConfigurationElementsFor(CorePlugin.PLUGIN_ID, "projectconfigurators");
+        ArrayList<ProjectConfigurator> result = Lists.newArrayList();
+        for (int i = 0; i < elements.length; i++) {
+            IConfigurationElement element = elements[i];
+            try {
+                result.add(ProjectConfigurator.class.cast(element.createExecutableExtension("class")));
+            } catch (CoreException e) {
+                CorePlugin.logger().warn("Can't load project configurator", e);
+            }
+        }
+        return result;
     }
 
     private Set<EclipseProject> fetchEclipseProjects(GradleBuild build, CancellationTokenSource tokenSource, SubMonitor progress) {

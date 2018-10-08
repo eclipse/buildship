@@ -36,4 +36,6 @@ public interface BuildConfiguration {
     boolean isAutoSync();
 
     GradleArguments toGradleArguments();
+
+    org.eclipse.buildship.core.BuildConfiguration toApiBuildConfiguration();
 }
