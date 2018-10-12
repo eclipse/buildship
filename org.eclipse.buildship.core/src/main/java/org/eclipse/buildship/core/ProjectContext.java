@@ -20,7 +20,7 @@ import org.eclipse.core.resources.IProject;
 public interface ProjectContext {
 
     /**
-     * @return the current workspace project being synchronized
+     * @return the current project being synchronized
      */
     IProject getProject();
 }

@@ -11,9 +11,9 @@ package org.eclipse.buildship.core;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
- * Interface to hook into the Gradle project synchronization.
+ * Interface to hook into Buildship's project synchronization.
  * <p>
- * Clients can register project configurators via the {@code projectconfigurator} extension point.
+ * Clients can register their implementation via the {@code projectconfigurator} extension point.
  *
  * @author Donat Csikos
  * @since 3.0

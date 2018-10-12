@@ -14,10 +14,12 @@ import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.invocation.InvocationCustomizer;
 
 /**
- * Loads contributions from extension registry.
+ * Loads contributions from the extension registry.
  * <p>
- * The extension registry API is very conservative and provides only read operations. In order to
- * to test possible contribution scenarios we need this extra level of indirection.
+ * The extension registry implementation hides all registration details, so there's no
+ * straightforward way to add custom contributions programmatically. Without this extra
+ * service interface we wouldn't be able to add extensive integration test coverage
+ * in isolation (defining test configurators in fragment.xml would affect existing tests).
  *
  * @author Donat Csikos
  */
