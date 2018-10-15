@@ -9,7 +9,7 @@
 package org.eclipse.buildship.core;
 
 /**
- * Extensible interface to describe a Gradle build being synchronized.
+ * Describes a Gradle build being synchronized.
  *
  * @author Donat Csikos
  * @since 3.0

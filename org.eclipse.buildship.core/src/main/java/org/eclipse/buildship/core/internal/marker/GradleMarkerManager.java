@@ -8,6 +8,13 @@
 
 package org.eclipse.buildship.core.internal.marker;
 
+import java.util.List;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -15,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.util.string.StringUtils;
 import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 
 /**
@@ -23,6 +31,8 @@ import org.eclipse.buildship.core.internal.workspace.GradleBuild;
  * @author Donat Csikos
  */
 public class GradleMarkerManager {
+
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     private GradleMarkerManager() {
     }
@@ -61,9 +71,30 @@ public class GradleMarkerManager {
     public static void addError(GradleBuild gradleBuild, ToolingApiStatus status) {
         try {
             ErrorMarkerLocation errorLocation = ErrorMarkerLocation.findErrorLocation(gradleBuild, status.getException());
-            GradleErrorMarker.create(errorLocation.getResource(), gradleBuild, status.getMessage(), status.getException(), errorLocation.getLineNumber());
+            GradleErrorMarker.create(errorLocation.getResource(), gradleBuild, collectErrorMessages(status.getException()), status.getException(), errorLocation.getLineNumber());
         } catch (CoreException e) {
             CorePlugin.getInstance().getLog().log(e.getStatus());
+        }
+    }
+
+    private static String collectErrorMessages(Throwable t) {
+        // recursively collect the error messages going up the stacktrace
+        // avoid the same message showing twice in a row
+        List<String> messages = Lists.newArrayList();
+        Throwable cause = t.getCause();
+        if (cause != null) {
+            collectCausesRecursively(cause, messages);
+        }
+        String messageStack = Joiner.on(LINE_SEPARATOR).join(StringUtils.removeAdjacentDuplicates(messages));
+        return t.getMessage() + (messageStack.isEmpty() ? "" : LINE_SEPARATOR + messageStack);
+    }
+
+    private static void collectCausesRecursively(Throwable t, List<String> messages) {
+        List<String> singleLineMessages = Splitter.on(LINE_SEPARATOR).omitEmptyStrings().splitToList(Strings.nullToEmpty(t.getMessage()));
+        messages.addAll(singleLineMessages);
+        Throwable cause = t.getCause();
+        if (cause != null) {
+            collectCausesRecursively(cause, messages);
         }
     }
 }

@@ -46,7 +46,7 @@ final class SynchronizeGradleBuildsOperation {
         Set<EclipseProject> allProjects = fetchEclipseProjects(this.build, tokenSource, progress.newChild(1));
         new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
         new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource);
-        new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler, CorePlugin.extensionManager().loadConfigurators()).run(progress.newChild(1));
+        new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler, ProjectConfigurators.create(this.build, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
     }
 
 

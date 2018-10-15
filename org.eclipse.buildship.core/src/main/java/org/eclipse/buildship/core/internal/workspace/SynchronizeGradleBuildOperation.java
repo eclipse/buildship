@@ -36,11 +36,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.GradleBuild;
-import org.eclipse.buildship.core.GradleCore;
-import org.eclipse.buildship.core.InitializationContext;
-import org.eclipse.buildship.core.ProjectConfigurator;
-import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
@@ -55,9 +50,9 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     private final Set<EclipseProject> allProjects;
     private final BuildConfiguration buildConfig;
     private final NewProjectHandler newProjectHandler;
-    private final List<ProjectConfigurator> configurators;
+    private final ProjectConfigurators configurators;
 
-    SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, BuildConfiguration buildConfig, NewProjectHandler newProjectHandler, List<ProjectConfigurator> configurators) {
+    SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, BuildConfiguration buildConfig, NewProjectHandler newProjectHandler, ProjectConfigurators configurators) {
         this.allProjects = allProjects;
         this.buildConfig = buildConfig;
         this.newProjectHandler = newProjectHandler;
@@ -76,7 +71,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         List<IProject> decoupledWorkspaceProjects = getOpenWorkspaceProjectsRemovedFromGradleBuild();
         progress.setWorkRemaining(decoupledWorkspaceProjects.size() + this.allProjects.size() + 1);
 
-        initConfigurators(progress.newChild(1));
+        this.configurators.initConfigurators(progress.newChild(1));
 
         // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
         for (IProject project : decoupledWorkspaceProjects) {
@@ -180,7 +175,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
         }
 
-        configureConfigurators(workspaceProject, progress.newChild(1));
+        this.configurators.configureConfigurators(workspaceProject, progress.newChild(1));
         CorePlugin.modelPersistence().saveModel(persistentModel.build());
     }
 
@@ -252,71 +247,9 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         monitor.setWorkRemaining(4);
         monitor.subTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()));
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
-        unconfigureConfigurators(workspaceProject, monitor.newChild(1));
+        this.configurators.unconfigureConfigurators(workspaceProject, monitor.newChild(1));
         CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.modelPersistence().deleteModel(workspaceProject);
         CorePlugin.configurationManager().deleteProjectConfiguration(workspaceProject);
-    }
-
-    private void initConfigurators(IProgressMonitor monitor) {
-        GradleBuild gradleBuild = GradleCore.getWorkspace().createBuild(this.buildConfig.toApiBuildConfiguration());
-        InitializationContext context = new InitializationContext() {
-
-            @Override
-            public GradleBuild getGradleBuild() {
-                return gradleBuild;
-            }
-        };
-
-        SubMonitor progress = SubMonitor.convert(monitor);
-        progress.setWorkRemaining(this.configurators.size());
-        for (ProjectConfigurator c : this.configurators) {
-            try {
-                c.init(context, progress.newChild(1));
-            } catch (Exception e) {
-                CorePlugin.logger().warn("Project configurator " + c.getClass().getName() + " failed to initialize" , e);
-            }
-        }
-    }
-
-    private void configureConfigurators(IProject project, IProgressMonitor monitor) {
-        ProjectContext context = new ProjectContext() {
-
-            @Override
-            public IProject getProject() {
-                return project;
-            }
-        };
-
-        SubMonitor progress = SubMonitor.convert(monitor);
-        progress.setWorkRemaining(this.configurators.size());
-        for (ProjectConfigurator c : this.configurators) {
-            try {
-                c.configure(context, progress.newChild(1));
-            } catch (Exception e) {
-                CorePlugin.logger().warn("Project configurator " + c.getClass().getName() + " configuration failed" , e);
-            }
-        }
-    }
-
-
-    private void unconfigureConfigurators(IProject project, IProgressMonitor monitor) {
-        ProjectContext context = new ProjectContext() {
-
-            @Override
-            public IProject getProject() {
-                return project;
-            }
-        };
-
-        SubMonitor progress = SubMonitor.convert(monitor);
-        progress.setWorkRemaining(this.configurators.size());
-        for (ProjectConfigurator c : this.configurators) {
-            try {
-                c.unconfigure(context, progress.newChild(1));
-            } catch (Exception e) {
-                CorePlugin.logger().warn("Project configurator " + c.getClass().getName() + " unconfiguration failed" , e);
-            }
-        }
     }
 }

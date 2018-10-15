@@ -10,6 +10,7 @@ package org.eclipse.buildship.core.internal.extension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import com.google.common.collect.Lists;
 
@@ -29,17 +30,22 @@ public final class DefaultExtensionManager implements ExtensionManager {
     }
 
     @Override
-    public List<ProjectConfigurator> loadConfigurators() {
-        return loadExtensions("projectconfigurators", ProjectConfigurator.class);
+    public List<ProjectConfiguratorContribution> loadConfigurators() {
+        return loadExtensions("projectconfigurators", ProjectConfigurator.class, (c, e) -> ProjectConfiguratorContribution.create(c, e.getContributor().getName()));
     }
 
-    private static <T> List<T> loadExtensions(String extensionPointName, Class<T> cls) {
+    private static <T> List<T> loadExtensions(String extensionPointName, Class<T> extensionClass) {
+        return loadExtensions(extensionPointName, extensionClass, (c,e) -> c);
+    }
+
+    private static <T, U> List<U> loadExtensions(String extensionPointName, Class<T> extensionClass, BiFunction<T, IConfigurationElement, U> resultTransformer) {
         IConfigurationElement[] elements = Platform.getExtensionRegistry().getConfigurationElementsFor(CorePlugin.PLUGIN_ID, extensionPointName);
-        ArrayList<T> result = Lists.newArrayList();
+        ArrayList<U> result = Lists.newArrayList();
         for (int i = 0; i < elements.length; i++) {
             IConfigurationElement element = elements[i];
             try {
-                result.add(cls.cast(element.createExecutableExtension("class")));
+                T extension = extensionClass.cast(element.createExecutableExtension("class"));
+                result.add(resultTransformer.apply(extension, element));
             } catch (CoreException e) {
                 CorePlugin.logger().warn("Cannot load " + extensionPointName + " extension" , e);
             }

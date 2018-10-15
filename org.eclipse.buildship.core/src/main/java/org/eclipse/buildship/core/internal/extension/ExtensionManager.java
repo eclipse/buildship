@@ -10,11 +10,11 @@ package org.eclipse.buildship.core.internal.extension;
 
 import java.util.List;
 
-import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.invocation.InvocationCustomizer;
 
 /**
  * Loads contributions from the extension registry.
+ *
  * <p>
  * The extension registry implementation hides all registration details, so there's no
  * straightforward way to add custom contributions programmatically. Without this extra
@@ -25,7 +25,7 @@ import org.eclipse.buildship.core.invocation.InvocationCustomizer;
  */
 public interface ExtensionManager {
 
-    List<ProjectConfigurator> loadConfigurators();
+    List<ProjectConfiguratorContribution> loadConfigurators();
 
     List<InvocationCustomizer> loadCustomizers();
 }

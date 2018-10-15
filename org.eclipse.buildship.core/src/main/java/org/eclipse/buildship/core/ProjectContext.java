@@ -11,7 +11,7 @@ package org.eclipse.buildship.core;
 import org.eclipse.core.resources.IProject;
 
 /**
- * Extensible interface to describe a workspace project being synchronized.
+ * Describes a workspace project being synchronized.
  *
  * @author Donat Csikos
  * @since 3.0

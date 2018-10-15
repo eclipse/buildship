@@ -12,8 +12,28 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * Interface to hook into Buildship's project synchronization.
+ *
  * <p>
- * Clients can register their implementation via the {@code projectconfigurator} extension point.
+ * The primary intent of this interface is to let external plugins set up project configuration for
+ * tools that are unknown by Buildship. An implementation can be registered via the
+ * {@code projectconfigurators} extension point. An implementation is not limited to use any APIs
+ * unless it leaves the target workspace projects in a consistent state (i.e. don't delete the
+ * target project). They can even extract information from the Gradle build. Check out
+ * {@link GradleBuild#withConnection(java.util.function.Function, IProgressMonitor)} for the
+ * details.
+ *
+ * <p>
+ * The synchronization makes use of the project configurators the following way. The algorithm calls
+ * all configurators synchronously and sequentially. The configurator ordering is unspecified.
+ * Before the synchronization starts, the algorithm creates new configurator instances and calls
+ * their {@code init()} method. Then, during the synchronization, the {@code configure()} methods
+ * are called at the end of each workspace project configuration. If a project gets dissociated with
+ * the Gradle build, then the {@code unconfigure()} method is called first, followed by the
+ * Buildship internal configuration removal.
+ *
+ * <p>
+ * It's the implementation's responsibility to provide appropriate error handling. If a runtime
+ * exception occurs, Buildship uses the platform logger to report the problem.
  *
  * @author Donat Csikos
  * @since 3.0
