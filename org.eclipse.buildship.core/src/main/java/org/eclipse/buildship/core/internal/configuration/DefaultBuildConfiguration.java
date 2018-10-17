@@ -122,4 +122,18 @@ public final class DefaultBuildConfiguration implements BuildConfiguration {
             return this.workspaceConfiguration.isAutoSync();
         }
     }
+
+    @Override
+    public org.eclipse.buildship.core.BuildConfiguration toApiBuildConfiguration() {
+        // TODO (donat) the API BuildConfiguration corresponds to BuildConfigurationProperties. We should merge those.
+        return org.eclipse.buildship.core.BuildConfiguration
+                .forRootProjectDirectory(this.properties.getRootProjectDirectory())
+                .overrideWorkspaceConfiguration(this.properties.isOverrideWorkspaceSettings())
+                .gradleDistribution(this.properties.getGradleDistribution())
+                .gradleUserHome(this.properties.getGradleUserHome())
+                .buildScansEnabled(this.properties.isBuildScansEnabled())
+                .offlineMode(this.properties.isOfflineMode())
+                .autoSync(this.properties.isAutoSync())
+                .build();
+    }
 }

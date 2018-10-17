@@ -30,7 +30,9 @@ import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.console.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.event.DefaultListenerRegistry;
 import org.eclipse.buildship.core.internal.event.ListenerRegistry;
-import org.eclipse.buildship.core.invocation.InvocationCustomizer;
+import org.eclipse.buildship.core.internal.extension.DefaultExtensionManager;
+import org.eclipse.buildship.core.internal.extension.ExtensionManager;
+import org.eclipse.buildship.core.internal.invocation.InvocationCustomizerCollector;
 import org.eclipse.buildship.core.internal.launch.DefaultExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.launch.DefaultGradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.launch.ExternalLaunchConfigurationManager;
@@ -39,7 +41,6 @@ import org.eclipse.buildship.core.internal.operation.DefaultToolingApiOperationM
 import org.eclipse.buildship.core.internal.operation.ToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.preferences.DefaultModelPersistence;
 import org.eclipse.buildship.core.internal.preferences.ModelPersistence;
-import org.eclipse.buildship.core.internal.util.extension.InvocationCustomizerCollector;
 import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.internal.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.internal.workspace.DefaultGradleWorkspaceManager;
@@ -48,6 +49,7 @@ import org.eclipse.buildship.core.internal.workspace.GradleWorkspaceManager;
 import org.eclipse.buildship.core.internal.workspace.ProjectChangeListener;
 import org.eclipse.buildship.core.internal.workspace.SynchronizingBuildScriptUpdateListener;
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations;
+import org.eclipse.buildship.core.invocation.InvocationCustomizer;
 
 /**
  * The plug-in runtime class for the Gradle integration plugin containing the non-UI elements.
@@ -98,6 +100,7 @@ public final class CorePlugin extends Plugin {
     private ConfigurationManager configurationManager;
     private DefaultExternalLaunchConfigurationManager externalLaunchConfigurationManager;
     private ToolingApiOperationManager operationManager;
+    private ExtensionManager extensionManager;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -122,7 +125,7 @@ public final class CorePlugin extends Plugin {
     private void registerServices(BundleContext context) {
         // store services with low ranking such that they can be overridden
         // during testing or the like
-        Dictionary<String, Object> preferences = new Hashtable<String, Object>();
+        Dictionary<String, Object> preferences = new Hashtable<>();
         preferences.put(Constants.SERVICE_RANKING, 1);
 
         // initialize service trackers before the services are created
@@ -150,6 +153,7 @@ public final class CorePlugin extends Plugin {
         this.configurationManager = new DefaultConfigurationManager();
         this.externalLaunchConfigurationManager = DefaultExternalLaunchConfigurationManager.createAndRegister();
         this.operationManager = new DefaultToolingApiOperationManager();
+        this.extensionManager = new DefaultExtensionManager();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -262,5 +266,9 @@ public final class CorePlugin extends Plugin {
 
     public static ToolingApiOperationManager operationManager() {
         return getInstance().operationManager;
+    }
+
+    public static ExtensionManager extensionManager() {
+        return getInstance().extensionManager;
     }
 }

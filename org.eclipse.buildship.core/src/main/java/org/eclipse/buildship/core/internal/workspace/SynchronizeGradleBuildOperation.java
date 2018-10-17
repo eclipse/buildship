@@ -50,11 +50,13 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     private final Set<EclipseProject> allProjects;
     private final BuildConfiguration buildConfig;
     private final NewProjectHandler newProjectHandler;
+    private final ProjectConfigurators configurators;
 
-    SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, BuildConfiguration buildConfig, NewProjectHandler newProjectHandler) {
+    SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, BuildConfiguration buildConfig, NewProjectHandler newProjectHandler, ProjectConfigurators configurators) {
         this.allProjects = allProjects;
         this.buildConfig = buildConfig;
         this.newProjectHandler = newProjectHandler;
+        this.configurators = configurators;
     }
 
     @Override
@@ -67,8 +69,9 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     private void synchronizeProjectsWithWorkspace(SubMonitor progress) throws CoreException {
         // collect Gradle projects and Eclipse workspace projects to sync
         List<IProject> decoupledWorkspaceProjects = getOpenWorkspaceProjectsRemovedFromGradleBuild();
-        progress.setWorkRemaining(decoupledWorkspaceProjects.size() + this.allProjects.size());
+        progress.setWorkRemaining(decoupledWorkspaceProjects.size() + this.allProjects.size() + 1);
 
+        this.configurators.initConfigurators(progress.newChild(1));
 
         // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
         for (IProject project : decoupledWorkspaceProjects) {
@@ -172,6 +175,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
             persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
         }
 
+        this.configurators.configureConfigurators(workspaceProject, progress.newChild(1));
         CorePlugin.modelPersistence().saveModel(persistentModel.build());
     }
 
@@ -240,9 +244,10 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     }
 
     private void uncoupleWorkspaceProjectFromGradle(IProject workspaceProject, SubMonitor monitor) {
-        monitor.setWorkRemaining(3);
+        monitor.setWorkRemaining(4);
         monitor.subTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()));
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
+        this.configurators.unconfigureConfigurators(workspaceProject, monitor.newChild(1));
         CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.modelPersistence().deleteModel(workspaceProject);
         CorePlugin.configurationManager().deleteProjectConfiguration(workspaceProject);

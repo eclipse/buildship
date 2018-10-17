@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 
@@ -45,8 +46,9 @@ final class SynchronizeGradleBuildsOperation {
         Set<EclipseProject> allProjects = fetchEclipseProjects(this.build, tokenSource, progress.newChild(1));
         new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
         new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource);
-        new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler).run(progress.newChild(1));
+        new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler, ProjectConfigurators.create(this.build, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
     }
+
 
     private Set<EclipseProject> fetchEclipseProjects(GradleBuild build, CancellationTokenSource tokenSource, SubMonitor progress) {
         progress.setTaskName("Loading Gradle project models");
