@@ -16,11 +16,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * <p>
  * The primary intent of this interface is to let external plugins set up project configuration for
  * tools that are unknown by Buildship. An implementation can be registered via the
- * {@code projectconfigurators} extension point. An implementation is not limited to use any APIs
- * unless it leaves the target workspace projects in a consistent state (i.e. don't delete the
- * target project). They can even extract information from the Gradle build. Check out
- * {@link GradleBuild#withConnection(java.util.function.Function, IProgressMonitor)} for the
- * details.
+ * {@code projectconfigurators} extension point. An implementation is free to use any APIs to change
+ * the project. It is recommended that configurators only add additional configuration and not
+ * remove anything previously added (e.g. don't delete projects or dependencies).
  *
  * <p>
  * The synchronization makes use of the project configurators the following way. The algorithm calls
