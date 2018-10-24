@@ -260,6 +260,38 @@ eclipseBuild {
         ] + eclipseVersionAgnosticDependencies
     }
 
+    targetPlatform {
+        eclipseVersion = '410'
+        targetDefinition = file('tooling-e410.target')
+        versionMapping = [
+            "$swtPluginId"                          : '3.108.100',
+            'com.ibm.icu'                           : '62.1.0',
+            'org.eclipse.core.expressions'          : '3.6.200',
+            'org.eclipse.core.filesystem'           : '1.7.200',
+            'org.eclipse.core.net'                  : '1.3.300',
+            'org.eclipse.core.resources'            : '3.13.200',
+            'org.eclipse.core.runtime'              : '3.15.100',
+            'org.eclipse.core.variables'            : '3.4.200',
+            'org.eclipse.debug.core'                : '3.13.100',
+            'org.eclipse.debug.ui'                  : '3.13.200',
+            'org.eclipse.help'                      : '3.8.200',
+            'org.eclipse.jdt.core'                  : '3.16.0',
+            'org.eclipse.jdt.junit.core'            : '3.10.200',
+            'org.eclipse.jdt.launching'             : '3.11.100',
+            'org.eclipse.jdt.ui'                    : '3.15.100',
+            'org.eclipse.jface.databinding'         : '1.8.400',
+            'org.eclipse.jface.text'                : '3.15.0',
+            'org.eclipse.ui'                        : '3.110.0',
+            'org.eclipse.ui.console'                : '3.8.200',
+            'org.eclipse.ui.editors'                : '3.11.300',
+            'org.eclipse.ui.ide'                    : '3.14.200',
+            'org.eclipse.ui.navigator'              : '3.7.300',
+            'org.eclipse.ui.views'                  : '3.9.200',
+            'org.eclipse.ui.workbench.texteditor'   : '3.11.200',
+            'org.junit'                             : '4.12.0'
+        ] + eclipseVersionAgnosticDependencies
+    }
+
     scmRepo = "https://github.com/eclipse/buildship.git"
     commitId = currentCommitId()
 }
@@ -277,7 +309,7 @@ project.assembleTargetPlatform.inputs.file file('gradle.properties')
 // contains files to provide 2.x compatibility hence it's safe to remove
 project.assembleTargetPlatform.doLast {
     def config = Config.on(project)
-    if (config.targetPlatform.eclipseVersion < '46') {
+    if (config.targetPlatform.eclipseVersion in ['43', '44', '45']) {
         def registryPluginId = 'org.eclipse.core.runtime.compatibility.registry'
 
         project.exec {
