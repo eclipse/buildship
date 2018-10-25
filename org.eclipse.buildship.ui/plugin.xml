@@ -598,4 +598,16 @@
           </themeid>
        </stylesheet>
     </extension>
+    <extension
+          point="org.eclipse.ui.workbench.texteditor.codeMiningProviders">
+       <codeMiningProvider
+             class="org.eclipse.buildship.ui.SampleCodeMiningProvider"
+             id="org.eclipse.buildship.ui.codeMiningProvider1">
+          <enabledWhen>
+             <with
+                   variable="editorInput">
+             </with>
+          </enabledWhen>
+       </codeMiningProvider>
+    </extension>
 </plugin>

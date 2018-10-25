@@ -7,6 +7,7 @@
  */
 package org.eclipse.buildship.ui.internal.editor;
 
+import org.eclipse.jface.text.codemining.CodeMiningReconciler;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -36,7 +37,7 @@ public class GradleTextViewerConfiguration extends TextSourceViewerConfiguration
 
     @Override
     public IReconciler getReconciler(ISourceViewer sourceViewer) {
-        return null;
+        return new CodeMiningReconciler();
     }
 
     @Override
