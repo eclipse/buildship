@@ -1,10 +1,5 @@
 package org.eclipse.buildship.core
 
-import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration
-import org.eclipse.buildship.core.internal.extension.ExtensionManager
-import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-
 class ProjectConfiguratorTest extends BaseProjectConfiguratorTest {
 
     ProjectConfigurator configurator

@@ -49,6 +49,13 @@
 
    <element name="configurator">
       <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Identifier for the project configurator. Must be unique within the plugin.
+               </documentation>
+            </annotation>
+         </attribute>
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>

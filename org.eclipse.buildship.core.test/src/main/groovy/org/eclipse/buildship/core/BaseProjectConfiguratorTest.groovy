@@ -16,7 +16,9 @@ abstract class BaseProjectConfiguratorTest extends ProjectSynchronizationSpecifi
     }
 
     protected def registerConfigurator(ProjectConfigurator configurator) {
-        CorePlugin.instance.extensionManager.configurators += new ProjectConfiguratorContribution(configurator, "custom.configurator.plugin.id")
+        ExtensionManager manager = CorePlugin.instance.extensionManager
+        int id = manager.configurators.size() + 1
+        manager.configurators += new ProjectConfiguratorContribution(configurator, "${id}", "custom.configurator.plugin.id")
         configurator
     }
 
