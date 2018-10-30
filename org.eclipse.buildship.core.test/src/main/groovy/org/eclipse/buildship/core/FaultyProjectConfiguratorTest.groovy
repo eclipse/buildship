@@ -16,9 +16,9 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
         then:
         result.status.OK
         platformLogErrors.size() == 1
-        platformLogErrors[0].message == "Project configurator 'FaultyInit' from plugin 'custom.configurator.plugin.id' failed to initialize"
+        platformLogErrors[0].message == "Project configurator 'pluginId.configurator1' failed to initialize"
         gradleErrorMarkers.size() == 1
-        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "Project configurator 'FaultyInit' from plugin 'custom.configurator.plugin.id' failed to initialize"
+        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "Project configurator 'pluginId.configurator1' failed to initialize"
     }
 
     def "Synchronization finishes even if contributed configurator throws exception in configure()"() {
@@ -32,9 +32,9 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
         then:
         result.status.OK
         platformLogErrors.size() == 1
-        platformLogErrors[0].message == "Project configurator 'FaultyConfigure' from plugin 'custom.configurator.plugin.id' failed to configure project 'FaultyProjectConfiguratorTest_2'"
+        platformLogErrors[0].message == "Project configurator 'pluginId.configurator1' failed to configure project 'FaultyProjectConfiguratorTest_2'"
         gradleErrorMarkers.size() == 1
-        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "Project configurator 'FaultyConfigure' from plugin 'custom.configurator.plugin.id' failed to configure project 'FaultyProjectConfiguratorTest_2'"
+        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "Project configurator 'pluginId.configurator1' failed to configure project 'FaultyProjectConfiguratorTest_2'"
     }
 
     def "Synchronization finishes even if contributed configurator throws exception in unconfigure()"() {
@@ -57,9 +57,9 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
         then:
         result.status.OK
         platformLogErrors.size() == 1
-        platformLogErrors[0].message == "Project configurator 'FaultyUnconfigure' from plugin 'custom.configurator.plugin.id' failed to unconfigure project 'sub1'"
+        platformLogErrors[0].message == "Project configurator 'pluginId.configurator1' failed to unconfigure project 'sub1'"
         gradleErrorMarkers.size() == 1
-        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "Project configurator 'FaultyUnconfigure' from plugin 'custom.configurator.plugin.id' failed to unconfigure project 'sub1'"
+        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "Project configurator 'pluginId.configurator1' failed to unconfigure project 'sub1'"
     }
 
     static class NoOp implements ProjectConfigurator {

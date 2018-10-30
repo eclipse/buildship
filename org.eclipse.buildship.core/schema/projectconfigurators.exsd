@@ -59,11 +59,25 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  The project configurator implementation
                </documentation>
                <appinfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.buildship.core.ProjectConfigurator"/>
                </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="runsBefore" type="string">
+            <annotation>
+               <documentation>
+                  A comma-separated list of configurators that this configurator must run before. A configurator can be referenced with its fully qualified id which has the following pattern: [plugin_id].[configurator_id].
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="runsAfter" type="string">
+            <annotation>
+               <documentation>
+                  A comma-separated list of configurators that this configurator must run after A configurator can be referenced with its fully qualified id which has the following pattern: [plugin_id].[configurator_id].
+               </documentation>
             </annotation>
          </attribute>
       </complexType>

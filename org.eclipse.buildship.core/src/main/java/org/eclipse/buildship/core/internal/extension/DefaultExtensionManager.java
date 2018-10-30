@@ -18,7 +18,6 @@ import com.google.common.annotations.VisibleForTesting;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 
-import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.invocation.InvocationCustomizer;
 
@@ -32,7 +31,7 @@ public class DefaultExtensionManager implements ExtensionManager {
             try {
                 result.add(InvocationCustomizer.class.cast(element.createExecutableExtension("class")));
             } catch (Exception e) {
-                CorePlugin.logger().warn("Cannot load invocationcustomizers extension" , e);
+                CorePlugin.logger().warn("Cannot load invocationcustomizers extension", e);
             }
         }
         return result;
@@ -43,24 +42,8 @@ public class DefaultExtensionManager implements ExtensionManager {
         Collection<IConfigurationElement> elements = loadElements("projectconfigurators");
         List<ProjectConfiguratorContribution> result = new ArrayList<>(elements.size());
         for (IConfigurationElement element : elements) {
-            try {
-                ProjectConfigurator configurator = ProjectConfigurator.class.cast(element.createExecutableExtension("class"));
-                String pluginId = element.getContributor().getName();
-
-                String id = element.getAttribute("id");
-                if (id == null) {
-                    throw new RuntimeException("Required 'id' field not declared in projectconfigurators extension from plugin " + pluginId);
-                }
-
-                ProjectConfiguratorContribution contribution = ProjectConfiguratorContribution.create(configurator, id, pluginId);
-
-                if (result.contains(contribution)) {
-                    throw new RuntimeException("Project configurator '" + contribution.getFullyQualifiedId() + "' is already declared");
-                }
-                result.add(contribution);
-            } catch (Exception e) {
-                CorePlugin.logger().warn("Cannot load projectconfigurators extension" , e);
-            }
+            ProjectConfiguratorContribution contribution = ProjectConfiguratorContribution.from(element);
+            result.add(contribution);
         }
         return result;
     }
