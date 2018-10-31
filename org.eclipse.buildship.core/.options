@@ -1,1 +1,2 @@
-org.eclipse.buildship.core/debug = true
+org.eclipse.buildship.core/trace/preferences = false
+org.eclipse.buildship.core/trace/projectConfigurators = false

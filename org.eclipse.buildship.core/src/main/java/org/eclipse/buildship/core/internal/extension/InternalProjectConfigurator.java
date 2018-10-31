@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,12 +29,16 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.Logger;
 
 public final class InternalProjectConfigurator implements ProjectConfigurator, Comparable<InternalProjectConfigurator> {
 
     private final ProjectConfigurator configurator;
     private final ProjectConfiguratorContribution contribution;
+    private static final Logger LOGGER = CorePlugin.logger();
 
     private InternalProjectConfigurator(ProjectConfiguratorContribution contribution) {
         this.configurator = createConfigurator(contribution);
@@ -73,6 +78,11 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
     }
 
     public static List<InternalProjectConfigurator> from(List<ProjectConfiguratorContribution> configurators) {
+        if (LOGGER.isScopeEnabled(CoreTraceScopes.PROJECT_CONFIGURATORS)) {
+            LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Contributed configurators: " +
+                    configurators.stream().map(Objects::toString).collect(Collectors.joining(", ")));
+        }
+
         configurators = new ArrayList<>(configurators);
         filterInvalidConfigurators(configurators);
         filterDuplicateIds(configurators);
@@ -85,26 +95,17 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
         Iterator<ProjectConfiguratorContribution> it = configurators.iterator();
         while (it.hasNext()) {
             ProjectConfiguratorContribution configurator = it.next();
-            if (!hasValidId(configurator)) {
-                // TODO log
+            if (configurator.getId() == null) {
+                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, configurator.getFullyQualifiedId() + " was removed because it had no ID defined");
                 it.remove();
-            } else if (!canCreateConfiguratorInstance(configurator)) {
-                // TODO log
-                it.remove();
+            } else {
+                try {
+                    configurator.createConfigurator();
+                } catch (Exception e) {
+                    LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, configurator.getFullyQualifiedId() + " was removed because configurator instance cannot be created", e);
+                    it.remove();
+                }
             }
-        }
-    }
-
-    private static boolean hasValidId(ProjectConfiguratorContribution configurator) {
-        return configurator.getId() != null;
-    }
-
-    private static boolean canCreateConfiguratorInstance(ProjectConfiguratorContribution configurator) {
-        try {
-            configurator.createConfigurator();
-            return true;
-        } catch (Exception e) {
-            return false;
         }
     }
 
@@ -115,7 +116,7 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
             ProjectConfiguratorContribution configurator = it.next();
             String id = configurator.getFullyQualifiedId();
             if (ids.contains(id)) {
-                // TODO log
+                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, configurator.getFullyQualifiedId() + " was removed because another configurator already exists with same ID");
                 it.remove();
             } else {
                 ids.add(id);
@@ -137,11 +138,11 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
         while (it.hasNext()) {
             String id = it.next();
             if (id.equals(currentId)) {
-                // TODO log
+                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator " + currentId + " self-dependency removed");
                 it.remove();
             } else if (idToConfigurator.get(id) == null) {
                 it.remove();
-                // TODO log
+                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator dependency (" + currentId + " -> " + id + ") removed because dependency does not exist");
             }
         }
     }
@@ -158,7 +159,7 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
                 ProjectConfiguratorContribution target = idToConfigurator.get(id);
                 graph.putEdge(configurator, target);
                 if (Graphs.hasCycle(graph)) {
-                    // TODO log
+                    LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator dependency (" + configurator.getFullyQualifiedId() + " -> " + id + ") removed because it introduces dependency cycle");
                     graph.removeEdge(configurator, target);
                     it.remove();
                 }
@@ -170,7 +171,7 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
                 ProjectConfiguratorContribution target = idToConfigurator.get(id);
                 graph.putEdge(target, configurator);
                 if (Graphs.hasCycle(graph)) {
-                    // TODO log
+                    LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator dependency (" + id + " -> " + configurator.getFullyQualifiedId() + ") removed because it introduces dependency cycle");
                     graph.removeEdge(target, configurator);
                     it.remove();
                 }

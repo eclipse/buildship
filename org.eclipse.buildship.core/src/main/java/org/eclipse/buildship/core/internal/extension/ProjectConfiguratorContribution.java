@@ -93,42 +93,8 @@ public final class ProjectConfiguratorContribution {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((this.contributorPluginId == null) ? 0 : this.contributorPluginId.hashCode());
-        result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-        return result;
+    public String toString() {
+        return "ProjectConfiguratorContribution [id=" + getFullyQualifiedId() + ", runsBefore=" + this.runsBefore
+                + ", runsAfter=" + this.runsAfter + "]";
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ProjectConfiguratorContribution other = (ProjectConfiguratorContribution) obj;
-        if (this.contributorPluginId == null) {
-            if (other.contributorPluginId != null) {
-                return false;
-            }
-        } else if (!this.contributorPluginId.equals(other.contributorPluginId)) {
-            return false;
-        }
-        if (this.id == null) {
-            if (other.id != null) {
-                return false;
-            }
-        } else if (!this.id.equals(other.id)) {
-            return false;
-        }
-        return true;
-    }
-
-
 }

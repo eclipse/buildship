@@ -14,19 +14,25 @@ package org.eclipse.buildship.ui.internal;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
+import com.google.common.collect.Maps;
+
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.Logger;
+import org.eclipse.buildship.core.internal.TraceScope;
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.util.logging.EclipseLogger;
@@ -78,10 +84,10 @@ public final class UiPlugin extends AbstractUIPlugin {
     private void registerServices(BundleContext context) {
         // store services with low ranking such that they can be overridden
         // during testing or the like
-        Dictionary<String, Object> preferences = new Hashtable<String, Object>();
+        Dictionary<String, Object> preferences = new Hashtable<>();
         preferences.put(Constants.SERVICE_RANKING, 1);
 
-        Dictionary<String, Object> priorityPreferences = new Hashtable<String, Object>();
+        Dictionary<String, Object> priorityPreferences = new Hashtable<>();
         priorityPreferences.put(Constants.SERVICE_RANKING, 2);
 
         // register all services (override the ProcessStreamsProvider registered in the core plugin)
@@ -95,7 +101,12 @@ public final class UiPlugin extends AbstractUIPlugin {
     }
 
     private EclipseLogger createLogger() {
-        return new EclipseLogger(getLog(), PLUGIN_ID, isDebugging());
+        Map<TraceScope, Boolean> tracingEnablement = Maps.newHashMap();
+        for (TraceScope scope : CoreTraceScopes.values()) {
+            String option = Platform.getDebugOption("org.eclipse.buildship.ui/trace/" + scope.getScopeKey());
+            tracingEnablement.put(scope, "true".equalsIgnoreCase(option));
+        }
+        return new EclipseLogger(getLog(), PLUGIN_ID, tracingEnablement);
     }
 
     private ProcessStreamsProvider createConsoleProcessStreamsProvider() {

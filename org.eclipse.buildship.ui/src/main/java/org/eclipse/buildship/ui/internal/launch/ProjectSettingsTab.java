@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
@@ -39,8 +40,8 @@ import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
 import org.eclipse.buildship.ui.internal.PluginImages;
 import org.eclipse.buildship.ui.internal.preferences.GradleProjectPreferencePage;
-import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
+import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 
 /**
@@ -171,7 +172,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
                     PreferencesUtil.createPropertyDialogOn(getShell(), project.get(), GradleProjectPreferencePage.PAGE_ID, null, null).open();
                 }
             } catch (Exception e) {
-                CorePlugin.logger().debug("Cannot open project preferences", e);
+                CorePlugin.logger().trace(CoreTraceScopes.PREFERENCES, "Cannot open project preferences", e);
             }
         }
     }

@@ -38,20 +38,24 @@ package org.eclipse.buildship.core.internal;
 public interface Logger {
 
     /**
-     * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log if tracing is enabled.
-     *
-     * @param message the information to log
+     * Returns True if the target tracing scope is enabled for the plug-in.
      */
-    void debug(String message);
-
+    boolean isScopeEnabled(TraceScope scope);
 
     /**
-     * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log if tracing is enabled.
+     * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log if
+     * tracing is enabled for the specified scope.
+     */
+    void trace(TraceScope scope, String message);
+
+    /**
+     * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log if
+     * tracing is enabled for the specified scope.
      *
      * @param message the information to log
      * @param t the underlying cause
      */
-    void debug(String message, Throwable t);
+    void trace(TraceScope scope, String message, Throwable t);
 
     /**
      * Logs an entry with {@link org.eclipse.core.runtime.IStatus#INFO} severity in Eclipse's log.

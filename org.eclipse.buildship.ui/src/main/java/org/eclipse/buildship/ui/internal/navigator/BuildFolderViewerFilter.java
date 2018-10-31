@@ -18,6 +18,8 @@ import org.eclipse.jface.viewers.ViewerFilter;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.ui.internal.UiPlugin;
+import org.eclipse.buildship.ui.internal.UiTraceScopes;
 
 /**
  * Allows users to show or hide the build folder in the Navigator, Project and Package Explorer.
@@ -52,7 +54,7 @@ public final class BuildFolderViewerFilter extends ViewerFilter {
                 return modelBuildDir == null ? false : folder.getProjectRelativePath().equals(modelBuildDir);
             }
         } catch (Exception e) {
-            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
+            UiPlugin.logger().trace(UiTraceScopes.NAVIGATOR, String.format("Could not check whether folder %s is a build folder.", folder.getFullPath()), e);
             return false;
         }
     }
