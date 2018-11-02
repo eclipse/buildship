@@ -14,7 +14,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         projectDir = dir('java-launch-config') {
             file 'build.gradle', """
                 apply plugin: 'java'
-                repositories.jcenter()
+                ${jcenterRepositoryBlock}
                 dependencies.testCompile 'junit:junit:4.12'
             """
             dir('src/test/java').mkdirs()

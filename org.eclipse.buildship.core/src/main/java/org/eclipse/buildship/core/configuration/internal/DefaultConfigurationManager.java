@@ -132,6 +132,8 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public void saveProjectConfiguration(ProjectConfiguration projectConfiguration) {
         BuildConfiguration buildConfiguration = projectConfiguration.getBuildConfiguration();
+        saveBuildConfiguration(buildConfiguration);
+
         File projectDir = projectConfiguration.getProjectDir();
         File rootDir = buildConfiguration.getRootProjectDirectory();
         String pathToRoot = projectRootToRelativePath(projectDir, rootDir);
@@ -142,7 +144,6 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         } else {
             this.buildConfigurationPersistence.savePathToRoot(projectDir, pathToRoot);
         }
-        saveBuildConfiguration(buildConfiguration);
     }
 
     @Override

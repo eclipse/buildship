@@ -64,7 +64,7 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected void deleteAllProjects(boolean includingContent) {
         for (IProject project : CorePlugin.workspaceOperations().allProjects) {
-            project.delete(includingContent, true, null);
+            project.delete(includingContent, true, null)
         }
         workspaceDir.listFiles().findAll { it.isDirectory() && it.name != '.metadata' }.each { File it -> it.deleteDir() }
     }
@@ -204,5 +204,31 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected ILaunchConfigurationWorkingCopy createGradleLaunchConfig(String name = 'launch-config') {
         createLaunchConfig(GradleRunConfigurationDelegate.ID, name)
+    }
+
+    protected static String getJcenterRepositoryBlock() {
+        String jcenterMirror = System.getProperty("org.eclipse.buildship.eclipsetest.mirrors.jcenter")
+        if (jcenterMirror == null) {
+            """
+                repositories {
+                    if (org.gradle.api.JavaVersion.current().isJava8Compatible()) {
+                        jcenter()
+                    } else {
+                        maven {
+                            url = "http://jcenter.bintray.com"
+                        }
+                    }
+                }
+            """
+        } else {
+            """
+                repositories {
+                    maven {
+                        name = 'jcenter-mirror'
+                        url "$jcenterMirror"
+                    }
+                }
+            """
+        }
     }
 }

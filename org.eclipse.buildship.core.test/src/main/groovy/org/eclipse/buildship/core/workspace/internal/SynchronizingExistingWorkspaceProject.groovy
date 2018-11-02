@@ -37,10 +37,10 @@ class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronization
         IClasspathEntry[] entries = javaProject.rawClasspath + JavaCore.newContainerEntry(GradleClasspathContainer.CONTAINER_PATH)
         javaProject.setRawClasspath(entries, null)
         def projectDir = dir('sample-project') {
-            file 'build.gradle','''apply plugin: "java"
-               repositories { jcenter() }
+            file 'build.gradle', """apply plugin: "java"
+               ${jcenterRepositoryBlock}
                dependencies { compile "org.springframework:spring-beans:1.2.8"}
-            '''
+            """
             dir 'src/main/java'
         }
 

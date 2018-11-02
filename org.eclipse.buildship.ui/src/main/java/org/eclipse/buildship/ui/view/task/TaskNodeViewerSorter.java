@@ -41,6 +41,10 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
             ProjectNode left = (ProjectNode) leftNode;
             ProjectNode right = (ProjectNode) rightNode;
             return this.projectNodeOrdering.compare(left, right);
+        } else if (leftNode instanceof ProjectNode && rightNode instanceof TaskNode) {
+            return -1;
+        } else if (leftNode instanceof TaskNode && rightNode instanceof ProjectNode) {
+            return 1;
         } else if (leftNode instanceof TaskNode && rightNode instanceof TaskNode) {
             TaskNode left = (TaskNode) leftNode;
             TaskNode right = (TaskNode) rightNode;

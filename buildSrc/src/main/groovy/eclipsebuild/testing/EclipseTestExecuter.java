@@ -13,7 +13,9 @@ package eclipsebuild.testing;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,19 +29,15 @@ import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.tasks.testing.TestClassProcessor;
-import org.gradle.api.internal.tasks.testing.TestClassRunInfo;
-import org.gradle.api.internal.tasks.testing.TestCompleteEvent;
-import org.gradle.api.internal.tasks.testing.TestDescriptorInternal;
-import org.gradle.api.internal.tasks.testing.TestResultProcessor;
-import org.gradle.api.internal.tasks.testing.TestStartEvent;
-import org.gradle.api.internal.tasks.testing.detection.TestExecuter;
+import org.gradle.api.internal.tasks.testing.*;
 import org.gradle.api.internal.tasks.testing.detection.TestFrameworkDetector;
 import org.gradle.api.internal.tasks.testing.processors.TestMainAction;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestOutputEvent;
+import org.gradle.initialization.DefaultBuildCancellationToken;
+import org.gradle.internal.concurrent.DefaultExecutorFactory;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.time.Time;
 import org.gradle.process.ExecResult;
@@ -49,7 +47,7 @@ import org.gradle.process.internal.JavaExecAction;
 import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
 import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
 
-public final class EclipseTestExecuter implements TestExecuter {
+public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec> {
 
     private static final Logger LOGGER = Logging.getLogger(EclipseTestExecuter.class);
 
@@ -62,7 +60,7 @@ public final class EclipseTestExecuter implements TestExecuter {
     }
 
     @Override
-    public void execute(Test test, TestResultProcessor testResultProcessor) {
+    public void execute(TestExecutionSpec test, TestResultProcessor testResultProcessor) {
         LOGGER.info("Executing tests in Eclipse");
 
         int pdeTestPort = new PDETestPortLocator().locatePDETestPortNumber();
@@ -78,8 +76,11 @@ public final class EclipseTestExecuter implements TestExecuter {
         return (EclipseTestExtension) testTask.getProject().getExtensions().findByName("eclipseTest");
     }
 
-    private void runPDETestsInEclipse(final Test testTask, final TestResultProcessor testResultProcessor,
+    private void runPDETestsInEclipse(final TestExecutionSpec testSpec, final TestResultProcessor testResultProcessor,
             final int pdeTestPort) {
+
+        Test testTask = ((EclipseTestExecutionSpec)testSpec).getTestTask();
+
         final Object testTaskOperationId = this.executor.getCurrentOperation().getParentId();
         final Object rootTestSuiteId = testTask.getPath();
 
@@ -97,7 +98,7 @@ public final class EclipseTestExecuter implements TestExecuter {
         File equinoxLauncherFile = getEquinoxLauncherFile(testEclipseDir);
         LOGGER.info("equinox launcher file {}", equinoxLauncherFile);
 
-        final JavaExecAction javaExecHandleBuilder = new DefaultJavaExecAction(getFileResolver(testTask));
+        final JavaExecAction javaExecHandleBuilder = new DefaultJavaExecAction(getFileResolver(testTask), new DefaultExecutorFactory().create("Exec process"), new DefaultBuildCancellationToken());
         javaExecHandleBuilder.setClasspath(this.project.files(equinoxLauncherFile));
         javaExecHandleBuilder.setMain("org.eclipse.equinox.launcher.Main");
 
@@ -177,6 +178,24 @@ public final class EclipseTestExecuter implements TestExecuter {
         if (Constants.getOs().equals("macosx")) {
             jvmArgs.add("-XstartOnFirstThread");
         }
+
+        // declare mirror urls if exists
+        Map<String, String> mirrorUrls = new HashMap<>();
+        if (project.hasProperty("mirrors")) {
+            String mirrorsString = (String) project.property("mirrors");
+            String[] mirrors = mirrorsString.split(",");
+            for (String mirror : mirrors) {
+                if (!"".equals(mirror)) {
+                    String[] nameAndUrl = mirror.split(":", 2);
+                    mirrorUrls.put(nameAndUrl[0], nameAndUrl[1]);
+                }
+            }
+        }
+
+        for (Map.Entry<String, String> mirrorUrl : mirrorUrls.entrySet()) {
+            jvmArgs.add("-Dorg.eclipse.buildship.eclipsetest.mirrors." + mirrorUrl.getKey() + "=" + mirrorUrl.getValue());
+        }
+
         javaExecHandleBuilder.setJvmArgs(jvmArgs);
         javaExecHandleBuilder.setWorkingDir(this.project.getBuildDir());
 
@@ -258,7 +277,12 @@ public final class EclipseTestExecuter implements TestExecuter {
         return processor.classNames;
     }
 
+    @Override
+    public void stopNow() {
+
+    }
     public static final class NoOpTestResultProcessor implements TestResultProcessor {
+
 
         @Override
         public void started(TestDescriptorInternal testDescriptorInternal, TestStartEvent testStartEvent) {
@@ -292,6 +316,11 @@ public final class EclipseTestExecuter implements TestExecuter {
 
         @Override
         public void stop() {
+            // no-op
+        }
+
+        @Override
+        public void stopNow() {
             // no-op
         }
     }

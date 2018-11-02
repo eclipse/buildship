@@ -2,7 +2,16 @@
 
 ## Requirements
 
-Buildship 2.x can be installed into Eclipse 4.2 or newer, whereas Buildship 1.x can be installed into Eclipse 3.6-4.6. 
+- Buildship 3.x
+  - Minimum Java version: 1.8
+  - Eclipse version: 4.3, or newer
+- Buildship 2.x
+  - Minimum Java version: 1.7
+  - Eclipse version: 4.2, or newer
+- Buildship 1.x
+  - Minimum Java version: 1.6
+  - Eclipse version: 4.2 - 4.6
+ 
 Different Eclipse versions might be compatible but they aren't explicitly tested. 
 Depending on the Gradle version that Buildship uses for a project import, certain features may not be available.
 
@@ -14,10 +23,27 @@ Buildship is also available through one of the provided composite update sites l
 
 For manual installation use one of the update sites below.
 
+
+### Update sites for Buildship 3.x
+
+Eclipse Version | Type      | Update Site
+--------------- | ----------| ------------
+2018-09         | snapshot  | `http://download.eclipse.org/buildship/updates/e49/snapshots/3.x`
+Photon (4.8)    | snapshot  | `http://download.eclipse.org/buildship/updates/e48/snapshots/3.x`
+Oxygen (4.7)    | snapshot  | `http://download.eclipse.org/buildship/updates/e47/snapshots/3.x`
+Neon (4.6)      | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/3.x`
+Mars (4.5)      | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/3.x`
+Luna (4.4)      | snapshot  | `http://download.eclipse.org/buildship/updates/e44/snapshots/3.x`
+Kepler (4.3)    | snapshot  | `http://download.eclipse.org/buildship/updates/e43/snapshots/3.x`
+Juno (4.2)      | snapshot  | `http://download.eclipse.org/buildship/updates/e42/snapshots/3.x`
+
 ### Update sites for Buildship 2.x
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
+Photon (4.8)    | release   | `http://download.eclipse.org/buildship/updates/e48/releases/2.x`
+Photon (4.8)    | milestone | `http://download.eclipse.org/buildship/updates/e48/milestones/2.x`
+Photon (4.8)    | snapshot  | `http://download.eclipse.org/buildship/updates/e48/snapshots/2.x`
 Oxygen (4.7)    | release   | `http://download.eclipse.org/buildship/updates/e47/releases/2.x`
 Oxygen (4.7)    | milestone | `http://download.eclipse.org/buildship/updates/e47/milestones/2.x`
 Oxygen (4.7)    | snapshot  | `http://download.eclipse.org/buildship/updates/e47/snapshots/2.x`
@@ -71,12 +97,14 @@ Apply the following instructions to install the latest snapshot or milestone of 
 We propose you install Buildship from eclipse.org. If, for any reason, you still want to install
 from [builds.gradle.org](https://builds.gradle.org/project.html?projectId=Tooling_Buildship&tab=projectOverview), the following snapshot update sites
 are available for all the supported Eclipse versions:
-
-  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse46Build/.lastSuccessful/update-site` (latest 4.6 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse45Build/.lastSuccessful/update-site` (latest 4.5 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse44Build/.lastSuccessful/update-site` (latest 4.4 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse43Build/.lastSuccessful/update-site` (latest 4.3 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Master_IntegrationTests_Linux_Eclipse42Build/.lastSuccessful/update-site` (latest 4.2 development snapshot)
+  
+  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse48_Java8/.lastSuccessful/update-site` (latest 4.8 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse47_Java8/.lastSuccessful/update-site` (latest 4.7 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse46_Java8/.lastSuccessful/update-site` (latest 4.6 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse45_Java7/.lastSuccessful/update-site` (latest 4.5 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse44_Java7/.lastSuccessful/update-site` (latest 4.4 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse43_Java7/.lastSuccessful/update-site` (latest 4.3 development snapshot)
+  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse42_Java7/.lastSuccessful/update-site` (latest 4.2 development snapshot)
 
 Apply the following instructions to install the latest snapshot of Buildship into your version of Eclipse.
 

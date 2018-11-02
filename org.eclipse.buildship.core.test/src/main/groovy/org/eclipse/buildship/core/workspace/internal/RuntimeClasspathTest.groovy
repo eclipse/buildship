@@ -25,18 +25,15 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
     def setup() {
         location = dir('sample-project') {
             file('settings.gradle') << "include 'a', 'b', 'c'"
-            dir('a/src/main/java').mkdirs()
-            dir('b/src/main/java').mkdirs()
-            dir('c/src/main/java').mkdirs()
-            buildFile = file 'build.gradle', '''
+            dir('a/src/main/java')
+            dir('b/src/main/java')
+            dir('c/src/main/java')
+            buildFile = file 'build.gradle', """
                 subprojects {
                     apply plugin: 'java'
-
-                    repositories {
-                        mavenCentral()
-                    }
+                    ${jcenterRepositoryBlock}
                 }
-            '''
+            """
         }
     }
 
@@ -151,7 +148,8 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
                 }
             }
         '''
-        importAndWait(location)
+        // TODO (donat) add test coverage for more recent versions
+        importAndWait(location, GradleDistribution.forVersion('4.3'))
 
         when:
         IJavaProject javaProject = JavaCore.create(findProject('b'))
@@ -167,7 +165,8 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=507206")
     def "Runtime classpath contains custom output folders"() {
         setup:
-        new File(location, 'a/src/main/java').mkdirs()
+        // Another non-custom source directory is required for the default-directory to be set
+        new File(location, 'a/src/test/java').mkdirs()
         buildFile << '''
             project(':a') {
                 apply plugin: 'eclipse'
@@ -192,7 +191,8 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
                 }
             }
         '''
-        importAndWait(location)
+        // TODO (donat) add test coverage for more recent versions
+        importAndWait(location, GradleDistribution.forVersion('4.3'))
 
         when:
         IJavaProject javaProject = JavaCore.create(findProject('b'))
@@ -208,7 +208,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         File external = dir('external-gradle-project') {
             file('build.gradle') << """
                 apply plugin: 'java'
-                repositories.mavenCentral()
+                ${jcenterRepositoryBlock}
                 dependencies.compile 'com.google.guava:guava:18.0'
             """
         }

@@ -33,6 +33,7 @@ public final class TaskViewState {
     private static final String PREF_HEADER_NAME_COLUMN_WIDTH = "tasksView.headerNameColumnWidth";
     private static final String PREF_HEADER_DESCRIPTION_COLUMN_WIDTH = "tasksView.headerDescriptionColumnWidth";
     private static final String PREF_GROUP_TASKS = "tasksView.groupTasks";
+    private static final String PREF_FLATTEN_PROJECT_HIERARCHY = "tasksView.flattenProjectHierarchy";
 
     private boolean projectTasksVisible;
     private boolean taskSelectorsVisible;
@@ -43,6 +44,7 @@ public final class TaskViewState {
     private int headerNameColumnWidth;
     private int headerDescriptionColumnWidth;
     private boolean groupTasks;
+    private boolean projectHierarchyFlattened;
 
     public void load() {
         IEclipsePreferences prefs = EclipsePreferencesUtils.getInstanceScope().getNode(UiPlugin.PLUGIN_ID);
@@ -55,6 +57,7 @@ public final class TaskViewState {
         this.headerNameColumnWidth = prefs.getInt(PREF_HEADER_NAME_COLUMN_WIDTH, 200);
         this.headerDescriptionColumnWidth = prefs.getInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, 400);
         this.groupTasks = prefs.getBoolean(PREF_GROUP_TASKS, true);
+        this.projectHierarchyFlattened = prefs.getBoolean(PREF_FLATTEN_PROJECT_HIERARCHY, false);
     }
 
     public void save() {
@@ -68,6 +71,7 @@ public final class TaskViewState {
         prefs.putInt(PREF_HEADER_NAME_COLUMN_WIDTH, this.headerNameColumnWidth);
         prefs.putInt(PREF_HEADER_DESCRIPTION_COLUMN_WIDTH, this.headerDescriptionColumnWidth);
         prefs.putBoolean(PREF_GROUP_TASKS, this.groupTasks);
+        prefs.putBoolean(PREF_FLATTEN_PROJECT_HIERARCHY, this.projectHierarchyFlattened);
 
         try {
             prefs.flush();
@@ -146,6 +150,14 @@ public final class TaskViewState {
 
     public void setGroupTasks(boolean groupTasksByTaskGroup) {
         this.groupTasks = groupTasksByTaskGroup;
+    }
+
+    public boolean isProjectHierarchyFlattened() {
+        return projectHierarchyFlattened;
+    }
+
+    public void setProjectHierarchyFlattened(boolean projectHierarchyFlattened) {
+        this.projectHierarchyFlattened = projectHierarchyFlattened;
     }
 
     public void dispose() {

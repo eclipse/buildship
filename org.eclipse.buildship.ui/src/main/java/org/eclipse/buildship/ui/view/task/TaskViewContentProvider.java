@@ -68,12 +68,25 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     }
 
     private List<BaseProjectNode> createTopLevelProjectNodes(List<OmniEclipseProject> projects, List<IProject> faultyProjects) {
-        // flatten the tree of Gradle projects to a list, similar
-        // to how Eclipse projects look in the Eclipse Project explorer
         List<BaseProjectNode> allProjectNodes = Lists.newArrayList();
-        for (OmniEclipseProject project : projects) {
-            if (project.getParent() == null) {
-                collectProjectNodesRecursively(project, null, allProjectNodes);
+        if (this.taskView.getState().isProjectHierarchyFlattened()) {
+            // flatten the tree of Gradle projects to a list, similar
+            // to how Eclipse projects look in the Eclipse Project explorer
+            for (OmniEclipseProject project : projects) {
+                if (project.getParent() == null) {
+                    collectProjectNodesRecursively(project, null, allProjectNodes);
+                }
+            }
+        } else {
+            // put all subprojects into the parent project's folder, similar
+            // to how a Java class look in the Eclipse Type Hierarchy
+            for (OmniEclipseProject project : projects) {
+                if (project.getParent() == null) {
+                    OmniGradleProject gradleProject = project.getGradleProject();
+                    Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(project.getName());
+
+                    allProjectNodes.add(new ProjectNode(null,project,gradleProject, workspaceProject, isIncludedProject(workspaceProject, project)));
+                }
             }
         }
         for (IProject faultyProject : faultyProjects) {
@@ -131,11 +144,33 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     }
 
     private Object[] childrenOf(ProjectNode projectNode) {
-        if (this.taskView.getState().isGroupTasks()) {
-            return groupNodesFor(projectNode).toArray();
-        } else {
-            return taskNodesFor(projectNode).toArray();
+        Set<Object> result = Sets.newHashSet();
+
+        if (!this.taskView.getState().isProjectHierarchyFlattened()) {
+            result.addAll(projectNodesFor(projectNode));
         }
+
+        if (this.taskView.getState().isGroupTasks()) {
+            result.addAll(groupNodesFor(projectNode));
+        } else {
+            result.addAll(taskNodesFor(projectNode));
+        }
+
+        return result.toArray();
+    }
+
+    private Set<ProjectNode> projectNodesFor(ProjectNode projectNode) {
+        Set<ProjectNode> result = Sets.newHashSet();
+        OmniEclipseProject eclipseProject = projectNode.getEclipseProject();
+
+        for (OmniEclipseProject childProject : eclipseProject.getChildren()) {
+            OmniGradleProject gradleProject = childProject.getGradleProject();
+            Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(childProject.getName());
+
+            ProjectNode childProjectNode = new ProjectNode(projectNode, childProject, gradleProject, workspaceProject,isIncludedProject(workspaceProject, childProject));
+            result.add(childProjectNode);
+        }
+        return result;
     }
 
     private Set<TaskGroupNode> groupNodesFor(ProjectNode projectNode) {

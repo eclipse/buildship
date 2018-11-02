@@ -13,7 +13,7 @@ package org.eclipse.buildship.ui.test.fixtures
 
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
-import spock.lang.AutoCleanup;
+import spock.lang.AutoCleanup
 import spock.lang.Specification
 
 import com.google.common.io.Files
@@ -29,7 +29,8 @@ import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunchConfigurationType
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchManager
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IJavaProject
+import org.eclipse.jdt.core.JavaCore
 import org.eclipse.ui.IWorkbenchWindow
 import org.eclipse.ui.PlatformUI
 
@@ -69,7 +70,7 @@ abstract class WorkspaceSpecification extends Specification {
     protected void deleteAllProjects(boolean includingContent) {
         workspace.run({
             for (IProject project : CorePlugin.workspaceOperations().allProjects) {
-                project.delete(includingContent, true, null);
+                project.delete(includingContent, true, null)
             }
         } as IWorkspaceRunnable, null)
     }
@@ -79,7 +80,7 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected void waitForResourceChangeEvents() {
-        workspace.run({} as IWorkspaceRunnable, null, IResource.NONE, null);
+        workspace.run({} as IWorkspaceRunnable, null, IResource.NONE, null)
     }
 
     protected <T> void registerService(Class<T> serviceType, T implementation) {
@@ -224,5 +225,31 @@ abstract class WorkspaceSpecification extends Specification {
 
     protected ILaunchConfigurationWorkingCopy createGradleLaunchConfig(String name = 'launch-config') {
         createLaunchConfig(GradleRunConfigurationDelegate.ID, name)
+    }
+
+    protected static String getJcenterRepositoryBlock() {
+        String jcenterMirror = System.getProperty("org.eclipse.buildship.eclipsetest.mirrors.jcenter")
+        if (jcenterMirror == null) {
+            """
+                repositories {
+                    if (org.gradle.api.JavaVersion.current().isJava8Compatible()) {
+                        jcenter()
+                    } else {
+                        maven {
+                            url = "http://jcenter.bintray.com"
+                        }
+                    }
+                }
+            """
+        } else {
+            """
+                repositories {
+                    maven {
+                        name = 'jcenter-mirror'
+                        url "$jcenterMirror"
+                    }
+                }
+            """
+        }
     }
 }
