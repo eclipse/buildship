@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="Buildship Eclipse Luna Target Platform" sequenceNumber="1">
+<?pde version="3.8"?><target name="Buildship Eclipse Photon Target Platform" sequenceNumber="1">
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-            <unit id="org.eclipse.m2e.feature.feature.group" version="1.5.1.20150109-1820"/>
-            <unit id="org.eclipse.sdk.ide" version="4.4.2.M20150204-1700"/>
-            <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-luna/"/>
+            <unit id="org.eclipse.m2e.feature.feature.group" version="1.9.0.20180131-0104"/>
+            <unit id="org.eclipse.sdk.ide" version="4.8.0.I20180308-0630"/>
+            <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-photon/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="com.gradleware.tooling.client" version="0.19.5.v20181001144510"/>
@@ -22,7 +22,7 @@
             <unit id="com.google.guava" version="15.0.0.v201403281430"/>
             <unit id="org.junit" version="4.12.0.v201504281640"/>
             <unit id="org.slf4j.api" version="1.7.2.v20121108-1250"/>
-            <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a/"/>
+            <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-photon-m7/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.swtbot.eclipse.feature.group" version="2.2.1.201402241301"/>
@@ -30,7 +30,7 @@
             <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release/"/>
         </location>
     </locations>
-    <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+    <targetJRE path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
     <launcherArgs>
         <vmArgs>-XX:MaxPermSize=128M</vmArgs>
     </launcherArgs>

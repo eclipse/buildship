@@ -163,7 +163,7 @@ public final class GradleClasspathProvider extends StandardClasspathProvider imp
         return false;
     }
 
-    private static IRuntimeClasspathEntry[] resolveOutputLocations(IRuntimeClasspathEntry projectEntry, IJavaProject project, LaunchConfigurationScope configurationScopes)
+    public static IRuntimeClasspathEntry[] resolveOutputLocations(IRuntimeClasspathEntry projectEntry, IJavaProject project, LaunchConfigurationScope configurationScopes)
             throws CoreException {
         List<IPath> outputLocations = Lists.newArrayList();
         boolean hasSourceFolderWithoutCustomOutput = false;

@@ -11,8 +11,9 @@ import org.eclipse.jdt.core.IAccessRule
 import org.eclipse.jdt.core.IClasspathAttribute
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.JavaCore
-
+import org.eclipse.buildship.core.CorePlugin
 import org.eclipse.buildship.core.Logger
+import org.eclipse.buildship.core.notification.UserNotification
 import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.workspace.GradleClasspathContainer
 import org.eclipse.buildship.core.workspace.WorkspaceOperations
@@ -22,7 +23,63 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
 
     private static final String NON_DEPLOYED = "org.eclipse.jst.component.nondependency"
     private static final String DEPLOYED = "org.eclipse.jst.component.dependency"
-    private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature";
+    private static final String WTP_COMPONENT_NATURE = "org.eclipse.wst.common.modulecore.ModuleCoreNature"
+
+    def "Do not check mixed deployment paths without WTP installed"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                apply plugin: 'ear'
+                ${jcenterRepositoryBlock}
+                dependencies {
+                    earlib 'org.assertj:assertj-core:3.10.0'
+                    deploy "log4j:log4j:1.2.17"
+                }
+            """
+        }
+
+        UserNotification notification = Mock(UserNotification)
+        registerService(UserNotification, notification)
+
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root)
+
+        then:
+        0 * notification.errorOccurred(*_)
+
+    }
+
+    def "Check mixed deployment paths with WTP installed"() {
+        setup:
+        File root = dir("project") {
+            file 'build.gradle', """
+                apply plugin: 'java'
+                apply plugin: 'ear'
+                ${jcenterRepositoryBlock}
+                dependencies {
+                    earlib 'org.assertj:assertj-core:3.10.0'
+                    deploy "log4j:log4j:1.2.17"
+                }
+            """
+        }
+
+        UserNotification notification = Mock(UserNotification)
+        registerService(UserNotification, notification)
+
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
+        registerService(WorkspaceOperations, operations)
+
+        when:
+        importAndWait(root)
+
+        then:
+        1 * notification.errorOccurred(*_)
+
+    }
 
     def "The eclipseWtp task is run before importing WTP projects"() {
         setup:
@@ -33,7 +90,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -53,7 +110,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: false)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -73,7 +130,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -94,7 +151,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -112,7 +169,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         File root = dir("project") {
             file 'build.gradle', """
                 apply plugin: 'war'
-                repositories.jcenter()
+                ${jcenterRepositoryBlock}
                 dependencies {
                     compile "junit:junit:4.12"
                 }
@@ -134,7 +191,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         File root = dir("project") {
             file 'build.gradle', """
                 apply plugin: 'java'
-                repositories.jcenter()
+                ${jcenterRepositoryBlock}
                 dependencies {
                     compile "junit:junit:4.12"
                 }
@@ -147,8 +204,8 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         then:
         def project = findProject('project')
         IClasspathEntry dependency = resolvedClasspath(project).find { it.path.lastSegment() == 'junit-4.12.jar' }
-        IClasspathAttribute[] attributes = dependency.getExtraAttributes()
-        attributes.length == 0
+        List attributes = dependency.extraAttributes.findAll { [DEPLOYED, NON_DEPLOYED].contains(it.name) }
+        attributes.size() == 0
     }
 
     def "Deployed attribute is set for deployed dependencies"() {
@@ -156,7 +213,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         File root = dir("project") {
             file 'build.gradle', """
                 apply plugin: 'war'
-                repositories.jcenter()
+                ${jcenterRepositoryBlock}
                 dependencies {
                     compile "junit:junit:4.12"
                 }
@@ -178,7 +235,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         File root = dir("project") {
             file 'build.gradle', """
                 apply plugin: 'war'
-                repositories.jcenter()
+                ${jcenterRepositoryBlock}
                 dependencies {
                     compile "junit:junit:4.12"
                 }
@@ -200,7 +257,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         File root = dir("project") {
             file 'build.gradle', """
                 apply plugin: 'war'
-                repositories.jcenter()
+                ${jcenterRepositoryBlock}
                 dependencies {
                     providedCompile "junit:junit:4.12"
                 }
@@ -223,7 +280,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         File root = dir("project") {
             file 'build.gradle', """
                 apply plugin: 'war'
-                repositories.jcenter()
+                ${jcenterRepositoryBlock}
                 dependencies {
                     providedCompile "junit:junit:4.12"
                 }
@@ -246,7 +303,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'java'
                 apply plugin: 'eclipse'
                 apply plugin: 'ear'
-                repositories.jcenter()
+                ${jcenterRepositoryBlock}
                 dependencies {
                     deploy "junit:junit:4.12"
                     earlib "com.google.guava:guava:19.0"
@@ -274,9 +331,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'eclipse'
                 apply plugin: 'war'
 
-                repositories {
-                    jcenter()
-                }
+                ${jcenterRepositoryBlock}
 
                 dependencies {
                     providedCompile "junit:junit:4.12"
@@ -316,7 +371,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=506627")
     def "Cleans up outdated component configuration"() {
         setup:
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         File root = dir("wtp-project") {
@@ -367,7 +422,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             file 'settings.gradle', "includeBuild 'included'"
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(recognizeWtpComponentNature: true)
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
         registerService(WorkspaceOperations, operations)
 
         when:
@@ -382,10 +437,14 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
 
     class WorkspaceOperationsDelegate {
         @Delegate WorkspaceOperations delegate = new DefaultWorkspaceOperations()
-        boolean recognizeWtpComponentNature
+        boolean wtpInstalled
+
+        boolean isWtpInstalled () {
+            wtpInstalled
+        }
 
         boolean isNatureRecognizedByEclipse(String nature) {
-            nature == WTP_COMPONENT_NATURE ? recognizeWtpComponentNature : delegate.isNatureRecognizedByEclipse(nature)
+            nature == WTP_COMPONENT_NATURE ? wtpInstalled : delegate.isNatureRecognizedByEclipse(nature)
         }
     }
 

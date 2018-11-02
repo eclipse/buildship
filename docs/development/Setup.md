@@ -115,24 +115,19 @@ in the top-right corner. This will fix all compilation issues. Note that this mi
 SDK for the specified Eclipse version will be downloaded.
 
 
-## Running the tests inside of Eclipse
+## Running the tests in Eclipse
 
 To run the complete set of core tests from inside Eclipse, right-click
-on the package _org.eclipse.buildship.core.test_ and choose _Run As >> JUnit Plug-In-Test_
-(not as a _JUnit Test_!). Individual tests can be run the same way.
+on the _org.eclipse.buildship.core.test_ package and choose _Run As >> JUnit Plug-In-Test_.
+Individual tests can be run the same way.
 
 To run the complete set of ui tests from inside Eclipse, right-click
-on the package _org.eclipse.buildship.ui.test_ and choose _Run As >> Run Configurations..._. In the
+on the _org.eclipse.buildship.ui.test_ package and choose _Run As >> Run Configurations..._. In the
 shown dialog, create a new _JUnit Plug-In-Test_ run configuration. Select the _Test_ tab and ensure
 that the _Run in UI thread_ checkbox is unchecked, then click _Run_ (Buildship uses SWTBot tests, which
-must be run in a non-UI thread). When running the UI tests in the future, click on the package
-_org.eclipse.buildship.ui.test_ and choose _Run As >> JUnit Plug-In-Test_ (not as a _JUnit Test_!) since
+must be run in a non-UI thread). When running the UI tests in the future, click on the
+_org.eclipse.buildship.ui.test_ package and choose _Run As >> JUnit Plug-In-Test_ since
 the run configurations are saved. Individual tests can be run the same way.
-
-If you encounter a problem with the UI plug-in when running isolated tests in Eclipse from _org.eclipse.buildship.core.test_,
-right click on the test you wish to run and choose _Run As >> Run Configurations..._. Next, select the _Plug-ins_ tab. Click
-on the drop-down box beside the text that says _'Launch with:'_ and select _'plug-ins selected below only'_. In the _Plug-ins_
-box, deselect the _org.eclipse.buildship.ui_ plugin. The test should now run.
 
 ## Enabling Tracing
 

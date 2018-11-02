@@ -45,7 +45,7 @@ class ExecutionsViewPerformanceTest extends ProjectSynchronizationSpecification 
             long end = System.currentTimeMillis()
 
             then:
-            end - start < 5000
+            end - start < 10000
             view.pages.size() == 1
 
             cleanup:

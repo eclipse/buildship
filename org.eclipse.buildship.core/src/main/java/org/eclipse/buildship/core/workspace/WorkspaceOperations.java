@@ -178,4 +178,11 @@ public interface WorkspaceOperations {
      * @return true if Eclipse supports this nature, false otherwise
      */
     boolean isNatureRecognizedByEclipse(String natureId);
+
+    /**
+     * Checks whether WTP is installed in the current instance.
+     *
+     * @return true if WTP is installed, false otherwise
+     */
+    boolean isWtpInstalled ();
 }

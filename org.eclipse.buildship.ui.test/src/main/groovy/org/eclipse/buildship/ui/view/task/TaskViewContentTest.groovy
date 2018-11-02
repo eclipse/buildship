@@ -189,6 +189,35 @@ class TaskViewContentTest extends BaseTaskViewTest {
     }
     
 
+    def "Subprojects should be under the parent project's folder when not showing flatten project hierarchy"() {
+        given:
+        view.state.projectHierarchyFlattened = false
+
+        def firstRoot = dir("root1") {
+            file 'settings.gradle', "include 'sub', 'sub:ss1'"
+
+            file 'build.gradle'
+
+            dir ('sub') {
+                dir('ss1')
+            }
+        }
+
+         def secondRoot = dir("root2") {
+            file 'settings.gradle'
+        }
+
+        importAndWait(firstRoot)
+        importAndWait(secondRoot)
+
+        when:
+        waitForTaskView()
+
+        then:
+        taskTree.collect { k, v -> k } == ['root1','root2']
+        taskTree.root1.sub.containsKey('ss1')
+    }
+
     private def getTaskTree() {
         getChildren(tree.allItems as List)
     }

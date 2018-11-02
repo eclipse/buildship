@@ -1,10 +1,10 @@
 package org.eclipse.buildship.core.workspace.internal
 
 import org.eclipse.buildship.core.CorePlugin
-import org.eclipse.buildship.core.Logger;
+import org.eclipse.buildship.core.Logger
 import org.eclipse.buildship.core.configuration.GradleProjectNature
 import org.eclipse.buildship.core.test.fixtures.EclipseProjects
-import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification;
+import org.eclipse.buildship.core.test.fixtures.ProjectSynchronizationSpecification
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IProjectDescription
@@ -76,12 +76,12 @@ class ImportingFlatMultiProjectBuild extends ProjectSynchronizationSpecification
     private File createSampleProject() {
          dir('root') {
             sampleDir = sample {
-                file 'build.gradle', '''
+                file 'build.gradle', """
                     allprojects {
-                        repositories { mavenCentral() }
+                        ${jcenterRepositoryBlock}
                         apply plugin: 'java'
                     }
-                '''
+                """
                 file 'settings.gradle', """
                     includeFlat 'moduleA'
                     includeFlat 'moduleB'

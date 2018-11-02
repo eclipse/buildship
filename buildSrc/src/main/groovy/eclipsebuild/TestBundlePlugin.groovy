@@ -11,6 +11,8 @@
 
 package eclipsebuild
 
+import eclipsebuild.testing.EclipseTestTask
+
 import javax.inject.Inject
 
 import eclipsebuild.testing.EclipseTestExecuter
@@ -100,7 +102,7 @@ class TestBundlePlugin implements Plugin<Project> {
 
     static void addTaskCreateEclipseTest(Project project) {
         Config config = Config.on(project)
-        def eclipseTest = project.task(TASK_NAME_ECLIPSE_TEST, type: Test) {
+        def eclipseTest = project.task(TASK_NAME_ECLIPSE_TEST, type: EclipseTestTask) {
             group = Constants.gradleTaskGroupName
             description = 'Installs all dependencies into a fresh Eclipse, runs the IDE and executes the test classes with the PDE Test Runner'
 

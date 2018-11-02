@@ -14,9 +14,6 @@ During the import, the Eclipse projects are created and added to the current wor
 the source paths and the classpath container which contains the external dependencies and the project dependencies are
 configured. The content of the classpath container is refreshed each time the project is opened.
 
-If a project already contains an Eclipse project descriptor, Buildship allows the user to decide whether to merge the
-information from Gradle into the existing files or to overwrite the files.
-
 You can stop the import at any time by pressing the Stop button in the Progress View.
 
 
@@ -28,7 +25,7 @@ You can create a new Gradle project and add it the current workspace with the Ne
 ## Task View
 
 In the Gradle Task View, you can see the tasks of all the imported Gradle projects. The tasks can be sorted, filtered,
-and executed. The selection in Eclipse can be key linked to the selection of the task view, both ways. The content of
+and executed. The selection in Eclipse can be linked to the selection of the task view, both ways. The content of
 the task view can be refreshed, meaning the latest versions of the Gradle build files are loaded. You can navigate from
 a project to its build file through the context menu.
 
@@ -44,34 +41,42 @@ Whenever a Gradle build is executed, a new Gradle console is opened that contain
 the execution of the build by pressing the Stop button in the Gradle console. The Gradle consoles can be closed individually
 or all at once.
 
+## Executions View
 
-## Task Execution Progress
+Whenever a Gradle build is executed, a new Execution page is opened in the Executions View that displays the progress of running the build. You can see the different life-cycle phases of the build, the tasks and tests being run, and the success of each operation.
 
-Whenever a Gradle build is executed, a new Execution page is opened in the Executions View that displays the progress of
-running the build. You can see the different life-cycle phases of the build, the tasks and tests being run, and the success
-of each operation.
-
-You can switch between the execution pages and you can jump to the corresponding Gradle console. You can also rerun a finished
-build. You can cancel the execution of the build by pressing the Stop button in the execution page. The execution pages can be
-closed individually or all at once.
+You can switch between the execution pages and you can jump to the corresponding Gradle console. You can also rerun a finished build. You can cancel the execution of the build by pressing the Stop button in the execution page. The execution pages can be closed individually or all at once.
 
 This is available if the Gradle build is run with target Gradle version 2.5 or newer.
 
 
 ## Test execution
 
-Tests can be executed from the Executions View. You can select one or more tests in the Execution View and they will be run
-by the respective Test task in Gradle. Any setup tasks and teardown tasks that would be run when invoking the Test task from 
-the cmd line are run, too.
- 
-Tests classes and test methods can also be run from the Code Editor through the context menu. 
-  
+You can run tests from the Execution page through right-clicking on a node that represents a test class or test method. A new Gradle build is executed and the selected tests are run by Gradle. If the test task to which the tests belongs has setup and cleanup tasks configured, those are run accordingly. Once the build has finished and there are test failures, you can rerun all failed tests by pressing the Rerun Failed Tests button in the execution page.
+
+This is available if the Gradle build is run with target Gradle version 2.6 or newer.
+
+## Basic Web project support
+
+If you import a web project and your Eclipse contains the Web Tools Platform plugin then Buildship will automatically generate the WTP configuration files. The generated files will respect all customizations that are defined in the eclipse-wtp Gradle plugin.
+
+## Build scans
+
+You can enable [build scans](https://scans.gradle.com/) from the preferences for the entire workspace or for projects individually. If enabled and the project applies the `com.gradle.build-scan` plugin then a build scan is published after each build automatically. You can open the published build scans by clicking on the URL in the console view or by clicking on the 'Open build scan' button on the Execution view's toolbar.
+
+## Hierarchical preferences
+
+There are three hierarchical levels of configuration in Buildship. You can define default workspace settings for the project import, the build scans capturing, and for the offline mode. You can override those workspace settings in the project configuration settings. Finally, you can override the project configuration settings on any run configuration.
 
 ## Cancellation
 
 You can cancel all long-running operations like importing a project, executing tasks, refreshing the tasks, etc.
 
 This is available if the Gradle build is run with target Gradle version 2.1 or newer.
+
+## Offline mode
+
+Just like the build scans, you can enable the offline mode from the workspace or from the project preferences. If enabled, the project synchronization and the build execution won't try to connect to the internet so that you can continue working without continuous connectivity. 
 
 ## Composite build support
 
