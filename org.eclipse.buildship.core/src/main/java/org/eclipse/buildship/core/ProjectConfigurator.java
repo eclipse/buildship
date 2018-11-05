@@ -22,12 +22,17 @@ import org.eclipse.core.runtime.IProgressMonitor;
  *
  * <p>
  * The synchronization makes use of the project configurators the following way. The algorithm calls
- * all configurators synchronously and sequentially. The configurator ordering is unspecified.
+ * all configurators synchronously and sequentially.
  * Before the synchronization starts, the algorithm creates new configurator instances and calls
  * their {@code init()} method. Then, during the synchronization, the {@code configure()} methods
  * are called at the end of each workspace project configuration. If a project gets dissociated with
  * the Gradle build, then the {@code unconfigure()} method is called first, followed by the
  * Buildship internal configuration removal.
+ *
+ * <p>
+ * The configurator ordering can be influenced via the {@code runsBefore} and {@code runsAfter}
+ * attribute in the extension. If the extension doesn't define the attributes then the ordering is
+ * unspecified.
  *
  * <p>
  * It's the implementation's responsibility to provide appropriate error handling. If a runtime
