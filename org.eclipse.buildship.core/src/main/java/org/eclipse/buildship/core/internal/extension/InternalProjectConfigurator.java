@@ -150,31 +150,27 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
     private static void filterCylicDependencies(List<ProjectConfiguratorContribution> configurators) {
         Map<String, ProjectConfiguratorContribution> idToConfigurator = configurators.stream()
                 .collect(Collectors.toMap(ProjectConfiguratorContribution::getFullyQualifiedId, Function.identity()));
-        MutableGraph<ProjectConfiguratorContribution> graph = GraphBuilder.directed().nodeOrder(ElementOrder.insertion()).build();
-        configurators.forEach(c -> graph.addNode(c));
+        MutableGraph<ProjectConfiguratorContribution> dependencyGraph = GraphBuilder.directed().nodeOrder(ElementOrder.insertion()).build();
+        configurators.forEach(c -> dependencyGraph.addNode(c));
         for (ProjectConfiguratorContribution configurator : configurators) {
-            Iterator<String> it = configurator.getRunsBefore().iterator();
-            while (it.hasNext()) {
-                String id = it.next();
-                ProjectConfiguratorContribution target = idToConfigurator.get(id);
-                graph.putEdge(configurator, target);
-                if (Graphs.hasCycle(graph)) {
-                    LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator dependency (" + configurator.getFullyQualifiedId() + " -> " + id + ") removed because it introduces dependency cycle");
-                    graph.removeEdge(configurator, target);
-                    it.remove();
-                }
-            }
+            filterCylicDependencies(configurator, configurator.getRunsBefore(), idToConfigurator, dependencyGraph, false);
+            filterCylicDependencies(configurator, configurator.getRunsAfter(), idToConfigurator, dependencyGraph, true);
+        }
+    }
 
-            it = configurator.getRunsAfter().iterator();
-            while (it.hasNext()) {
-                String id = it.next();
-                ProjectConfiguratorContribution target = idToConfigurator.get(id);
-                graph.putEdge(target, configurator);
-                if (Graphs.hasCycle(graph)) {
-                    LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator dependency (" + id + " -> " + configurator.getFullyQualifiedId() + ") removed because it introduces dependency cycle");
-                    graph.removeEdge(target, configurator);
-                    it.remove();
-                }
+    private static void filterCylicDependencies(ProjectConfiguratorContribution configurator, List<String> dependencyIds,
+            Map<String, ProjectConfiguratorContribution> idToConfigurator, MutableGraph<ProjectConfiguratorContribution> dependencyGraph,
+            boolean reverseDirection) {
+        Iterator<String> it = dependencyIds.iterator();
+        while (it.hasNext()) {
+            ProjectConfiguratorContribution otherConfigurator = idToConfigurator.get(it.next());
+            ProjectConfiguratorContribution source = reverseDirection ? otherConfigurator : configurator;
+            ProjectConfiguratorContribution target = reverseDirection ? configurator : otherConfigurator;
+            dependencyGraph.putEdge(source, target);
+            if (Graphs.hasCycle(dependencyGraph)) {
+                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator dependency (" + source.getFullyQualifiedId() + " -> " + target.getFullyQualifiedId() + ") removed because it introduces dependency cycle");
+                dependencyGraph.removeEdge(source, target);
+                it.remove();
             }
         }
     }
