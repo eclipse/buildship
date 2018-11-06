@@ -8,14 +8,12 @@
 
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.util.Collection;
 import java.util.Set;
 
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,7 +21,6 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 
 /**
  * Synchronizes each of the given Gradle builds with the workspace.
@@ -43,23 +40,10 @@ final class SynchronizeGradleBuildsOperation {
         BuildConfiguration buildConfig = this.build.getBuildConfig();
         progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", buildConfig.getRootProjectDirectory())));
         new ImportRootProjectOperation(buildConfig, this.newProjectHandler).run(progress.newChild(1));
-        Set<EclipseProject> allProjects = fetchEclipseProjects(this.build, tokenSource, progress.newChild(1));
+        Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this.build, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
         new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
         new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource);
         new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler, ProjectConfigurators.create(this.build, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
-    }
-
-
-    private Set<EclipseProject> fetchEclipseProjects(GradleBuild build, CancellationTokenSource tokenSource, SubMonitor progress) {
-        progress.setTaskName("Loading Gradle project models");
-        ModelProvider modelProvider = build.getModelProvider();
-
-        Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, FetchStrategy.FORCE_RELOAD, tokenSource, progress);
-        ImmutableSet.Builder<EclipseProject> result = ImmutableSet.builder();
-        for (EclipseProject model : models) {
-            result.addAll(HierarchicalElementUtils.getAll(model));
-        }
-        return result.build();
     }
 
     public static SynchronizeGradleBuildsOperation forSingleGradleBuild(GradleBuild build, NewProjectHandler newProjectHandler) {

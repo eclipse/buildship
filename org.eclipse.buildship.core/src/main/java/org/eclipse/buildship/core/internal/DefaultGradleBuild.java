@@ -57,6 +57,11 @@ public final class DefaultGradleBuild implements GradleBuild {
         this.gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration);
     }
 
+
+    public org.eclipse.buildship.core.internal.workspace.GradleBuild getInternalGradleBuild() {
+        return this.gradleBuild;
+    }
+
     @Override
     public SynchronizationResult synchronize(IProgressMonitor monitor) {
         return synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), monitor);
