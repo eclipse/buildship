@@ -19,6 +19,8 @@ import org.eclipse.jface.viewers.ViewerFilter;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.ui.internal.UiPlugin;
+import org.eclipse.buildship.ui.internal.UiTraceScopes;
 
 /**
  * Allows users to show or hide the sub projects in the Navigator, Project and Package Explorer.
@@ -53,7 +55,7 @@ public final class SubProjectViewerFilter extends ViewerFilter {
                 return false;
             }
         } catch (Exception e) {
-            CorePlugin.logger().debug(String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
+            UiPlugin.logger().trace(UiTraceScopes.NAVIGATOR, String.format("Could not check whether folder %s is a sub project.", folder.getFullPath()), e);
             return false;
         }
     }

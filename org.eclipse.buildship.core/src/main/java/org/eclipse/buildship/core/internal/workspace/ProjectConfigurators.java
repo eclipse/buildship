@@ -24,18 +24,18 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.buildship.core.BuildConfiguration;
 import org.eclipse.buildship.core.GradleCore;
 import org.eclipse.buildship.core.InitializationContext;
-import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.extension.InternalProjectConfigurator;
 import org.eclipse.buildship.core.internal.extension.ProjectConfiguratorContribution;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
 final class ProjectConfigurators {
 
     private final GradleBuild gradleBuild;
-    private final List<ProjectConfiguratorContribution> contributions;
+    private final List<InternalProjectConfigurator> contributions;
 
-    private ProjectConfigurators(GradleBuild gradleBuild, List<ProjectConfiguratorContribution> contributions) {
+    private ProjectConfigurators(GradleBuild gradleBuild, List<InternalProjectConfigurator> contributions) {
         this.gradleBuild = gradleBuild;
         this.contributions = contributions;
     }
@@ -45,10 +45,9 @@ final class ProjectConfigurators {
 
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(this.contributions.size());
-        for (ProjectConfiguratorContribution contribution : this.contributions) {
-            ProjectConfigurator configurator = contribution.getConfigurator();
+        for (InternalProjectConfigurator contribution : this.contributions) {
             try {
-                configurator.init(context, progress.newChild(1));
+                contribution.init(context, progress.newChild(1));
             } catch (Exception e) {
                 logFailureAndAddErrorMarker(contribution, e, "initialize");
             }
@@ -60,9 +59,9 @@ final class ProjectConfigurators {
 
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(this.contributions.size());
-        for (ProjectConfiguratorContribution contribution : this.contributions) {
+        for (InternalProjectConfigurator contribution : this.contributions) {
             try {
-                contribution.getConfigurator().configure(context, progress.newChild(1));
+                contribution.configure(context, progress.newChild(1));
             } catch (Exception e) {
                 logFailureAndAddErrorMarker(contribution, e, "configure project '" + project.getName() + "'");
             }
@@ -74,9 +73,9 @@ final class ProjectConfigurators {
 
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(this.contributions.size());
-        for (ProjectConfiguratorContribution contribution : this.contributions) {
+        for (InternalProjectConfigurator contribution : this.contributions) {
             try {
-                contribution.getConfigurator().unconfigure(context, progress.newChild(1));
+                contribution.unconfigure(context, progress.newChild(1));
             } catch (Exception e) {
                 logFailureAndAddErrorMarker(contribution, e, "unconfigure project '" + project.getName() + "'");
             }
@@ -84,7 +83,7 @@ final class ProjectConfigurators {
     }
 
     static ProjectConfigurators create(GradleBuild gradleBuild, List<ProjectConfiguratorContribution> configurators) {
-        return new ProjectConfigurators(gradleBuild, configurators);
+        return new ProjectConfigurators(gradleBuild, InternalProjectConfigurator.from(configurators));
     }
 
     private static InitializationContext newInitializationContext(GradleBuild internalGradleBuild) {
@@ -109,11 +108,8 @@ final class ProjectConfigurators {
         };
     }
 
-    private void logFailureAndAddErrorMarker(ProjectConfiguratorContribution contribution, Exception exception, String operationName) {
-        String message = String.format("Project configurator '%s' from plugin '%s' failed to %s",
-                contribution.getConfigurator().getClass().getSimpleName(),
-                contribution.getContributorPluginId(),
-                operationName);
+    private void logFailureAndAddErrorMarker(InternalProjectConfigurator contribution, Exception exception, String operationName) {
+        String message = String.format("Project configurator '%s' failed to %s", contribution.getFullyQualifiedId(), operationName);
         Status status = new Status(IStatus.WARNING, contribution.getContributorPluginId(), message, exception);
         CorePlugin.getInstance().getLog().log(status);
 

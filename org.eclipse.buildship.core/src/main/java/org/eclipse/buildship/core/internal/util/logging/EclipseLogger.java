@@ -11,10 +11,14 @@
 
 package org.eclipse.buildship.core.internal.util.logging;
 
-import org.eclipse.buildship.core.internal.Logger;
+import java.util.Map;
+
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+
+import org.eclipse.buildship.core.internal.Logger;
+import org.eclipse.buildship.core.internal.TraceScope;
 
 /**
  * Logs to the Eclipse logging infrastructure. Only logs debug information if tracing is enabled.
@@ -25,24 +29,29 @@ public final class EclipseLogger implements Logger {
 
     private final ILog log;
     private final String pluginId;
-    private final boolean isDebugging;
+    private final Map<TraceScope, Boolean> tracingEnablement;
 
-    public EclipseLogger(ILog log, String pluginId, boolean isDebugging) {
+    public EclipseLogger(ILog log, String pluginId, Map<TraceScope, Boolean> tracingEnablement) {
         this.log = log;
         this.pluginId = pluginId;
-        this.isDebugging = isDebugging;
+        this.tracingEnablement = tracingEnablement;
     }
 
     @Override
-    public void debug(String message) {
-        if (this.isDebugging) {
-            this.log.log(new Status(IStatus.INFO, this.pluginId, message));
+    public boolean isScopeEnabled(TraceScope scope) {
+        return this.tracingEnablement.get(scope);
+    }
+
+    @Override
+    public void trace(TraceScope scope, String message) {
+        if (this.tracingEnablement.get(scope)) {
+            this.log.log(new Status(IStatus.INFO, this.pluginId, "[" + scope.getScopeKey() + "] " + message));
         }
     }
 
     @Override
-    public void debug(String message, Throwable t) {
-        if (this.isDebugging) {
+    public void trace(TraceScope scope, String message, Throwable t) {
+        if (this.tracingEnablement.get(scope)) {
             this.log.log(new Status(IStatus.INFO, this.pluginId, message, t));
         }
     }

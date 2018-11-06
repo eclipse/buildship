@@ -14,12 +14,15 @@ package org.eclipse.buildship.core.internal;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
+
+import com.google.common.collect.Maps;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
@@ -167,7 +170,12 @@ public final class CorePlugin extends Plugin {
     }
 
     private EclipseLogger createLogger() {
-        return new EclipseLogger(getLog(), PLUGIN_ID, isDebugging());
+        Map<TraceScope, Boolean> tracingEnablement = Maps.newHashMap();
+        for (TraceScope scope : CoreTraceScopes.values()) {
+            String option = Platform.getDebugOption("org.eclipse.buildship.core/trace/" + scope.getScopeKey());
+            tracingEnablement.put(scope, "true".equalsIgnoreCase(option));
+        }
+        return new EclipseLogger(getLog(), PLUGIN_ID, tracingEnablement);
     }
 
     private PublishedGradleVersionsWrapper createPublishedGradleVersions() {

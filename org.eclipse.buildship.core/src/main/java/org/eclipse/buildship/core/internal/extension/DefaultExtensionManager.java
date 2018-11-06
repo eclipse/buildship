@@ -9,47 +9,47 @@
 package org.eclipse.buildship.core.internal.extension;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.function.BiFunction;
 
-import com.google.common.collect.Lists;
+import com.google.common.annotations.VisibleForTesting;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 
-import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.invocation.InvocationCustomizer;
 
-public final class DefaultExtensionManager implements ExtensionManager {
+public class DefaultExtensionManager implements ExtensionManager {
 
     @Override
     public List<InvocationCustomizer> loadCustomizers() {
-        return loadExtensions("invocationcustomizers", InvocationCustomizer.class);
+        Collection<IConfigurationElement> elements = loadElements("invocationcustomizers");
+        List<InvocationCustomizer> result = new ArrayList<>(elements.size());
+        for (IConfigurationElement element : elements) {
+            try {
+                result.add(InvocationCustomizer.class.cast(element.createExecutableExtension("class")));
+            } catch (Exception e) {
+                CorePlugin.logger().warn("Cannot load invocationcustomizers extension", e);
+            }
+        }
+        return result;
     }
 
     @Override
     public List<ProjectConfiguratorContribution> loadConfigurators() {
-        return loadExtensions("projectconfigurators", ProjectConfigurator.class, (c, e) -> ProjectConfiguratorContribution.create(c, e.getContributor().getName()));
-    }
-
-    private static <T> List<T> loadExtensions(String extensionPointName, Class<T> extensionClass) {
-        return loadExtensions(extensionPointName, extensionClass, (c,e) -> c);
-    }
-
-    private static <T, U> List<U> loadExtensions(String extensionPointName, Class<T> extensionClass, BiFunction<T, IConfigurationElement, U> resultTransformer) {
-        IConfigurationElement[] elements = Platform.getExtensionRegistry().getConfigurationElementsFor(CorePlugin.PLUGIN_ID, extensionPointName);
-        ArrayList<U> result = Lists.newArrayList();
-        for (int i = 0; i < elements.length; i++) {
-            IConfigurationElement element = elements[i];
-            try {
-                T extension = extensionClass.cast(element.createExecutableExtension("class"));
-                result.add(resultTransformer.apply(extension, element));
-            } catch (CoreException e) {
-                CorePlugin.logger().warn("Cannot load " + extensionPointName + " extension" , e);
-            }
+        Collection<IConfigurationElement> elements = loadElements("projectconfigurators");
+        List<ProjectConfiguratorContribution> result = new ArrayList<>(elements.size());
+        for (IConfigurationElement element : elements) {
+            ProjectConfiguratorContribution contribution = ProjectConfiguratorContribution.from(element);
+            result.add(contribution);
         }
         return result;
+    }
+
+    @VisibleForTesting
+    Collection<IConfigurationElement> loadElements(String extensionPointName) {
+        return Arrays.asList(Platform.getExtensionRegistry().getConfigurationElementsFor(CorePlugin.PLUGIN_ID, extensionPointName));
     }
 }

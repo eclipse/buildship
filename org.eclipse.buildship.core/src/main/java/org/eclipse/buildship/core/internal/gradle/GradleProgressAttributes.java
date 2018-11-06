@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList.Builder;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.console.ProcessStreams;
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
@@ -81,7 +82,7 @@ public final class GradleProgressAttributes {
             configStream.write(line.getBytes());
             configStream.write(StandardSystemProperty.LINE_SEPARATOR.value().getBytes());
         } catch (IOException e) {
-            CorePlugin.logger().debug(String.format("Failed to write configuration %s to stream", line), e);
+            CorePlugin.logger().trace(CoreTraceScopes.PREFERENCES, String.format("Failed to write configuration %s to stream", line), e);
         }
     }
 

@@ -21,10 +21,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
-import org.eclipse.buildship.core.GradleDistribution;
 
 /**
  * Default implementation for {@link ConfigurationManager}.
@@ -111,7 +112,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         try {
             return loadProjectConfiguration(project);
         } catch(RuntimeException e) {
-            CorePlugin.logger().debug("Cannot load configuration for project " + project.getName(), e);
+            CorePlugin.logger().trace(CoreTraceScopes.PREFERENCES, "Cannot load configuration for project " + project.getName(), e);
             return null;
         }
     }
@@ -156,7 +157,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         try {
             projectConfiguration = loadProjectConfiguration(attributes.getWorkingDir());
         } catch (Exception e) {
-            CorePlugin.logger().debug("Can't load build config from " + attributes.getWorkingDir(), e);
+            CorePlugin.logger().trace(CoreTraceScopes.PREFERENCES, "Can't load build config from " + attributes.getWorkingDir(), e);
             DefaultBuildConfigurationProperties buildConfigProperties = new DefaultBuildConfigurationProperties(attributes.getWorkingDir(),
                     attributes.getGradleDistribution(),
                     attributes.getGradleUserHome(),

@@ -1,5 +1,8 @@
 package org.eclipse.buildship.core
 
+import org.eclipse.core.runtime.IConfigurationElement
+import org.eclipse.core.runtime.IContributor
+
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.extension.ExtensionManager
 import org.eclipse.buildship.core.internal.extension.ProjectConfiguratorContribution
@@ -16,9 +19,23 @@ abstract class BaseProjectConfiguratorTest extends ProjectSynchronizationSpecifi
     }
 
     protected def registerConfigurator(ProjectConfigurator configurator) {
-        CorePlugin.instance.extensionManager.configurators += new ProjectConfiguratorContribution(configurator, "custom.configurator.plugin.id")
+        ExtensionManager manager = CorePlugin.instance.extensionManager
+        int id = manager.configurators.size() + 1
+        manager.configurators += contribution(id, configurator)
         configurator
     }
+
+
+    private ProjectConfiguratorContribution contribution(id, configurator) {
+        IConfigurationElement extension = Mock(IConfigurationElement)
+        extension.createExecutableExtension('class') >> { configurator }
+        extension.getAttribute('id') >> "configurator$id"
+        IContributor contributor = Mock(IContributor)
+        contributor.getName() >> 'pluginId'
+        extension.getContributor() >> contributor
+        ProjectConfiguratorContribution.from(extension)
+    }
+
 
     static class TestExtensionManager {
         @Delegate ExtensionManager delegate
