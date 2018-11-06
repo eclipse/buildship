@@ -38,9 +38,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
         Logger logger = Mock(Logger)
         registerService(Logger, logger)
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = false
 
         when:
         SynchronizationResult result = tryImportAndWait(root)
@@ -62,9 +60,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         SynchronizationResult result = tryImportAndWait(root)
@@ -83,9 +79,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'eclipse'
             """
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -103,9 +97,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'eclipse'
             """
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = false
 
         when:
         importAndWait(root)
@@ -124,9 +116,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'eclipse'
             """
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         importAndWait(root, GradleDistribution.forVersion('2.13'))
@@ -146,8 +136,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -170,6 +159,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root, GradleDistribution.forVersion('2.13'))
@@ -192,6 +182,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -214,6 +205,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -236,6 +228,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -258,6 +251,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -281,6 +275,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -308,6 +303,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
         Logger logger = Mock(Logger)
         environment.registerService(Logger, logger)
+        wtpinstalled = true
 
         when:
         SynchronizationResult result = tryImportAndWait(root)
@@ -347,6 +343,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -365,8 +362,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=506627")
     def "Cleans up outdated component configuration"() {
         setup:
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         File root = dir("wtp-project") {
             dir 'src/main/java'
@@ -415,9 +411,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             }
             file 'settings.gradle', "includeBuild 'included'"
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -443,6 +437,11 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             def natureUpdaterCalled = new Exception().stackTrace.find { StackTraceElement element -> element.className == ProjectNatureUpdater.class.name && element.methodName == 'toNatures' }
             nature == WTP_COMPONENT_NATURE && !natureUpdaterCalled ? wtpInstalled : delegate.isNatureRecognizedByEclipse(nature)
         }
+    }
+
+    private void setWtpinstalled(boolean installed) {
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: installed)
+        registerService(WorkspaceOperations, operations)
     }
 
     private IClasspathEntry[] resolvedClasspath(IProject project) {
