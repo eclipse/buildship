@@ -4,6 +4,7 @@ import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 
+import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.jdt.core.IAccessRule
@@ -64,11 +65,13 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
 
         when:
         SynchronizationResult result = tryImportAndWait(root)
+        IProject project = findProject('project')
 
         then:
-        result.status.severity == IStatus.WARNING
-        result.status.exception instanceof UnsupportedConfigurationException
-        result.status.exception.message == "WTP currently does not support mixed deployment paths."
+        result.status.severity == IStatus.OK
+        gradleErrorMarkers.size() == 1
+        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
+        gradleErrorMarkers[0].getResource() == project
     }
 
     def "The eclipseWtp task is run before importing WTP projects"() {
@@ -307,9 +310,13 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
 
         when:
         SynchronizationResult result = tryImportAndWait(root)
+        IProject project = findProject('project')
 
         then:
-        result.status.exception instanceof UnsupportedConfigurationException
+        result.status.severity == IStatus.OK
+        gradleErrorMarkers.size() == 1
+        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
+        gradleErrorMarkers[0].getResource() == project
     }
 
     def "Does not override classpath container customisation"() {

@@ -17,6 +17,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.Lists;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -26,6 +27,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
 /**
  * Updates the Gradle classpath container to have the correct deployment attribute if any of its
@@ -40,15 +42,27 @@ final class WtpClasspathUpdater {
     private static final String DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.dependency";
     private static final String NON_DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.nondependency";
 
-    public static void update(IJavaProject javaProject, EclipseProject project, IProgressMonitor monitor) throws JavaModelException {
+    public static void update(IJavaProject javaProject, EclipseProject project, GradleBuild gradleBuild, IProgressMonitor monitor) throws JavaModelException {
         if (CorePlugin.workspaceOperations().isWtpInstalled()) {
-            List<EclipseExternalDependency> dependencies = Lists.newArrayList(project.getClasspath());
-            String deploymentPath = getDeploymentPath(dependencies);
-            if (deploymentPath != null) {
-                updateDeploymentPath(javaProject, deploymentPath, monitor);
-            } else if (hasNonDeploymentAttributes(dependencies)) {
-                markAsNonDeployed(javaProject, monitor);
+            try {
+                List<EclipseExternalDependency> dependencies = Lists.newArrayList(project.getClasspath());
+                String deploymentPath = getDeploymentPath(dependencies);
+                if (deploymentPath != null) {
+                    updateDeploymentPath(javaProject, deploymentPath, monitor);
+                } else if (hasNonDeploymentAttributes(dependencies)) {
+                    markAsNonDeployed(javaProject, monitor);
+                }
+            } catch (UnsupportedConfigurationException e) {
+                addErrorMarker(javaProject, gradleBuild, e);
             }
+        }
+    }
+
+    private static void addErrorMarker(IJavaProject javaProject, GradleBuild gradleBuild, UnsupportedConfigurationException exception) {
+        try {
+            GradleErrorMarker.create(javaProject.getProject(), gradleBuild, exception.getMessage(), null, 0);
+        } catch (CoreException e) {
+            CorePlugin.logger().warn("Can't create Gradle error marker", e);
         }
     }
 
