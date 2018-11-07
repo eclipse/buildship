@@ -17,7 +17,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.Lists;
 
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -40,14 +40,14 @@ final class WtpClasspathUpdater {
     private static final String DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.dependency";
     private static final String NON_DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.nondependency";
 
-    public static void update(IJavaProject javaProject, EclipseProject project, SubMonitor progress) throws JavaModelException {
+    public static void update(IJavaProject javaProject, EclipseProject project, IProgressMonitor monitor) throws JavaModelException {
         if (CorePlugin.workspaceOperations().isWtpInstalled()) {
             List<EclipseExternalDependency> dependencies = Lists.newArrayList(project.getClasspath());
             String deploymentPath = getDeploymentPath(dependencies);
             if (deploymentPath != null) {
-                updateDeploymentPath(javaProject, deploymentPath, progress);
+                updateDeploymentPath(javaProject, deploymentPath, monitor);
             } else if (hasNonDeploymentAttributes(dependencies)) {
-                markAsNonDeployed(javaProject, progress);
+                markAsNonDeployed(javaProject, monitor);
             }
         }
     }
@@ -78,15 +78,15 @@ final class WtpClasspathUpdater {
         return false;
     }
 
-    private static void updateDeploymentPath(IJavaProject javaProject, String deploymentPath, SubMonitor progress) throws JavaModelException {
-        replaceGradleClasspathContainerAttribute(javaProject, DEPLOYMENT_ATTRIBUTE, deploymentPath, NON_DEPLOYMENT_ATTRIBUTE, progress);
+    private static void updateDeploymentPath(IJavaProject javaProject, String deploymentPath, IProgressMonitor monitor) throws JavaModelException {
+        replaceGradleClasspathContainerAttribute(javaProject, DEPLOYMENT_ATTRIBUTE, deploymentPath, NON_DEPLOYMENT_ATTRIBUTE, monitor);
     }
 
-    private static void markAsNonDeployed(IJavaProject javaProject, SubMonitor progress) throws JavaModelException {
-        replaceGradleClasspathContainerAttribute(javaProject, NON_DEPLOYMENT_ATTRIBUTE, "", DEPLOYMENT_ATTRIBUTE, progress);
+    private static void markAsNonDeployed(IJavaProject javaProject, IProgressMonitor monitor) throws JavaModelException {
+        replaceGradleClasspathContainerAttribute(javaProject, NON_DEPLOYMENT_ATTRIBUTE, "", DEPLOYMENT_ATTRIBUTE, monitor);
     }
 
-    private static void replaceGradleClasspathContainerAttribute(IJavaProject project, String plusKey, String plusValue, String minusKey, SubMonitor progress)
+    private static void replaceGradleClasspathContainerAttribute(IJavaProject project, String plusKey, String plusValue, String minusKey, IProgressMonitor monitor)
             throws JavaModelException {
         IClasspathEntry[] oldClasspath = project.getRawClasspath();
         IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length];
@@ -99,7 +99,7 @@ final class WtpClasspathUpdater {
                 newClasspath[i] = entry;
             }
         }
-        project.setRawClasspath(newClasspath, progress);
+        project.setRawClasspath(newClasspath, monitor);
     }
 
     private static boolean isGradleClasspathContainer(IClasspathEntry entry) {
