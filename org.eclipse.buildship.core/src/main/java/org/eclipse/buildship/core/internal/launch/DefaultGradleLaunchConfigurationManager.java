@@ -74,6 +74,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
             // configure the launch configuration
             configurationAttributes.apply(launchConfiguration);
 
+            // try to persist the launch configuration and return it
             return persistConfiguration(launchConfiguration);
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot create Gradle launch configuration %s.", launchConfigurationName), e);
@@ -81,13 +82,10 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     }
 
     private ILaunchConfiguration persistConfiguration(ILaunchConfigurationWorkingCopy launchConfiguration) {
-        // persist the launch configuration and return it
         try {
             return launchConfiguration.doSave();
-        } catch (CoreException ce) {
-            // give a warning if any exception happended during
-            // persisting launch configuration file
-            CorePlugin.logger().warn("Cannot persist Gradle launch configuration", ce);
+        } catch (CoreException e) {
+            CorePlugin.logger().warn("Cannot persist Gradle launch configuration", e);
             return launchConfiguration;
         }
     }

@@ -98,10 +98,7 @@ class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {
         setup:
         Logger logger = Mock(Logger)
         registerService(Logger, logger)
-        List<String> tasks = []
-        (1..30).each {
-            tasks << ':buildEnvironment'
-        }
+        List<String> tasks = (1..30).collect { ':buildEnvironment' }
         def runConfigurationAttributes = createValidAttributes(tasks)
 
         when:
@@ -111,12 +108,8 @@ class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {
         1 * logger.warn(_, _)
     }
 
-    private GradleRunConfigurationAttributes createValidAttributes() {
-        return createValidAttributes(null)
-    }
-
-    private GradleRunConfigurationAttributes createValidAttributes(List<String> tasks) {
-        new GradleRunConfigurationAttributes(tasks == null ? ['clean'] : tasks,
+    private GradleRunConfigurationAttributes createValidAttributes(List<String> tasks = ['clean']) {
+        new GradleRunConfigurationAttributes(tasks,
             '/home/user/workspace/project',
             GradleDistribution.forVersion('2.3').toString(),
             null,
