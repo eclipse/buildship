@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.internal.launch
 
+import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.Status
@@ -93,8 +94,29 @@ class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {
         thrown(GradlePluginsRuntimeException)
     }
 
+    def "If can't persist launch configuration then a warning log is outputted"() {
+        setup:
+        Logger logger = Mock(Logger)
+        registerService(Logger, logger)
+        List<String> tasks = []
+        (1..30).each {
+            tasks << ':buildEnvironment'
+        }
+        def runConfigurationAttributes = createValidAttributes(tasks)
+
+        when:
+        manager.getOrCreateRunConfiguration(runConfigurationAttributes)
+
+        then:
+        1 * logger.warn(_, _)
+    }
+
     private GradleRunConfigurationAttributes createValidAttributes() {
-        new GradleRunConfigurationAttributes(['clean'],
+        return createValidAttributes(null)
+    }
+
+    private GradleRunConfigurationAttributes createValidAttributes(List<String> tasks) {
+        new GradleRunConfigurationAttributes(tasks == null ? ['clean'] : tasks,
             '/home/user/workspace/project',
             GradleDistribution.forVersion('2.3').toString(),
             null,
