@@ -8,6 +8,9 @@
 
 package org.eclipse.buildship.core.internal;
 
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.gradle.tooling.CancellationTokenSource;
@@ -34,6 +37,8 @@ import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
 public final class DefaultGradleBuild implements GradleBuild {
 
+    private static Set<GradleBuild> synchronizingBuilds = ConcurrentHashMap.newKeySet();
+
     private final org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild;
 
     public DefaultGradleBuild(IProject project) {
@@ -58,6 +63,8 @@ public final class DefaultGradleBuild implements GradleBuild {
     }
 
     public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        synchronizingBuilds.add(this);
+
         monitor = monitor != null ? monitor : new NullProgressMonitor();
         SynchronizeOperation operation = new SynchronizeOperation(newProjectHandler);
         try {
@@ -65,7 +72,13 @@ public final class DefaultGradleBuild implements GradleBuild {
             return newSynchronizationResult(Status.OK_STATUS);
         } catch (CoreException e) {
             return newSynchronizationResult(e.getStatus());
+        } finally {
+            synchronizingBuilds.remove(this);
         }
+    }
+
+    public boolean isSynchronizing() {
+        return synchronizingBuilds.contains(this);
     }
 
     private static SynchronizationResult newSynchronizationResult(final IStatus result) {
@@ -94,6 +107,26 @@ public final class DefaultGradleBuild implements GradleBuild {
                 throw e;
             }
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.gradleBuild);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        DefaultGradleBuild other = (DefaultGradleBuild) obj;
+        return Objects.equals(this.gradleBuild, other.gradleBuild);
     }
 
     /**
