@@ -83,6 +83,10 @@ public final class DefaultGradleBuild implements GradleBuild {
         }
     }
 
+    public boolean isSynchronizing() {
+        return syncOperations.containsKey(this);
+    }
+
     private static SynchronizationResult newSynchronizationResult(final IStatus result) {
         return new SynchronizationResult() {
 
