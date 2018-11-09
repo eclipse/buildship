@@ -66,7 +66,7 @@ public final class DefaultGradleBuild implements GradleBuild {
         synchronizingBuilds.add(this);
 
         monitor = monitor != null ? monitor : new NullProgressMonitor();
-        SynchronizeOperation operation = new SynchronizeOperation(newProjectHandler);
+        SynchronizeOperation operation = new SynchronizeOperation(this.gradleBuild, newProjectHandler);
         try {
             CorePlugin.operationManager().run(operation, tokenSource, monitor);
             return newSynchronizationResult(Status.OK_STATUS);
@@ -132,18 +132,20 @@ public final class DefaultGradleBuild implements GradleBuild {
     /**
      * Executes the synchronization on the target Gradle build.
      */
-    private class SynchronizeOperation extends BaseToolingApiOperation {
+    private static class SynchronizeOperation extends BaseToolingApiOperation {
 
+        private final org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild;
         private final NewProjectHandler newProjectHandler;
 
-        public SynchronizeOperation(NewProjectHandler newProjectHandler) {
-            super("Synchronize project " + DefaultGradleBuild.this.gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
+        public SynchronizeOperation(org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild, NewProjectHandler newProjectHandler) {
+            super("Synchronize project " + gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
+            this.gradleBuild = gradleBuild;
             this.newProjectHandler = newProjectHandler;
         }
 
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
-            DefaultGradleBuild.this.gradleBuild.synchronize(this.newProjectHandler, tokenSource, monitor);
+            this.gradleBuild.synchronize(this.newProjectHandler, tokenSource, monitor);
         }
 
         @Override
