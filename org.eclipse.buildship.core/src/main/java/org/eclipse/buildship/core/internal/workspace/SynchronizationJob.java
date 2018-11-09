@@ -47,10 +47,6 @@ public final class SynchronizationJob extends ToolingApiJob<Void> {
 
         // explicitly show a dialog with the progress while the project synchronization is in process
         setUser(true);
-
-        // guarantee sequential order of synchronize jobs
-        setRule(ResourcesPlugin.getWorkspace().getRoot());
-
     }
 
     public Iterable<GradleBuild> getGradleBuilds() {
