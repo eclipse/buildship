@@ -65,13 +65,12 @@ public final class DefaultGradleBuild implements GradleBuild {
     public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         monitor = monitor != null ? monitor : new NullProgressMonitor();
 
-        SynchronizeOperation runningOperation = syncOperations.get(this);
+        SynchronizeOperation operation = new SynchronizeOperation(this.gradleBuild, newProjectHandler);
+        SynchronizeOperation runningOperation = syncOperations.putIfAbsent(this, operation);
+
         if (runningOperation != null && (newProjectHandler == NewProjectHandler.NO_OP || Objects.equals(newProjectHandler, runningOperation.newProjectHandler))) {
             return newSynchronizationResult(Status.OK_STATUS);
         }
-
-        SynchronizeOperation operation = new SynchronizeOperation(this.gradleBuild, newProjectHandler);
-        syncOperations.put(this, operation);
 
         try {
             CorePlugin.operationManager().run(operation, tokenSource, monitor);
