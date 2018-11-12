@@ -8,6 +8,9 @@
 
 package org.eclipse.buildship.core.internal;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.gradle.tooling.CancellationTokenSource;
@@ -34,6 +37,8 @@ import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 
 public final class DefaultGradleBuild implements GradleBuild {
 
+    private static Map<DefaultGradleBuild, SynchronizeOperation> syncOperations = new ConcurrentHashMap<>();
+
     private final org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild;
 
     public DefaultGradleBuild(IProject project) {
@@ -59,13 +64,26 @@ public final class DefaultGradleBuild implements GradleBuild {
 
     public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         monitor = monitor != null ? monitor : new NullProgressMonitor();
-        SynchronizeOperation operation = new SynchronizeOperation(newProjectHandler);
+
+        SynchronizeOperation operation = new SynchronizeOperation(this.gradleBuild, newProjectHandler);
+        SynchronizeOperation runningOperation = syncOperations.putIfAbsent(this, operation);
+
+        if (runningOperation != null && (newProjectHandler == NewProjectHandler.NO_OP || Objects.equals(newProjectHandler, runningOperation.newProjectHandler))) {
+            return newSynchronizationResult(Status.OK_STATUS);
+        }
+
         try {
             CorePlugin.operationManager().run(operation, tokenSource, monitor);
             return newSynchronizationResult(Status.OK_STATUS);
         } catch (CoreException e) {
             return newSynchronizationResult(e.getStatus());
+        } finally {
+            syncOperations.remove(this);
         }
+    }
+
+    public boolean isSynchronizing() {
+        return syncOperations.containsKey(this);
     }
 
     private static SynchronizationResult newSynchronizationResult(final IStatus result) {
@@ -96,26 +114,68 @@ public final class DefaultGradleBuild implements GradleBuild {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.gradleBuild);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        DefaultGradleBuild other = (DefaultGradleBuild) obj;
+        return Objects.equals(this.gradleBuild, other.gradleBuild);
+    }
+
     /**
      * Executes the synchronization on the target Gradle build.
      */
-    private class SynchronizeOperation extends BaseToolingApiOperation {
+    private static class SynchronizeOperation extends BaseToolingApiOperation {
 
+        private final org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild;
         private final NewProjectHandler newProjectHandler;
 
-        public SynchronizeOperation(NewProjectHandler newProjectHandler) {
-            super("Synchronize project " + DefaultGradleBuild.this.gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
+        public SynchronizeOperation(org.eclipse.buildship.core.internal.workspace.GradleBuild gradleBuild, NewProjectHandler newProjectHandler) {
+            super("Synchronize project " + gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
+            this.gradleBuild = gradleBuild;
             this.newProjectHandler = newProjectHandler;
         }
 
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
-            DefaultGradleBuild.this.gradleBuild.synchronize(this.newProjectHandler, tokenSource, monitor);
+            this.gradleBuild.synchronize(this.newProjectHandler, tokenSource, monitor);
         }
 
         @Override
         public ISchedulingRule getRule() {
             return ResourcesPlugin.getWorkspace().getRoot();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.gradleBuild, this.newProjectHandler);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            SynchronizeOperation other = (SynchronizeOperation) obj;
+            return Objects.equals(this.gradleBuild, other.gradleBuild) && Objects.equals(this.newProjectHandler, other.newProjectHandler);
         }
     }
 

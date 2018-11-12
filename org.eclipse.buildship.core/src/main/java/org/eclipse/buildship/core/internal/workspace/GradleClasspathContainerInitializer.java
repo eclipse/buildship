@@ -20,11 +20,12 @@ import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.buildship.core.GradleBuild;
+import org.eclipse.buildship.core.GradleCore;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
-import org.eclipse.buildship.core.GradleBuild;
-import org.eclipse.buildship.core.GradleCore;
+import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 
 /**
  * Updates the Gradle classpath container of the given Java workspace project.
@@ -56,7 +57,7 @@ public final class GradleClasspathContainerInitializer extends ClasspathContaine
             Optional<GradleBuild> gradleBuild = GradleCore.getWorkspace().getBuild(project);
             if (!gradleBuild.isPresent()) {
                 GradleClasspathContainerUpdater.clear(javaProject, null);
-            } else {
+            } else if (!((DefaultGradleBuild)gradleBuild.get()).isSynchronizing()) {
                 SynchronizationJob job = new SynchronizationJob(gradleBuild.get());
                 job.setResultHandler(new ResultHander());
                 job.setUser(false);

@@ -15,7 +15,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
@@ -47,10 +46,6 @@ public final class SynchronizationJob extends ToolingApiJob<Void> {
 
         // explicitly show a dialog with the progress while the project synchronization is in process
         setUser(true);
-
-        // guarantee sequential order of synchronize jobs
-        setRule(ResourcesPlugin.getWorkspace().getRoot());
-
     }
 
     public Iterable<GradleBuild> getGradleBuilds() {
