@@ -1,10 +1,3 @@
-package org.eclipse.buildship.core.internal.workspace;
-
-import java.util.Collection;
-import java.util.Set;
-
-import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.model.eclipse.EclipseProject;
 /*
  * Copyright (c) 2018 the original author or authors.
  * All rights reserved. This program and the accompanying materials
@@ -12,6 +5,14 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+
+package org.eclipse.buildship.core.internal.workspace;
+
+import java.util.Collection;
+import java.util.Set;
+
+import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.ImmutableSet;
 

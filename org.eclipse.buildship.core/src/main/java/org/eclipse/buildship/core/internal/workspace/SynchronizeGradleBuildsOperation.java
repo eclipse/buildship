@@ -43,7 +43,7 @@ final class SynchronizeGradleBuildsOperation {
         Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this.build, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
         new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
         new RunOnImportTasksOperation(allProjects, buildConfig).run(progress.newChild(1), tokenSource);
-        new SynchronizeGradleBuildOperation(allProjects, buildConfig, SynchronizeGradleBuildsOperation.this.newProjectHandler, ProjectConfigurators.create(this.build, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
+        new SynchronizeGradleBuildOperation(allProjects, this.build, SynchronizeGradleBuildsOperation.this.newProjectHandler, ProjectConfigurators.create(this.build, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
     }
 
     public static SynchronizeGradleBuildsOperation forSingleGradleBuild(GradleBuild build, NewProjectHandler newProjectHandler) {

@@ -48,13 +48,13 @@ import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     private final Set<EclipseProject> allProjects;
-    private final BuildConfiguration buildConfig;
+    private final GradleBuild gradleBuild;
     private final NewProjectHandler newProjectHandler;
     private final ProjectConfigurators configurators;
 
-    SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, BuildConfiguration buildConfig, NewProjectHandler newProjectHandler, ProjectConfigurators configurators) {
+    SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, GradleBuild gradleBuild, NewProjectHandler newProjectHandler, ProjectConfigurators configurators) {
         this.allProjects = allProjects;
-        this.buildConfig = buildConfig;
+        this.gradleBuild = gradleBuild;
         this.newProjectHandler = newProjectHandler;
         this.configurators = configurators;
     }
@@ -62,7 +62,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
     @Override
     public void run(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor);
-        progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.buildConfig.getRootProjectDirectory()));
+        progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.gradleBuild.getBuildConfig().getRootProjectDirectory()));
         synchronizeProjectsWithWorkspace(progress);
     }
 
@@ -109,7 +109,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
                     ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().tryLoadProjectConfiguration(project);
                     if (projectConfiguration != null) {
                         BuildConfiguration buildConfiguration = projectConfiguration.getBuildConfiguration();
-                        return buildConfiguration.getRootProjectDirectory().equals(SynchronizeGradleBuildOperation.this.buildConfig.getRootProjectDirectory())
+                        return buildConfiguration.getRootProjectDirectory().equals(SynchronizeGradleBuildOperation.this.gradleBuild.getBuildConfig().getRootProjectDirectory())
                                 && (project.getLocation() == null || !gradleProjectDirectories.contains(project.getLocation().toFile()));
                     } else {
                         return false;
@@ -154,7 +154,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         // save the project configuration; has to be called after workspace project is in sync with the file system
         // otherwise the Eclipse preferences API will throw BackingStoreException
         ConfigurationManager configManager = CorePlugin.configurationManager();
-        ProjectConfiguration projectConfig = configManager.createProjectConfiguration(this.buildConfig, project.getProjectDirectory());
+        ProjectConfiguration projectConfig = configManager.createProjectConfiguration(this.gradleBuild.getBuildConfig(), project.getProjectDirectory());
         configManager.saveProjectConfiguration(projectConfig);
 
         workspaceProject = ProjectNameUpdater.updateProjectName(workspaceProject, project, this.allProjects, progress.newChild(1));
@@ -200,7 +200,7 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         ClasspathContainerUpdater.update(javaProject, project, progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, project, progress.newChild(1));
         GradleClasspathContainerUpdater.updateFromModel(javaProject, project, SynchronizeGradleBuildOperation.this.allProjects, persistentModel, progress.newChild(1));
-        WtpClasspathUpdater.update(javaProject, project, progress.newChild(1));
+        WtpClasspathUpdater.update(javaProject, project, this.gradleBuild, progress.newChild(1));
         CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(workspaceProject);
     }
 
