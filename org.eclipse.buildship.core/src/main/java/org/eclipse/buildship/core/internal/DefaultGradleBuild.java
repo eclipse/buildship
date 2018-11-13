@@ -57,6 +57,9 @@ public final class DefaultGradleBuild implements GradleBuild {
         this.gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration);
     }
 
+    public DefaultGradleBuild(org.eclipse.buildship.core.internal.workspace.DefaultGradleBuild gradleBuild) {
+        this.gradleBuild = gradleBuild;
+    }
 
     public org.eclipse.buildship.core.internal.workspace.GradleBuild getInternalGradleBuild() {
         return this.gradleBuild;

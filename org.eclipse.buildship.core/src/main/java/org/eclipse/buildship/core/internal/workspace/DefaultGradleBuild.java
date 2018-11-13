@@ -90,4 +90,8 @@ public class DefaultGradleBuild implements GradleBuild {
     public int hashCode() {
         return Objects.hashCode(this.buildConfig);
     }
+
+    public org.eclipse.buildship.core.GradleBuild toApiGradleBuild() {
+        return new org.eclipse.buildship.core.internal.DefaultGradleBuild(this);
+    }
 }

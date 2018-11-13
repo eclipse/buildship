@@ -21,8 +21,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 
-import org.eclipse.buildship.core.BuildConfiguration;
-import org.eclipse.buildship.core.GradleCore;
 import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
@@ -87,8 +85,7 @@ final class ProjectConfigurators {
     }
 
     private static InitializationContext newInitializationContext(GradleBuild internalGradleBuild) {
-        BuildConfiguration buildConfiguration = internalGradleBuild.getBuildConfig().toApiBuildConfiguration();
-        org.eclipse.buildship.core.GradleBuild gradleBuild = GradleCore.getWorkspace().createBuild(buildConfiguration);
+        org.eclipse.buildship.core.GradleBuild gradleBuild = ((DefaultGradleBuild)internalGradleBuild).toApiGradleBuild();
         return new InitializationContext() {
 
             @Override

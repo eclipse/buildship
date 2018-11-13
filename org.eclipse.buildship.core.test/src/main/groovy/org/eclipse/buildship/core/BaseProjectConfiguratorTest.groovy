@@ -10,8 +10,14 @@ import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationS
 
 abstract class BaseProjectConfiguratorTest extends ProjectSynchronizationSpecification {
 
+    int numOfInternalConfigurators
+
     def setup() {
+        ExtensionManager orignalManager = CorePlugin.instance.extensionManager
         CorePlugin.instance.extensionManager = new TestExtensionManager(CorePlugin.instance.extensionManager)
+        orignalManager.loadConfigurators()
+            .findAll{ c -> c.contributorPluginId == CorePlugin.PLUGIN_ID }
+            .each { c -> numOfInternalConfigurators++; CorePlugin.instance.extensionManager.configurators += c }
     }
 
     def cleanup() {
@@ -20,7 +26,7 @@ abstract class BaseProjectConfiguratorTest extends ProjectSynchronizationSpecifi
 
     protected def registerConfigurator(ProjectConfigurator configurator) {
         ExtensionManager manager = CorePlugin.instance.extensionManager
-        int id = manager.configurators.size() + 1
+        int id = manager.configurators.size() + 1 - numOfInternalConfigurators
         manager.configurators += contribution(id, configurator)
         configurator
     }
