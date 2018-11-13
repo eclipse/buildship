@@ -43,13 +43,15 @@ public final class GradleProgressAttributes {
     private final CancellationToken cancellationToken;
     private final ImmutableList<ProgressListener> progressListeners;
     private final ImmutableList<org.gradle.tooling.events.ProgressListener> progressEventListeners;
+    private final boolean isInteractive;
 
     private GradleProgressAttributes(ProcessStreams streams, CancellationToken cancellationToken, List<ProgressListener> progressListeners,
-            List<org.gradle.tooling.events.ProgressListener> progressEventListeners) {
+            List<org.gradle.tooling.events.ProgressListener> progressEventListeners, boolean isInteractive) {
         this.streams = Preconditions.checkNotNull(streams);
         this.cancellationToken = Preconditions.checkNotNull(cancellationToken);
         this.progressListeners = ImmutableList.copyOf(progressListeners);
         this.progressEventListeners = ImmutableList.copyOf(progressEventListeners);
+        this.isInteractive = isInteractive;
     }
 
     /**
@@ -60,7 +62,9 @@ public final class GradleProgressAttributes {
     public void applyTo(LongRunningOperation operation) {
         operation.setStandardOutput(this.streams.getOutput());
         operation.setStandardError(this.streams.getError());
-        operation.setStandardInput(this.streams.getInput());
+        if (this.isInteractive) {
+            operation.setStandardInput(this.streams.getInput());
+        }
         for (ProgressListener listener : this.progressListeners) {
             operation.addProgressListener(listener);
         }
@@ -107,6 +111,7 @@ public final class GradleProgressAttributes {
         private final IProgressMonitor monitor;
 
         private ProcessDescription processDescription = null;
+        private boolean isInteractive = true;
         private ProgressListener delegatingListener = null;
 
         public GradleProgressAttributesBuilder(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
@@ -116,6 +121,12 @@ public final class GradleProgressAttributes {
 
         public GradleProgressAttributesBuilder forBackgroundProcess() {
             this.processDescription = null;
+            return this;
+        }
+
+        public GradleProgressAttributesBuilder forNonInteractiveBackgroundProcess() {
+            this.processDescription = null;
+            this.isInteractive = false;
             return this;
         }
 
@@ -147,7 +158,7 @@ public final class GradleProgressAttributes {
             progressListeners.add(cancellationListener);
             progressEventListeners.add(cancellationListener);
 
-            return new GradleProgressAttributes(streams, this.tokenSource.token(), progressListeners.build(), progressEventListeners.build());
+            return new GradleProgressAttributes(streams, this.tokenSource.token(), progressListeners.build(), progressEventListeners.build(), this.isInteractive);
         }
     }
 }
