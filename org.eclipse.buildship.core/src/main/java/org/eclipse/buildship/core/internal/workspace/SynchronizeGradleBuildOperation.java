@@ -137,9 +137,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         }
     }
 
-    // TODO (donat) move this to BaseConfigurator
-    public static PersistentModelBuilder persistentModel;
-
     private void synchronizeOpenWorkspaceProject(EclipseProject project, IProject workspaceProject, boolean refreshNeeded, SubMonitor progress) throws CoreException {
         progress.setWorkRemaining(10);
 
@@ -161,10 +158,6 @@ final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
         CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
 
         this.configurators.configureConfigurators(workspaceProject, progress.newChild(1));
-
-        CorePlugin.modelPersistence().saveModel(persistentModel.build());
-
-        persistentModel = null;
     }
 
     private void synchronizeClosedWorkspaceProject(SubMonitor childProgress) {

@@ -15,7 +15,6 @@ import com.google.common.base.Optional;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -110,12 +109,8 @@ final class ProjectConfigurators {
         Status status = new Status(IStatus.WARNING, contribution.getContributorPluginId(), message, exception);
         CorePlugin.getInstance().getLog().log(status);
 
-        try {
-            IResource targetLocation = markerLocation();
-            GradleErrorMarker.create(targetLocation, this.gradleBuild, message, exception, 0);
-        } catch (CoreException e) {
-            CorePlugin.getInstance().getLog().log(e.getStatus());
-        }
+        IResource targetLocation = markerLocation();
+        GradleErrorMarker.create(targetLocation, this.gradleBuild, message, exception, 0);
     }
 
     private IResource markerLocation() {

@@ -69,12 +69,8 @@ public class GradleMarkerManager {
      * @param status the status to display in the marker
      */
     public static void addError(GradleBuild gradleBuild, ToolingApiStatus status) {
-        try {
-            ErrorMarkerLocation errorLocation = ErrorMarkerLocation.findErrorLocation(gradleBuild, status.getException());
-            GradleErrorMarker.create(errorLocation.getResource(), gradleBuild, collectErrorMessages(status.getException()), status.getException(), errorLocation.getLineNumber());
-        } catch (CoreException e) {
-            CorePlugin.getInstance().getLog().log(e.getStatus());
-        }
+        ErrorMarkerLocation errorLocation = ErrorMarkerLocation.findErrorLocation(gradleBuild, status.getException());
+        GradleErrorMarker.create(errorLocation.getResource(), gradleBuild, collectErrorMessages(status.getException()), status.getException(), errorLocation.getLineNumber());
     }
 
     private static String collectErrorMessages(Throwable t) {

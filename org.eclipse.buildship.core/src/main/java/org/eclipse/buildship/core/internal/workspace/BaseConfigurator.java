@@ -34,10 +34,10 @@ import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
 public class BaseConfigurator implements ProjectConfigurator {
 
-    // TODO (donat) shall we share the original EclipseProject instances via ProjectContext?
     private Map<File, EclipseProject> locationToProject;
     private org.eclipse.buildship.core.internal.workspace.GradleBuild internalGradleBuild;
 
@@ -51,64 +51,66 @@ public class BaseConfigurator implements ProjectConfigurator {
 
     @Override
     public void configure(ProjectContext context, IProgressMonitor monitor) {
+        IProject project = context.getProject();
         try {
-            doConfigure(context, monitor);
+            configure(project, monitor);
         } catch (CoreException e) {
-            // TODO (donat) maybe add and error marker
+            GradleErrorMarker.create(context.getProject(), this.internalGradleBuild, "Failed to configure project", e, 0);
             CorePlugin.logger().warn("Failed to configure project " + context.getProject().getName(), e);
         }
     }
 
-    private void doConfigure(ProjectContext context, IProgressMonitor monitor) throws CoreException {
+    private void configure(IProject project, IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(4);
 
-        IProject workspaceProject = context.getProject();
-        SynchronizeGradleBuildOperation.persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(workspaceProject));
-        EclipseProject model = lookupEclipseModel(context.getProject());
+        PersistentModelBuilder persistentModel = new PersistentModelBuilder(CorePlugin.modelPersistence().loadModel(project));
+        EclipseProject model = lookupEclipseModel(project);
         progress.worked(1);
 
-        BuildScriptLocationUpdater.update(model, SynchronizeGradleBuildOperation.persistentModel, progress.newChild(1));
+        BuildScriptLocationUpdater.update(model, persistentModel, progress.newChild(1));
 
-        LinkedResourcesUpdater.update(workspaceProject, ImmutableList.copyOf(model.getLinkedResources()), SynchronizeGradleBuildOperation.persistentModel, progress.newChild(1));
-        GradleFolderUpdater.update(workspaceProject, model, SynchronizeGradleBuildOperation.persistentModel, progress.newChild(1));
-        ProjectNatureUpdater.update(workspaceProject,  ImmutableList.copyOf(model.getProjectNatures()), SynchronizeGradleBuildOperation.persistentModel, progress.newChild(1));
-        BuildCommandUpdater.update(workspaceProject, ImmutableList.copyOf(model.getBuildCommands()), SynchronizeGradleBuildOperation.persistentModel, progress.newChild(1));
+        LinkedResourcesUpdater.update(project, ImmutableList.copyOf(model.getLinkedResources()), persistentModel, progress.newChild(1));
+        GradleFolderUpdater.update(project, model, persistentModel, progress.newChild(1));
+        ProjectNatureUpdater.update(project,  ImmutableList.copyOf(model.getProjectNatures()), persistentModel, progress.newChild(1));
+        BuildCommandUpdater.update(project, ImmutableList.copyOf(model.getBuildCommands()), persistentModel, progress.newChild(1));
 
         if (isJavaProject(model)) {
-            synchronizeJavaProject(model, workspaceProject, SynchronizeGradleBuildOperation.persistentModel, progress);
+            synchronizeJavaProject(model, project, persistentModel, progress);
         } else {
-            SynchronizeGradleBuildOperation.persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
+            persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
         }
+
+        CorePlugin.modelPersistence().saveModel(persistentModel.build());
     }
 
-    private void synchronizeJavaProject(final EclipseProject project, final IProject workspaceProject, final PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
+    private void synchronizeJavaProject(final EclipseProject model, final IProject project, final PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
         JavaCore.run(new IWorkspaceRunnable() {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException {
                 SubMonitor progress = SubMonitor.convert(monitor);
-                synchronizeJavaProjectInTransaction(project, workspaceProject, persistentModel, progress);
+                synchronizeJavaProjectInTransaction(model, project, persistentModel, progress);
             }
         }, progress.newChild(1));
     }
 
-    private void synchronizeJavaProjectInTransaction(final EclipseProject project, final IProject workspaceProject, PersistentModelBuilder persistentModel, SubMonitor progress) throws JavaModelException, CoreException {
+    private void synchronizeJavaProjectInTransaction(final EclipseProject model, final IProject project, PersistentModelBuilder persistentModel, SubMonitor progress) throws JavaModelException, CoreException {
         progress.setWorkRemaining(8);
         //old Gradle versions did not expose natures, so we need to add the Java nature explicitly
-        CorePlugin.workspaceOperations().addNature(workspaceProject, JavaCore.NATURE_ID, progress.newChild(1));
-        IJavaProject javaProject = JavaCore.create(workspaceProject);
-        OutputLocationUpdater.update(javaProject, project.getOutputLocation(), progress.newChild(1));
-        SourceFolderUpdater.update(javaProject, ImmutableList.copyOf(project.getSourceDirectories()), progress.newChild(1));
-        LibraryFilter.update(javaProject, project, progress.newChild(1));
-        ClasspathContainerUpdater.update(javaProject, project, progress.newChild(1));
-        JavaSourceSettingsUpdater.update(javaProject, project, progress.newChild(1));
-        GradleClasspathContainerUpdater.updateFromModel(javaProject, project, this.locationToProject.values(), persistentModel, progress.newChild(1));
-        WtpClasspathUpdater.update(javaProject, project, this.internalGradleBuild, progress.newChild(1));
-        CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(workspaceProject);
+        CorePlugin.workspaceOperations().addNature(project, JavaCore.NATURE_ID, progress.newChild(1));
+        IJavaProject javaProject = JavaCore.create(project);
+        OutputLocationUpdater.update(javaProject, model.getOutputLocation(), progress.newChild(1));
+        SourceFolderUpdater.update(javaProject, ImmutableList.copyOf(model.getSourceDirectories()), progress.newChild(1));
+        LibraryFilter.update(javaProject, model, progress.newChild(1));
+        ClasspathContainerUpdater.update(javaProject, model, progress.newChild(1));
+        JavaSourceSettingsUpdater.update(javaProject, model, progress.newChild(1));
+        GradleClasspathContainerUpdater.updateFromModel(javaProject, model, this.locationToProject.values(), persistentModel, progress.newChild(1));
+        WtpClasspathUpdater.update(javaProject, model, this.internalGradleBuild, progress.newChild(1));
+        CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(project);
     }
 
-    private boolean isJavaProject(EclipseProject project) {
-        return project.getJavaSourceSettings() != null;
+    private boolean isJavaProject(EclipseProject model) {
+        return model.getJavaSourceSettings() != null;
     }
 
     private EclipseProject lookupEclipseModel(IProject project) {

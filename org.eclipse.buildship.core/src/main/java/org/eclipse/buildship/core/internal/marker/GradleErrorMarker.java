@@ -36,20 +36,24 @@ public class GradleErrorMarker {
         return build.getBuildConfig().getRootProjectDirectory().getAbsolutePath().equals(rootDir);
     }
 
-    public static void create(IResource resource, GradleBuild gradleBuild, String message, Throwable exception, int lineNumber) throws CoreException {
-        IMarker marker = resource.createMarker(GradleErrorMarker.ID);
+    public static void create(IResource resource, GradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
+        try {
+            IMarker marker = resource.createMarker(GradleErrorMarker.ID);
 
-        if (lineNumber >= 0) {
-            marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-        }
+            if (lineNumber >= 0) {
+                marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+            }
 
-        marker.setAttribute(IMarker.MESSAGE, message);
-        marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-        marker.setAttribute(ATTRIBUTE_ROOT_DIR, gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath());
-        if (exception != null) {
-            String stackTrace = Throwables.getStackTraceAsString(exception);
-            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, stackTrace);
+            marker.setAttribute(IMarker.MESSAGE, message);
+            marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+            marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+            marker.setAttribute(ATTRIBUTE_ROOT_DIR, gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath());
+            if (exception != null) {
+                String stackTrace = Throwables.getStackTraceAsString(exception);
+                marker.setAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, stackTrace);
+            }
+        } catch (CoreException e) {
+            CorePlugin.logger().warn("Cannot create Gradle error marker", e);
         }
     }
 }

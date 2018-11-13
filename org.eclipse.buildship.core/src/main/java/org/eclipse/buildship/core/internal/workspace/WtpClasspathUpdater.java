@@ -17,7 +17,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.Lists;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -53,16 +52,8 @@ final class WtpClasspathUpdater {
                     markAsNonDeployed(javaProject, monitor);
                 }
             } catch (UnsupportedConfigurationException e) {
-                addErrorMarker(javaProject, gradleBuild, e);
+                GradleErrorMarker.create(javaProject.getProject(), gradleBuild, e.getMessage(), null, 0);
             }
-        }
-    }
-
-    private static void addErrorMarker(IJavaProject javaProject, GradleBuild gradleBuild, UnsupportedConfigurationException exception) {
-        try {
-            GradleErrorMarker.create(javaProject.getProject(), gradleBuild, exception.getMessage(), null, 0);
-        } catch (CoreException e) {
-            CorePlugin.logger().warn("Can't create Gradle error marker", e);
         }
     }
 
