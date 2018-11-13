@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IProject;
  *
  * @author Prashanth Rao
  */
-public class ProjectClosedEvent extends BaseProjectChangedEvent {
+public final class ProjectClosedEvent extends BaseProjectChangedEvent {
 
     public ProjectClosedEvent(IProject project) {
        super(project);

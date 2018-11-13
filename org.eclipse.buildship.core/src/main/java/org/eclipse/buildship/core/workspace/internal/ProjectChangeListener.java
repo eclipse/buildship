@@ -8,12 +8,6 @@
 
 package org.eclipse.buildship.core.workspace.internal;
 
-import org.eclipse.buildship.core.CorePlugin;
-import org.eclipse.buildship.core.workspace.ProjectClosedEvent;
-import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
-import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
-import org.eclipse.buildship.core.workspace.ProjectMovedEvent;
-import org.eclipse.buildship.core.workspace.ProjectOpenedEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -25,6 +19,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+
+import org.eclipse.buildship.core.CorePlugin;
+import org.eclipse.buildship.core.workspace.ProjectClosedEvent;
+import org.eclipse.buildship.core.workspace.ProjectCreatedEvent;
+import org.eclipse.buildship.core.workspace.ProjectDeletedEvent;
+import org.eclipse.buildship.core.workspace.ProjectMovedEvent;
+import org.eclipse.buildship.core.workspace.ProjectOpenedEvent;
 
 /**
  * An {@link IResourceChangeListener} implementation which sends events about project change events
@@ -80,11 +81,11 @@ public final class ProjectChangeListener implements IResourceChangeListener {
                     CorePlugin.listenerRegistry().dispatch(new ProjectMovedEvent(project, fromPath.lastSegment()));
                 }
             } else if (delta.getFlags() == IResourceDelta.OPEN) {
-            	if (project.isOpen()) {
-            		CorePlugin.listenerRegistry().dispatch(new ProjectOpenedEvent(project));
-            	} else {
-            		CorePlugin.listenerRegistry().dispatch(new ProjectClosedEvent(project));
-            	}
+                if (project.isOpen()) {
+                    CorePlugin.listenerRegistry().dispatch(new ProjectOpenedEvent(project));
+                } else {
+                    CorePlugin.listenerRegistry().dispatch(new ProjectClosedEvent(project));
+                }
             }
             return false;
         } else {
