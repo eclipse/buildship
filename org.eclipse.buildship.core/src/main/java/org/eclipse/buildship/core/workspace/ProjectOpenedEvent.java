@@ -17,7 +17,7 @@ import org.eclipse.core.resources.IProject;
  */
 public final class ProjectOpenedEvent extends BaseProjectChangedEvent {
 
-	public ProjectOpenedEvent(IProject project) {
-		super(project);
-	}
+    public ProjectOpenedEvent(IProject project) {
+        super(project);
+    }
 }
