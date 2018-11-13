@@ -17,15 +17,18 @@ import org.eclipse.buildship.core.internal.event.Event;
 import org.eclipse.buildship.core.internal.event.EventListener;
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
 import org.eclipse.buildship.core.internal.workspace.GradleNatureAddedEvent;
+import org.eclipse.buildship.core.internal.workspace.ProjectClosedEvent;
 import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent;
+import org.eclipse.buildship.core.internal.workspace.ProjectMovedEvent;
+import org.eclipse.buildship.core.internal.workspace.ProjectOpenedEvent;
 
 /**
- * Tracks the creation/deletion of projects in the workspace and updates the {@link TaskView}
+ * Tracks the creation/deletion/closed/opened of projects in the workspace and updates the {@link TaskView}
  * accordingly.
  * <p>
- * Every time a project is added or removed from the workspace, the listener updates the content of
- * the task view.
+ * Every time a project is added or removed from the workspace or change the state of the project to open or
+ * closed, the listener updates the content of the task view.
  */
 public final class WorkspaceProjectsChangeListener implements EventListener {
 
@@ -37,7 +40,12 @@ public final class WorkspaceProjectsChangeListener implements EventListener {
 
     @Override
     public void onEvent(Event event) {
-        if (event instanceof ProjectCreatedEvent || event instanceof ProjectDeletedEvent || event instanceof GradleNatureAddedEvent) {
+        if (event instanceof GradleNatureAddedEvent
+                || event instanceof ProjectCreatedEvent
+                || event instanceof ProjectDeletedEvent
+                || event instanceof ProjectClosedEvent
+                || event instanceof ProjectOpenedEvent
+                || event instanceof ProjectMovedEvent) {
             this.taskView.reload(FetchStrategy.LOAD_IF_NOT_CACHED);
         }
     }

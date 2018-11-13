@@ -10,9 +10,7 @@ package org.eclipse.buildship.ui.internal.navigator;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -28,22 +26,15 @@ import org.eclipse.buildship.ui.internal.UiTraceScopes;
  */
 public final class BuildFolderViewerFilter extends ViewerFilter {
 
-    @SuppressWarnings({"cast", "RedundantCast"})
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element) {
-        IResource resource = (IResource) Platform.getAdapterManager().getAdapter(element, IResource.class);
-        return resource == null || !isBuildFolder(resource);
-    }
-
-    private boolean isBuildFolder(IResource resource) {
-        if (resource instanceof IFolder) {
-            return isBuildFolderInPerstentModel((IFolder) resource);
-        } else {
-            return false;
+        if (element instanceof IFolder) {
+            return !isBuildFolderInPersistentModel((IFolder) element);
         }
+        return true;
     }
 
-    public static boolean isBuildFolderInPerstentModel(IFolder folder) {
+    public static boolean isBuildFolderInPersistentModel(IFolder folder) {
         try {
             IProject project = folder.getProject();
             PersistentModel model = CorePlugin.modelPersistence().loadModel(project);

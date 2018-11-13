@@ -3,12 +3,8 @@ package org.eclipse.buildship.core.internal.workspace
 import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.event.Event
 import org.eclipse.buildship.core.internal.event.EventListener
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent
-import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent
-import org.eclipse.buildship.core.internal.workspace.ProjectMovedEvent
 
 class ProjectChangeListenerTest extends WorkspaceSpecification {
 
@@ -29,10 +25,7 @@ class ProjectChangeListenerTest extends WorkspaceSpecification {
         newProject('project')
 
         then:
-        1 * listener.onEvent(_) >> { Event e ->
-            assert e instanceof ProjectCreatedEvent
-            assert e.project.name == 'project'
-        }
+        1 * listener.onEvent({ it instanceof ProjectCreatedEvent})
     }
 
     def "Can listen to project deletion events"() {
@@ -40,10 +33,8 @@ class ProjectChangeListenerTest extends WorkspaceSpecification {
         deleteAllProjects(true)
 
         then:
-        1 * listener.(_) >> { Event e ->
-            assert e instanceof ProjectDeletedEvent
-            assert e.project.name == 'existing-project'
-        }
+
+        1 * listener.onEvent({ it instanceof ProjectDeletedEvent && it.project.name == 'existing-project' })
     }
 
     def "Can listen to project rename events"() {
@@ -51,10 +42,6 @@ class ProjectChangeListenerTest extends WorkspaceSpecification {
         CorePlugin.workspaceOperations().renameProject(findProject('existing-project'), 'moved-project', new NullProgressMonitor())
 
         then:
-        1 * listener.onEvent(_) >> { Event e ->
-            assert e instanceof ProjectMovedEvent
-            assert e.project.name == 'moved-project'
-            assert e.previousName == 'existing-project'
-        }
+        1 * listener.onEvent({ it instanceof ProjectMovedEvent && it.project.name == 'moved-project' && it.previousName == 'existing-project' })
     }
 }

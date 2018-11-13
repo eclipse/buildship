@@ -28,6 +28,7 @@ For manual installation use one of the update sites below.
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
+2018-09         | snapshot  | `http://download.eclipse.org/buildship/updates/e49/snapshots/3.x`
 Photon (4.8)    | snapshot  | `http://download.eclipse.org/buildship/updates/e48/snapshots/3.x`
 Oxygen (4.7)    | snapshot  | `http://download.eclipse.org/buildship/updates/e47/snapshots/3.x`
 Neon (4.6)      | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/3.x`
@@ -39,6 +40,9 @@ Kepler (4.3)    | snapshot  | `http://download.eclipse.org/buildship/updates/e43
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
+Photon (4.8)    | release   | `http://download.eclipse.org/buildship/updates/e48/releases/2.x`
+Photon (4.8)    | milestone | `http://download.eclipse.org/buildship/updates/e48/milestones/2.x`
+Photon (4.8)    | snapshot  | `http://download.eclipse.org/buildship/updates/e48/snapshots/2.x`
 Oxygen (4.7)    | release   | `http://download.eclipse.org/buildship/updates/e47/releases/2.x`
 Oxygen (4.7)    | milestone | `http://download.eclipse.org/buildship/updates/e47/milestones/2.x`
 Oxygen (4.7)    | snapshot  | `http://download.eclipse.org/buildship/updates/e47/snapshots/2.x`
