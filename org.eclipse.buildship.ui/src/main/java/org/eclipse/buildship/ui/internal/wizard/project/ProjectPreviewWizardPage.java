@@ -66,6 +66,7 @@ import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.Pair;
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
+import org.eclipse.buildship.core.internal.workspace.InitializeNewProjectOperation;
 import org.eclipse.buildship.core.internal.workspace.ModelProvider;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
