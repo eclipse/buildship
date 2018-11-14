@@ -27,19 +27,20 @@ import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
 public class WtpConfigurator implements ProjectConfigurator {
 
-    private org.eclipse.buildship.core.internal.workspace.GradleBuild internalGradleBuild;
+    private DefaultGradleBuild gradleBuild;
     private Map<File, EclipseProject> locationToProject;
 
     @Override
     public void init(InitializationContext context, IProgressMonitor monitor) {
         // TODO (donat) add required model declarations to the project configurator extension point
         GradleBuild gradleBuild = context.getGradleBuild();
-        this.internalGradleBuild = ((org.eclipse.buildship.core.internal.DefaultGradleBuild)gradleBuild).getInternalGradleBuild();
-        Collection<EclipseProject> eclipseProjects = ModelProviderUtil.fetchAllEclipseProjects(this.internalGradleBuild, GradleConnector.newCancellationTokenSource(), FetchStrategy.LOAD_IF_NOT_CACHED, monitor);
+        this.gradleBuild = (DefaultGradleBuild) gradleBuild;
+        Collection<EclipseProject> eclipseProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, GradleConnector.newCancellationTokenSource(), FetchStrategy.LOAD_IF_NOT_CACHED, monitor);
         this.locationToProject = eclipseProjects.stream().collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
     }
 
@@ -48,9 +49,9 @@ public class WtpConfigurator implements ProjectConfigurator {
         try {
             IProject project = context.getProject();
             EclipseProject model = lookupEclipseModel(project);
-            WtpClasspathUpdater.update(JavaCore.create(project), model, this.internalGradleBuild, monitor);
+            WtpClasspathUpdater.update(JavaCore.create(project), model, this.gradleBuild, monitor);
         } catch (CoreException e) {
-            GradleErrorMarker.create(context.getProject(), this.internalGradleBuild, "Failed to configure project", e, 0);
+            GradleErrorMarker.create(context.getProject(), this.gradleBuild, "Failed to configure project", e, 0);
             CorePlugin.logger().warn("Failed to configure project " + context.getProject().getName(), e);
         }
     }

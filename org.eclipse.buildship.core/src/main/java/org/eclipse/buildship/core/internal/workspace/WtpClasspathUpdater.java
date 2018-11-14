@@ -41,7 +41,7 @@ final class WtpClasspathUpdater {
     private static final String DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.dependency";
     private static final String NON_DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.nondependency";
 
-    public static void update(IJavaProject javaProject, EclipseProject project, GradleBuild gradleBuild, IProgressMonitor monitor) throws JavaModelException {
+    public static void update(IJavaProject javaProject, EclipseProject project, InternalGradleBuild gradleBuild, IProgressMonitor monitor) throws JavaModelException {
         if (CorePlugin.workspaceOperations().isWtpInstalled()) {
             try {
                 List<EclipseExternalDependency> dependencies = Lists.newArrayList(project.getClasspath());

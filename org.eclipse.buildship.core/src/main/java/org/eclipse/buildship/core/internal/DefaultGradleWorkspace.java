@@ -18,6 +18,7 @@ import org.eclipse.buildship.core.BuildConfiguration;
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.GradleWorkspace;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 
 /**
  * Default implementation for {@link GradleWorkspace}.
@@ -29,10 +30,12 @@ public final class DefaultGradleWorkspace implements GradleWorkspace {
     @Override
     public Optional<GradleBuild> getBuild(IProject project) {
         if (GradleProjectNature.isPresentOn(project)) {
-            return Optional.of(new DefaultGradleBuild(project));
-        } else {
-            return Optional.empty();
+            ProjectConfiguration projectConfiguration = CorePlugin.configurationManager().tryLoadProjectConfiguration(project);
+            if (projectConfiguration != null) {
+                return Optional.of(new DefaultGradleBuild(projectConfiguration.getBuildConfiguration()));
+            }
         }
+        return Optional.empty();
     }
 
     @Override

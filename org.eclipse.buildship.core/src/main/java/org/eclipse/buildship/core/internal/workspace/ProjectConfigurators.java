@@ -23,16 +23,17 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.extension.InternalProjectConfigurator;
 import org.eclipse.buildship.core.internal.extension.ProjectConfiguratorContribution;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
-final class ProjectConfigurators {
+public final class ProjectConfigurators {
 
-    private final GradleBuild gradleBuild;
+    private final DefaultGradleBuild gradleBuild;
     private final List<InternalProjectConfigurator> contributions;
 
-    private ProjectConfigurators(GradleBuild gradleBuild, List<InternalProjectConfigurator> contributions) {
+    private ProjectConfigurators(DefaultGradleBuild gradleBuild, List<InternalProjectConfigurator> contributions) {
         this.gradleBuild = gradleBuild;
         this.contributions = contributions;
     }
@@ -79,13 +80,12 @@ final class ProjectConfigurators {
         }
     }
 
-    static ProjectConfigurators create(GradleBuild gradleBuild, List<ProjectConfiguratorContribution> configurators) {
-        return new ProjectConfigurators(gradleBuild, InternalProjectConfigurator.from(configurators));
+    public static ProjectConfigurators create(InternalGradleBuild gradleBuild, List<ProjectConfiguratorContribution> configurators) {
+        return new ProjectConfigurators((DefaultGradleBuild) gradleBuild, InternalProjectConfigurator.from(configurators));
     }
 
-    private static InitializationContext newInitializationContext(GradleBuild internalGradleBuild) {
-        org.eclipse.buildship.core.GradleBuild gradleBuild = ((DefaultGradleBuild)internalGradleBuild).toApiGradleBuild();
-        return new DefaultInitializationContext(gradleBuild);
+    private static InitializationContext newInitializationContext(org.eclipse.buildship.core.GradleBuild internalGradleBuild) {
+        return new DefaultInitializationContext(internalGradleBuild);
     }
 
     private static ProjectContext newProjectContext(IProject project) {

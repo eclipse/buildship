@@ -189,7 +189,7 @@ public class ProjectImportWizardController {
                         throw new InvocationTargetException(e);
                     }
 
-                    SynchronizationResult result = ((DefaultGradleBuild)gradleBuild).synchronize(workingSetsAddingNewProjectHandler, GradleConnector.newCancellationTokenSource(), monitor);
+                    SynchronizationResult result = ((DefaultGradleBuild)gradleBuild).doSynchronize(workingSetsAddingNewProjectHandler, GradleConnector.newCancellationTokenSource(), monitor);
                     if (!result.getStatus().isOK()) {
                         throw new InvocationTargetException(new CoreException(result.getStatus()));
                     }

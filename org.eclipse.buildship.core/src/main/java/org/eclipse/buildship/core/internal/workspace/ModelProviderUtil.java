@@ -25,7 +25,7 @@ public class ModelProviderUtil {
     /**
      * @return a flattened list of Eclipse projects for all projects included in the Gradle build
      */
-    public static Set<EclipseProject> fetchAllEclipseProjects(GradleBuild build, CancellationTokenSource tokenSource, FetchStrategy fetchStrategy, IProgressMonitor monitor) {
+    public static Set<EclipseProject> fetchAllEclipseProjects(InternalGradleBuild build, CancellationTokenSource tokenSource, FetchStrategy fetchStrategy, IProgressMonitor monitor) {
         ModelProvider modelProvider = build.getModelProvider();
 
         Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, fetchStrategy, tokenSource, monitor);

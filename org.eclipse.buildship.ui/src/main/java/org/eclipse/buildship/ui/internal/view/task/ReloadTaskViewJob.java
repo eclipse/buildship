@@ -34,7 +34,7 @@ import org.eclipse.buildship.core.internal.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 import org.eclipse.buildship.core.internal.workspace.ModelProvider;
 
 /**
@@ -61,7 +61,7 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         List<EclipseProject> projects = Lists.newArrayList();
         Map<String, IProject> faultyProjects = allGradleWorkspaceProjects();
 
-        for (GradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
+        for (InternalGradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
             try {
                 Set<EclipseProject> eclipseProjects = fetchEclipseGradleProjects(gradleBuild.getModelProvider(), tokenSource, monitor);
                 for (EclipseProject eclipseProject : eclipseProjects) {

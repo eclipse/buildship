@@ -34,17 +34,18 @@ import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
 public class BaseConfigurator implements ProjectConfigurator {
 
     private Map<File, EclipseProject> locationToProject;
-    private org.eclipse.buildship.core.internal.workspace.GradleBuild internalGradleBuild;
+    private DefaultGradleBuild internalGradleBuild;
 
     @Override
     public void init(InitializationContext context, IProgressMonitor monitor) {
         GradleBuild gradleBuild = context.getGradleBuild();
-        this.internalGradleBuild = ((org.eclipse.buildship.core.internal.DefaultGradleBuild)gradleBuild).getInternalGradleBuild();
+        this.internalGradleBuild = ((DefaultGradleBuild)gradleBuild);
         Collection<EclipseProject> eclipseProjects = ModelProviderUtil.fetchAllEclipseProjects(this.internalGradleBuild, GradleConnector.newCancellationTokenSource(), FetchStrategy.LOAD_IF_NOT_CACHED, monitor);
         this.locationToProject = eclipseProjects.stream().collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
     }

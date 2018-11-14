@@ -15,6 +15,7 @@ import org.gradle.tooling.TestLauncher;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
@@ -24,7 +25,7 @@ import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
  *
  * @author Stefan Oehme
  */
-public interface GradleBuild {
+public interface InternalGradleBuild extends GradleBuild {
 
     /**
      * Attempts to synchronize the build with the workspace.

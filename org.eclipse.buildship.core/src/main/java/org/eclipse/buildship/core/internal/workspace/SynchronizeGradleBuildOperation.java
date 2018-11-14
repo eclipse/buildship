@@ -41,14 +41,14 @@ import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 /**
  * Synchronizes the given Gradle build with the Eclipse workspace.
  */
-final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
+public final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
 
     private final Set<EclipseProject> allProjects;
-    private final GradleBuild gradleBuild;
+    private final InternalGradleBuild gradleBuild;
     private final NewProjectHandler newProjectHandler;
     private final ProjectConfigurators configurators;
 
-    SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, GradleBuild gradleBuild, NewProjectHandler newProjectHandler, ProjectConfigurators configurators) {
+    public SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, InternalGradleBuild gradleBuild, NewProjectHandler newProjectHandler, ProjectConfigurators configurators) {
         this.allProjects = allProjects;
         this.gradleBuild = gradleBuild;
         this.newProjectHandler = newProjectHandler;

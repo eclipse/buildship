@@ -44,7 +44,7 @@ import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
  * @author Donat Csikos
  */
 @SuppressWarnings("unchecked")
-final class ConnectionAwareLauncherProxy implements InvocationHandler {
+public final class ConnectionAwareLauncherProxy implements InvocationHandler {
 
     private final LongRunningOperation launcher;
     private final ProjectConnection connection;
@@ -71,7 +71,7 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         return (BuildActionExecuter<Collection<T>>) newProxyInstance(connection, executer);
     }
 
-    static BuildLauncher newBuildLauncher(GradleArguments gradleArguments, GradleProgressAttributes progressAttributes) {
+    public static BuildLauncher newBuildLauncher(GradleArguments gradleArguments, GradleProgressAttributes progressAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         BuildLauncher launcher = connection.newBuild();
@@ -79,7 +79,7 @@ final class ConnectionAwareLauncherProxy implements InvocationHandler {
         return (BuildLauncher) newProxyInstance(connection, launcher);
     }
 
-    static TestLauncher newTestLauncher(GradleArguments gradleArguments, GradleProgressAttributes progressAttributes) {
+    public static TestLauncher newTestLauncher(GradleArguments gradleArguments, GradleProgressAttributes progressAttributes) {
         ProjectConnection connection = openConnection(gradleArguments);
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         TestLauncher launcher = connection.newTestLauncher();

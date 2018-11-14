@@ -24,22 +24,22 @@ import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 public interface GradleWorkspaceManager {
 
     /**
-     * Returns the {@link GradleBuild} represented by the given request attributes.
+     * Returns the {@link InternalGradleBuild} represented by the given request attributes.
      *
      * @param buildConfiguration the configuration for the requested build
      * @return the Gradle build, never null
      */
-    public GradleBuild getGradleBuild(BuildConfiguration buildConfiguration);
+    public InternalGradleBuild getGradleBuild(BuildConfiguration buildConfiguration);
 
     /**
-     * Returns the {@link GradleBuild} that contains the given project.
+     * Returns the {@link InternalGradleBuild} that contains the given project.
      * <p/>
      * If the given project is not a Gradle project, {@link Optional#absent()} is returned.
      *
      * @param project the project, must not be null
      * @return the Gradle build or {@link Optional#absent()}
      */
-    public Optional<GradleBuild> getGradleBuild(IProject project);
+    public Optional<InternalGradleBuild> getGradleBuild(IProject project);
 
     /**
      * Returns all Gradle builds from the workspace.
@@ -47,5 +47,5 @@ public interface GradleWorkspaceManager {
      * @param projects the projects for which to find the corresponding builds
      * @return the set of Gradle builds
      */
-    public Set<GradleBuild> getGradleBuilds();
+    public Set<InternalGradleBuild> getGradleBuilds();
 }

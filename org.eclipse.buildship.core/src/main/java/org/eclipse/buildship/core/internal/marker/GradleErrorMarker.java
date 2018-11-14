@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Describes Gradle error marker.
@@ -31,12 +31,12 @@ public class GradleErrorMarker {
     private GradleErrorMarker() {
     }
 
-    public static boolean belongsToBuild(IMarker marker, GradleBuild build) {
+    public static boolean belongsToBuild(IMarker marker, InternalGradleBuild build) {
         String rootDir = marker.getAttribute(ATTRIBUTE_ROOT_DIR, null);
         return build.getBuildConfig().getRootProjectDirectory().getAbsolutePath().equals(rootDir);
     }
 
-    public static void create(IResource resource, GradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
+    public static void create(IResource resource, InternalGradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
         try {
             IMarker marker = resource.createMarker(GradleErrorMarker.ID);
 

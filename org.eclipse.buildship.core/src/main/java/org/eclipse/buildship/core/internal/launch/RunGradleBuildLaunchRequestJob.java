@@ -33,7 +33,7 @@ import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Executes Gradle tasks based on a given {@code ILaunch} and {@code ILaunchConfiguration} instance.
@@ -71,7 +71,7 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected BuildLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
+    protected BuildLauncher createLaunch(InternalGradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
         BuildLauncher launcher = gradleBuild.newBuildLauncher(runConfiguration, progressAttributes);
         launcher.forTasks(RunGradleBuildLaunchRequestJob.this.runConfig.getTasks().toArray(new String[0]));
         return launcher;
