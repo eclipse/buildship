@@ -8,9 +8,12 @@
  */
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.util.Set;
+
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -18,7 +21,9 @@ import com.google.common.base.Preconditions;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.SubMonitor;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
@@ -42,10 +47,9 @@ public class DefaultGradleBuild implements GradleBuild {
 
     @Override
     public void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
-        SynchronizeGradleBuildsOperation syncOperation = SynchronizeGradleBuildsOperation.forSingleGradleBuild(this, newProjectHandler);
         try {
             GradleMarkerManager.clear(this);
-            syncOperation.run(tokenSource, monitor);
+            doSynchronize(newProjectHandler, tokenSource, monitor);
         } catch (Exception e) {
             ToolingApiStatus status = ToolingApiStatus.from("Project synchronization" , e);
             if (status.severityMatches(IStatus.WARNING | IStatus.ERROR)) {
@@ -53,6 +57,16 @@ public class DefaultGradleBuild implements GradleBuild {
             }
             throw e;
         }
+    }
+
+    private void doSynchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
+        SubMonitor progress = SubMonitor.convert(monitor, 5);
+        progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.buildConfig.getRootProjectDirectory())));
+        new ImportRootProjectOperation(this.buildConfig, newProjectHandler).run(progress.newChild(1));
+        Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
+        new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
+        new RunOnImportTasksOperation(allProjects, this.buildConfig).run(progress.newChild(1), tokenSource);
+        new SynchronizeGradleBuildOperation(allProjects, this, newProjectHandler, ProjectConfigurators.create(this, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
     }
 
     @Override
