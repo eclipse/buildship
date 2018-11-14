@@ -21,4 +21,13 @@ public interface InitializationContext {
      * @return the current Gradle build being synchronized
      */
     GradleBuild getGradleBuild();
+
+    /**
+     * Registers a problem during initialization. Instead of implementing separate error handling,
+     * project configurators should use this method to report issues.
+     *
+     * @param message the error message describing the problem
+     * @param exception The exception to report; can be {@code null}
+     */
+    void onError(String message, Exception exception);
 }
