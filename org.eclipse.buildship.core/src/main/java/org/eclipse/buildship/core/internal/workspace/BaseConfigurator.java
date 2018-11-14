@@ -96,7 +96,7 @@ public class BaseConfigurator implements ProjectConfigurator {
     }
 
     private void synchronizeJavaProjectInTransaction(final EclipseProject model, final IProject project, PersistentModelBuilder persistentModel, SubMonitor progress) throws JavaModelException, CoreException {
-        progress.setWorkRemaining(8);
+        progress.setWorkRemaining(7);
         //old Gradle versions did not expose natures, so we need to add the Java nature explicitly
         CorePlugin.workspaceOperations().addNature(project, JavaCore.NATURE_ID, progress.newChild(1));
         IJavaProject javaProject = JavaCore.create(project);
@@ -106,7 +106,6 @@ public class BaseConfigurator implements ProjectConfigurator {
         ClasspathContainerUpdater.update(javaProject, model, progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, model, progress.newChild(1));
         GradleClasspathContainerUpdater.updateFromModel(javaProject, model, this.locationToProject.values(), persistentModel, progress.newChild(1));
-        WtpClasspathUpdater.update(javaProject, model, this.internalGradleBuild, progress.newChild(1));
         CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(project);
     }
 

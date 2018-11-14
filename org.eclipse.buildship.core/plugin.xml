@@ -110,5 +110,10 @@
             class="org.eclipse.buildship.core.internal.workspace.BaseConfigurator"
             id="baseconfigurator">
       </configurator>
+      <configurator
+            class="org.eclipse.buildship.core.internal.workspace.WtpConfigurator"
+            id="wtpconfigurator"
+            runsBefore="org.eclipse.buildship.core.baseconfigurator">
+      </configurator>
    </extension>
 </plugin>
