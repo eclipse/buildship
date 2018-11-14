@@ -78,10 +78,10 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
     @Override
     public SynchronizationResult synchronize(IProgressMonitor monitor) {
-        return doSynchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), monitor);
+        return synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), monitor);
     }
 
-    public SynchronizationResult doSynchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+    public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         monitor = monitor != null ? monitor : new NullProgressMonitor();
 
         SynchronizeOperation operation = new SynchronizeOperation(this, newProjectHandler);
@@ -92,9 +92,14 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         }
 
         try {
+            GradleMarkerManager.clear(this);
             CorePlugin.operationManager().run(operation, tokenSource, monitor);
             return newSynchronizationResult(Status.OK_STATUS);
         } catch (CoreException e) {
+            ToolingApiStatus status = ToolingApiStatus.from("Project synchronization" , e);
+            if (status.severityMatches(IStatus.WARNING | IStatus.ERROR)) {
+              GradleMarkerManager.addError(this, status);
+          }
             return newSynchronizationResult(e.getStatus());
         } finally {
             syncOperations.remove(this);
@@ -169,7 +174,13 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
-            this.gradleBuild.synchronize(this.newProjectHandler, tokenSource, monitor);
+            SubMonitor progress = SubMonitor.convert(monitor, 5);
+            progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.gradleBuild.getBuildConfig().getRootProjectDirectory())));
+            new ImportRootProjectOperation(this.gradleBuild.getBuildConfig(), this.newProjectHandler).run(progress.newChild(1));
+            Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
+            new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
+            new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
+            new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler, ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
         }
 
         @Override
@@ -227,30 +238,6 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         public ISchedulingRule getRule() {
             return ResourcesPlugin.getWorkspace().getRoot();
         }
-    }
-
-    @Override
-    public void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
-        try {
-            GradleMarkerManager.clear(this);
-            doSynchronize2(newProjectHandler, tokenSource, monitor);
-        } catch (Exception e) {
-            ToolingApiStatus status = ToolingApiStatus.from("Project synchronization" , e);
-            if (status.severityMatches(IStatus.WARNING | IStatus.ERROR)) {
-                GradleMarkerManager.addError(this, status);
-            }
-            throw e;
-        }
-    }
-
-    private void doSynchronize2(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException {
-        SubMonitor progress = SubMonitor.convert(monitor, 5);
-        progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.buildConfig.getRootProjectDirectory())));
-        new ImportRootProjectOperation(this.buildConfig, newProjectHandler).run(progress.newChild(1));
-        Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
-        new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
-        new RunOnImportTasksOperation(allProjects, this.buildConfig).run(progress.newChild(1), tokenSource);
-        new SynchronizeGradleBuildOperation(allProjects, this, newProjectHandler, ProjectConfigurators.create(this, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
     }
 
     @Override

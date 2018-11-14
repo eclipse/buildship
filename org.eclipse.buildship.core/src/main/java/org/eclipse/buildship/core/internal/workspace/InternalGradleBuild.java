@@ -9,11 +9,7 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.TestLauncher;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
@@ -26,20 +22,6 @@ import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
  * @author Stefan Oehme
  */
 public interface InternalGradleBuild extends GradleBuild {
-
-    /**
-     * Attempts to synchronize the build with the workspace.
-     * <p/>
-     * The synchronization happens synchronously. In case of a failure, the method throws a
-     * {@link CoreException} which contains the necessary status and error message about the
-     * failure.
-     *
-     * @param newProjectHandler how to handle newly added projects
-     * @param tokenSource the cancellation token source
-     * @throws CoreException if the synchronization fails
-     * @see org.eclipse.buildship.core.internal.operation.ToolingApiStatus
-     */
-    void synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws CoreException;
 
     /**
      * Returns the model provider for this build.

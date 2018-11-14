@@ -60,7 +60,7 @@ public final class SynchronizationJob extends ToolingApiJob<Void> {
             if (monitor.isCanceled()) {
                 throw new OperationCanceledException();
             }
-            SynchronizationResult result = ((DefaultGradleBuild)build).doSynchronize(SynchronizationJob.this.newProjectHandler, tokenSource, progress.newChild(1));
+            SynchronizationResult result = ((DefaultGradleBuild)build).synchronize(SynchronizationJob.this.newProjectHandler, tokenSource, progress.newChild(1));
             if (result.getStatus().getException() instanceof Exception) {
                 throw (Exception) result.getStatus().getException();
             }
