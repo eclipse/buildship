@@ -46,6 +46,7 @@ import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
+import org.eclipse.buildship.core.internal.workspace.InitializeNewProjectOperation;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils;

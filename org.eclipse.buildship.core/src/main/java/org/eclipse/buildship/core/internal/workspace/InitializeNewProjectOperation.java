@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017 the original author or authors.
+ * Copyright (c) 2018 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.ui.internal.wizard.project;
+package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
 import java.util.List;
@@ -24,7 +24,6 @@ import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
 
 /**
  * Creates the {@code java-library} Gradle template project in the target directory.
@@ -54,7 +53,7 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
                 GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
                 RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(buildConfig);
                 GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
-                        .forBackgroundProcess()
+                        .forNonInteractiveBackgroundProcess()
                         .withFilteredProgress()
                         .build();
                 gradleBuild.newBuildLauncher(runConfiguration, progressAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
