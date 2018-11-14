@@ -75,6 +75,7 @@ public class BaseConfigurator implements ProjectConfigurator {
         ProjectNatureUpdater.update(project,  ImmutableList.copyOf(model.getProjectNatures()), persistentModel, progress.newChild(1));
         BuildCommandUpdater.update(project, ImmutableList.copyOf(model.getBuildCommands()), persistentModel, progress.newChild(1));
 
+        // TODO (donat) extract Java synchronization to external configurator
         if (isJavaProject(model)) {
             synchronizeJavaProject(model, project, persistentModel, progress);
         } else {
