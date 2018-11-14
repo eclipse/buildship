@@ -2,6 +2,7 @@ package org.eclipse.buildship.core
 
 import org.eclipse.core.resources.IMarker
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.IStatus
 
 class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
 
@@ -14,7 +15,7 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
         SynchronizationResult result = tryImportAndWait(location)
 
         then:
-        result.status.OK
+        result.status.severity == IStatus.ERROR
         platformLogErrors.size() == 1
         platformLogErrors[0].message == "Project configurator 'pluginId.configurator1' failed to initialize"
         gradleErrorMarkers.size() == 1
@@ -30,7 +31,7 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
         SynchronizationResult result = tryImportAndWait(location)
 
         then:
-        result.status.OK
+        result.status.severity == IStatus.ERROR
         platformLogErrors.size() == 1
         platformLogErrors[0].message == "Project configurator 'pluginId.configurator1' failed to configure project 'FaultyProjectConfiguratorTest_2'"
         gradleErrorMarkers.size() == 1
@@ -55,7 +56,7 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
         SynchronizationResult result = trySynchronizeAndWait(location)
 
         then:
-        result.status.OK
+        result.status.severity == IStatus.ERROR
         platformLogErrors.size() == 1
         platformLogErrors[0].message == "Project configurator 'pluginId.configurator1' failed to unconfigure project 'sub1'"
         gradleErrorMarkers.size() == 1

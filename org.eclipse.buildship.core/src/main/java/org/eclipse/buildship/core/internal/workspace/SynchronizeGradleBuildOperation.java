@@ -13,6 +13,7 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -41,12 +42,15 @@ import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 /**
  * Synchronizes the given Gradle build with the Eclipse workspace.
  */
-public final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable {
+public final class SynchronizeGradleBuildOperation {
 
     private final Set<EclipseProject> allProjects;
     private final InternalGradleBuild gradleBuild;
     private final NewProjectHandler newProjectHandler;
     private final ProjectConfigurators configurators;
+
+    private List<SynchronizationFailure> failures;
+
 
     public SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, InternalGradleBuild gradleBuild, NewProjectHandler newProjectHandler, ProjectConfigurators configurators) {
         this.allProjects = allProjects;
@@ -55,11 +59,13 @@ public final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable
         this.configurators = configurators;
     }
 
-    @Override
-    public void run(IProgressMonitor monitor) throws CoreException {
+    public List<SynchronizationFailure> run(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.gradleBuild.getBuildConfig().getRootProjectDirectory()));
+
+        this.failures = new ArrayList<>();
         synchronizeProjectsWithWorkspace(progress);
+        return this.failures;
     }
 
     private void synchronizeProjectsWithWorkspace(SubMonitor progress) throws CoreException {
@@ -67,7 +73,7 @@ public final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable
         List<IProject> decoupledWorkspaceProjects = getOpenWorkspaceProjectsRemovedFromGradleBuild();
         progress.setWorkRemaining(decoupledWorkspaceProjects.size() + this.allProjects.size() + 1);
 
-        this.configurators.initConfigurators(progress.newChild(1));
+        this.failures.addAll(this.configurators.initConfigurators(progress.newChild(1)));
 
         // uncouple the open workspace projects that do not have a corresponding Gradle project anymore
         for (IProject project : decoupledWorkspaceProjects) {
@@ -157,7 +163,7 @@ public final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable
 
         CorePlugin.workspaceOperations().addNature(workspaceProject, GradleProjectNature.ID, progress.newChild(1));
 
-        this.configurators.configureConfigurators(workspaceProject, progress.newChild(1));
+        this.failures.addAll(this.configurators.configureConfigurators(workspaceProject, progress.newChild(1)));
     }
 
     private void synchronizeClosedWorkspaceProject(SubMonitor childProgress) {
@@ -199,7 +205,7 @@ public final class SynchronizeGradleBuildOperation implements IWorkspaceRunnable
         monitor.setWorkRemaining(4);
         monitor.subTask(String.format("Uncouple workspace project %s from Gradle", workspaceProject.getName()));
         CorePlugin.workspaceOperations().refreshProject(workspaceProject, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
-        this.configurators.unconfigureConfigurators(workspaceProject, monitor.newChild(1));
+        this.failures.addAll(this.configurators.unconfigureConfigurators(workspaceProject, monitor.newChild(1)));
         CorePlugin.workspaceOperations().removeNature(workspaceProject, GradleProjectNature.ID, monitor.newChild(1, SubMonitor.SUPPRESS_ALL_LABELS));
         CorePlugin.configurationManager().deleteProjectConfiguration(workspaceProject);
     }

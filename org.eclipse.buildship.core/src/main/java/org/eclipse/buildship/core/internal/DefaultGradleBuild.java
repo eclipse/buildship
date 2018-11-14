@@ -8,6 +8,7 @@
 
 package org.eclipse.buildship.core.internal;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
@@ -37,6 +39,7 @@ import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.internal.configuration.GradleArguments;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 import org.eclipse.buildship.core.internal.marker.GradleMarkerManager;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
@@ -50,6 +53,7 @@ import org.eclipse.buildship.core.internal.workspace.ModelProviderUtil;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.internal.workspace.ProjectConfigurators;
 import org.eclipse.buildship.core.internal.workspace.RunOnImportTasksOperation;
+import org.eclipse.buildship.core.internal.workspace.SynchronizationFailure;
 import org.eclipse.buildship.core.internal.workspace.SynchronizeGradleBuildOperation;
 import org.eclipse.buildship.core.internal.workspace.ValidateProjectLocationOperation;
 
@@ -88,19 +92,11 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         SynchronizeOperation runningOperation = syncOperations.putIfAbsent(this, operation);
 
         if (runningOperation != null && (newProjectHandler == NewProjectHandler.NO_OP || Objects.equals(newProjectHandler, runningOperation.newProjectHandler))) {
-            return newSynchronizationResult(Status.OK_STATUS);
+            return DefaultSynchronizationResult.success();
         }
 
         try {
-            GradleMarkerManager.clear(this);
-            CorePlugin.operationManager().run(operation, tokenSource, monitor);
-            return newSynchronizationResult(Status.OK_STATUS);
-        } catch (CoreException e) {
-            ToolingApiStatus status = ToolingApiStatus.from("Project synchronization" , e);
-            if (status.severityMatches(IStatus.WARNING | IStatus.ERROR)) {
-              GradleMarkerManager.addError(this, status);
-          }
-            return newSynchronizationResult(e.getStatus());
+            return operation.run(tokenSource, monitor);
         } finally {
             syncOperations.remove(this);
         }
@@ -108,16 +104,6 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
     public boolean isSynchronizing() {
         return syncOperations.containsKey(this);
-    }
-
-    private static SynchronizationResult newSynchronizationResult(final IStatus result) {
-        return new SynchronizationResult() {
-
-            @Override
-            public IStatus getStatus() {
-                return result;
-            }
-        };
     }
 
     @Override
@@ -136,6 +122,26 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
                 throw e;
             }
         }
+    }
+
+    @Override
+    public ModelProvider getModelProvider() {
+        return this.modelProvider;
+    }
+
+    @Override
+    public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes) {
+        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toGradleArguments(), progressAttributes);
+    }
+
+    @Override
+    public TestLauncher newTestLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes) {
+        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration.toGradleArguments(), progressAttributes);
+    }
+
+    @Override
+    public org.eclipse.buildship.core.internal.configuration.BuildConfiguration getBuildConfig() {
+        return this.buildConfig;
     }
 
     @Override
@@ -165,11 +171,38 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
         private final InternalGradleBuild gradleBuild;
         private final NewProjectHandler newProjectHandler;
+        private List<SynchronizationFailure> failures;
 
         public SynchronizeOperation(InternalGradleBuild gradleBuild, NewProjectHandler newProjectHandler) {
             super("Synchronize project " + gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
             this.gradleBuild = gradleBuild;
             this.newProjectHandler = newProjectHandler;
+        }
+
+        SynchronizationResult run(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+            GradleMarkerManager.clear(this.gradleBuild);
+            DefaultSynchronizationResult result;
+            try {
+                CorePlugin.operationManager().run(this, tokenSource, monitor);
+                this.failures.forEach(f -> GradleErrorMarker.create(f.getResource(), this.gradleBuild, f.getMessage(), f.getException(), 0));
+                result = DefaultSynchronizationResult.from(getFailures());
+            } catch (CoreException e) {
+                ToolingApiStatus status = ToolingApiStatus.from("Project synchronization" , e);
+                if (status.severityMatches(IStatus.WARNING | IStatus.ERROR)) {
+                    GradleMarkerManager.addError(this.gradleBuild, status);
+                }
+                result = DefaultSynchronizationResult.from(e.getStatus());
+            }
+
+            if (result.status.matches(IStatus.WARNING | IStatus.ERROR)) {
+                CorePlugin.getInstance().getLog().log(result.status);
+            }
+
+            return result;
+        }
+
+        public List<SynchronizationFailure> getFailures() {
+            return this.failures;
         }
 
         @Override
@@ -180,7 +213,7 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
             Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
             new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
             new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
-            new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler, ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
+            this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler, ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
         }
 
         @Override
@@ -206,6 +239,46 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
             }
             SynchronizeOperation other = (SynchronizeOperation) obj;
             return Objects.equals(this.gradleBuild, other.gradleBuild) && Objects.equals(this.newProjectHandler, other.newProjectHandler);
+        }
+    }
+
+    private static class DefaultSynchronizationResult implements SynchronizationResult {
+
+        private final IStatus status;
+
+        private DefaultSynchronizationResult(IStatus status) {
+            this.status = status;
+        }
+
+        @Override
+        public IStatus getStatus() {
+            return this.status;
+        }
+
+        public static DefaultSynchronizationResult success() {
+            return new DefaultSynchronizationResult(Status.OK_STATUS);
+        }
+
+        public static DefaultSynchronizationResult from(List<SynchronizationFailure> failures) {
+            if (failures.isEmpty()) {
+                return success();
+            } else if (failures.size() == 1) {
+                return from(statusFor(failures.get(0)));
+            } else {
+                boolean internalFailure = failures.stream().filter(f -> CorePlugin.PLUGIN_ID.equals(f.getPluginId())).findFirst().isPresent();
+                String pluginId = internalFailure ? CorePlugin.PLUGIN_ID : failures.get(0).getPluginId();
+                MultiStatus status = new MultiStatus(pluginId, 0, "Gradle synchronization failed with multiple errors", null);
+                failures.forEach(f -> status.addAll(statusFor(f)));
+                return from(status);
+            }
+        }
+
+        public static DefaultSynchronizationResult from(IStatus status) {
+            return new DefaultSynchronizationResult(status);
+        }
+
+        private static IStatus statusFor(SynchronizationFailure failure) {
+            return new Status(IStatus.ERROR, failure.getPluginId(), failure.getMessage(), failure.getException());
         }
     }
 
@@ -238,25 +311,5 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         public ISchedulingRule getRule() {
             return ResourcesPlugin.getWorkspace().getRoot();
         }
-    }
-
-    @Override
-    public ModelProvider getModelProvider() {
-        return this.modelProvider;
-    }
-
-    @Override
-    public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes) {
-        return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toGradleArguments(), progressAttributes);
-    }
-
-    @Override
-    public TestLauncher newTestLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes) {
-        return ConnectionAwareLauncherProxy.newTestLauncher(runConfiguration.toGradleArguments(), progressAttributes);
-    }
-
-    @Override
-    public org.eclipse.buildship.core.internal.configuration.BuildConfiguration getBuildConfig() {
-        return this.buildConfig;
     }
 }
