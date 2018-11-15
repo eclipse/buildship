@@ -62,8 +62,10 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
         when:
         importAndWait(projectDir)
         IProject project = findProject('project-with-subtasks')
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(project).get().modelProvider
-        GradleProject gradleProject = modelProvider.fetchModel(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor()).gradleProject
+
+        ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getBuild(project).get().modelProvider
+        List<EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        GradleProject gradleProject = eclipseProjects[0].gradleProject
         Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject)
 
         then:
@@ -139,9 +141,11 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
 
         when:
         importAndWait(projectDir)
+
         IProject project = findProject('project-without-tasks')
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(project).get().modelProvider
-        GradleProject gradleProject = modelProvider.fetchModel(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor()).gradleProject
+        ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getBuild(project).get().modelProvider
+        List<EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        GradleProject gradleProject = eclipseProjects[0].gradleProject
         Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject)
 
         then:

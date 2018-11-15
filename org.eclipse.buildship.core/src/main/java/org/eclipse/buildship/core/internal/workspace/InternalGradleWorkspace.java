@@ -8,11 +8,9 @@
 
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.util.Optional;
 import java.util.Set;
 
-import org.eclipse.core.resources.IProject;
-
+import org.eclipse.buildship.core.GradleWorkspace;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 
 /**
@@ -20,7 +18,7 @@ import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
  *
  * @author Stefan Oehme
  */
-public interface GradleWorkspaceManager {
+public interface InternalGradleWorkspace extends GradleWorkspace {
 
     /**
      * Returns the {@link InternalGradleBuild} represented by the given request attributes.
@@ -29,16 +27,6 @@ public interface GradleWorkspaceManager {
      * @return the Gradle build, never null
      */
     public InternalGradleBuild getGradleBuild(BuildConfiguration buildConfiguration);
-
-    /**
-     * Returns the {@link InternalGradleBuild} that contains the given project.
-     * <p/>
-     * If the given project is not a Gradle project, {@link Optional#absent()} is returned.
-     *
-     * @param project the project, must not be null
-     * @return the Gradle build or {@link Optional#absent()}
-     */
-    public Optional<InternalGradleBuild> getGradleBuild(IProject project);
 
     /**
      * Returns all Gradle builds from the workspace.

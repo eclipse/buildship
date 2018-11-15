@@ -61,7 +61,7 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         List<EclipseProject> projects = Lists.newArrayList();
         Map<String, IProject> faultyProjects = allGradleWorkspaceProjects();
 
-        for (InternalGradleBuild gradleBuild : CorePlugin.gradleWorkspaceManager().getGradleBuilds()) {
+        for (InternalGradleBuild gradleBuild : CorePlugin.internalGradleWorkspace().getGradleBuilds()) {
             try {
                 Set<EclipseProject> eclipseProjects = fetchEclipseGradleProjects(gradleBuild.getModelProvider(), tokenSource, monitor);
                 for (EclipseProject eclipseProject : eclipseProjects) {

@@ -108,7 +108,7 @@ public final class RunOnImportTasksOperation {
                 .forBackgroundProcess()
                 .withFilteredProgress()
                 .build();
-        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration, progressAttributes);
+        BuildLauncher launcher = CorePlugin.internalGradleWorkspace().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration, progressAttributes);
         launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()])).run();
     }
 }

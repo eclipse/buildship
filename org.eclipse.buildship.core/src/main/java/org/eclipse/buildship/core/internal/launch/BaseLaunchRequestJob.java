@@ -53,7 +53,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
         ProcessDescription processDescription = createProcessDescription();
         RunConfiguration runConfig = getRunConfig();
-        InternalGradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getProjectConfiguration().getBuildConfiguration());
+        InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(runConfig.getProjectConfiguration().getBuildConfiguration());
         GradleProgressAttributes attributes = GradleProgressAttributes.builder(tokenSource, monitor)
                 .forDedicatedProcess(processDescription)
                 .withFullProgress()

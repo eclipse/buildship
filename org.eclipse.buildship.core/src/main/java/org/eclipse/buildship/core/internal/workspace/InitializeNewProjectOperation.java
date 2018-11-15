@@ -50,7 +50,7 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
         if (!projectDir.exists()) {
             if (projectDir.mkdir()) {
                 List<String> tasks = ImmutableList.of("init", "--type", "java-library");
-                InternalGradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig);
+                InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig);
                 RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(buildConfig);
                 GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
                         .forNonInteractiveBackgroundProcess()

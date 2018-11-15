@@ -34,7 +34,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
-import org.eclipse.buildship.core.BuildConfiguration;
 import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.internal.configuration.GradleArguments;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
@@ -63,17 +62,6 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
     private final org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfig;
     private final ModelProvider modelProvider;
-
-    public DefaultGradleBuild(BuildConfiguration configuration) {
-        this(CorePlugin.configurationManager().createBuildConfiguration(
-            configuration.getRootProjectDirectory(),
-            configuration.isOverrideWorkspaceConfiguration(),
-            configuration.getGradleDistribution(),
-            configuration.getGradleUserHome().orElse(null),
-            configuration.isBuildScansEnabled(),
-            configuration.isOfflineMode(),
-            configuration.isAutoSync()));
-    }
 
     public DefaultGradleBuild(org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfiguration) {
         this.buildConfig = buildConfiguration;

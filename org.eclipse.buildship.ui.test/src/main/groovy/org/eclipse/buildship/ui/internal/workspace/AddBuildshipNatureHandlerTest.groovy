@@ -82,7 +82,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         BuildConfiguration buildConfig = createInheritingBuildConfiguration(projectLocation)
         CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource()
         IProgressMonitor monitor = new NullProgressMonitor()
-        return CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, tokenSource, monitor) != null
+        return CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, tokenSource, monitor) != null
     }
 
     private class TestEventListener implements EventListener {

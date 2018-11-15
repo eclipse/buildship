@@ -9,7 +9,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild
-import org.eclipse.buildship.core.internal.workspace.GradleWorkspaceManager
+import org.eclipse.buildship.core.internal.workspace.InternalGradleWorkspace
 
 class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
 
@@ -24,9 +24,9 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         importAndWait(projectDir)
 
         InternalGradleBuild gradleBuild = Mock(InternalGradleBuild)
-        GradleWorkspaceManager workspaceManager = Mock(GradleWorkspaceManager)
-        _ * workspaceManager.getGradleBuild(_) >> Optional.of(gradleBuild)
-        registerService(GradleWorkspaceManager, workspaceManager)
+        InternalGradleWorkspace gradleWorkspace = Mock(InternalGradleWorkspace)
+        _ * gradleWorkspace.getGradleBuild(_) >> Optional.of(gradleBuild)
+        registerService(InternalGradleWorkspace, gradleWorkspace)
 
         IJavaProject javaProject = JavaCore.create(findProject("sample-project"))
         IProject project = javaProject.project
