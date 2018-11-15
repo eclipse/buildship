@@ -63,7 +63,8 @@ public final class DefaultModelProvider implements ModelProvider {
             return injectCompatibilityModel(model, result);
         } else {
             ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), attributes);
-            Collection<T> result = ImmutableList.of(executeModelBuilder(builder, strategy, model));
+            T builderResult = executeModelBuilder(builder, strategy, model);
+            Collection<T> result = ImmutableList.of(builderResult);
             return injectCompatibilityModel(model, result);
         }
     }

@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.core.internal.operation;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.concurrent.TimeUnit;
 
 import org.gradle.tooling.CancellationTokenSource;

@@ -8,9 +8,8 @@
 
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.util.Optional;
 import java.util.Set;
-
-import com.google.common.base.Optional;
 
 import org.eclipse.core.resources.IProject;
 

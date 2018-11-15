@@ -8,10 +8,10 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -50,10 +50,10 @@ public final class DefaultGradleWorkspaceManager implements GradleWorkspaceManag
             if (projectConfiguration != null) {
                 return Optional.<InternalGradleBuild>of(new DefaultGradleBuild(projectConfiguration.getBuildConfiguration()));
             } else {
-                return Optional.absent();
+                return Optional.empty();
             }
         } else {
-            return  Optional.absent();
+            return  Optional.empty();
         }
     }
 

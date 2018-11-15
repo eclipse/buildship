@@ -40,7 +40,15 @@ public final class DefaultGradleWorkspace implements GradleWorkspace {
 
     @Override
     public GradleBuild createBuild(BuildConfiguration configuration) {
+        // TODO merge this class and GradleWorkspaceManager
         Preconditions.checkNotNull(configuration);
-        return new DefaultGradleBuild(configuration);
+        return CorePlugin.gradleWorkspaceManager().getGradleBuild(CorePlugin.configurationManager().createBuildConfiguration(
+            configuration.getRootProjectDirectory(),
+            configuration.isOverrideWorkspaceConfiguration(),
+            configuration.getGradleDistribution(),
+            configuration.getGradleUserHome().orElse(null),
+            configuration.isBuildScansEnabled(),
+            configuration.isOfflineMode(),
+            configuration.isAutoSync()));
     }
 }
