@@ -52,7 +52,7 @@
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  Identifier for the project configurator. Must be unique within the plugin.
+                  Unique identifier for the project configurator.
                </documentation>
             </annotation>
          </attribute>
@@ -69,14 +69,14 @@
          <attribute name="runsBefore" type="string">
             <annotation>
                <documentation>
-                  A comma-separated list of configurators that this configurator must run before. A configurator can be referenced with its fully qualified id which has the following pattern: [plugin_id].[configurator_id].
+                  A comma-separated list of configurators that this configurator must run before. A configurator can be referenced with its id.
                </documentation>
             </annotation>
          </attribute>
          <attribute name="runsAfter" type="string">
             <annotation>
                <documentation>
-                  A comma-separated list of configurators that this configurator must run after A configurator can be referenced with its fully qualified id which has the following pattern: [plugin_id].[configurator_id].
+                  A comma-separated list of configurators that this configurator must run after. A configurator can be referenced with its id.
                </documentation>
             </annotation>
          </attribute>

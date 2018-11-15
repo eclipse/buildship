@@ -105,7 +105,7 @@ public final class ProjectConfigurators {
     }
 
     private String configuratorFailedMessage(InternalProjectConfigurator contribution, Exception exception, String operationName) {
-        return String.format("Project configurator '%s' failed to %s", contribution.getFullyQualifiedId(), operationName);
+        return String.format("Project configurator '%s' failed to %s", contribution.getId(), operationName);
     }
 
     private IResource markerLocation() {

@@ -16,7 +16,7 @@ abstract class BaseProjectConfiguratorTest extends ProjectSynchronizationSpecifi
         ExtensionManager orignalManager = CorePlugin.instance.extensionManager
         CorePlugin.instance.extensionManager = new TestExtensionManager(CorePlugin.instance.extensionManager)
         orignalManager.loadConfigurators()
-            .findAll{ c -> c.contributorPluginId == CorePlugin.PLUGIN_ID }
+            .findAll{ c -> c.contributorPluginId.startsWith('org.eclipse.buildship') }
             .each { c -> numOfInternalConfigurators++; CorePlugin.instance.extensionManager.configurators += c }
     }
 
