@@ -29,7 +29,7 @@ import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Runs a Gradle test build which executes a list of test classes.
@@ -68,7 +68,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     }
 
     @Override
-    protected TestLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes invocationAttributes,
+    protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes invocationAttributes,
             ProcessDescription processDescription) {
         TestLauncher launcher = gradleBuild.newTestLauncher(runConfiguration, invocationAttributes);
         for (TestTarget testTarget : RunGradleJvmTestLaunchRequestJob.this.testTargets) {

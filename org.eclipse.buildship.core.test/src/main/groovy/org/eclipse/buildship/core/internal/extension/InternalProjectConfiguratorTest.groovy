@@ -26,12 +26,12 @@ class InternalProjectConfiguratorTest extends WorkspaceSpecification {
         then:
         configurators.size() == 1
         configurators[0].contributorPluginId == 'pluginId'
-        configurators[0].fullyQualifiedId == 'pluginId.id'
+        configurators[0].id == 'id'
     }
 
     def "Ignores project configurator with undefined ID"() {
         expect:
-        InternalProjectConfigurator.from([configurator("pluginId", null)]).empty
+        InternalProjectConfigurator.from([configurator(null)]).empty
     }
 
     def "Omits configurator with duplicate ID"() {
@@ -44,87 +44,77 @@ class InternalProjectConfiguratorTest extends WorkspaceSpecification {
         InternalProjectConfigurator.from([uninstantiableConfigurator()]).empty
     }
 
-    def "Can load project configurator from different plugin with duplicate ID"() {
-        when:
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([configurator('firstPlugin', 'sameId'), configurator('secondPlugin', 'sameId')])
-
-        then:
-        configurators.size() == 2
-        configurators[0].fullyQualifiedId == 'firstPlugin.sameId'
-        configurators[1].fullyQualifiedId == 'secondPlugin.sameId'
-    }
-
     def "Order preserved for independent configurators"() {
         setup:
-        ProjectConfiguratorContribution c1 = configurator('p1', 'c1')
-        ProjectConfiguratorContribution c2 = configurator('p2', 'c2')
+        ProjectConfiguratorContribution c1 = configurator('c1')
+        ProjectConfiguratorContribution c2 = configurator('c2')
         List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
 
         when:
         configurators = configurators.toSorted()
 
         then:
-        assertOrder(configurators, 'p1.c1', 'p2.c2')
+        assertOrder(configurators, 'c1', 'c2')
 
         when:
         configurators = configurators.reverse().toSorted()
 
         then:
-        assertOrder(configurators, 'p2.c2', 'p1.c1')
+        assertOrder(configurators, 'c2', 'c1')
     }
 
     def "Ordering respects 'runsBefore' dependency"() {
         setup:
-        ProjectConfiguratorContribution c1 = configurator('p1', 'c1')
-        ProjectConfiguratorContribution c2 = configurator('p2', 'c2', ['p1.c1'])
+        ProjectConfiguratorContribution c1 = configurator('c1')
+        ProjectConfiguratorContribution c2 = configurator('c2', ['c1'])
         List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
 
         when:
         configurators = configurators.toSorted()
 
         then:
-        assertOrder(configurators, 'p2.c2', 'p1.c1')
+        assertOrder(configurators, 'c2', 'c1')
     }
 
     def "Ordering respects 'runsAfter' dependency"() {
         setup:
-        ProjectConfiguratorContribution c1 = configurator('p1', 'c1', [], ['p2.c2'])
-        ProjectConfiguratorContribution c2 = configurator('p2', 'c2')
+        ProjectConfiguratorContribution c1 = configurator('c1', [], ['c2'])
+        ProjectConfiguratorContribution c2 = configurator('c2')
         List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
 
         when:
         configurators = configurators.toSorted()
 
         then:
-        assertOrder(configurators, 'p2.c2', 'p1.c1')
+        assertOrder(configurators, 'c2', 'c1')
     }
 
     def "Ordering ignores dependency that introduces cycle" () {
         setup:
-        ProjectConfiguratorContribution c1 = configurator('p1', 'c1', ['p2.c2'])
-        ProjectConfiguratorContribution c2 = configurator('p2', 'c2', ['p3.c3'])
-        ProjectConfiguratorContribution c3 = configurator('p3', 'c3', ['p1.c1'])
+        ProjectConfiguratorContribution c1 = configurator('c1', ['c2'])
+        ProjectConfiguratorContribution c2 = configurator('c2', ['c3'])
+        ProjectConfiguratorContribution c3 = configurator('c3', ['c1'])
         List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c3, c2, c1])
 
         when:
         configurators = configurators.toSorted()
 
         then:
-        assertOrder(configurators, 'p2.c2', 'p3.c3', 'p1.c1')
+        assertOrder(configurators, 'c2', 'c3', 'c1')
     }
 
     private void assertOrder(List<InternalProjectConfigurator> configurators, String... ids) {
-        assert configurators.collect { it.fullyQualifiedId } == ids
+        assert configurators.collect { it.id } == ids
     }
 
-    private ProjectConfiguratorContribution configurator(pluginId = 'pluginId', id = 'id', runsBefore = [], runsAfter = []) {
+    private ProjectConfiguratorContribution configurator(id = 'id', runsBefore = [], runsAfter = []) {
         IConfigurationElement extension = Mock(IConfigurationElement)
         extension.createExecutableExtension('class') >> Mock(ProjectConfigurator)
         extension.getAttribute('id') >> id
         extension.getAttribute('runsBefore') >> runsBefore.join(',')
         extension.getAttribute('runsAfter') >> runsAfter.join(',')
         IContributor contributor = Mock(IContributor)
-        contributor.getName() >> pluginId
+        contributor.getName() >> 'pluginId'
         extension.getContributor() >> contributor
         ProjectConfiguratorContribution.from(extension)
     }

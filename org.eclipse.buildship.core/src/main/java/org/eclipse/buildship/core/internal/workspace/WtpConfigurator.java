@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 the original author or authors.
+ * Copyright (c) 2018 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,24 +8,38 @@
 
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.Lists;
 
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.buildship.core.GradleBuild;
+import org.eclipse.buildship.core.InitializationContext;
+import org.eclipse.buildship.core.ProjectConfigurator;
+import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
 /**
  * Updates the Gradle classpath container to have the correct deployment attribute if any of its
@@ -35,30 +49,71 @@ import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
  *
  * @author Stefan Oehme
  */
-final class WtpClasspathUpdater {
+public class WtpConfigurator implements ProjectConfigurator {
 
     private static final String DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.dependency";
     private static final String NON_DEPLOYMENT_ATTRIBUTE = "org.eclipse.jst.component.nondependency";
 
-    public static void update(IJavaProject javaProject, EclipseProject project, SubMonitor progress) throws JavaModelException {
+    private DefaultGradleBuild gradleBuild;
+    private Map<File, EclipseProject> locationToProject;
+
+    @Override
+    public void init(InitializationContext context, IProgressMonitor monitor) {
+        // TODO (donat) add required model declarations to the project configurator extension point
+        GradleBuild gradleBuild = context.getGradleBuild();
+        this.gradleBuild = (DefaultGradleBuild) gradleBuild;
+        Collection<EclipseProject> eclipseProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, GradleConnector.newCancellationTokenSource(), FetchStrategy.LOAD_IF_NOT_CACHED, monitor);
+        this.locationToProject = eclipseProjects.stream().collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+    }
+
+    @Override
+    public void configure(ProjectContext context, IProgressMonitor monitor) {
+        IProject project = context.getProject();
+        try {
+            EclipseProject model = lookupEclipseModel(project);
+            updateWtpConfiguration(context, JavaCore.create(project), model, this.gradleBuild, monitor);
+        } catch (CoreException e) {
+            context.error("Failed to configure WTP for project " + project.getName(), e);
+        }
+    }
+
+    private EclipseProject lookupEclipseModel(IProject project) {
+        // TODO (donat) duplicate
+        IPath path = project.getLocation();
+        if (path == null) {
+            return null;
+        }
+        return this.locationToProject.get(path.toFile());
+    }
+
+    @Override
+    public void unconfigure(ProjectContext context, IProgressMonitor monitor) {
+    }
+
+    private static void updateWtpConfiguration(ProjectContext context, IJavaProject javaProject, EclipseProject project, InternalGradleBuild gradleBuild, IProgressMonitor monitor) throws JavaModelException {
         if (CorePlugin.workspaceOperations().isWtpInstalled()) {
-            List<EclipseExternalDependency> dependencies = Lists.newArrayList(project.getClasspath());
-            String deploymentPath = getDeploymentPath(dependencies);
-            if (deploymentPath != null) {
-                updateDeploymentPath(javaProject, deploymentPath, progress);
-            } else if (hasNonDeploymentAttributes(dependencies)) {
-                markAsNonDeployed(javaProject, progress);
+            try {
+                List<EclipseExternalDependency> dependencies = Lists.newArrayList(project.getClasspath());
+                String deploymentPath = getDeploymentPath(context, dependencies);
+                if (deploymentPath != null) {
+                    updateDeploymentPath(javaProject, deploymentPath, monitor);
+                } else if (hasNonDeploymentAttributes(dependencies)) {
+                    markAsNonDeployed(javaProject, monitor);
+                }
+            } catch (UnsupportedConfigurationException e) {
+                GradleErrorMarker.createError(javaProject.getProject(), gradleBuild, e.getMessage(), null, 0);
             }
         }
     }
 
-    private static String getDeploymentPath(List<EclipseExternalDependency> dependencies) {
+    private static String getDeploymentPath(ProjectContext context, List<EclipseExternalDependency> dependencies) {
         String deploymentPath = null;
         for (EclipseExternalDependency dependency : dependencies) {
             for (ClasspathAttribute attribute : dependency.getClasspathAttributes()) {
                 if (attribute.getName().equals(DEPLOYMENT_ATTRIBUTE)) {
                     if (deploymentPath != null && !deploymentPath.equals(attribute.getValue())) {
-                        throw new UnsupportedConfigurationException("WTP currently does not support mixed deployment paths.");
+                        context.error("WTP currently does not support mixed deployment paths.", null);
+                        return null;
                     }
                     deploymentPath = attribute.getValue();
                 }
@@ -78,15 +133,15 @@ final class WtpClasspathUpdater {
         return false;
     }
 
-    private static void updateDeploymentPath(IJavaProject javaProject, String deploymentPath, SubMonitor progress) throws JavaModelException {
-        replaceGradleClasspathContainerAttribute(javaProject, DEPLOYMENT_ATTRIBUTE, deploymentPath, NON_DEPLOYMENT_ATTRIBUTE, progress);
+    private static void updateDeploymentPath(IJavaProject javaProject, String deploymentPath, IProgressMonitor monitor) throws JavaModelException {
+        replaceGradleClasspathContainerAttribute(javaProject, DEPLOYMENT_ATTRIBUTE, deploymentPath, NON_DEPLOYMENT_ATTRIBUTE, monitor);
     }
 
-    private static void markAsNonDeployed(IJavaProject javaProject, SubMonitor progress) throws JavaModelException {
-        replaceGradleClasspathContainerAttribute(javaProject, NON_DEPLOYMENT_ATTRIBUTE, "", DEPLOYMENT_ATTRIBUTE, progress);
+    private static void markAsNonDeployed(IJavaProject javaProject, IProgressMonitor monitor) throws JavaModelException {
+        replaceGradleClasspathContainerAttribute(javaProject, NON_DEPLOYMENT_ATTRIBUTE, "", DEPLOYMENT_ATTRIBUTE, monitor);
     }
 
-    private static void replaceGradleClasspathContainerAttribute(IJavaProject project, String plusKey, String plusValue, String minusKey, SubMonitor progress)
+    private static void replaceGradleClasspathContainerAttribute(IJavaProject project, String plusKey, String plusValue, String minusKey, IProgressMonitor monitor)
             throws JavaModelException {
         IClasspathEntry[] oldClasspath = project.getRawClasspath();
         IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length];
@@ -99,7 +154,7 @@ final class WtpClasspathUpdater {
                 newClasspath[i] = entry;
             }
         }
-        project.setRawClasspath(newClasspath, progress);
+        project.setRawClasspath(newClasspath, monitor);
     }
 
     private static boolean isGradleClasspathContainer(IClasspathEntry entry) {

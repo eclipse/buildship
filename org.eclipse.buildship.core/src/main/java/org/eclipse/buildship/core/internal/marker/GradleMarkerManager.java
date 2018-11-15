@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.util.string.StringUtils;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Main interface to update Gradle error markers on workspace projects.
@@ -42,7 +42,7 @@ public class GradleMarkerManager {
      *
      * @param gradleBuild the target build
      */
-    public static void clear(GradleBuild gradleBuild) {
+    public static void clear(InternalGradleBuild gradleBuild) {
         try {
             for (IMarker marker : ResourcesPlugin.getWorkspace().getRoot().findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE)) {
                 if (GradleErrorMarker.belongsToBuild(marker, gradleBuild)) {
@@ -68,13 +68,9 @@ public class GradleMarkerManager {
      * @param gradleBuild the target Gradle build
      * @param status the status to display in the marker
      */
-    public static void addError(GradleBuild gradleBuild, ToolingApiStatus status) {
-        try {
-            ErrorMarkerLocation errorLocation = ErrorMarkerLocation.findErrorLocation(gradleBuild, status.getException());
-            GradleErrorMarker.create(errorLocation.getResource(), gradleBuild, collectErrorMessages(status.getException()), status.getException(), errorLocation.getLineNumber());
-        } catch (CoreException e) {
-            CorePlugin.getInstance().getLog().log(e.getStatus());
-        }
+    public static void addError(InternalGradleBuild gradleBuild, ToolingApiStatus status) {
+        ErrorMarkerLocation errorLocation = ErrorMarkerLocation.findErrorLocation(gradleBuild, status.getException());
+        GradleErrorMarker.createError(errorLocation.getResource(), gradleBuild, collectErrorMessages(status.getException()), status.getException(), errorLocation.getLineNumber());
     }
 
     private static String collectErrorMessages(Throwable t) {

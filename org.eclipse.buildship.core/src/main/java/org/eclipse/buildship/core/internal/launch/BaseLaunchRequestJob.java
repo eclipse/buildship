@@ -26,7 +26,7 @@ import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.event.Event;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJob;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Base class to execute Gradle builds in a job.
@@ -53,7 +53,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
         ProcessDescription processDescription = createProcessDescription();
         RunConfiguration runConfig = getRunConfig();
-        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(runConfig.getProjectConfiguration().getBuildConfiguration());
+        InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(runConfig.getProjectConfiguration().getBuildConfiguration());
         GradleProgressAttributes attributes = GradleProgressAttributes.builder(tokenSource, monitor)
                 .forDedicatedProcess(processDescription)
                 .withFullProgress()
@@ -94,7 +94,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
      *
      * @return the new launcher
      */
-    protected abstract T createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes, ProcessDescription processDescription);
+    protected abstract T createLaunch(InternalGradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes, ProcessDescription processDescription);
 
     /**
      * Execute the launcher created by {@code #createLaunch()}.

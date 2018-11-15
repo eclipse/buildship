@@ -73,8 +73,8 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
         return this.contribution.getContributorPluginId();
     }
 
-    public String getFullyQualifiedId() {
-        return this.contribution.getFullyQualifiedId();
+    public String getId() {
+        return this.contribution.getId();
     }
 
     public static List<InternalProjectConfigurator> from(List<ProjectConfiguratorContribution> configurators) {
@@ -96,13 +96,13 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
         while (it.hasNext()) {
             ProjectConfiguratorContribution configurator = it.next();
             if (configurator.getId() == null) {
-                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, configurator.getFullyQualifiedId() + " was removed because it had no ID defined");
+                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, configurator.getId() + " was removed because it had no ID defined");
                 it.remove();
             } else {
                 try {
                     configurator.createConfigurator();
                 } catch (Exception e) {
-                    LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, configurator.getFullyQualifiedId() + " was removed because configurator instance cannot be created", e);
+                    LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, configurator.getId() + " was removed because configurator instance cannot be created", e);
                     it.remove();
                 }
             }
@@ -114,9 +114,9 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
         Iterator<ProjectConfiguratorContribution> it = configurators.iterator();
         while (it.hasNext()) {
             ProjectConfiguratorContribution configurator = it.next();
-            String id = configurator.getFullyQualifiedId();
+            String id = configurator.getId();
             if (ids.contains(id)) {
-                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, configurator.getFullyQualifiedId() + " was removed because another configurator already exists with same ID");
+                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, configurator.getId() + " was removed because another configurator already exists with same ID");
                 it.remove();
             } else {
                 ids.add(id);
@@ -126,7 +126,7 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
 
     private static void filterInvalidDependencies(List<ProjectConfiguratorContribution> configurators) {
         Map<String, ProjectConfiguratorContribution> idToConfigurator = configurators.stream()
-                .collect(Collectors.toMap(ProjectConfiguratorContribution::getFullyQualifiedId, Function.identity()));
+                .collect(Collectors.toMap(ProjectConfiguratorContribution::getId, Function.identity()));
         for (ProjectConfiguratorContribution configurator : configurators) {
             filterInvalidDependencies(idToConfigurator, configurator.getId(), configurator.getRunsBefore());
             filterInvalidDependencies(idToConfigurator, configurator.getId(), configurator.getRunsAfter());
@@ -149,7 +149,7 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
 
     private static void filterCylicDependencies(List<ProjectConfiguratorContribution> configurators) {
         Map<String, ProjectConfiguratorContribution> idToConfigurator = configurators.stream()
-                .collect(Collectors.toMap(ProjectConfiguratorContribution::getFullyQualifiedId, Function.identity()));
+                .collect(Collectors.toMap(ProjectConfiguratorContribution::getId, Function.identity()));
         MutableGraph<ProjectConfiguratorContribution> dependencyGraph = GraphBuilder.directed().nodeOrder(ElementOrder.insertion()).build();
         configurators.forEach(c -> dependencyGraph.addNode(c));
         for (ProjectConfiguratorContribution configurator : configurators) {
@@ -168,7 +168,7 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
             ProjectConfiguratorContribution target = reverseDirection ? configurator : otherConfigurator;
             dependencyGraph.putEdge(source, target);
             if (Graphs.hasCycle(dependencyGraph)) {
-                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator dependency (" + source.getFullyQualifiedId() + " -> " + target.getFullyQualifiedId() + ") removed because it introduces dependency cycle");
+                LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator dependency (" + source.getId() + " -> " + target.getId() + ") removed because it introduces dependency cycle");
                 dependencyGraph.removeEdge(source, target);
                 it.remove();
             }
@@ -187,10 +187,10 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
     }
 
     private boolean runsBefore(InternalProjectConfigurator that) {
-        return this.contribution.getRunsBefore().contains(that.getFullyQualifiedId());
+        return this.contribution.getRunsBefore().contains(that.getId());
     }
 
     private boolean runsAfter(InternalProjectConfigurator that) {
-        return this.contribution.getRunsAfter().contains(that.getFullyQualifiedId());
+        return this.contribution.getRunsAfter().contains(that.getId());
     }
 }

@@ -15,7 +15,7 @@ package org.eclipse.buildship.core;
  * @since 3.0
  * @see ProjectConfigurator
  */
-public interface InitializationContext {
+public interface InitializationContext extends SynchronizationContext {
 
     /**
      * @return the current Gradle build being synchronized

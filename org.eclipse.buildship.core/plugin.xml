@@ -104,4 +104,16 @@
      <persistent value="true" />
      <attribute name="stacktrace" />
    </extension>
+   <extension
+         point="org.eclipse.buildship.core.projectconfigurators">
+      <configurator
+            class="org.eclipse.buildship.core.internal.workspace.BaseConfigurator"
+            id="org.eclipse.buildship.configurators.base">
+      </configurator>
+      <configurator
+            class="org.eclipse.buildship.core.internal.workspace.WtpConfigurator"
+            id="org.eclipse.buildship.configurators.wtp"
+            runsBefore="org.eclipse.buildship.configurators.base">
+      </configurator>
+   </extension>
 </plugin>

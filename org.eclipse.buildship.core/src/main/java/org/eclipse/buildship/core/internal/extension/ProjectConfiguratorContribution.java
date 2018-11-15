@@ -54,13 +54,9 @@ public final class ProjectConfiguratorContribution {
         return this.id;
     }
 
-    public String getContributorPluginId() {
-        return this.contributorPluginId;
-    }
-
-    public String getFullyQualifiedId() {
-        return this.contributorPluginId + "." + this.id;
-    }
+     public String getContributorPluginId() {
+         return this.contributorPluginId;
+     }
 
     public List<String> getRunsBefore() {
         return this.runsBefore;
@@ -94,7 +90,7 @@ public final class ProjectConfiguratorContribution {
 
     @Override
     public String toString() {
-        return "ProjectConfiguratorContribution [id=" + getFullyQualifiedId() + ", runsBefore=" + this.runsBefore
+        return "ProjectConfiguratorContribution [id=" + getId() + ", runsBefore=" + this.runsBefore
                 + ", runsAfter=" + this.runsAfter + "]";
     }
 }

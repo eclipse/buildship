@@ -46,9 +46,9 @@ import org.eclipse.buildship.core.internal.preferences.DefaultModelPersistence;
 import org.eclipse.buildship.core.internal.preferences.ModelPersistence;
 import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.internal.util.logging.EclipseLogger;
-import org.eclipse.buildship.core.internal.workspace.DefaultGradleWorkspaceManager;
+import org.eclipse.buildship.core.internal.workspace.DefaultGradleWorkspace;
 import org.eclipse.buildship.core.internal.workspace.DefaultWorkspaceOperations;
-import org.eclipse.buildship.core.internal.workspace.GradleWorkspaceManager;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleWorkspace;
 import org.eclipse.buildship.core.internal.workspace.ProjectChangeListener;
 import org.eclipse.buildship.core.internal.workspace.SynchronizingBuildScriptUpdateListener;
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations;
@@ -81,7 +81,7 @@ public final class CorePlugin extends Plugin {
     private ServiceRegistration loggerService;
     private ServiceRegistration publishedGradleVersionsService;
     private ServiceRegistration workspaceOperationsService;
-    private ServiceRegistration gradleWorkspaceManagerService;
+    private ServiceRegistration internalGradleWorkspaceService;
     private ServiceRegistration processStreamsProviderService;
     private ServiceRegistration gradleLaunchConfigurationService;
     private ServiceRegistration listenerRegistryService;
@@ -91,7 +91,7 @@ public final class CorePlugin extends Plugin {
     private ServiceTracker loggerServiceTracker;
     private ServiceTracker publishedGradleVersionsServiceTracker;
     private ServiceTracker workspaceOperationsServiceTracker;
-    private ServiceTracker gradleWorkspaceManagerServiceTracker;
+    private ServiceTracker internalGradleWorkspaceServiceTracker;
     private ServiceTracker processStreamsProviderServiceTracker;
     private ServiceTracker gradleLaunchConfigurationServiceTracker;
     private ServiceTracker listenerRegistryServiceTracker;
@@ -135,7 +135,7 @@ public final class CorePlugin extends Plugin {
         this.loggerServiceTracker = createServiceTracker(context, Logger.class);
         this.publishedGradleVersionsServiceTracker = createServiceTracker(context, PublishedGradleVersionsWrapper.class);
         this.workspaceOperationsServiceTracker = createServiceTracker(context, WorkspaceOperations.class);
-        this.gradleWorkspaceManagerServiceTracker = createServiceTracker(context, GradleWorkspaceManager.class);
+        this.internalGradleWorkspaceServiceTracker = createServiceTracker(context, InternalGradleWorkspace.class);
         this.processStreamsProviderServiceTracker = createServiceTracker(context, ProcessStreamsProvider.class);
         this.gradleLaunchConfigurationServiceTracker = createServiceTracker(context, GradleLaunchConfigurationManager.class);
         this.listenerRegistryServiceTracker = createServiceTracker(context, ListenerRegistry.class);
@@ -144,7 +144,7 @@ public final class CorePlugin extends Plugin {
         this.loggerService = registerService(context, Logger.class, createLogger(), preferences);
         this.publishedGradleVersionsService = registerService(context, PublishedGradleVersionsWrapper.class, createPublishedGradleVersions(), preferences);
         this.workspaceOperationsService = registerService(context, WorkspaceOperations.class, createWorkspaceOperations(), preferences);
-        this.gradleWorkspaceManagerService = registerService(context, GradleWorkspaceManager.class, createGradleWorkspaceManager(), preferences);
+        this.internalGradleWorkspaceService = registerService(context, InternalGradleWorkspace.class, createGradleWorkspace(), preferences);
         this.processStreamsProviderService = registerService(context, ProcessStreamsProvider.class, createProcessStreamsProvider(), preferences);
         this.gradleLaunchConfigurationService = registerService(context, GradleLaunchConfigurationManager.class, createGradleLaunchConfigurationManager(), preferences);
         this.listenerRegistryService = registerService(context, ListenerRegistry.class, createListenerRegistry(), preferences);
@@ -186,8 +186,8 @@ public final class CorePlugin extends Plugin {
         return new DefaultWorkspaceOperations();
     }
 
-    private GradleWorkspaceManager createGradleWorkspaceManager() {
-        return new DefaultGradleWorkspaceManager();
+    private InternalGradleWorkspace createGradleWorkspace() {
+        return new DefaultGradleWorkspace();
     }
 
     private ProcessStreamsProvider createProcessStreamsProvider() {
@@ -210,7 +210,7 @@ public final class CorePlugin extends Plugin {
         this.listenerRegistryService.unregister();
         this.gradleLaunchConfigurationService.unregister();
         this.processStreamsProviderService.unregister();
-        this.gradleWorkspaceManagerService.unregister();
+        this.internalGradleWorkspaceService.unregister();
         this.workspaceOperationsService.unregister();
         this.publishedGradleVersionsService.unregister();
         this.loggerService.unregister();
@@ -218,7 +218,7 @@ public final class CorePlugin extends Plugin {
         this.listenerRegistryServiceTracker.close();
         this.gradleLaunchConfigurationServiceTracker.close();
         this.processStreamsProviderServiceTracker.close();
-        this.gradleWorkspaceManagerServiceTracker.close();
+        this.internalGradleWorkspaceServiceTracker.close();
         this.workspaceOperationsServiceTracker.close();
         this.publishedGradleVersionsServiceTracker.close();
         this.loggerServiceTracker.close();
@@ -240,8 +240,8 @@ public final class CorePlugin extends Plugin {
         return (WorkspaceOperations) getInstance().workspaceOperationsServiceTracker.getService();
     }
 
-    public static GradleWorkspaceManager gradleWorkspaceManager() {
-        return (GradleWorkspaceManager) getInstance().gradleWorkspaceManagerServiceTracker.getService();
+    public static InternalGradleWorkspace internalGradleWorkspace() {
+        return (InternalGradleWorkspace) getInstance().internalGradleWorkspaceServiceTracker.getService();
     }
 
     public static ProcessStreamsProvider processStreamsProvider() {

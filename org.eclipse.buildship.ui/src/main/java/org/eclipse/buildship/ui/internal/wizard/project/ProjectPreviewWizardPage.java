@@ -449,12 +449,12 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     }
 
     private static BuildEnvironment fetchBuildEnvironment(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
+        ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig).getModelProvider();
         return modelProvider.fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
     }
 
     private static GradleBuild fetchGradleBuildStructure(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        ModelProvider modelProvider = CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfig).getModelProvider();
+        ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig).getModelProvider();
         return modelProvider.fetchModel(GradleBuild.class, FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
     }
 

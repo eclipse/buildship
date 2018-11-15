@@ -6,10 +6,11 @@ import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.NullProgressMonitor
 
+import org.eclipse.buildship.core.GradleCore
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.internal.workspace.GradleBuild
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild
 
 class GradleMarkerManagerTest extends ProjectSynchronizationSpecification {
 
@@ -54,7 +55,7 @@ class GradleMarkerManagerTest extends ProjectSynchronizationSpecification {
 
     def "Marks workspace root if the stacktrace contains location and no target nor root project available"() {
         setup:
-        GradleBuild savedGradleBuild = gradleBuild;
+        InternalGradleBuild savedGradleBuild = gradleBuild;
         project.delete(true, new NullProgressMonitor())
         GradleMarkerManager.addError(savedGradleBuild, errorInExistingBuildScript)
 
@@ -65,7 +66,7 @@ class GradleMarkerManagerTest extends ProjectSynchronizationSpecification {
 
     def "Marks root project build script if the stacktrace doesn't reference build script and root build script is available"() {
         setup:
-        GradleBuild savedGradleBuild = gradleBuild;
+        InternalGradleBuild savedGradleBuild = gradleBuild;
         GradleMarkerManager.addError(savedGradleBuild, connectionProblem)
 
         expect:
@@ -85,7 +86,7 @@ class GradleMarkerManagerTest extends ProjectSynchronizationSpecification {
 
     def "Marks workspace root if the stacktrace doesn't reference build script and no target nor root project available-"() {
         setup:
-        GradleBuild savedGradleBuild = gradleBuild;
+        InternalGradleBuild savedGradleBuild = gradleBuild;
         project.delete(true, new NullProgressMonitor())
         GradleMarkerManager.addError(savedGradleBuild, connectionProblem)
 
@@ -94,8 +95,8 @@ class GradleMarkerManagerTest extends ProjectSynchronizationSpecification {
         gradleErrorMarkers[0].resource.fullPath.toPortableString() == '/'
     }
 
-    private GradleBuild getGradleBuild() {
-        CorePlugin.gradleWorkspaceManager().getGradleBuild(project).get()
+    private InternalGradleBuild getGradleBuild() {
+        GradleCore.workspace.getBuild(project).get();
     }
 
     private ToolingApiStatus getErrorInExistingBuildScript() {

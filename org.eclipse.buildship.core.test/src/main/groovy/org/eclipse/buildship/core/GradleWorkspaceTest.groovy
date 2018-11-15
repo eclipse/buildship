@@ -5,9 +5,9 @@ import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
-import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
-class GradleWorkspaceTest extends WorkspaceSpecification {
+class GradleWorkspaceTest extends ProjectSynchronizationSpecification {
 
     def "Cannot get a null build"() {
         expect:
@@ -26,8 +26,8 @@ class GradleWorkspaceTest extends WorkspaceSpecification {
 
     def "Can get a Gradle build via valid Gradle project"() {
         setup:
-        IProject project = newProject("GradleWorkspaceTest")
-        CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, new NullProgressMonitor())
+        importAndWait(dir("GradleWorkspaceTest"))
+        IProject project = findProject("GradleWorkspaceTest")
 
         expect:
         GradleCore.workspace.getBuild(project).present

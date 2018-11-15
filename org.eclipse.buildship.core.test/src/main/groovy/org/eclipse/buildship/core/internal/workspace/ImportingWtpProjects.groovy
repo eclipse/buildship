@@ -4,6 +4,7 @@ import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 
+import org.eclipse.core.resources.IMarker
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.jdt.core.IAccessRule
@@ -38,9 +39,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
         Logger logger = Mock(Logger)
         registerService(Logger, logger)
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = false
 
         when:
         SynchronizationResult result = tryImportAndWait(root)
@@ -62,17 +61,17 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         SynchronizationResult result = tryImportAndWait(root)
+        IProject project = findProject('project')
 
         then:
-        result.status.severity == IStatus.WARNING
-        result.status.exception instanceof UnsupportedConfigurationException
-        result.status.exception.message == "WTP currently does not support mixed deployment paths."
+        result.status.severity == IStatus.ERROR
+        gradleErrorMarkers.size() == 1
+        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
+        gradleErrorMarkers[0].getResource() == project
     }
 
     def "The eclipseWtp task is run before importing WTP projects"() {
@@ -83,9 +82,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'eclipse'
             """
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -103,9 +100,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'eclipse'
             """
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: false)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = false
 
         when:
         importAndWait(root)
@@ -124,9 +119,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'eclipse'
             """
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         importAndWait(root, GradleDistribution.forVersion('2.13'))
@@ -146,8 +139,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             """
         }
 
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -170,6 +162,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root, GradleDistribution.forVersion('2.13'))
@@ -192,6 +185,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -214,6 +208,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -236,6 +231,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -258,6 +254,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -281,6 +278,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -308,12 +306,17 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         }
         Logger logger = Mock(Logger)
         environment.registerService(Logger, logger)
+        wtpinstalled = true
 
         when:
         SynchronizationResult result = tryImportAndWait(root)
+        IProject project = findProject('project')
 
         then:
-        result.status.exception instanceof UnsupportedConfigurationException
+        result.status.severity == IStatus.ERROR
+        gradleErrorMarkers.size() == 1
+        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
+        gradleErrorMarkers[0].getResource() == project
     }
 
     def "Does not override classpath container customisation"() {
@@ -347,6 +350,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                }
             """
         }
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -365,8 +369,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=506627")
     def "Cleans up outdated component configuration"() {
         setup:
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         File root = dir("wtp-project") {
             dir 'src/main/java'
@@ -415,9 +418,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             }
             file 'settings.gradle', "includeBuild 'included'"
         }
-
-        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: true)
-        registerService(WorkspaceOperations, operations)
+        wtpinstalled = true
 
         when:
         importAndWait(root)
@@ -443,6 +444,11 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
             def natureUpdaterCalled = new Exception().stackTrace.find { StackTraceElement element -> element.className == ProjectNatureUpdater.class.name && element.methodName == 'toNatures' }
             nature == WTP_COMPONENT_NATURE && !natureUpdaterCalled ? wtpInstalled : delegate.isNatureRecognizedByEclipse(nature)
         }
+    }
+
+    private void setWtpinstalled(boolean installed) {
+        WorkspaceOperations operations = new WorkspaceOperationsDelegate(wtpInstalled: installed)
+        registerService(WorkspaceOperations, operations)
     }
 
     private IClasspathEntry[] resolvedClasspath(IProject project) {

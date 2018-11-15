@@ -37,7 +37,7 @@ import org.eclipse.buildship.core.internal.util.gradle.ModelUtils;
  *
  * @author Stefan Oehme
  */
-final class DefaultModelProvider implements ModelProvider {
+public final class DefaultModelProvider implements ModelProvider {
 
     private final BuildConfiguration buildConfiguration;
     private final Cache<Object, Object> cache = CacheBuilder.newBuilder().build();

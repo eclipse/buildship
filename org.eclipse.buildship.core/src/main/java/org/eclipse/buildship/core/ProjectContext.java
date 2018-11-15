@@ -17,7 +17,7 @@ import org.eclipse.core.resources.IProject;
  * @since 3.0
  * @see ProjectConfigurator
  */
-public interface ProjectContext {
+public interface ProjectContext extends SynchronizationContext {
 
     /**
      * @return the current project being synchronized

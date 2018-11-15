@@ -8,7 +8,7 @@
 
 package org.eclipse.buildship.core;
 
-import org.eclipse.buildship.core.internal.DefaultGradleWorkspace;
+import org.eclipse.buildship.core.internal.CorePlugin;
 
 /**
  * Entry point to access Buildship APIs.
@@ -18,6 +18,6 @@ import org.eclipse.buildship.core.internal.DefaultGradleWorkspace;
  */
 public final class GradleCore {
     public static GradleWorkspace getWorkspace() {
-        return new DefaultGradleWorkspace();
+        return CorePlugin.internalGradleWorkspace();
     }
 }

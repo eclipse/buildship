@@ -26,7 +26,7 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Calculates the location of a new error marker.
@@ -57,7 +57,7 @@ final class ErrorMarkerLocation {
         return this.lineNumber;
     }
 
-    public static ErrorMarkerLocation findErrorLocation(GradleBuild gradleBuild, Throwable t) {
+    public static ErrorMarkerLocation findErrorLocation(InternalGradleBuild gradleBuild, Throwable t) {
         Matcher errorLocationInStackTrace = tryFindStackTraceErrorLocation(t);
 
         if (errorLocationInStackTrace != null) {
@@ -84,7 +84,7 @@ final class ErrorMarkerLocation {
         return matcher;
     }
 
-    private static IResource tryFindWorkspaceFile(GradleBuild gradleBuild, Path filePath) {
+    private static IResource tryFindWorkspaceFile(InternalGradleBuild gradleBuild, Path filePath) {
         for (IProject project : getWorkspaceProjectsFor(gradleBuild)) {
             IPath projectLocation = project.getLocation();
             if (projectLocation.isPrefixOf(filePath)) {
@@ -98,7 +98,7 @@ final class ErrorMarkerLocation {
         return null;
     }
 
-    private static IResource calculateFallbackLocation(GradleBuild gradleBuild) {
+    private static IResource calculateFallbackLocation(InternalGradleBuild gradleBuild) {
         Optional<IProject> projectOrNull = CorePlugin.workspaceOperations().findProjectByLocation(gradleBuild.getBuildConfig().getRootProjectDirectory());
         if (projectOrNull.isPresent()) {
             IProject project = projectOrNull.get();
@@ -117,7 +117,7 @@ final class ErrorMarkerLocation {
         }
     }
 
-    private static Iterable<IProject> getWorkspaceProjectsFor(final GradleBuild gradleBuild) {
+    private static Iterable<IProject> getWorkspaceProjectsFor(final InternalGradleBuild gradleBuild) {
         return FluentIterable.from(CorePlugin.workspaceOperations().getAllProjects()).filter(new Predicate<IProject>() {
 
             @Override

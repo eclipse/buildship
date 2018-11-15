@@ -34,7 +34,7 @@ import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Executes tests through Gradle based on a given list of {@code TestOperationDescriptor} instances and a given set of {@code GradleRunConfigurationAttributes}.
@@ -92,7 +92,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
     }
 
     @Override
-    protected TestLauncher createLaunch(GradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes,
+    protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes,
             ProcessDescription processDescription) {
         TestLauncher launcher = gradleBuild.newTestLauncher(runConfiguration, progressAttributes);
         launcher.withTests(RunGradleTestLaunchRequestJob.this.testDescriptors);

@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.workspace.GradleBuild;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Describes Gradle error marker.
@@ -31,25 +31,37 @@ public class GradleErrorMarker {
     private GradleErrorMarker() {
     }
 
-    public static boolean belongsToBuild(IMarker marker, GradleBuild build) {
+    public static boolean belongsToBuild(IMarker marker, InternalGradleBuild build) {
         String rootDir = marker.getAttribute(ATTRIBUTE_ROOT_DIR, null);
         return build.getBuildConfig().getRootProjectDirectory().getAbsolutePath().equals(rootDir);
     }
 
-    public static void create(IResource resource, GradleBuild gradleBuild, String message, Throwable exception, int lineNumber) throws CoreException {
-        IMarker marker = resource.createMarker(GradleErrorMarker.ID);
+    public static void createError(IResource resource, InternalGradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
+        createMarker(IMarker.SEVERITY_ERROR, resource, gradleBuild, message, exception,lineNumber);
+    }
 
-        if (lineNumber >= 0) {
-            marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-        }
+    public static void createWarning(IResource resource, InternalGradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
+        createMarker(IMarker.SEVERITY_WARNING, resource, gradleBuild, message, exception,lineNumber);
+    }
 
-        marker.setAttribute(IMarker.MESSAGE, message);
-        marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-        marker.setAttribute(ATTRIBUTE_ROOT_DIR, gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath());
-        if (exception != null) {
-            String stackTrace = Throwables.getStackTraceAsString(exception);
-            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, stackTrace);
+    private static void createMarker(int severity, IResource resource, InternalGradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
+        try {
+            IMarker marker = resource.createMarker(GradleErrorMarker.ID);
+
+            if (lineNumber >= 0) {
+                marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+            }
+
+            marker.setAttribute(IMarker.MESSAGE, message);
+            marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+            marker.setAttribute(IMarker.SEVERITY, severity);
+            marker.setAttribute(ATTRIBUTE_ROOT_DIR, gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath());
+            if (exception != null) {
+                String stackTrace = Throwables.getStackTraceAsString(exception);
+                marker.setAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, stackTrace);
+            }
+        } catch (CoreException e) {
+            CorePlugin.logger().warn("Cannot create Gradle error marker", e);
         }
     }
 }

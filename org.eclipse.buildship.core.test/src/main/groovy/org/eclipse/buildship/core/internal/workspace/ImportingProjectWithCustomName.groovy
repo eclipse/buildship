@@ -147,7 +147,7 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
         FutureCallback<Pair<BuildEnvironment, GradleBuild>> previewResultHandler = Mock()
 
         when:
-        GradleBuild gradleBuild = CorePlugin.gradleWorkspaceManager().getGradleBuild(createInheritingBuildConfiguration(location)).modelProvider.fetchModel(GradleBuild, FetchStrategy.FORCE_RELOAD, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        GradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(createInheritingBuildConfiguration(location)).modelProvider.fetchModel(GradleBuild, FetchStrategy.FORCE_RELOAD, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
 
         then:
         gradleBuild.rootProject.name == 'app'

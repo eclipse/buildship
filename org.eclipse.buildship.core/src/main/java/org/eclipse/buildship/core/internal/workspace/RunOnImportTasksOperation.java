@@ -40,7 +40,7 @@ import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseProject;
  * we only have hard coded support for detecting WTP projects, for which we run the 'eclipseWtp'
  * task. That task only behaves correctly on Gradle >= 3.0, so we don't run it on older versions.
  */
-final class RunOnImportTasksOperation {
+public final class RunOnImportTasksOperation {
 
     private static final String WTP_TASK = "eclipseWtp";
     private static final String CLEAN_WTP_TASK = "cleanEclipseWtp";
@@ -108,7 +108,7 @@ final class RunOnImportTasksOperation {
                 .forBackgroundProcess()
                 .withFilteredProgress()
                 .build();
-        BuildLauncher launcher = CorePlugin.gradleWorkspaceManager().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration, progressAttributes);
+        BuildLauncher launcher = CorePlugin.internalGradleWorkspace().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration, progressAttributes);
         launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()])).run();
     }
 }

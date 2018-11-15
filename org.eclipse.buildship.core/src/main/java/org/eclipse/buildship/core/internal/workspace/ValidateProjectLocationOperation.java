@@ -25,7 +25,7 @@ import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
  *
  * @author Donat Csikos
  */
-final class ValidateProjectLocationOperation {
+public final class ValidateProjectLocationOperation {
 
     private static final File WORKSPACE_ROOT = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
 
