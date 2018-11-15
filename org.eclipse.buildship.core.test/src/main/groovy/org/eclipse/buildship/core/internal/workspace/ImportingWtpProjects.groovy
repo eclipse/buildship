@@ -68,7 +68,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         IProject project = findProject('project')
 
         then:
-        result.status.severity == IStatus.OK
+        result.status.severity == IStatus.ERROR
         gradleErrorMarkers.size() == 1
         gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
         gradleErrorMarkers[0].getResource() == project
@@ -313,7 +313,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         IProject project = findProject('project')
 
         then:
-        result.status.severity == IStatus.OK
+        result.status.severity == IStatus.ERROR
         gradleErrorMarkers.size() == 1
         gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
         gradleErrorMarkers[0].getResource() == project
