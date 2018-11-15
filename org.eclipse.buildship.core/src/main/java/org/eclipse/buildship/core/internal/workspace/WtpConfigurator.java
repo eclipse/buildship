@@ -73,7 +73,7 @@ public class WtpConfigurator implements ProjectConfigurator {
             EclipseProject model = lookupEclipseModel(project);
             updateWtpConfiguration(context, JavaCore.create(project), model, this.gradleBuild, monitor);
         } catch (CoreException e) {
-            context.onError("Failed to configure WTP for project" + project.getName(), e);
+            context.error("Failed to configure WTP for project " + project.getName(), e);
         }
     }
 
@@ -101,7 +101,7 @@ public class WtpConfigurator implements ProjectConfigurator {
                     markAsNonDeployed(javaProject, monitor);
                 }
             } catch (UnsupportedConfigurationException e) {
-                GradleErrorMarker.create(javaProject.getProject(), gradleBuild, e.getMessage(), null, 0);
+                GradleErrorMarker.createError(javaProject.getProject(), gradleBuild, e.getMessage(), null, 0);
             }
         }
     }
@@ -112,7 +112,7 @@ public class WtpConfigurator implements ProjectConfigurator {
             for (ClasspathAttribute attribute : dependency.getClasspathAttributes()) {
                 if (attribute.getName().equals(DEPLOYMENT_ATTRIBUTE)) {
                     if (deploymentPath != null && !deploymentPath.equals(attribute.getValue())) {
-                        context.onError("WTP currently does not support mixed deployment paths.", null);
+                        context.error("WTP currently does not support mixed deployment paths.", null);
                         return null;
                     }
                     deploymentPath = attribute.getValue();

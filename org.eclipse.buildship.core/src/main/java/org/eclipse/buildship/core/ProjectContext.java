@@ -17,19 +17,10 @@ import org.eclipse.core.resources.IProject;
  * @since 3.0
  * @see ProjectConfigurator
  */
-public interface ProjectContext {
+public interface ProjectContext extends SynchronizationContext {
 
     /**
      * @return the current project being synchronized
      */
     IProject getProject();
-
-    /**
-     * Registers a problem during project synchronization. Instead of implementing separate error
-     * handling, project configurators should use this method to report issues.
-     *
-     * @param message the error message describing the problem
-     * @param exception The exception to report; can be {@code null}
-     */
-    void onError(String message, Exception exception);
 }

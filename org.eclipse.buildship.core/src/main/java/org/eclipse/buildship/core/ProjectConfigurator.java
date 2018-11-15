@@ -35,8 +35,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * unspecified.
  *
  * <p>
- * Clients can report errors via the {@link InitializationContext#onError(String, Exception) and
- * {@link ProjectContext#onError(String, Exception)} methods.
+ * Clients can report errors with the {@link SynchronizationContext#error(String, Exception)} and
+ * {@link SynchronizationContext#warning(String, Exception)} methods.
  *
  * @author Donat Csikos
  * @since 3.0

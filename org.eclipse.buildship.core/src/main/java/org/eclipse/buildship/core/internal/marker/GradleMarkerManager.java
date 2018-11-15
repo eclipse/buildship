@@ -70,7 +70,7 @@ public class GradleMarkerManager {
      */
     public static void addError(InternalGradleBuild gradleBuild, ToolingApiStatus status) {
         ErrorMarkerLocation errorLocation = ErrorMarkerLocation.findErrorLocation(gradleBuild, status.getException());
-        GradleErrorMarker.create(errorLocation.getResource(), gradleBuild, collectErrorMessages(status.getException()), status.getException(), errorLocation.getLineNumber());
+        GradleErrorMarker.createError(errorLocation.getResource(), gradleBuild, collectErrorMessages(status.getException()), status.getException(), errorLocation.getLineNumber());
     }
 
     private static String collectErrorMessages(Throwable t) {

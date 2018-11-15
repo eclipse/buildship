@@ -9,19 +9,22 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IStatus;
 
-public final class SynchronizationFailure {
+public final class SynchronizationProblem {
 
     private final String pluginId;
     private final IResource resource;
     private final String message;
     private final Exception exception;
+    private final int severity;
 
-    private SynchronizationFailure(String pluginId, IResource resource, String message, Exception exception) {
+    private SynchronizationProblem(String pluginId, IResource resource, String message, Exception exception, int severity) {
         this.pluginId = pluginId;
         this.resource = resource;
         this.message = message;
         this.exception = exception;
+        this.severity = severity;
     }
 
     public String getPluginId() {
@@ -40,7 +43,15 @@ public final class SynchronizationFailure {
         return this.exception;
     }
 
-    public static final SynchronizationFailure from(String pluginId, IResource resource, String message, Exception exception) {
-        return new SynchronizationFailure(pluginId, resource, message, exception);
+    public int getSeverity() {
+        return this.severity;
+    }
+
+    public static final SynchronizationProblem newError(String pluginId, IResource resource, String message, Exception exception) {
+        return new SynchronizationProblem(pluginId, resource, message, exception, IStatus.ERROR);
+    }
+
+    public static final SynchronizationProblem newWarning(String pluginId, IResource resource, String message, Exception exception) {
+        return new SynchronizationProblem(pluginId, resource, message, exception, IStatus.WARNING);
     }
 }

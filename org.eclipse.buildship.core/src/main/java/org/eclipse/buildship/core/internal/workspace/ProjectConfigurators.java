@@ -32,14 +32,13 @@ public final class ProjectConfigurators {
     private final InternalGradleBuild gradleBuild;
     private final List<InternalProjectConfigurator> contributions;
 
-
     private ProjectConfigurators(InternalGradleBuild gradleBuild, List<InternalProjectConfigurator> contributions) {
         this.gradleBuild = gradleBuild;
         this.contributions = contributions;
     }
 
-    List<SynchronizationFailure> initConfigurators(IProgressMonitor monitor) {
-        List<SynchronizationFailure> result = new ArrayList<>();
+    List<SynchronizationProblem> initConfigurators(IProgressMonitor monitor) {
+        List<SynchronizationProblem> result = new ArrayList<>();
 
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(this.contributions.size());
@@ -47,17 +46,18 @@ public final class ProjectConfigurators {
             DefaultInitializationContext context = newInitializationContext(this.gradleBuild);
             try {
                 contribution.init(context, progress.newChild(1));
-                context.getExceptions().forEach(e -> result.add(SynchronizationFailure.from(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
+                context.getErrors().forEach(e -> result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
+                context.getWarnings().forEach(e -> result.add(SynchronizationProblem.newWarning(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
             } catch (Exception e) {
-                result.add(SynchronizationFailure.from(contribution.getContributorPluginId(), markerLocation(), configuratorFailedMessage(contribution, e, "initialize"), e));
+                result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation(), configuratorFailedMessage(contribution, e, "initialize"), e));
             }
         }
 
         return result;
     }
 
-    List<SynchronizationFailure> configureConfigurators(IProject project, IProgressMonitor monitor) {
-        List<SynchronizationFailure> result = new ArrayList<>();
+    List<SynchronizationProblem> configureConfigurators(IProject project, IProgressMonitor monitor) {
+        List<SynchronizationProblem> result = new ArrayList<>();
 
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(this.contributions.size());
@@ -65,17 +65,18 @@ public final class ProjectConfigurators {
             DefaultProjectContext context = newProjectContext(project);
             try {
                 contribution.configure(context, progress.newChild(1));
-                context.getExceptions().forEach(e -> result.add(SynchronizationFailure.from(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
+                context.getErrors().forEach(e -> result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
+                context.getWarnings().forEach(e -> result.add(SynchronizationProblem.newWarning(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
             } catch (Exception e) {
-                result.add(SynchronizationFailure.from(contribution.getContributorPluginId(), project, configuratorFailedMessage(contribution, e, "configure project '" + project.getName() + "'"), e));
+                result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), project, configuratorFailedMessage(contribution, e, "configure project '" + project.getName() + "'"), e));
             }
         }
 
         return result;
     }
 
-    List<SynchronizationFailure> unconfigureConfigurators(IProject project, IProgressMonitor monitor) {
-        List<SynchronizationFailure> result = new ArrayList<>();
+    List<SynchronizationProblem> unconfigureConfigurators(IProject project, IProgressMonitor monitor) {
+        List<SynchronizationProblem> result = new ArrayList<>();
 
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(this.contributions.size());
@@ -83,9 +84,10 @@ public final class ProjectConfigurators {
             DefaultProjectContext context = newProjectContext(project);
             try {
                 contribution.unconfigure(context, progress.newChild(1));
-                context.getExceptions().forEach(e -> result.add(SynchronizationFailure.from(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
+                context.getErrors().forEach(e -> result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
+                context.getWarnings().forEach(e -> result.add(SynchronizationProblem.newWarning(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
             } catch (Exception e) {
-                result.add(SynchronizationFailure.from(contribution.getContributorPluginId(), markerLocation(), configuratorFailedMessage(contribution, e, "unconfigure project '" + project.getName() + "'"), e));
+                result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation(), configuratorFailedMessage(contribution, e, "unconfigure project '" + project.getName() + "'"), e));
             }
         }
 
@@ -115,14 +117,24 @@ public final class ProjectConfigurators {
 
 
     private static class BaseContext {
-        protected final List<Pair<String, Exception>> exceptions = new ArrayList<>();
+        protected final List<Pair<String, Exception>> errors = new ArrayList<>();
+        protected final List<Pair<String, Exception>> warnings = new ArrayList<>();
 
-        public List<Pair<String, Exception>> getExceptions() {
-            return this.exceptions;
+
+        public List<Pair<String, Exception>> getErrors() {
+            return this.errors;
         }
 
-        public void onError(String message, Exception exception) {
-            this.exceptions.add(new Pair<>(message, exception));
+        public List<Pair<String, Exception>> getWarnings() {
+            return this.warnings;
+        }
+
+        public void error(String message, Exception exception) {
+            this.errors.add(new Pair<>(message, exception));
+        }
+
+        public void warning(String message, Exception exception) {
+            this.warnings.add(new Pair<>(message, exception));
         }
     }
 

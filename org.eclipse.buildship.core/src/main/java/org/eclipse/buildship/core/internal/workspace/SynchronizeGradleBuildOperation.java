@@ -49,7 +49,7 @@ public final class SynchronizeGradleBuildOperation {
     private final NewProjectHandler newProjectHandler;
     private final ProjectConfigurators configurators;
 
-    private List<SynchronizationFailure> failures;
+    private List<SynchronizationProblem> failures;
 
 
     public SynchronizeGradleBuildOperation(Set<EclipseProject> allProjects, InternalGradleBuild gradleBuild, NewProjectHandler newProjectHandler, ProjectConfigurators configurators) {
@@ -59,7 +59,7 @@ public final class SynchronizeGradleBuildOperation {
         this.configurators = configurators;
     }
 
-    public List<SynchronizationFailure> run(IProgressMonitor monitor) throws CoreException {
+    public List<SynchronizationProblem> run(IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setTaskName(String.format("Synchronizing Gradle build at %s", this.gradleBuild.getBuildConfig().getRootProjectDirectory()));
 

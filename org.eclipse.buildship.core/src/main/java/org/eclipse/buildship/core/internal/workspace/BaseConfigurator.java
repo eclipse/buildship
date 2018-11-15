@@ -35,7 +35,6 @@ import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.DefaultGradleBuild;
-import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
 public class BaseConfigurator implements ProjectConfigurator {
 
@@ -56,8 +55,7 @@ public class BaseConfigurator implements ProjectConfigurator {
         try {
             configure(project, monitor);
         } catch (CoreException e) {
-            GradleErrorMarker.create(context.getProject(), this.internalGradleBuild, "Failed to configure project", e, 0);
-            CorePlugin.logger().warn("Failed to configure project " + context.getProject().getName(), e);
+            context.error("Failed to configure project " + project.getName(), e);
         }
     }
 

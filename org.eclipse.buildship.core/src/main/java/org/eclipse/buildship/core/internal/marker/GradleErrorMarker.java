@@ -36,7 +36,15 @@ public class GradleErrorMarker {
         return build.getBuildConfig().getRootProjectDirectory().getAbsolutePath().equals(rootDir);
     }
 
-    public static void create(IResource resource, InternalGradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
+    public static void createError(IResource resource, InternalGradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
+        createMarker(IMarker.SEVERITY_ERROR, resource, gradleBuild, message, exception,lineNumber);
+    }
+
+    public static void createWarning(IResource resource, InternalGradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
+        createMarker(IMarker.SEVERITY_WARNING, resource, gradleBuild, message, exception,lineNumber);
+    }
+
+    private static void createMarker(int severity, IResource resource, InternalGradleBuild gradleBuild, String message, Throwable exception, int lineNumber) {
         try {
             IMarker marker = resource.createMarker(GradleErrorMarker.ID);
 
@@ -46,7 +54,7 @@ public class GradleErrorMarker {
 
             marker.setAttribute(IMarker.MESSAGE, message);
             marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-            marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+            marker.setAttribute(IMarker.SEVERITY, severity);
             marker.setAttribute(ATTRIBUTE_ROOT_DIR, gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath());
             if (exception != null) {
                 String stackTrace = Throwables.getStackTraceAsString(exception);
