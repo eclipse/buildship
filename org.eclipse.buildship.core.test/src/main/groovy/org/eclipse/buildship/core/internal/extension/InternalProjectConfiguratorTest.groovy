@@ -1,27 +1,22 @@
 package org.eclipse.buildship.core.internal.extension
 
-import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.IConfigurationElement
 import org.eclipse.core.runtime.IContributor
-import org.eclipse.core.runtime.IStatus
-import org.eclipse.core.runtime.Status
 
 import org.eclipse.buildship.core.ProjectConfigurator
-import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
-import org.eclipse.buildship.core.invocation.InvocationCustomizer
+import org.eclipse.buildship.core.internal.workspace.ConfiguratorBuildActions
 
 class InternalProjectConfiguratorTest extends WorkspaceSpecification {
 
     def "Can handle zero project configurators"() {
         expect:
-        InternalProjectConfigurator.from([]).empty
+        internalConfiguratorsFrom().empty
     }
 
     def "Can handle basic project configurator"() {
         when:
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([configurator()])
+        List<InternalProjectConfigurator> configurators = internalConfiguratorsFrom(configurator())
 
         then:
         configurators.size() == 1
@@ -31,24 +26,24 @@ class InternalProjectConfiguratorTest extends WorkspaceSpecification {
 
     def "Ignores project configurator with undefined ID"() {
         expect:
-        InternalProjectConfigurator.from([configurator(null)]).empty
+        internalConfiguratorsFrom(configurator(null)).empty
     }
 
     def "Omits configurator with duplicate ID"() {
         expect:
-        InternalProjectConfigurator.from([configurator(), configurator()]).size() == 1
+        internalConfiguratorsFrom(configurator(), configurator()).size() == 1
     }
 
     def "Omits uninstantiable configurator" () {
         expect:
-        InternalProjectConfigurator.from([uninstantiableConfigurator()]).empty
+        internalConfiguratorsFrom(uninstantiableConfigurator()).empty
     }
 
     def "Order preserved for independent configurators"() {
         setup:
         ProjectConfiguratorContribution c1 = configurator('c1')
         ProjectConfiguratorContribution c2 = configurator('c2')
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
+        List<InternalProjectConfigurator> configurators = internalConfiguratorsFrom(c1, c2)
 
         when:
         configurators = configurators.toSorted()
@@ -67,7 +62,7 @@ class InternalProjectConfiguratorTest extends WorkspaceSpecification {
         setup:
         ProjectConfiguratorContribution c1 = configurator('c1')
         ProjectConfiguratorContribution c2 = configurator('c2', ['c1'])
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
+        List<InternalProjectConfigurator> configurators = internalConfiguratorsFrom(c1, c2)
 
         when:
         configurators = configurators.toSorted()
@@ -80,7 +75,7 @@ class InternalProjectConfiguratorTest extends WorkspaceSpecification {
         setup:
         ProjectConfiguratorContribution c1 = configurator('c1', [], ['c2'])
         ProjectConfiguratorContribution c2 = configurator('c2')
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
+        List<InternalProjectConfigurator> configurators = internalConfiguratorsFrom(c1, c2)
 
         when:
         configurators = configurators.toSorted()
@@ -94,13 +89,17 @@ class InternalProjectConfiguratorTest extends WorkspaceSpecification {
         ProjectConfiguratorContribution c1 = configurator('c1', ['c2'])
         ProjectConfiguratorContribution c2 = configurator('c2', ['c3'])
         ProjectConfiguratorContribution c3 = configurator('c3', ['c1'])
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c3, c2, c1])
+        List<InternalProjectConfigurator> configurators = internalConfiguratorsFrom(c3, c2, c1)
 
         when:
         configurators = configurators.toSorted()
 
         then:
         assertOrder(configurators, 'c2', 'c3', 'c1')
+    }
+
+    private List<InternalProjectConfigurator> internalConfiguratorsFrom(ProjectConfiguratorContribution... contributions) {
+        InternalProjectConfigurator.from(contributions as List, new ConfiguratorBuildActions([:]))
     }
 
     private void assertOrder(List<InternalProjectConfigurator> configurators, String... ids) {
