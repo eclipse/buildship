@@ -33,16 +33,20 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.Logger;
+import org.eclipse.buildship.core.internal.workspace.ConfiguratorBuildActions;
 
 public final class InternalProjectConfigurator implements ProjectConfigurator, Comparable<InternalProjectConfigurator> {
 
-    private final ProjectConfigurator configurator;
-    private final ProjectConfiguratorContribution contribution;
     private static final Logger LOGGER = CorePlugin.logger();
 
-    private InternalProjectConfigurator(ProjectConfiguratorContribution contribution) {
+    private final ProjectConfigurator configurator;
+    private final ProjectConfiguratorContribution contribution;
+    private final Map<String, Object> buildActions;
+
+    private InternalProjectConfigurator(ProjectConfiguratorContribution contribution, Map<String, Object> buildActions) {
         this.configurator = createConfigurator(contribution);
         this.contribution = contribution;
+        this.buildActions = buildActions;
     }
 
     private static ProjectConfigurator createConfigurator(ProjectConfiguratorContribution contribution) {
@@ -77,7 +81,12 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
         return this.contribution.getId();
     }
 
-    public static List<InternalProjectConfigurator> from(List<ProjectConfiguratorContribution> configurators) {
+
+    public Map<String, Object> getBuildActions() {
+        return this.buildActions;
+    }
+
+    public static List<InternalProjectConfigurator> from(List<ProjectConfiguratorContribution> configurators, ConfiguratorBuildActions configuratorBuildActions) {
         if (LOGGER.isScopeEnabled(CoreTraceScopes.PROJECT_CONFIGURATORS)) {
             LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Contributed configurators: " +
                     configurators.stream().map(Objects::toString).collect(Collectors.joining(", ")));
@@ -88,7 +97,15 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
         filterDuplicateIds(configurators);
         filterInvalidDependencies(configurators);
         filterCylicDependencies(configurators);
-        return configurators.stream().map(c -> new InternalProjectConfigurator(c)).collect(Collectors.toList());
+        filterConfiguratorWitInvalidBuildAction(configurators, configuratorBuildActions);
+
+        List<InternalProjectConfigurator> result = new ArrayList<>(configurators.size());
+        for (ProjectConfiguratorContribution c : configurators) {
+            Map<String, Object> actions = c.getActions().stream().collect(Collectors.toMap(c1 -> c1, c2 -> configuratorBuildActions.resultFor(c2)));
+            result.add(new InternalProjectConfigurator(c, actions));
+        }
+        return result;
+//        return configurators.stream().map(c -> {new InternalProjectConfigurator(c)}).collect(Collectors.toList());
     }
 
     private static void filterInvalidConfigurators(List<ProjectConfiguratorContribution> configurators) {
@@ -174,6 +191,23 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
             }
         }
     }
+
+    private static void filterConfiguratorWitInvalidBuildAction(List<ProjectConfiguratorContribution> configurators, ConfiguratorBuildActions configuratorBuildActions) {
+        Iterator<ProjectConfiguratorContribution> it = configurators.iterator();
+        while (it.hasNext()) {
+            ProjectConfiguratorContribution configurator = it.next();
+            for (String id : configurator.getActions()) {
+                if (configuratorBuildActions.resultFor(id) == null) {
+                    LOGGER.trace(CoreTraceScopes.PROJECT_CONFIGURATORS, "Configurator (" + configurator.getId() + ") removed because build action " +  id + " is unavailable");
+                    it.remove();
+                }
+            }
+        }
+    }
+
+    // TODO (donat) add test coverage
+
+    // TODO (donat) verify existing test coverage
 
     @Override
     public int compareTo(InternalProjectConfigurator that) {

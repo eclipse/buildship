@@ -28,4 +28,6 @@ public interface ExtensionManager {
     List<ProjectConfiguratorContribution> loadConfigurators();
 
     List<InvocationCustomizer> loadCustomizers();
+
+    List<BuildActionContribution> loadBuildActions();
 }

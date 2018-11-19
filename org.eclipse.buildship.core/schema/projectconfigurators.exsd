@@ -19,6 +19,7 @@
       <complexType>
          <choice minOccurs="1" maxOccurs="unbounded">
             <element ref="configurator"/>
+            <element ref="buildAction"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -78,6 +79,35 @@
                <documentation>
                   A comma-separated list of configurators that this configurator must run after. A configurator can be referenced with its id.
                </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="actions" type="string">
+            <annotation>
+               <documentation>
+                  The comma-separated list of actions that should be available in the configurator context.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="buildAction">
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Unique identifier for the build action.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The build action implementation. Must implement the Function&lt;ProjectConnection, ?&gt; interface.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":java.util.function.Function"/>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>

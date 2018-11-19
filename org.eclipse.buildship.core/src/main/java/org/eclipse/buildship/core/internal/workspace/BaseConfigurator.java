@@ -9,11 +9,8 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.ImmutableList;
@@ -29,24 +26,19 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 
 public class BaseConfigurator implements ProjectConfigurator {
 
     private Map<File, EclipseProject> locationToProject;
-    private DefaultGradleBuild internalGradleBuild;
 
     @Override
+    @SuppressWarnings("unchecked")
     public void init(InitializationContext context, IProgressMonitor monitor) {
-        GradleBuild gradleBuild = context.getGradleBuild();
-        this.internalGradleBuild = ((DefaultGradleBuild)gradleBuild);
-        Collection<EclipseProject> eclipseProjects = ModelProviderUtil.fetchAllEclipseProjects(this.internalGradleBuild, GradleConnector.newCancellationTokenSource(), FetchStrategy.LOAD_IF_NOT_CACHED, monitor);
-        this.locationToProject = eclipseProjects.stream().collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+        this.locationToProject = (Map<File, EclipseProject>) context.getQueryResult(EclipseProjectQuery.BUILD_ACTION_ID);
     }
 
     @Override

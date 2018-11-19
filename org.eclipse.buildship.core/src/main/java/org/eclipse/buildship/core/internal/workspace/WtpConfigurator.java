@@ -9,13 +9,10 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -57,13 +54,15 @@ public class WtpConfigurator implements ProjectConfigurator {
     private DefaultGradleBuild gradleBuild;
     private Map<File, EclipseProject> locationToProject;
 
+    // TODO (donat) check cancellation if it adds an error marker
+
+    @SuppressWarnings("unchecked")
     @Override
     public void init(InitializationContext context, IProgressMonitor monitor) {
         // TODO (donat) add required model declarations to the project configurator extension point
         GradleBuild gradleBuild = context.getGradleBuild();
         this.gradleBuild = (DefaultGradleBuild) gradleBuild;
-        Collection<EclipseProject> eclipseProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, GradleConnector.newCancellationTokenSource(), FetchStrategy.LOAD_IF_NOT_CACHED, monitor);
-        this.locationToProject = eclipseProjects.stream().collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+        this.locationToProject = (Map<File, EclipseProject>) context.getQueryResult(EclipseProjectQuery.BUILD_ACTION_ID);
     }
 
     @Override

@@ -10,6 +10,7 @@ package org.eclipse.buildship.core.internal.workspace;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.base.Optional;
 
@@ -43,7 +44,7 @@ public final class ProjectConfigurators {
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(this.contributions.size());
         for (InternalProjectConfigurator contribution : this.contributions) {
-            DefaultInitializationContext context = newInitializationContext(this.gradleBuild);
+            DefaultInitializationContext context = newInitializationContext(this.gradleBuild, contribution.getBuildActions());
             try {
                 contribution.init(context, progress.newChild(1));
                 context.getErrors().forEach(e -> result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
@@ -62,7 +63,7 @@ public final class ProjectConfigurators {
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(this.contributions.size());
         for (InternalProjectConfigurator contribution : this.contributions) {
-            DefaultProjectContext context = newProjectContext(project);
+            DefaultProjectContext context = newProjectContext(project, contribution.getBuildActions());
             try {
                 contribution.configure(context, progress.newChild(1));
                 context.getErrors().forEach(e -> result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
@@ -81,7 +82,7 @@ public final class ProjectConfigurators {
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(this.contributions.size());
         for (InternalProjectConfigurator contribution : this.contributions) {
-            DefaultProjectContext context = newProjectContext(project);
+            DefaultProjectContext context = newProjectContext(project, contribution.getBuildActions());
             try {
                 contribution.unconfigure(context, progress.newChild(1));
                 context.getErrors().forEach(e -> result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation(), e.getFirst(), e.getSecond())));
@@ -94,16 +95,16 @@ public final class ProjectConfigurators {
         return result;
     }
 
-    public static ProjectConfigurators create(InternalGradleBuild gradleBuild, List<ProjectConfiguratorContribution> configurators) {
-        return new ProjectConfigurators(gradleBuild, InternalProjectConfigurator.from(configurators));
+    public static ProjectConfigurators create(InternalGradleBuild gradleBuild, List<ProjectConfiguratorContribution> configurators, ConfiguratorBuildActions configuratorBuildActions) {
+        return new ProjectConfigurators(gradleBuild, InternalProjectConfigurator.from(configurators, configuratorBuildActions));
     }
 
-    private static DefaultInitializationContext newInitializationContext(InternalGradleBuild gradleBuild) {
-        return new DefaultInitializationContext(gradleBuild);
+    private static DefaultInitializationContext newInitializationContext(InternalGradleBuild gradleBuild, Map<String, Object> map) {
+        return new DefaultInitializationContext(gradleBuild, map);
     }
 
-    private static DefaultProjectContext newProjectContext(IProject project) {
-        return new DefaultProjectContext(project);
+    private static DefaultProjectContext newProjectContext(IProject project, Map<String, Object> configuratorBuildActions) {
+        return new DefaultProjectContext(project, configuratorBuildActions);
     }
 
     private String configuratorFailedMessage(InternalProjectConfigurator contribution, Exception exception, String operationName) {
@@ -119,7 +120,15 @@ public final class ProjectConfigurators {
     private static class BaseContext {
         protected final List<Pair<String, Exception>> errors = new ArrayList<>();
         protected final List<Pair<String, Exception>> warnings = new ArrayList<>();
+        private final Map<String, Object> configuratorBuildActions;
 
+        public BaseContext(Map<String, Object> configuratorBuildActions) {
+            this.configuratorBuildActions = configuratorBuildActions;
+        }
+
+        public Object getQueryResult(String id) {
+            return this.configuratorBuildActions.get(id);
+        }
 
         public List<Pair<String, Exception>> getErrors() {
             return this.errors;
@@ -142,7 +151,8 @@ public final class ProjectConfigurators {
 
         private final InternalGradleBuild gradleBuild;
 
-        DefaultInitializationContext(InternalGradleBuild gradleBuild) {
+        DefaultInitializationContext(InternalGradleBuild gradleBuild, Map<String, Object> configuratorBuildActions) {
+            super(configuratorBuildActions);
             this.gradleBuild = gradleBuild;
         }
 
@@ -156,7 +166,8 @@ public final class ProjectConfigurators {
 
         private final IProject project;
 
-        DefaultProjectContext(IProject project) {
+        DefaultProjectContext(IProject project, Map<String, Object> configuratorBuildActions) {
+            super(configuratorBuildActions);
             this.project = project;
         }
 

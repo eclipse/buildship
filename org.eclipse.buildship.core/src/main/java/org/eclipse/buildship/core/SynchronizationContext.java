@@ -17,6 +17,13 @@ package org.eclipse.buildship.core;
 public interface SynchronizationContext {
 
     /**
+     *
+     * @param id
+     * @return
+     */
+    Object getQueryResult(String id);
+
+    /**
      * Registers a error during synchronization. Instead of implementing separate error handling,
      * project configurators should use this method to report issues.
      *

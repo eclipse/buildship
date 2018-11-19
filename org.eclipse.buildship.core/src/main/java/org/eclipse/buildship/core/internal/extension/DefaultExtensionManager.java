@@ -37,13 +37,30 @@ public class DefaultExtensionManager implements ExtensionManager {
         return result;
     }
 
+    // TODO (donat) adjust documentation for new elements in the extension point
+    // TODO (donat) restrict accessible models to the ones referenced in the extension declaration
+
     @Override
     public List<ProjectConfiguratorContribution> loadConfigurators() {
         Collection<IConfigurationElement> elements = loadElements("projectconfigurators");
         List<ProjectConfiguratorContribution> result = new ArrayList<>(elements.size());
         for (IConfigurationElement element : elements) {
-            ProjectConfiguratorContribution contribution = ProjectConfiguratorContribution.from(element);
-            result.add(contribution);
+            if ("configurator".equals(element.getName())) {
+                result.add(ProjectConfiguratorContribution.from(element));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<BuildActionContribution> loadBuildActions() {
+        Collection<IConfigurationElement> elements = loadElements("projectconfigurators");
+        List<BuildActionContribution> result = new ArrayList<>(elements.size());
+        for (IConfigurationElement element : elements) {
+            if ("buildAction".equals(element.getName())) {
+                BuildActionContribution contribution = BuildActionContribution.from(element);
+                result.add(contribution);
+            }
         }
         return result;
     }

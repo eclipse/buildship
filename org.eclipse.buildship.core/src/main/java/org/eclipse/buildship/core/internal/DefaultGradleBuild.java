@@ -8,6 +8,8 @@
 
 package org.eclipse.buildship.core.internal;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,6 +25,7 @@ import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -37,18 +40,21 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.internal.configuration.GradleArguments;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.extension.ExtensionManager;
+import org.eclipse.buildship.core.internal.extension.BuildActionContribution;
+import org.eclipse.buildship.core.internal.extension.ProjectConfiguratorContribution;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 import org.eclipse.buildship.core.internal.marker.GradleMarkerManager;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.workspace.ConfiguratorBuildActions;
 import org.eclipse.buildship.core.internal.workspace.ConnectionAwareLauncherProxy;
 import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider;
-import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
+import org.eclipse.buildship.core.internal.workspace.EclipseProjectQuery;
 import org.eclipse.buildship.core.internal.workspace.ImportRootProjectOperation;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 import org.eclipse.buildship.core.internal.workspace.ModelProvider;
-import org.eclipse.buildship.core.internal.workspace.ModelProviderUtil;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.internal.workspace.ProjectConfigurators;
 import org.eclipse.buildship.core.internal.workspace.RunOnImportTasksOperation;
@@ -203,11 +209,21 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
             SubMonitor progress = SubMonitor.convert(monitor, 5);
             progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.gradleBuild.getBuildConfig().getRootProjectDirectory())));
+
+            this.failures = new ArrayList<>();
+
+            ExtensionManager extensionManager = CorePlugin.extensionManager();
+            List<ProjectConfiguratorContribution> configurators = extensionManager.loadConfigurators();
+            List<BuildActionContribution> buildActionContributions = extensionManager.loadBuildActions();
+            ConfiguratorBuildActions configuratorBuildActions = ConfiguratorBuildActions.from(this.gradleBuild, buildActionContributions, this.failures, progress.newChild(1));
+
             new ImportRootProjectOperation(this.gradleBuild.getBuildConfig(), this.newProjectHandler).run(progress.newChild(1));
-            Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
+            @SuppressWarnings("unchecked")
+            Set<EclipseProject> allProjects = ImmutableSet.copyOf(((Map<File, EclipseProject>) configuratorBuildActions.resultFor(EclipseProjectQuery.BUILD_ACTION_ID)).values());
             new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
             new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
-            this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler, ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
+
+            this.failures.addAll(new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler, ProjectConfigurators.create(this.gradleBuild, configurators, configuratorBuildActions)).run(progress.newChild(1)));
         }
 
         @Override

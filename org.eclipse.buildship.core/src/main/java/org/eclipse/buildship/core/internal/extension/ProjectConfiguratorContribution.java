@@ -31,15 +31,17 @@ public final class ProjectConfiguratorContribution {
     private final String id;
     private final List<String> runsBefore;
     private final List<String> runsAfter;
+    private final List<String> actions;
 
     private ProjectConfigurator configurator;
 
-    private ProjectConfiguratorContribution(IConfigurationElement extension, String id, String contributorPluginId, List<String> runsBefore, List<String> runsAfter) {
+    private ProjectConfiguratorContribution(IConfigurationElement extension, String id, String contributorPluginId, List<String> runsBefore, List<String> runsAfter, List<String> actions) {
         this.extension = extension;
         this.id = id;
         this.contributorPluginId = contributorPluginId;
         this.runsBefore = runsBefore;
         this.runsAfter = runsAfter;
+        this.actions = actions;
     }
 
     public ProjectConfigurator createConfigurator() throws CoreException {
@@ -66,6 +68,11 @@ public final class ProjectConfiguratorContribution {
         return this.runsAfter;
     }
 
+
+    public List<String> getActions() {
+        return this.actions;
+    }
+
     static ProjectConfiguratorContribution from(IConfigurationElement extension) {
         String pluginId = extension.getContributor().getName();
         String id = extension.getAttribute("id");
@@ -81,11 +88,12 @@ public final class ProjectConfiguratorContribution {
                 ? Collections.emptyList()
                 : Lists.newArrayList(splitter.split(runsAfterString));
 
-        return new ProjectConfiguratorContribution(extension, id, pluginId, runsBefore, runsAfter);
-    }
+        String actionsString = extension.getAttribute("actions");
+        List<String> actions = actionsString == null
+                ? Collections.emptyList()
+                : Lists.newArrayList(splitter.split(actionsString));
 
-    public static ProjectConfiguratorContribution from(ProjectConfiguratorContribution contribuion, List<String> runsBefore, List<String> runsAfter) {
-        return new ProjectConfiguratorContribution(contribuion.extension, contribuion.id, contribuion.contributorPluginId, runsBefore, runsAfter);
+        return new ProjectConfiguratorContribution(extension, id, pluginId, runsBefore, runsAfter, actions);
     }
 
     @Override
