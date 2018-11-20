@@ -63,8 +63,8 @@ public final class GradleUserHomeGroup extends Group {
     }
 
     private void addListeners() {
-        this.gradleUserHomeBrowseButton
-                .addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.gradleUserHomeText, CoreMessages.Preference_Label_GradleUserHome));
+        this.gradleUserHomeText.addModifyListener(l -> updateWarningVisibility());
+        this.gradleUserHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.gradleUserHomeText, CoreMessages.Preference_Label_GradleUserHome));
     }
 
     public Text getGradleUserHomeText() {
@@ -86,6 +86,11 @@ public final class GradleUserHomeGroup extends Group {
         boolean groupEnabled = getEnabled();
         this.gradleUserHomeText.setEnabled(groupEnabled);
         this.gradleUserHomeBrowseButton.setEnabled(groupEnabled);
+        updateWarningVisibility();
+    }
+
+    private void updateWarningVisibility() {
+        this.warningLabel.setVisible(getEnabled() && !this.gradleUserHomeText.getText().isEmpty());
     }
 
     public File getGradleUserHome() {
