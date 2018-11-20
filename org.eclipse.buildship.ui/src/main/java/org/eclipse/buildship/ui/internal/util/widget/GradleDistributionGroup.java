@@ -16,6 +16,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -41,7 +42,6 @@ import org.eclipse.buildship.ui.internal.i18n.UiMessages;
 import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
-import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.internal.util.widget.UiBuilder.UiBuilderFactory;
 
 /**
@@ -88,7 +88,7 @@ public final class GradleDistributionGroup extends Group {
 
     private void createWidgets() {
         setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        setLayout(LayoutUtils.newGridLayout(4));
+        GridLayoutFactory.swtDefaults().numColumns(4).applyTo(this);
 
         this.font = FontUtils.getDefaultDialogFont();
         UiBuilderFactory uiBuilder = new UiBuilder.UiBuilderFactory(this.font);
@@ -115,6 +115,9 @@ public final class GradleDistributionGroup extends Group {
         if (this.gradleVersionCombo.getItemCount() > 0) {
             this.gradleVersionCombo.select(0);
         }
+
+        uiBuilder.span(this);
+        uiBuilder.span(this);
     }
 
     private void updateEnablement() {

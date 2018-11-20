@@ -174,7 +174,7 @@ public final class UiBuilder<T extends Control> {
          * @return the builder
          */
         public UiBuilder<Label> newLabel(Composite parent) {
-            UiBuilder<Label> builder = new UiBuilder<Label>(new Label(parent, SWT.NONE));
+            UiBuilder<Label> builder = new UiBuilder<>(new Label(parent, SWT.NONE));
             init(builder);
             return builder;
         }
@@ -186,7 +186,7 @@ public final class UiBuilder<T extends Control> {
          * @return the builder
          */
         public UiBuilder<Text> newText(Composite parent) {
-            UiBuilder<Text> builder = new UiBuilder<Text>(new Text(parent, SWT.BORDER));
+            UiBuilder<Text> builder = new UiBuilder<>(new Text(parent, SWT.BORDER));
             init(builder);
             return builder;
         }
@@ -198,7 +198,7 @@ public final class UiBuilder<T extends Control> {
          * @return the builder
          */
         public UiBuilder<Button> newButton(Composite parent) {
-            UiBuilder<Button> builder = new UiBuilder<Button>(new Button(parent, SWT.PUSH));
+            UiBuilder<Button> builder = new UiBuilder<>(new Button(parent, SWT.PUSH));
             init(builder);
             return builder;
         }
@@ -211,7 +211,7 @@ public final class UiBuilder<T extends Control> {
          * @return the builder
          */
         public UiBuilder<Button> newRadio(Composite parent) {
-            UiBuilder<Button> builder = new UiBuilder<Button>(new Button(parent, SWT.RADIO));
+            UiBuilder<Button> builder = new UiBuilder<>(new Button(parent, SWT.RADIO));
             init(builder);
             return builder;
         }
@@ -224,7 +224,7 @@ public final class UiBuilder<T extends Control> {
          * @return the builder
          */
         public UiBuilder<Button> newCheckbox(Composite parent) {
-            UiBuilder<Button> builder = new UiBuilder<Button>(new Button(parent, SWT.CHECK));
+            UiBuilder<Button> builder = new UiBuilder<>(new Button(parent, SWT.CHECK));
             init(builder);
             return builder;
         }
@@ -236,7 +236,7 @@ public final class UiBuilder<T extends Control> {
          * @return the builder
          */
         public UiBuilder<Combo> newCombo(Composite parent) {
-            UiBuilder<Combo> builder = new UiBuilder<Combo>(new Combo(parent, SWT.NONE));
+            UiBuilder<Combo> builder = new UiBuilder<>(new Combo(parent, SWT.NONE));
             init(builder);
             return builder;
         }
@@ -248,7 +248,7 @@ public final class UiBuilder<T extends Control> {
          * @return the builder
          */
         public UiBuilder<Tree> newTree(Composite parent) {
-            UiBuilder<Tree> builder = new UiBuilder<Tree>(new Tree(parent, SWT.NONE));
+            UiBuilder<Tree> builder = new UiBuilder<>(new Tree(parent, SWT.NONE));
             init(builder);
             return builder;
         }
@@ -260,7 +260,7 @@ public final class UiBuilder<T extends Control> {
          * @return the builder
          */
         public UiBuilder<Group> newGroup(Composite parent) {
-            UiBuilder<Group> builder = new UiBuilder<Group>(new Group(parent, SWT.NONE));
+            UiBuilder<Group> builder = new UiBuilder<>(new Group(parent, SWT.NONE));
             init(builder);
             return builder;
         }
@@ -272,9 +272,11 @@ public final class UiBuilder<T extends Control> {
          * @param parent the control having the {@link org.eclipse.swt.layout.GridLayout} having the next column to be empty
          */
         public void span(Composite parent) {
-            Button b = new Button(parent, SWT.NONE);
-            init(b);
-            b.setVisible(false);
+            Label label = new Label(parent, SWT.NONE);
+            GridData data = new GridData(0, 0);
+            label.setLayoutData(data);
+            init(label);
+            label.setVisible(false);
         }
 
         private void init(UiBuilder<?> builder) {
