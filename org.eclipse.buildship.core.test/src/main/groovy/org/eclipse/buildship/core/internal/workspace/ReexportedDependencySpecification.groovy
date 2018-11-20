@@ -27,49 +27,12 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         then:
         def moduleA = findProject('moduleA')
         def moduleB = findProject('moduleB')
-        resolvedClasspath(moduleA).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-beans-1.2.8.jar' }
-        resolvedClasspath(moduleA).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'moduleB' && entry.entryKind == IClasspathEntry.CPE_PROJECT && !entry.isExported() }
-        resolvedClasspath(moduleB).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-beans-1.2.8.jar' && !entry.isExported() }
+        resolvedClasspath(moduleA).any { IClasspathEntry entry -> entry.path.lastSegment() == 'spring-beans-1.2.8.jar' }
+        resolvedClasspath(moduleA).any { IClasspathEntry entry -> entry.path.lastSegment() == 'moduleB' && entry.entryKind == IClasspathEntry.CPE_PROJECT && !entry.isExported() }
+        resolvedClasspath(moduleB).any { IClasspathEntry entry -> entry.path.lastSegment() == 'spring-beans-1.2.8.jar' && !entry.isExported() }
 
         where:
-        distribution << [ GradleDistribution.forVersion('2.5'), GradleDistribution.forVersion('2.6') ]
-    }
-
-    def "Transitive dependencies are acessible via exports from dependent projects when using Gradle <2.5"(GradleDistribution distribution) {
-        setup:
-        File location = multiProjectWithSpringTransitiveDependency()
-
-        when:
-        importAndWait(location, distribution)
-
-        then:
-        def moduleA = findProject('moduleA')
-        def moduleB = findProject('moduleB')
-        !resolvedClasspath(moduleA).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-beans-1.2.8.jar' }
-        resolvedClasspath(moduleA).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'moduleB' && entry.entryKind == IClasspathEntry.CPE_PROJECT && entry.isExported() }
-        resolvedClasspath(moduleB).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-beans-1.2.8.jar' && entry.isExported() }
-
-        where:
-        distribution << [ GradleDistribution.forVersion('2.3'), GradleDistribution.forVersion('2.4') ]
-    }
-
-    def "Excluded dependencies (incorrectly) resolved from dependent projects when using Gradle <2.5"(GradleDistribution distribution) {
-        setup:
-        File location = springExampleProjectFromBug473348()
-
-        when:
-        importAndWait(location, distribution)
-
-        then:
-        def moduleA = findProject('moduleA')
-        def moduleB = findProject('moduleB')
-
-        resolvedClasspath(moduleA).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-3.1.4.RELEASE.jar' }
-        resolvedClasspath(moduleA).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'moduleB' && entry.entryKind == IClasspathEntry.CPE_PROJECT && entry.isExported() }
-        resolvedClasspath(moduleB).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-1.2.8.jar' && entry.isExported() }
-
-        where:
-        distribution << [ GradleDistribution.forVersion('2.3'), GradleDistribution.forVersion('2.4') ]
+        distribution << [GradleDistribution.forVersion('2.6'), GradleDistribution.fromBuild()]
     }
 
     def "Excluded dependencies are not resolved when using Gradle 2.5+"(GradleDistribution distribution) {
@@ -83,13 +46,13 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         def moduleA = findProject('moduleA')
         def moduleB = findProject('moduleB')
 
-        resolvedClasspath(moduleA).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-3.1.4.RELEASE.jar' }
-        !resolvedClasspath(moduleA).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-1.2.8.jar' }
-        resolvedClasspath(moduleA).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'moduleB' && entry.entryKind == IClasspathEntry.CPE_PROJECT && !entry.isExported() }
-        resolvedClasspath(moduleB).any{ IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-1.2.8.jar' && !entry.isExported() }
+        resolvedClasspath(moduleA).any { IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-3.1.4.RELEASE.jar' }
+        !resolvedClasspath(moduleA).any { IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-1.2.8.jar' }
+        resolvedClasspath(moduleA).any { IClasspathEntry entry -> entry.path.lastSegment() == 'moduleB' && entry.entryKind == IClasspathEntry.CPE_PROJECT && !entry.isExported() }
+        resolvedClasspath(moduleB).any { IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-1.2.8.jar' && !entry.isExported() }
 
         where:
-        distribution << [ GradleDistribution.forVersion('2.5'), GradleDistribution.forVersion('2.6') ]
+        distribution << [GradleDistribution.forVersion('2.6'), GradleDistribution.fromBuild()]
     }
 
     def "Sample with transitive dependency exclusion should compile when imported by Buildship"(GradleDistribution distribution) {
@@ -97,7 +60,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         File location = springExampleProjectFromBug473348()
 
         when:
-        importAndWait(location, distribution)
+        importAndWait(location, GradleDistribution.forVersion('2.6'))
         waitForBuild()
 
         then:
@@ -105,7 +68,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         errorMarkers(findProject("moduleB")) == []
 
         where:
-        distribution << [ GradleDistribution.forVersion('2.1'), GradleDistribution.forVersion('2.6') ]
+        distribution << [GradleDistribution.forVersion('2.6'), GradleDistribution.fromBuild()]
     }
 
     private List<String> errorMarkers(IProject project) {

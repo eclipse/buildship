@@ -97,42 +97,6 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         !classpath.find { it.path.toPortableString().contains('commons-logging') }
     }
 
-    @IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // https://github.com/eclipse/buildship/issues/601
-    def "Can access transitive dependencies resolved via project dependency"(GradleDistribution distribution) {
-        setup:
-        buildFile << '''
-            project(':a') {
-                dependencies {
-                    compile 'com.google.guava:guava:18.0'
-                }
-            }
-
-            project(':b') {
-                dependencies {
-                    compile project(':a')
-                }
-            }
-
-            project(':c') {
-                dependencies {
-                    compile project(':b')
-                }
-            }
-        '''
-        importAndWait(location, distribution)
-
-        when:
-        IRuntimeClasspathEntry[] classpathB = projectRuntimeClasspath(JavaCore.create(findProject('b')))
-        IRuntimeClasspathEntry[] classpathC = projectRuntimeClasspath(JavaCore.create(findProject('c')))
-
-        then:
-        classpathB.find { it.path.toPortableString().contains('guava') }
-        classpathC.find { it.path.toPortableString().contains('guava') }
-
-        where:
-        distribution << [ GradleDistribution.forVersion('2.4'), DEFAULT_DISTRIBUTION ]
-    }
-
     def "Dependencies are still on the runtime classpath"() {
         setup:
         new File(location, 'b/lib').mkdirs()
