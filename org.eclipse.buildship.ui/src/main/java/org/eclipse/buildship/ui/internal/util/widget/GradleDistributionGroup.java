@@ -128,6 +128,12 @@ public final class GradleDistributionGroup extends Group {
         this.localInstallationDirBrowseButton.setEnabled(groupEnabled && this.useLocalInstallationDirOption.getSelection());
         this.remoteDistributionUriText.setEnabled(groupEnabled && this.useRemoteDistributionUriOption.getSelection());
         this.gradleVersionCombo.setEnabled(groupEnabled && this.useGradleVersionOption.getSelection());
+
+        updateWarningVisibility();
+    }
+
+    private void updateWarningVisibility() {
+        this.localInstallationWarningLabel.setVisible(getEnabled() && !this.localInstallationDirText.getText().isEmpty());
     }
 
     public GradleDistributionViewModel getDistribution() {
@@ -224,6 +230,8 @@ public final class GradleDistributionGroup extends Group {
         this.useLocalInstallationDirOption.addSelectionListener(listener);
         this.useRemoteDistributionUriOption.addSelectionListener(listener);
         this.useGradleVersionOption.addSelectionListener(listener);
+
+        this.localInstallationDirText.addModifyListener(l -> updateWarningVisibility());
     }
 
     public void addDistributionChangedListener(DistributionChangedListener listener) {
