@@ -9,7 +9,6 @@
 package org.eclipse.buildship.core.internal.util.gradle;
 
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
-import org.gradle.tooling.model.eclipse.HierarchicalEclipseProject;
 
 /**
  * Compatibility decorator for {@link EclipseProjectDependency}.
@@ -25,12 +24,6 @@ class CompatEclipseProjectDependency extends CompatEclipseClasspathEntry<Eclipse
     @Override
     public String getPath() {
         return getElement().getPath();
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public HierarchicalEclipseProject getTargetProject() {
-        return getElement().getTargetProject();
     }
 
     @Override
