@@ -31,12 +31,6 @@ public final class MissingFeatures {
 
     public List<Pair<GradleVersion, String>> getMissingFeatures() {
         ImmutableList.Builder<Pair<GradleVersion, String>> missingFeatures = ImmutableList.builder();
-        addIfNeeded("2.1", "Cancellation support", missingFeatures);
-        addIfNeeded("2.4", "Test progress visualization", missingFeatures);
-        addIfNeeded("2.5", "Build/task progress visualization", missingFeatures);
-        addIfNeeded("2.5", "Transitive dependency managament", missingFeatures);
-        addIfNeeded("2.6", "Tests can be run from the Executions View", missingFeatures);
-        addIfNeeded("2.6", "Failed tests can be re-run from the Executions View", missingFeatures);
         addIfNeeded("2.7", "Test classes and methods can be run from the Editor", missingFeatures);
         addIfNeeded("2.9", "Custom project natures and build commands are added", missingFeatures);
         addIfNeeded("2.10", "Language source level is set on Java projects", missingFeatures);
@@ -58,7 +52,7 @@ public final class MissingFeatures {
     }
 
     private Pair<GradleVersion, String> createLimitation(GradleVersion version, String missingFeature) {
-        return new Pair<GradleVersion, String>(version, missingFeature + " since " + version + ".");
+        return new Pair<>(version, missingFeature + " since " + version + ".");
     }
 
 }

@@ -46,17 +46,17 @@ public class MissingFeaturesTest {
     }
 
     @Test
-    public void someLimitationWhenUsingFinalVersionOf24() {
-        MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.4"));
+    public void someLimitationWhenUsingFinalVersionOf26() {
+        MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.6"));
         List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
-        assertEquals(details.size(), 14);
+        assertEquals(details.size(), 10);
     }
 
     @Test
-    public void someLimitationWhenUsingSnapshotVersionOf24() {
-        MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.4-20150101053008+0000"));
+    public void someLimitationWhenUsingSnapshotVersionOf26() {
+        MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.6-20150101053008+0000"));
         List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
-        assertEquals(details.size(), 14);
+        assertEquals(details.size(), 10);
     }
 
 }
