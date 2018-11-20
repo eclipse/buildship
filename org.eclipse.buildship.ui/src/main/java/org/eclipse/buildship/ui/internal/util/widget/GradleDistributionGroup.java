@@ -133,7 +133,17 @@ public final class GradleDistributionGroup extends Group {
     }
 
     private void updateWarningVisibility() {
-        this.localInstallationWarningLabel.setVisible(getEnabled() && !this.localInstallationDirText.getText().isEmpty());
+        boolean warningIsVisible = this.localInstallationWarningLabel.getVisible();
+        boolean warningShouldBeVisible = getEnabled() && this.useLocalInstallationDirOption.getSelection();
+        if (warningIsVisible != warningShouldBeVisible) {
+            this.localInstallationWarningLabel.setVisible(warningShouldBeVisible);
+            Object layoutData = this.localInstallationWarningLabel.getLayoutData();
+            if (layoutData instanceof GridData) {
+                GridData gridData = (GridData) layoutData;
+                gridData.widthHint = warningShouldBeVisible ? SWT.DEFAULT : 0;
+                requestLayout();
+            }
+        }
     }
 
     public GradleDistributionViewModel getDistribution() {

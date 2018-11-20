@@ -90,7 +90,17 @@ public final class GradleUserHomeGroup extends Group {
     }
 
     private void updateWarningVisibility() {
-        this.warningLabel.setVisible(getEnabled() && !this.gradleUserHomeText.getText().isEmpty());
+        boolean warningIsVisible = this.warningLabel.getVisible();
+        boolean warningShouldBeVisible = getEnabled() && !this.gradleUserHomeText.getText().isEmpty();
+        if (warningIsVisible != warningShouldBeVisible) {
+            this.warningLabel.setVisible(warningShouldBeVisible);
+            Object layoutData = this.warningLabel.getLayoutData();
+            if (layoutData instanceof GridData) {
+                GridData gridData = (GridData) layoutData;
+                gridData.widthHint = warningShouldBeVisible ? SWT.DEFAULT : 0;
+                requestLayout();
+            }
+        }
     }
 
     public File getGradleUserHome() {
