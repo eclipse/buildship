@@ -17,8 +17,8 @@ class PublishedGradleVersionsTest extends Specification {
         setup:
         PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(publishedGradleVersionJson)
         assert publishedVersions.versions == [
-            '2.3-rc-1',
-            '2.2.1',
+            '4.4-rc-6',
+            '4.4',
         ].collect { GradleVersion.version(it) }
     }
 
@@ -64,26 +64,32 @@ class PublishedGradleVersionsTest extends Specification {
         '''
 [
   {
-    "version": "2.3-rc-1",
-    "buildTime": "20150127140232+0000",
-    "current": false,
-    "snapshot": false,
-    "nightly": false,
-    "activeRc": true,
-    "rcFor": "2.3",
-    "broken": false,
-    "downloadUrl": "https:\\/\\/services.gradle.org\\/distributions\\/gradle-2.3-rc-1-bin.zip"
+    "version" : "4.4-rc-6",
+    "buildTime" : "20171204084815+0000",
+    "current" : false,
+    "snapshot" : false,
+    "nightly" : false,
+    "releaseNightly" : false,
+    "activeRc" : true,
+    "rcFor" : "4.4",
+    "milestoneFor" : "",
+    "broken" : false,
+    "downloadUrl" : "https://services.gradle.org/distributions/gradle-4.4-rc-6-bin.zip",
+    "checksumUrl" : "https://services.gradle.org/distributions/gradle-4.4-rc-6-bin.zip.sha256"
   },
   {
-    "version": "2.2.1",
-    "buildTime": "20141124094535+0000",
-    "current": true,
-    "snapshot": false,
-    "nightly": false,
-    "activeRc": false,
-    "rcFor": "",
-    "broken": false,
-    "downloadUrl": "https:\\/\\/services.gradle.org\\/distributions\\/gradle-2.2.1-bin.zip"
+    "version" : "4.4",
+    "buildTime" : "20171206090506+0000",
+    "current" : false,
+    "snapshot" : false,
+    "nightly" : false,
+    "releaseNightly" : false,
+    "activeRc" : false,
+    "rcFor" : "",
+    "milestoneFor" : "",
+    "broken" : false,
+    "downloadUrl" : "https://services.gradle.org/distributions/gradle-4.4-bin.zip",
+    "checksumUrl" : "https://services.gradle.org/distributions/gradle-4.4-bin.zip.sha256"
   }
 ]
         '''

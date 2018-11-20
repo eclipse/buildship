@@ -47,7 +47,7 @@ public final class PublishedGradleVersions {
     private static final String VERSIONS_URL = "https://services.gradle.org/versions/all";
 
     // the minimum Gradle version considered
-    private static final String MINIMUM_SUPPORTED_GRADLE_VERSION = "1.0";
+    private static final String MINIMUM_SUPPORTED_GRADLE_VERSION = "2.6";
 
     // JSON keys
     private static final String VERSION = "version";
