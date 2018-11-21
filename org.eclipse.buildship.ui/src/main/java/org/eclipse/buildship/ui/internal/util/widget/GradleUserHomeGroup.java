@@ -17,6 +17,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -98,9 +99,14 @@ public final class GradleUserHomeGroup extends Group {
             if (layoutData instanceof GridData) {
                 GridData gridData = (GridData) layoutData;
                 gridData.widthHint = warningShouldBeVisible ? SWT.DEFAULT : 0;
-                requestLayout();
+                compatRequestLayout();
             }
         }
+    }
+
+    private void compatRequestLayout() {
+        // the Control.requestLayout() method was introduced in Eclipse Neon
+        getShell().layout(new Control[] { this }, SWT.DEFER);
     }
 
     public File getGradleUserHome() {
