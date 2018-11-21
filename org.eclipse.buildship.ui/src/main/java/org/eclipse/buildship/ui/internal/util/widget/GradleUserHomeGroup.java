@@ -63,8 +63,8 @@ public final class GradleUserHomeGroup extends Group {
     }
 
     private void addListeners() {
-        this.gradleUserHomeBrowseButton
-                .addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.gradleUserHomeText, CoreMessages.Preference_Label_GradleUserHome));
+        this.gradleUserHomeText.addModifyListener(l -> updateWarningVisibility());
+        this.gradleUserHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.gradleUserHomeText, CoreMessages.Preference_Label_GradleUserHome));
     }
 
     public Text getGradleUserHomeText() {
@@ -86,6 +86,21 @@ public final class GradleUserHomeGroup extends Group {
         boolean groupEnabled = getEnabled();
         this.gradleUserHomeText.setEnabled(groupEnabled);
         this.gradleUserHomeBrowseButton.setEnabled(groupEnabled);
+        updateWarningVisibility();
+    }
+
+    private void updateWarningVisibility() {
+        boolean warningIsVisible = this.warningLabel.getVisible();
+        boolean warningShouldBeVisible = getEnabled() && !this.gradleUserHomeText.getText().isEmpty();
+        if (warningIsVisible != warningShouldBeVisible) {
+            this.warningLabel.setVisible(warningShouldBeVisible);
+            Object layoutData = this.warningLabel.getLayoutData();
+            if (layoutData instanceof GridData) {
+                GridData gridData = (GridData) layoutData;
+                gridData.widthHint = warningShouldBeVisible ? SWT.DEFAULT : 0;
+                requestLayout();
+            }
+        }
     }
 
     public File getGradleUserHome() {

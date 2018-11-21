@@ -16,6 +16,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -41,7 +42,6 @@ import org.eclipse.buildship.ui.internal.i18n.UiMessages;
 import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
-import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.internal.util.widget.UiBuilder.UiBuilderFactory;
 
 /**
@@ -88,7 +88,7 @@ public final class GradleDistributionGroup extends Group {
 
     private void createWidgets() {
         setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        setLayout(LayoutUtils.newGridLayout(4));
+        GridLayoutFactory.swtDefaults().numColumns(4).applyTo(this);
 
         this.font = FontUtils.getDefaultDialogFont();
         UiBuilderFactory uiBuilder = new UiBuilder.UiBuilderFactory(this.font);
@@ -115,6 +115,9 @@ public final class GradleDistributionGroup extends Group {
         if (this.gradleVersionCombo.getItemCount() > 0) {
             this.gradleVersionCombo.select(0);
         }
+
+        uiBuilder.span(this);
+        uiBuilder.span(this);
     }
 
     private void updateEnablement() {
@@ -128,6 +131,22 @@ public final class GradleDistributionGroup extends Group {
         this.localInstallationDirBrowseButton.setEnabled(groupEnabled && this.useLocalInstallationDirOption.getSelection());
         this.remoteDistributionUriText.setEnabled(groupEnabled && this.useRemoteDistributionUriOption.getSelection());
         this.gradleVersionCombo.setEnabled(groupEnabled && this.useGradleVersionOption.getSelection());
+
+        updateWarningVisibility();
+    }
+
+    private void updateWarningVisibility() {
+        boolean warningIsVisible = this.localInstallationWarningLabel.getVisible();
+        boolean warningShouldBeVisible = getEnabled() && this.useLocalInstallationDirOption.getSelection();
+        if (warningIsVisible != warningShouldBeVisible) {
+            this.localInstallationWarningLabel.setVisible(warningShouldBeVisible);
+            Object layoutData = this.localInstallationWarningLabel.getLayoutData();
+            if (layoutData instanceof GridData) {
+                GridData gridData = (GridData) layoutData;
+                gridData.widthHint = warningShouldBeVisible ? SWT.DEFAULT : 0;
+                requestLayout();
+            }
+        }
     }
 
     public GradleDistributionViewModel getDistribution() {
@@ -224,6 +243,8 @@ public final class GradleDistributionGroup extends Group {
         this.useLocalInstallationDirOption.addSelectionListener(listener);
         this.useRemoteDistributionUriOption.addSelectionListener(listener);
         this.useGradleVersionOption.addSelectionListener(listener);
+
+        this.localInstallationDirText.addModifyListener(l -> updateWarningVisibility());
     }
 
     public void addDistributionChangedListener(DistributionChangedListener listener) {
