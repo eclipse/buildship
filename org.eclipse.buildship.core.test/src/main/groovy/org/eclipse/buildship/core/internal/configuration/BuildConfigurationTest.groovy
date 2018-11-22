@@ -25,13 +25,15 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         setup:
         File projectDir = dir('project-dir').canonicalFile
         File gradleUserHome = dir('gradle-user-home').canonicalFile
+        File javaHome = dir('java-home').canonicalFile
 
-        BuildConfiguration configuration = createOverridingBuildConfiguration(dir('project-dir'), GradleDistribution.forVersion('2.0'), false, false, false, gradleUserHome)
+        BuildConfiguration configuration = createOverridingBuildConfiguration(dir('project-dir'), GradleDistribution.forVersion('2.0'), false, false, false, gradleUserHome, javaHome)
 
         expect:
         configuration.rootProjectDirectory == projectDir
         configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
         configuration.gradleUserHome == gradleUserHome
+        configuration.javaHome == javaHome
         configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == false
         configuration.offlineMode == false
@@ -42,15 +44,17 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         setup:
         File projectDir = dir('project-dir')
         File workspaceGradleUserHome = dir('workspace-gradle-user-home').canonicalFile
+        File workspaceJavaHome = dir('workspace-java-home').canonicalFile
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         when:
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, offlineMode, buildScansEnabled, autoSync))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync))
         BuildConfiguration configuration = createInheritingBuildConfiguration(projectDir)
 
         then:
         configuration.gradleDistribution == distribution
         configuration.gradleUserHome == workspaceGradleUserHome
+        configuration.javaHome == workspaceJavaHome
         configuration.overrideWorkspaceSettings == false
         configuration.buildScansEnabled == buildScansEnabled
         configuration.offlineMode == offlineMode
@@ -71,13 +75,15 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         setup:
         File projectDir = dir('project-dir')
         File projectGradleUserHome = dir('gradle-user-home').canonicalFile
+        File projectJavaHome = dir('java-home').canonicalFile
 
         when:
-        BuildConfiguration configuration = createOverridingBuildConfiguration(projectDir, distribution, buildScansEnabled, offlineMode, autoSync, projectGradleUserHome)
+        BuildConfiguration configuration = createOverridingBuildConfiguration(projectDir, distribution, buildScansEnabled, offlineMode, autoSync, projectGradleUserHome, projectJavaHome)
 
         then:
         configuration.gradleDistribution == distribution
         configuration.gradleUserHome == projectGradleUserHome
+        configuration.javaHome == projectJavaHome
         configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == buildScansEnabled
         configuration.offlineMode == offlineMode
@@ -129,6 +135,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         configuration.rootProjectDirectory == projectDir
         configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
         configuration.gradleUserHome == null
+        configuration.javaHome == null
         configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == false
         configuration.offlineMode == false
@@ -150,6 +157,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         configuration.rootProjectDirectory == projectDir
         configuration.gradleDistribution == GradleDistribution.forVersion('2.0')
         configuration.gradleUserHome == null
+        configuration.javaHome == null
         configuration.overrideWorkspaceSettings == true
         configuration.buildScansEnabled == false
         configuration.offlineMode == false
@@ -162,16 +170,18 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
         BuildConfiguration buildConfig = createInheritingBuildConfiguration(projectDir)
         File workspaceGradleUserHome = dir('gradle-user-home').canonicalFile
+        File workspaceJavaHome = dir('java-home').canonicalFile
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, offlineMode, buildScansEnabled, autoSync))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync))
         buildConfig = configurationManager.loadBuildConfiguration(projectDir)
 
         then:
         buildConfig.overrideWorkspaceSettings == false
         buildConfig.gradleDistribution == distribution
         buildConfig.gradleUserHome == workspaceGradleUserHome
+        buildConfig.javaHome == workspaceJavaHome
         buildConfig.buildScansEnabled == buildScansEnabled
         buildConfig.offlineMode == offlineMode
         buildConfig.autoSync == autoSync
@@ -192,17 +202,19 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         File projectDir = dir('project-dir')
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
         File projectGradleUserHome = dir('gradle-user-home').canonicalFile
-        BuildConfiguration buildConfig = createOverridingBuildConfiguration(projectDir, distribution, buildScansEnabled, offlineMode, autoSync, projectGradleUserHome)
+        File projectJavaHome = dir('java-home').canonicalFile
+        BuildConfiguration buildConfig = createOverridingBuildConfiguration(projectDir, distribution, buildScansEnabled, offlineMode, autoSync, projectGradleUserHome, projectJavaHome)
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, !buildScansEnabled, !offlineMode, !autoSync))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, null, !buildScansEnabled, !offlineMode, !autoSync))
         buildConfig = configurationManager.loadBuildConfiguration(projectDir)
 
         then:
         buildConfig.overrideWorkspaceSettings == true
         buildConfig.gradleDistribution == distribution
         buildConfig.gradleUserHome == projectGradleUserHome
+        buildConfig.javaHome == projectJavaHome
         buildConfig.buildScansEnabled == buildScansEnabled
         buildConfig.offlineMode == offlineMode
         buildConfig.autoSync == autoSync

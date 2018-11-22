@@ -27,6 +27,8 @@ public interface BuildConfiguration {
 
     File getGradleUserHome();
 
+    File getJavaHome();
+
     GradleDistribution getGradleDistribution();
 
     boolean isBuildScansEnabled();

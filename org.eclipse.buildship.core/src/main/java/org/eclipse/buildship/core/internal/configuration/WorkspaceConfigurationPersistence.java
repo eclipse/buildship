@@ -31,6 +31,7 @@ final class WorkspaceConfigurationPersistence {
 
     private static final String GRADLE_DISTRIBUTION = "gradle.distribution";
     private static final String GRADLE_USER_HOME = "gradle.user.home";
+    private static final String JAVA_HOME = "java.home";
     private static final String GRADLE_OFFLINE_MODE = "gradle.offline.mode";
     private static final String GRADLE_BUILD_SCANS = "gradle.build.scans";
     private static final String GRADLE_AUTO_SYNC = "auto.sync";
@@ -48,11 +49,15 @@ final class WorkspaceConfigurationPersistence {
         File gradleUserHome = gradleUserHomeString == null
                 ? null
                 : new File(gradleUserHomeString);
+        String javaHomeString = preferences.get(JAVA_HOME, null);
+        File javaHome = javaHomeString == null
+                ? null
+                : new File(javaHomeString);
         boolean offlineMode = preferences.getBoolean(GRADLE_OFFLINE_MODE, false);
         boolean buildScansEnabled = preferences.getBoolean(GRADLE_BUILD_SCANS, false);
         boolean autoSyncEnabled = preferences.getBoolean(GRADLE_AUTO_SYNC, false);
 
-        return new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled, autoSyncEnabled);
+        return new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSyncEnabled);
     }
 
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
@@ -63,6 +68,11 @@ final class WorkspaceConfigurationPersistence {
             preferences.remove(GRADLE_USER_HOME);
         } else {
             preferences.put(GRADLE_USER_HOME, config.getGradleUserHome().getPath());
+        }
+        if (config.getJavaHome() == null) {
+            preferences.remove(JAVA_HOME);
+        } else {
+            preferences.put(JAVA_HOME, config.getJavaHome().getPath());
         }
         preferences.putBoolean(GRADLE_OFFLINE_MODE, config.isOffline());
         preferences.putBoolean(GRADLE_BUILD_SCANS, config.isBuildScansEnabled());

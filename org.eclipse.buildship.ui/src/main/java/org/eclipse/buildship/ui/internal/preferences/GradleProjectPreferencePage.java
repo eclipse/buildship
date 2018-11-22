@@ -90,6 +90,8 @@ public final class GradleProjectPreferencePage extends PropertyPage {
            this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution(),
            this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome(),
+           // TODO (donat) create UI to specify java home
+           null,
            this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection());

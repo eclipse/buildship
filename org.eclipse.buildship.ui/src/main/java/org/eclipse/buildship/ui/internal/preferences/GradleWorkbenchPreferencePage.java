@@ -87,7 +87,8 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         boolean offlineMode = this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection();
         boolean buildScansEnabled = this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection();
         boolean autoSync = this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection();
-        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled, autoSync);
+        // TODO (donat) add UI to specify Java home
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, null, offlineMode, buildScansEnabled, autoSync);
         CorePlugin.configurationManager().saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }

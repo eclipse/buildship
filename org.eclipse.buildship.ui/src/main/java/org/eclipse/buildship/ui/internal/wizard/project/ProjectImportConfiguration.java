@@ -131,6 +131,8 @@ public final class ProjectImportConfiguration {
                 getOverrideWorkspaceConfiguration().getValue(),
                 getDistribution().getValue().toGradleDistribution(),
                 getGradleUserHome().getValue(),
+                // TODO (donat) add java home selector widget to import wizard
+                null,
                 getBuildScansEnabled().getValue(),
                 getOfflineMode().getValue(),
                 getAutoSync().getValue());

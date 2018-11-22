@@ -23,11 +23,14 @@ import com.google.common.base.Preconditions;
  */
 public final class BuildConfiguration {
 
+    // TODO (donat) review Javadoc on this class
+
     private final File rootProjectDirectory;
 
     private final boolean overrideWorkspaceConfiguration;
     private final GradleDistribution gradleDistribution;
     private final File gradleUserHome;
+    private final File javaHome;
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
     private final boolean autoSync;
@@ -37,6 +40,7 @@ public final class BuildConfiguration {
         this.overrideWorkspaceConfiguration = builder.overrideWorkspaceConfiguration;
         this.gradleDistribution = Preconditions.checkNotNull(builder.gradleDistribution);
         this.gradleUserHome = builder.gradleUserHome;
+        this.javaHome = builder.javaHome;
         this.buildScansEnabled = builder.buildScansEnabled;
         this.offlineMode = builder.offlineMode;
         this.autoSync = builder.autoSync;
@@ -79,6 +83,20 @@ public final class BuildConfiguration {
      */
     public Optional<File> getGradleUserHome() {
         return Optional.ofNullable(this.gradleUserHome);
+    }
+
+    /**
+     * Returns the Java home for this configuration.
+     * <p>
+     * If {@link #isOverrideWorkspaceConfiguration()} returns true then the Java home from this
+     * object is returned. Otherwise, the java home for the workspace configuration is returned.
+     * <p>
+     * If no Java home is specified then this method returns {@link Optional#empty()} .
+     *
+     * @return the Java home
+     */
+    public Optional<File> getJavaHome() {
+        return Optional.ofNullable(this.javaHome);
     }
 
     /**
@@ -147,6 +165,7 @@ public final class BuildConfiguration {
         private boolean overrideWorkspaceConfiguration = false;
         private GradleDistribution gradleDistribution = GradleDistribution.fromBuild();
         private File gradleUserHome = null;
+        private File javaHome = null;
         private boolean buildScansEnabled = false;
         private boolean offlineMode = false;
         private boolean autoSync = false;
@@ -170,6 +189,11 @@ public final class BuildConfiguration {
              return this;
          }
 
+         public BuildConfigurationBuilder javaHome(File javaHome) {
+             this.javaHome = javaHome;
+             return this;
+         }
+
          public BuildConfigurationBuilder buildScansEnabled(boolean buildScansEnabled) {
              this.buildScansEnabled = buildScansEnabled;
              return this;
@@ -182,8 +206,8 @@ public final class BuildConfiguration {
 
          public BuildConfigurationBuilder autoSync(boolean autoSync) {
              this.autoSync = autoSync;
-             return this;
-         }
+            return this;
+        }
 
         public BuildConfiguration build() {
             return new BuildConfiguration(this);

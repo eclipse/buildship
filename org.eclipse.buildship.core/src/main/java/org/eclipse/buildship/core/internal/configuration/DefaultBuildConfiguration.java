@@ -56,6 +56,15 @@ public final class DefaultBuildConfiguration implements BuildConfiguration {
     }
 
     @Override
+    public File getJavaHome() {
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.getJavaHome();
+        } else {
+            return this.workspaceConfiguration.getJavaHome();
+        }
+    }
+
+    @Override
     public GradleDistribution getGradleDistribution() {
         if (this.properties.isOverrideWorkspaceSettings()) {
             return this.properties.getGradleDistribution();
@@ -107,7 +116,7 @@ public final class DefaultBuildConfiguration implements BuildConfiguration {
         return GradleArguments.from(getRootProjectDirectory(),
             getGradleDistribution(),
             getGradleUserHome(),
-            null, // Java home
+            getJavaHome(),
             isBuildScansEnabled(),
             isOfflineMode(),
             Collections.<String>emptyList(), // arguments
@@ -131,6 +140,7 @@ public final class DefaultBuildConfiguration implements BuildConfiguration {
                 .overrideWorkspaceConfiguration(this.properties.isOverrideWorkspaceSettings())
                 .gradleDistribution(this.properties.getGradleDistribution())
                 .gradleUserHome(this.properties.getGradleUserHome())
+                .javaHome(this.properties.getJavaHome())
                 .buildScansEnabled(this.properties.isBuildScansEnabled())
                 .offlineMode(this.properties.isOfflineMode())
                 .autoSync(this.properties.isAutoSync())

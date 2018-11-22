@@ -23,13 +23,15 @@ public final class WorkspaceConfiguration {
 
     private final GradleDistribution gradleDistribution;
     private final File gradleUserHome;
+    private final File javaHome;
     private final boolean gradleIsOffline;
     private final boolean buildScansEnabled;
     private final boolean autoSync;
 
-    public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome, boolean gradleIsOffline, boolean buildScansEnabled, boolean autoSync) {
+    public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, boolean gradleIsOffline, boolean buildScansEnabled, boolean autoSync) {
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
+        this.javaHome = javaHome;
         this.gradleIsOffline = gradleIsOffline;
         this.buildScansEnabled = buildScansEnabled;
         this.autoSync = autoSync;
@@ -41,6 +43,10 @@ public final class WorkspaceConfiguration {
 
     public File getGradleUserHome() {
         return this.gradleUserHome;
+    }
+
+    public File getJavaHome() {
+        return this.javaHome;
     }
 
     public boolean isOffline() {
@@ -61,6 +67,7 @@ public final class WorkspaceConfiguration {
             WorkspaceConfiguration other = (WorkspaceConfiguration) obj;
             return Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.gradleUserHome, other.gradleUserHome)
+                    && Objects.equal(this.javaHome, other.javaHome)
                     && Objects.equal(this.gradleIsOffline, other.gradleIsOffline)
                     && Objects.equal(this.buildScansEnabled, other.buildScansEnabled)
                     && Objects.equal(this.autoSync, other.autoSync);
@@ -70,6 +77,6 @@ public final class WorkspaceConfiguration {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSync);
+        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.javaHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSync);
     }
 }

@@ -58,7 +58,11 @@ class DefaultRunConfiguration implements RunConfiguration {
 
     @Override
     public File getJavaHome() {
-        return this.properties.getJavaHome();
+        if (this.properties.isOverrideBuildSettings()) {
+            return this.properties.getJavaHome();
+        } else {
+            return this.projectConfiguration.getBuildConfiguration().getJavaHome();
+        }
     }
 
     @Override

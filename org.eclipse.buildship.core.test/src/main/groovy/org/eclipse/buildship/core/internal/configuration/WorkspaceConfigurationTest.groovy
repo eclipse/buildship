@@ -15,18 +15,20 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
         configuration.autoSync == false
 
     }
-    def "Can save workpsace configuration"(GradleDistribution distribution, String gradleUserHome, boolean offlineMode, boolean buildScansEnabled, boolean autoSync) {
+    def "Can save workpsace configuration"(GradleDistribution distribution, String gradleUserHome, String javaHome, boolean offlineMode, boolean buildScansEnabled, boolean autoSync) {
         setup:
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         when:
         File gradleUserHomeDir = dir(gradleUserHome)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, offlineMode, buildScansEnabled, autoSync))
+        File javaHomeDir = dir(javaHome)
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, javaHomeDir, offlineMode, buildScansEnabled, autoSync))
         WorkspaceConfiguration updatedConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         then:
         updatedConfiguration.gradleDistribution == distribution
         updatedConfiguration.gradleUserHome == gradleUserHomeDir
+        updatedConfiguration.javaHome == javaHomeDir
         updatedConfiguration.offline == offlineMode
         updatedConfiguration.buildScansEnabled == buildScansEnabled
         updatedConfiguration.autoSync == autoSync
@@ -35,10 +37,10 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
         configurationManager.saveWorkspaceConfiguration(orignalConfiguration)
 
         where:
-        distribution                                                                 | gradleUserHome    | offlineMode  | buildScansEnabled | autoSync
-        GradleDistribution.fromBuild()                                               | 'customUserHome1' |  false       | false             | true
-        GradleDistribution.forVersion("3.2.1")                                       | 'customUserHome2' |  false       | true              | false
-        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | 'customUserHome3' |  true        | true              | true
-        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | 'customUserHome4' |  true        | false             | false
+        distribution                                                                 | gradleUserHome    | javaHome    | offlineMode  | buildScansEnabled | autoSync
+        GradleDistribution.fromBuild()                                               | 'customUserHome1' | 'javaHome1' |  false       | false             | true
+        GradleDistribution.forVersion("3.2.1")                                       | 'customUserHome2' | 'javaHome2' |  false       | true              | false
+        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | 'customUserHome3' | 'javaHome3' |  true        | true              | true
+        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | 'customUserHome4' | 'javaHome4' |  true        | false             | false
     }
 }

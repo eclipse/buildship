@@ -76,6 +76,7 @@ public final class DefaultGradleWorkspace implements InternalGradleWorkspace {
                 configuration.isOverrideWorkspaceConfiguration(),
                 configuration.getGradleDistribution(),
                 configuration.getGradleUserHome().orElse(null),
+                configuration.getJavaHome().orElse(null),
                 configuration.isBuildScansEnabled(),
                 configuration.isOfflineMode(),
                 configuration.isAutoSync()));

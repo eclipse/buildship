@@ -47,10 +47,11 @@ public class DefaultConfigurationManager implements ConfigurationManager {
 
     @Override
     public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, boolean overrideWorkspaceSettings, GradleDistribution gradleDistribution, File gradleUserHome,
-            boolean buildScansEnabled, boolean offlineMode, boolean autoSync) {
+            File javaHome, boolean buildScansEnabled, boolean offlineMode, boolean autoSync) {
         DefaultBuildConfigurationProperties persistentBuildConfigProperties = new DefaultBuildConfigurationProperties(rootProjectDirectory,
                                                                                                         gradleDistribution,
                                                                                                         gradleUserHome,
+                                                                                                        javaHome,
                                                                                                         overrideWorkspaceSettings,
                                                                                                         buildScansEnabled,
                                                                                                         offlineMode,
@@ -161,6 +162,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
             DefaultBuildConfigurationProperties buildConfigProperties = new DefaultBuildConfigurationProperties(attributes.getWorkingDir(),
                     attributes.getGradleDistribution(),
                     attributes.getGradleUserHome(),
+                    attributes.getJavaHome(),
                     attributes.isOverrideBuildSettings(),
                     attributes.isBuildScansEnabled(),
                     attributes.isOffline(),

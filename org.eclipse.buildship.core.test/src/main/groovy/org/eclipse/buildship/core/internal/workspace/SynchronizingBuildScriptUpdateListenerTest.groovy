@@ -189,6 +189,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
     private void setWorkspaceAutoSync(boolean autoSync) {
         WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(workspaceConfig.gradleDistribution,
             workspaceConfig.gradleUserHome,
+            workspaceConfig.javaHome,
             workspaceConfig.gradleIsOffline,
             workspaceConfig.buildScansEnabled,
             autoSync)
@@ -209,6 +210,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             true,
             currentConfig.gradleDistribution,
             currentConfig.gradleUserHome,
+            currentConfig.javaHome,
             currentConfig.buildScansEnabled,
             currentConfig.offlineMode,
             autoSync)
@@ -221,6 +223,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             false,
             currentConfig.gradleDistribution,
             currentConfig.gradleUserHome,
+            currentConfig.javaHome,
             currentConfig.buildScansEnabled,
             currentConfig.offlineMode,
             true)

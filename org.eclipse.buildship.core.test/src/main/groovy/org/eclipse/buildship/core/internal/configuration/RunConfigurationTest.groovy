@@ -21,7 +21,6 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
     def "create run configuration"(buildBuildScansEnabled, buildOfflineMode, runConfigOverride, runConfigBuildScansEnabled, runConfigOfflineMode, expectedRunConfigBuildScansEnabled, expectedRunConfigOfflineMode) {
         setup:
         List<String> tasks = ['compileGroovy', 'publish']
-        File javaHome = dir('java-home')
         GradleDistribution gradleDistribution = GradleDistribution.forVersion('3.2')
         List arguments = ['-q', '-Pkey=value']
         List jvmArguments = ['-ea', '-Dkey=value']
@@ -30,6 +29,8 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         File rootDir = dir('projectDir').canonicalFile
         File buildGradleUserHome = dir('build-gradle-user-home').canonicalFile
         File runGradleUserHome = dir('run-gradle-user-home').canonicalFile
+        File buildJavaHome = dir('build-java-home').canonicalFile
+        File runJavaHome = dir('run-java-home').canonicalFile
 
         when:
         BuildConfiguration buildConfig = createOverridingBuildConfiguration(rootDir,
@@ -37,10 +38,11 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
             buildBuildScansEnabled,
             buildOfflineMode,
             false,
-            buildGradleUserHome)
+            buildGradleUserHome,
+            buildJavaHome)
         RunConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
                 tasks,
-                javaHome,
+                runJavaHome,
                 jvmArguments,
                 arguments,
                 showConsoleView,
@@ -53,7 +55,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
         then:
         runConfig.tasks == tasks
-        runConfig.javaHome == javaHome
+        runConfig.javaHome == (runConfigOverride ? runJavaHome : buildJavaHome)
         runConfig.gradleDistribution == (runConfigOverride ? GradleDistribution.forVersion('3.2') : GradleDistribution.fromBuild())
         runConfig.gradleUserHome == (runConfigOverride ? runGradleUserHome : buildGradleUserHome)
         runConfig.arguments == arguments

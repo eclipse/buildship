@@ -141,7 +141,7 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
 
     def "If workspace override is not set then overridden configuration properties are ignored"() {
         setup:
-        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.forVersion('2.0'), dir('gradle-user-home'), false, true, true, true)
+        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.forVersion('2.0'), dir('gradle-user-home'), dir('java-home'), false, true, true, true)
         persistence.saveBuildConfiguration(project, properties)
         persistence.saveBuildConfiguration(projectDir, properties)
 
@@ -153,6 +153,7 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
         importedProjectProperties.overrideWorkspaceSettings == false
         importedProjectProperties.gradleDistribution == GradleDistribution.fromBuild()
         importedProjectProperties.gradleUserHome == null
+        importedProjectProperties.javaHome == null
         importedProjectProperties.buildScansEnabled == false
         importedProjectProperties.offlineMode == false
         importedProjectProperties.autoSync == false
@@ -160,6 +161,7 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
         externalProjectProperties.overrideWorkspaceSettings == false
         externalProjectProperties.gradleDistribution == GradleDistribution.fromBuild()
         externalProjectProperties.gradleUserHome == null
+        externalProjectProperties.javaHome == null
         externalProjectProperties.buildScansEnabled == false
         externalProjectProperties.offlineMode == false
         importedProjectProperties.autoSync == false
@@ -168,7 +170,8 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
     def "If workspace override is set then overridden configuration properties are persisted"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync) {
         setup:
         File gradleUserHome = dir('gradle-user-home').canonicalFile
-        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, distribution, gradleUserHome, true, buildScansEnabled, offlineMode, autoSync)
+        File javaHome = dir('java-home').canonicalFile
+        DefaultBuildConfigurationProperties properties = new DefaultBuildConfigurationProperties(projectDir, distribution, gradleUserHome, javaHome, true, buildScansEnabled, offlineMode, autoSync)
         persistence.saveBuildConfiguration(project, properties)
         persistence.saveBuildConfiguration(projectDir, properties)
 
@@ -180,6 +183,7 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
         importedProjectProperties.overrideWorkspaceSettings == true
         importedProjectProperties.gradleDistribution == distribution
         importedProjectProperties.gradleUserHome == gradleUserHome
+        importedProjectProperties.javaHome == javaHome
         importedProjectProperties.buildScansEnabled == buildScansEnabled
         importedProjectProperties.offlineMode == offlineMode
         importedProjectProperties.autoSync == autoSync
@@ -187,6 +191,7 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
         externalProjectProperties.overrideWorkspaceSettings == true
         externalProjectProperties.gradleDistribution == distribution
         externalProjectProperties.gradleUserHome == gradleUserHome
+        externalProjectProperties.javaHome == javaHome
         externalProjectProperties.buildScansEnabled == buildScansEnabled
         externalProjectProperties.offlineMode == offlineMode
         externalProjectProperties.autoSync == autoSync
@@ -298,10 +303,10 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
     }
 
     private DefaultBuildConfigurationProperties validProperties(IProject project) {
-        new DefaultBuildConfigurationProperties(project.getLocation().toFile(), GradleDistribution.fromBuild(), null, false, false, false, false)
+        new DefaultBuildConfigurationProperties(project.getLocation().toFile(), GradleDistribution.fromBuild(), null, null, false, false, false, false)
     }
 
     private DefaultBuildConfigurationProperties validProperties(File projectDir) {
-        new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.fromBuild(), null, false, false, false, false)
+        new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.fromBuild(), null, null, false, false, false, false)
     }
 }
