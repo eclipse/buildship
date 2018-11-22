@@ -51,6 +51,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
     private final Validator<GradleDistributionViewModel> distributionValidator;
     private final Validator<File> gradleUserHomeValidator;
+    private final Validator<File> javaHomeValidator;
 
     private GradleRunConfigurationAttributes attributes;
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
@@ -58,6 +59,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     public ProjectSettingsTab() {
         this.distributionValidator = GradleDistributionViewModel.validator();
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
+        this.javaHomeValidator = Validators.optionalDirectoryValidator("Java home");
     }
 
     @Override
@@ -87,7 +89,8 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().addSelectionListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().addSelectionListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(dialogUpdater);
-        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().addModifyListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().addModifyListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().addModifyListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getParentPreferenceLink().addSelectionListener(new ProjectPreferenceOpeningSelectionListener());
     }
 
@@ -96,7 +99,8 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         this.attributes = GradleRunConfigurationAttributes.from(configuration);
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(this.attributes.isOverrideBuildSettings());
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(this.attributes.getGradleDistribution()));
-        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(this.attributes.getGradleUserHomeHomeExpression()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(this.attributes.getGradleUserHomeHomeExpression()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText(Strings.nullToEmpty(this.attributes.getJavaHomeExpression()));
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(this.attributes.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(this.attributes.isBuildScansEnabled());
         this.gradleProjectSettingsComposite.updateEnablement();
@@ -106,10 +110,10 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         GradleRunConfigurationAttributes.applyOverrideBuildSettings(this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(), configuration);
         GradleRunConfigurationAttributes.applyGradleDistribution(this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution(), configuration);
-        GradleRunConfigurationAttributes.applyGradleUserHomeExpression(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().getText(), configuration);
+        GradleRunConfigurationAttributes.applyGradleUserHomeExpression(this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().getText(), configuration);
+        GradleRunConfigurationAttributes.applyJavaHomeExpression(this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().getText(), configuration);
         GradleRunConfigurationAttributes.applyOfflineMode(this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(), configuration);
         GradleRunConfigurationAttributes.applyBuildScansEnabled(this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(), configuration);
-
     }
 
     @Override
@@ -117,7 +121,10 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         GradleDistributionViewModel distribution = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution();
         Optional<String> error = this.distributionValidator.validate(distribution);
         if (!error.isPresent()) {
-            error = this.gradleUserHomeValidator.validate(this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome());
+            error = this.gradleUserHomeValidator.validate(this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHome());
+        }
+        if (!error.isPresent()) {
+            error = this.javaHomeValidator.validate(this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHome());
         }
         setErrorMessage(error.orNull());
         return !error.isPresent();

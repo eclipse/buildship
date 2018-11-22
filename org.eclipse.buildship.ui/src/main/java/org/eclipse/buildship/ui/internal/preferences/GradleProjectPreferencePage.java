@@ -22,12 +22,11 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
-import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
+import org.eclipse.buildship.ui.internal.util.widget.AdvancedOptionsGroup;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
-import org.eclipse.buildship.ui.internal.util.widget.GradleUserHomeGroup;
 
 /**
  * Preference page for Gradle projects.
@@ -41,10 +40,12 @@ public final class GradleProjectPreferencePage extends PropertyPage {
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     private final Validator<GradleDistributionViewModel> distributionValidator;
+    private final Validator<File> javaHomeValidator;
     private final Validator<File> gradleUserHomeValidator;
 
     public GradleProjectPreferencePage() {
-        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_GradleUserHome);
+        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
+        this.javaHomeValidator = Validators.optionalDirectoryValidator("Java home");
         this.distributionValidator = GradleDistributionViewModel.validator();
     }
 
@@ -66,7 +67,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
         boolean overrideWorkspaceSettings = buildConfig.isOverrideWorkspaceSettings();
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(buildConfig.getGradleDistribution()));
-        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().setGradleUserHome(buildConfig.getGradleUserHome());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setGradleUserHome(buildConfig.getGradleUserHome());
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(overrideWorkspaceSettings);
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(buildConfig.isBuildScansEnabled());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(buildConfig.isOfflineMode());
@@ -76,8 +77,9 @@ public final class GradleProjectPreferencePage extends PropertyPage {
 
     private void addListeners() {
         this.gradleProjectSettingsComposite.getParentPreferenceLink().addSelectionListener(new WorkbenchPreferenceOpeningSelectionListener());
-        GradleUserHomeGroup gradleUserHomeGroup = this.gradleProjectSettingsComposite.getGradleUserHomeGroup();
-        gradleUserHomeGroup.getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener(this, gradleUserHomeGroup, this.gradleUserHomeValidator));
+        AdvancedOptionsGroup advancedOptionsGroup = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup();
+        advancedOptionsGroup.getGradleUserHomeText().addModifyListener(new ValidatingListener(this, () -> advancedOptionsGroup.getGradleUserHome(), this.gradleUserHomeValidator));
+        advancedOptionsGroup.getJavaHomeText().addModifyListener(new ValidatingListener(this, () -> advancedOptionsGroup.getJavaHome(), this.javaHomeValidator));
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionValidatingListener(this, this.distributionValidator));
     }
 
@@ -89,9 +91,8 @@ public final class GradleProjectPreferencePage extends PropertyPage {
        BuildConfiguration updatedConfig = manager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
            this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution(),
-           this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome(),
-           // TODO (donat) create UI to specify java home
-           null,
+           this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHome(),
+           this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHome(),
            this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(),
            this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection());

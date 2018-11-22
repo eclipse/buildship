@@ -65,7 +65,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     private void initValues() {
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(getConfiguration().getOverrideWorkspaceConfiguration().getValue());
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(getConfiguration().getDistribution().getValue());
-        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().setGradleUserHome(getConfiguration().getGradleUserHome().getValue());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setGradleUserHome(getConfiguration().getGradleUserHome().getValue());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(getConfiguration().getBuildScansEnabled().getValue());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(getConfiguration().getOfflineMode().getValue());
         this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(getConfiguration().getAutoSync().getValue());
@@ -95,13 +95,23 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
             }
         });
 
-        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().addModifyListener(new ModifyListener() {
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().addModifyListener(new ModifyListener() {
 
             @Override
             public void modifyText(ModifyEvent e) {
-                getConfiguration().setGradleUserHome(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHome());
+                getConfiguration().setGradleUserHome(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHome());
             }
         });
+
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().addModifyListener(new ModifyListener() {
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                getConfiguration().setJavaHomeHome(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHome());
+            }
+        });
+
+
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().addSelectionListener(new SelectionListener() {
 
             @Override

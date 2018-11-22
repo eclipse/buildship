@@ -44,7 +44,7 @@ public final class GradleProjectSettingsComposite extends Composite {
     private Button overrideSettingsCheckbox;
     private Link parentPreferenceLink;
     private GradleDistributionGroup gradleDistributionGroup;
-    private GradleUserHomeGroup gradleUserHomeGroup;
+    private AdvancedOptionsGroup advancedOptionsGroup;
     private Button offlineModeCheckbox;
     private Button buildScansCheckbox;
     private Button autoSyncCheckbox;
@@ -99,8 +99,8 @@ public final class GradleProjectSettingsComposite extends Composite {
     }
 
     private void createGradleUserHomeGroup(Composite parent) {
-        this.gradleUserHomeGroup = new GradleUserHomeGroup(parent);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.gradleUserHomeGroup);
+        this.advancedOptionsGroup = new AdvancedOptionsGroup(parent);
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.advancedOptionsGroup);
     }
 
     private void createOfflineModeCheckbox(Composite parent) {
@@ -144,7 +144,7 @@ public final class GradleProjectSettingsComposite extends Composite {
         if (this.overrideSettingsCheckbox != null) {
             boolean enabled = this.overrideSettingsCheckbox.getSelection();
             this.gradleDistributionGroup.setEnabled(enabled);
-            this.gradleUserHomeGroup.setEnabled(enabled);
+            this.advancedOptionsGroup.setEnabled(enabled);
             this.offlineModeCheckbox.setEnabled(enabled);
             this.buildScansCheckbox.setEnabled(enabled);
             if (this.autoSyncCheckbox != null) {
@@ -170,8 +170,8 @@ public final class GradleProjectSettingsComposite extends Composite {
         return this.gradleDistributionGroup;
     }
 
-    public GradleUserHomeGroup getGradleUserHomeGroup() {
-        return this.gradleUserHomeGroup;
+    public AdvancedOptionsGroup getAdvancedOptionsGroup() {
+        return this.advancedOptionsGroup;
     }
 
     public Button getOfflineModeCheckbox() {

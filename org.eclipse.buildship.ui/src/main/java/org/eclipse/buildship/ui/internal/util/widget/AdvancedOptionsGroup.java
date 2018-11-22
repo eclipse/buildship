@@ -30,46 +30,63 @@ import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListe
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 
 /**
- * Composite to select the Gradle user home.
+ * Composite to select advanced options, such as the Gradle user home, the Java home, and the arguments.
  *
  * @author Donat Csikos
  */
-public final class GradleUserHomeGroup extends Group {
+public final class AdvancedOptionsGroup extends Group {
 
     private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
 
     private Text gradleUserHomeText;
     private Button gradleUserHomeBrowseButton;
-    private Label warningLabel;
+    private Label gradleUserHomeWarningLabel;
 
-    public GradleUserHomeGroup(Composite parent) {
+    private Text javaHomeText;
+    private Button javaHomeBrowseButton;
+    private Label javaHomeWarningLabel;
+
+    public AdvancedOptionsGroup(Composite parent) {
         super(parent, SWT.NONE);
-        setText(CoreMessages.Preference_Label_GradleUserHome);
+        setText(CoreMessages.Preference_Label_AdvancedOptions);
 
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
 
         setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-        setLayout(new GridLayout(3, false));
+        setLayout(new GridLayout(4, false));
 
+        this.builderFactory.newLabel(this).alignLeft().text("Gradle user home");
         this.gradleUserHomeText = this.builderFactory.newText(this).alignFillHorizontal().control();
         this.gradleUserHomeBrowseButton = this.builderFactory.newButton(this).alignLeft().text(UiMessages.Button_Label_Browse).control();
+        this.gradleUserHomeWarningLabel = this.builderFactory.newLabel(this).alignLeft().control();
+        this.gradleUserHomeWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
+        HoverText.createAndAttach(this.gradleUserHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Gradle user home"));
 
-        this.warningLabel = this.builderFactory.newLabel(this).alignLeft().control();
-        this.warningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
-        HoverText.createAndAttach(this.warningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Gradle user home"));
+        this.builderFactory.newLabel(this).alignLeft().text("Java home");
+        this.javaHomeText = this.builderFactory.newText(this).alignFillHorizontal().control();
+        this.javaHomeBrowseButton = this.builderFactory.newButton(this).alignLeft().text(UiMessages.Button_Label_Browse).control();
+        this.javaHomeWarningLabel = this.builderFactory.newLabel(this).alignLeft().control();
+        this.javaHomeWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
+        HoverText.createAndAttach(this.gradleUserHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Java home"));
 
         addListeners();
     }
 
     private void addListeners() {
         this.gradleUserHomeText.addModifyListener(l -> updateWarningVisibility());
-        this.gradleUserHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.gradleUserHomeText, CoreMessages.Preference_Label_GradleUserHome));
+        this.javaHomeText.addModifyListener(l -> updateWarningVisibility());
+        this.gradleUserHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.gradleUserHomeText, "Gradle user home"));
+        this.javaHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.javaHomeText, "Java home"));
     }
 
     public Text getGradleUserHomeText() {
         return this.gradleUserHomeText;
+    }
+
+    public Text getJavaHomeText() {
+        return this.javaHomeText;
     }
 
     @Override
@@ -87,26 +104,34 @@ public final class GradleUserHomeGroup extends Group {
         boolean groupEnabled = getEnabled();
         this.gradleUserHomeText.setEnabled(groupEnabled);
         this.gradleUserHomeBrowseButton.setEnabled(groupEnabled);
+        this.javaHomeText.setEnabled(groupEnabled);
+        this.javaHomeBrowseButton.setEnabled(groupEnabled);
         updateWarningVisibility();
     }
 
     private void updateWarningVisibility() {
-        boolean warningIsVisible = this.warningLabel.getVisible();
-        boolean warningShouldBeVisible = getEnabled() && !this.gradleUserHomeText.getText().isEmpty();
-        if (warningIsVisible != warningShouldBeVisible) {
-            this.warningLabel.setVisible(warningShouldBeVisible);
-            Object layoutData = this.warningLabel.getLayoutData();
-            if (layoutData instanceof GridData) {
-                GridData gridData = (GridData) layoutData;
-                gridData.widthHint = warningShouldBeVisible ? SWT.DEFAULT : 0;
-                compatRequestLayout();
-            }
+        boolean layout = false;
+        layout |= updateWarningVisibility(getEnabled(), this.gradleUserHomeText, this.gradleUserHomeWarningLabel);
+        layout |= updateWarningVisibility(getEnabled(), this.javaHomeText, this.javaHomeWarningLabel);
+        if (layout) {
+            // the Control.requestLayout() method was introduced in Eclipse Neon
+            getShell().layout(new Control[] { this }, SWT.DEFER);
         }
     }
 
-    private void compatRequestLayout() {
-        // the Control.requestLayout() method was introduced in Eclipse Neon
-        getShell().layout(new Control[] { this }, SWT.DEFER);
+    private static boolean updateWarningVisibility(boolean enabled, Text text, Label warning) {
+        boolean warningIsVisible = warning.getVisible();
+        boolean warningShouldBeVisible = enabled && !text.getText().isEmpty();
+        if (warningIsVisible != warningShouldBeVisible) {
+            warning.setVisible(warningShouldBeVisible);
+            Object layoutData = warning.getLayoutData();
+            if (layoutData instanceof GridData) {
+                GridData gridData = (GridData) layoutData;
+                gridData.widthHint = warningShouldBeVisible ? SWT.DEFAULT : 0;
+                return true;
+            }
+        }
+        return false;
     }
 
     public File getGradleUserHome() {
@@ -119,6 +144,19 @@ public final class GradleUserHomeGroup extends Group {
             this.gradleUserHomeText.setText("");
         } else {
             this.gradleUserHomeText.setText(gradleUserHome.getPath());
+        }
+    }
+
+    public File getJavaHome() {
+        String javaHomeString = this.javaHomeText.getText();
+        return javaHomeString.isEmpty() ? null : new File(javaHomeString);
+    }
+
+    public void setJavaHome(File javaHome) {
+        if (javaHome == null) {
+            this.javaHomeText.setText("");
+        } else {
+            this.javaHomeText.setText(javaHome.getPath());
         }
     }
 

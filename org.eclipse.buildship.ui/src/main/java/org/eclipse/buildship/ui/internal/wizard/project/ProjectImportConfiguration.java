@@ -30,6 +30,7 @@ public final class ProjectImportConfiguration {
     private final Property<Boolean> overwriteWorkspaceSettings;
     private final Property<GradleDistributionViewModel> distribution;
     private final Property<File> gradleUserHome;
+    private final Property<File> javaHome;
     private final Property<Boolean> applyWorkingSets;
     private final Property<List<String>> workingSets;
     private final Property<Boolean> buildScansEnabled;
@@ -37,15 +38,16 @@ public final class ProjectImportConfiguration {
     private final Property<Boolean> autoSync;
 
     public ProjectImportConfiguration() {
-        this(Validators.<File>noOp(), Validators.<GradleDistributionViewModel>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
+        this(Validators.<File>noOp(), Validators.<GradleDistributionViewModel>noOp(), Validators.<File>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
     }
 
     public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionViewModel> distributionValidator,
-            Validator<File> gradleUserHomeValidator, Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
+            Validator<File> gradleUserHomeValidator, Validator<File> javaHomeValidator, Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
         this.projectDir = Property.create(projectDirValidator);
         this.overwriteWorkspaceSettings = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.distribution = Property.create(distributionValidator);
         this.gradleUserHome = Property.create(gradleUserHomeValidator);
+        this.javaHome = Property.create(javaHomeValidator);
         this.applyWorkingSets = Property.create(applyWorkingSetsValidator);
         this.workingSets = Property.create(workingSetsValidators);
         this.buildScansEnabled = Property.<Boolean>create(Validators.<Boolean>noOp());
@@ -84,6 +86,14 @@ public final class ProjectImportConfiguration {
 
     public void setGradleUserHome(File gradleUserHome) {
         this.gradleUserHome.setValue(gradleUserHome);
+    }
+
+    public Property<File> getJavaHome() {
+        return this.javaHome;
+    }
+
+    public void setJavaHomeHome(File javaHome) {
+        this.javaHome.setValue(javaHome);
     }
 
     public Property<Boolean> getApplyWorkingSets() {
@@ -131,8 +141,7 @@ public final class ProjectImportConfiguration {
                 getOverrideWorkspaceConfiguration().getValue(),
                 getDistribution().getValue().toGradleDistribution(),
                 getGradleUserHome().getValue(),
-                // TODO (donat) add java home selector widget to import wizard
-                null,
+                getJavaHome().getValue(),
                 getBuildScansEnabled().getValue(),
                 getOfflineMode().getValue(),
                 getAutoSync().getValue());

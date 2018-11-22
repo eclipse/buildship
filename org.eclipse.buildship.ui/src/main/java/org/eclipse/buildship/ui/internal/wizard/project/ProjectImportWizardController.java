@@ -80,9 +80,10 @@ public class ProjectImportWizardController {
         Validator<GradleDistributionViewModel> gradleDistributionValidator = GradleDistributionViewModel.validator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
-        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
+        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home"); // TODO (donat) externalize
+        Validator<File> javaHomeValidator = Validators.optionalDirectoryValidator("Java home"); // TODO (donat) externalize
 
-        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, applyWorkingSetsValidator, workingSetsValidator);
+        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, javaHomeValidator, applyWorkingSetsValidator, workingSetsValidator);
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectImportWizard.getDialogSettings();
