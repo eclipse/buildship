@@ -8,6 +8,7 @@
 package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
+import java.util.List;
 
 import com.google.common.base.Objects;
 
@@ -27,14 +28,26 @@ public final class WorkspaceConfiguration {
     private final boolean gradleIsOffline;
     private final boolean buildScansEnabled;
     private final boolean autoSync;
+    private final List<String> arguments;
+    private final List<String> jvmArguments;
+    private final boolean showConsoleView;
+    private final boolean showExecutionsView;
 
-    public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, boolean gradleIsOffline, boolean buildScansEnabled, boolean autoSync) {
+    public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome,
+                                  File javaHome, boolean gradleIsOffline, boolean buildScansEnabled,
+                                  boolean autoSync, List<String> arguments,
+                                  List<String> jvmArguments, boolean showConsoleView,
+                                  boolean showExecutionsView) {
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.javaHome = javaHome;
         this.gradleIsOffline = gradleIsOffline;
         this.buildScansEnabled = buildScansEnabled;
         this.autoSync = autoSync;
+        this.arguments = arguments;
+        this.jvmArguments = jvmArguments;
+        this.showConsoleView = showConsoleView;
+        this.showExecutionsView = showExecutionsView;
     }
 
     public GradleDistribution getGradleDistribution() {
@@ -61,6 +74,23 @@ public final class WorkspaceConfiguration {
         return this.autoSync;
     }
 
+    public List<String> getArguments() {
+        return this.arguments;
+    }
+
+    public List<String> getJvmArguments() {
+        return this.jvmArguments;
+    }
+
+    public boolean isShowConsoleView() {
+        return this.showConsoleView;
+    }
+
+
+    public boolean isShowExecutionsView() {
+        return this.showExecutionsView;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof WorkspaceConfiguration) {
@@ -70,13 +100,17 @@ public final class WorkspaceConfiguration {
                     && Objects.equal(this.javaHome, other.javaHome)
                     && Objects.equal(this.gradleIsOffline, other.gradleIsOffline)
                     && Objects.equal(this.buildScansEnabled, other.buildScansEnabled)
-                    && Objects.equal(this.autoSync, other.autoSync);
+                    && Objects.equal(this.autoSync, other.autoSync)
+                    && Objects.equal(this.arguments, other.arguments)
+                    && Objects.equal(this.jvmArguments, other.jvmArguments)
+                    && Objects.equal(this.showConsoleView, other.showConsoleView)
+                    && Objects.equal(this.showExecutionsView, other.showExecutionsView);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.javaHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSync);
+        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.javaHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSync, this.arguments, this.jvmArguments, this.showConsoleView, this.showExecutionsView);
     }
 }

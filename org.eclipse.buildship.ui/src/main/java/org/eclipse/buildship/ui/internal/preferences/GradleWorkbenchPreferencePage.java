@@ -9,6 +9,9 @@
 package org.eclipse.buildship.ui.internal.preferences;
 
 import java.io.File;
+import java.util.List;
+
+import com.google.common.base.Joiner;
 
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.graphics.Font;
@@ -46,7 +49,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home"); // TODO (donat) externalize how it was before
-        this.javaHomeValidator = Validators.optionalDirectoryValidator("Java home"); // TODO (donat) externaliz
+        this.javaHomeValidator = Validators.optionalDirectoryValidator("Java home"); // TODO (donat) externalize
         this.distributionValidator = GradleDistributionViewModel.validator();
     }
 
@@ -73,9 +76,13 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(gradleDistribution));
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText(gradleUserHomePath);
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText(javaHomePath);
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setArguments(config.getArguments());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJvmArguments(config.getJvmArguments()); // TODO (donat) why not use the direct setters on the other calls here?
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(config.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(config.isBuildScansEnabled());
         this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(config.isAutoSync());
+        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(config.isShowConsoleView());
+        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(config.isShowExecutionsView());
     }
 
     private void addListeners() {
@@ -95,7 +102,11 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         boolean offlineMode = this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection();
         boolean buildScansEnabled = this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection();
         boolean autoSync = this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection();
-        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSync);
+        List<String> arguments = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments();
+        List<String> jvmArguments = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments();
+        boolean showConsoleView = this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection();
+        boolean showExecutionsView = this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection();
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
         CorePlugin.configurationManager().saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }

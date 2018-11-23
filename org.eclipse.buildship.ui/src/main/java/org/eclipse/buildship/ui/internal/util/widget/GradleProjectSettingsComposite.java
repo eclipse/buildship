@@ -48,6 +48,8 @@ public final class GradleProjectSettingsComposite extends Composite {
     private Button offlineModeCheckbox;
     private Button buildScansCheckbox;
     private Button autoSyncCheckbox;
+    private Button showConsoleViewCheckbox;
+    private Button showExecutionsViewCheckbox;
 
     private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideCheckboxLabel, String configureParentPrefsLinkLabel, boolean hasAutoSyncCheckbox) {
         super(parent, SWT.NONE);
@@ -69,6 +71,8 @@ public final class GradleProjectSettingsComposite extends Composite {
         if (hasAutoSyncCheckbox) {
             createAutoSyncCheckbox(this);
         }
+        createShowConsoleViewCheckbox(this);
+        createShowExecutionsViewCheckbox(this);
 
         addListeners();
 
@@ -123,6 +127,22 @@ public final class GradleProjectSettingsComposite extends Composite {
         HoverText.createAndAttach(this.autoSyncCheckbox, CoreMessages.Preference_Label_AutoSyncHover);
     }
 
+    private void createShowConsoleViewCheckbox(Composite parent) {
+        this.showConsoleViewCheckbox = new Button(parent, SWT.CHECK);
+        this.showConsoleViewCheckbox.setText("Show Console View");
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.showConsoleViewCheckbox);
+        HoverText.createAndAttach(this.showConsoleViewCheckbox, "Makes the Console view visible during task execution"); //TODO (donat) externalize
+        new Label(parent, SWT.NONE).setVisible(false);
+    }
+
+    private void createShowExecutionsViewCheckbox(Composite parent) {
+        this.showExecutionsViewCheckbox = new Button(parent, SWT.CHECK);
+        this.showExecutionsViewCheckbox.setText("Show Executions View");
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.showExecutionsViewCheckbox);
+        HoverText.createAndAttach(this.showExecutionsViewCheckbox, "Makes the Executions view visible during task execution"); //TODO (donat) externalize
+        new Label(parent, SWT.NONE).setVisible(false);
+    }
+
     private void addListeners() {
         if (this.overrideSettingsCheckbox != null) {
             this.overrideSettingsCheckbox.addSelectionListener(new SelectionListener() {
@@ -150,6 +170,8 @@ public final class GradleProjectSettingsComposite extends Composite {
             if (this.autoSyncCheckbox != null) {
                 this.autoSyncCheckbox.setEnabled(enabled);
             }
+            this.showConsoleViewCheckbox.setEnabled(enabled);
+            this.showExecutionsViewCheckbox.setEnabled(enabled);
         }
     }
 
@@ -184,6 +206,14 @@ public final class GradleProjectSettingsComposite extends Composite {
 
     public Button getAutoSyncCheckbox() {
         return this.autoSyncCheckbox;
+    }
+
+    public Button getShowConsoleViewCheckbox() {
+        return this.showConsoleViewCheckbox;
+    }
+
+    public Button getShowExecutionsViewCheckbox() {
+        return this.showExecutionsViewCheckbox;
     }
 
     public static final GradleProjectSettingsCompositeBuilder builder(Composite parent) {

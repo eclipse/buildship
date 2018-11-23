@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils
 
 class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationSpecification {
 
@@ -192,7 +193,12 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             workspaceConfig.javaHome,
             workspaceConfig.gradleIsOffline,
             workspaceConfig.buildScansEnabled,
-            autoSync)
+            autoSync,
+            Collections.emptyList(), // TODO (donat) adjust when available
+            Collections.emptyList(), // TODO (donat) adjust when available
+            false, // TODO (donat) adjust when available
+            false // TODO (donat) adjust when available
+            )
         configurationManager.saveWorkspaceConfiguration(workspaceConfig)
     }
 

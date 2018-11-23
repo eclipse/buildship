@@ -9,6 +9,10 @@
 package org.eclipse.buildship.ui.internal.util.widget;
 
 import java.io.File;
+import java.util.List;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -47,6 +51,9 @@ public final class AdvancedOptionsGroup extends Group {
     private Button javaHomeBrowseButton;
     private Label javaHomeWarningLabel;
 
+    private Text argumentsText;
+    private Text jvmArgumentsText;
+
     public AdvancedOptionsGroup(Composite parent) {
         super(parent, SWT.NONE);
         setText(CoreMessages.Preference_Label_AdvancedOptions);
@@ -71,6 +78,14 @@ public final class AdvancedOptionsGroup extends Group {
         this.javaHomeWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
         HoverText.createAndAttach(this.gradleUserHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Java home"));
 
+        this.builderFactory.newLabel(this).alignLeft().text("Program arguments");
+        this.argumentsText = this.builderFactory.newText(this).alignFillBoth(2).control();
+        this.builderFactory.newLabel(this).control().setVisible(false);
+
+        this.builderFactory.newLabel(this).alignLeft().text("JVM arguments");
+        this.jvmArgumentsText = this.builderFactory.newText(this).alignFillBoth(2).control();
+        this.builderFactory.newLabel(this).control().setVisible(false);
+
         addListeners();
     }
 
@@ -87,6 +102,16 @@ public final class AdvancedOptionsGroup extends Group {
 
     public Text getJavaHomeText() {
         return this.javaHomeText;
+    }
+
+
+    public Text getArgumentsText() {
+        return this.argumentsText;
+    }
+
+
+    public Text getJvmArgumentsText() {
+        return this.jvmArgumentsText;
     }
 
     @Override
@@ -158,6 +183,23 @@ public final class AdvancedOptionsGroup extends Group {
         } else {
             this.javaHomeText.setText(javaHome.getPath());
         }
+    }
+
+    public List<String> getArguments() {
+        return Splitter.on(' ').omitEmptyStrings().splitToList(this.argumentsText.getText());
+    }
+
+
+    public void setArguments(List<String> arguments) {
+        this.argumentsText.setText(Joiner.on(' ').join(arguments));
+    }
+
+    public List<String> getJvmArguments() {
+        return Splitter.on(' ').omitEmptyStrings().splitToList(this.jvmArgumentsText.getText());
+    }
+
+    public void setJvmArguments(List<String> jvmArguments) {
+        this.jvmArgumentsText.setText(Joiner.on(' ').join(jvmArguments));
     }
 
     @Override
