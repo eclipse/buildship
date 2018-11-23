@@ -8,12 +8,16 @@
  */
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
+import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.ModelBuilder;
+import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
@@ -24,8 +28,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 
+import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
@@ -39,32 +46,28 @@ import org.eclipse.buildship.core.internal.util.gradle.ModelUtils;
  */
 public final class DefaultModelProvider implements ModelProvider {
 
+    private static URLClassLoader ideFriendlyCustomActionClassLoader;
+
+    private final GradleBuild gradleBuild;
     private final BuildConfiguration buildConfiguration;
     private final Cache<Object, Object> cache = CacheBuilder.newBuilder().build();
 
-    public DefaultModelProvider(BuildConfiguration buildConfiguration) {
+    public DefaultModelProvider(GradleBuild gradleBuild, BuildConfiguration buildConfiguration) {
+        this.gradleBuild = gradleBuild;
         this.buildConfiguration = buildConfiguration;
     }
 
     @Override
     public <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        GradleProgressAttributes progressAttributes = createProgressAttributes(tokenSource, monitor);
-        ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), progressAttributes);
-        return injectCompatibilityModel(executeModelBuilder(builder, strategy, model));
+        return injectCompatibilityModel(executeModelQuery(model, monitor, strategy, model));
     }
 
     @Override
     public <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        GradleProgressAttributes attributes = createProgressAttributes(tokenSource, monitor);
         if (supportsCompositeBuilds(tokenSource, monitor)) {
-            final BuildActionExecuter<Collection<T>> executer = ConnectionAwareLauncherProxy
-                    .newCompositeModelQueryExecuter(model, DefaultModelProvider.this.buildConfiguration.toGradleArguments(), attributes);
-            Collection<T> result = executeBuildActionExecuter(executer, strategy, model);
-            return injectCompatibilityModel(model, result);
+            return injectCompatibilityModel(model, executeCompositeModelQuery(model, monitor, strategy, model));
         } else {
-            ModelBuilder<T> builder = ConnectionAwareLauncherProxy.newModelBuilder(model, this.buildConfiguration.toGradleArguments(), attributes);
-            Collection<T> result = ImmutableList.of(executeModelBuilder(builder, strategy, model));
-            return injectCompatibilityModel(model, result);
+            return ImmutableList.of(fetchModel(model, strategy, tokenSource, monitor));
         }
     }
 
@@ -115,6 +118,64 @@ public final class DefaultModelProvider implements ModelProvider {
                 return builder.get();
             }
         }, fetchStrategy, cacheKey);
+    }
+
+    private <T> T executeModelQuery(final Class<T> model, final IProgressMonitor monitor, FetchStrategy fetchStrategy, Class<?> cacheKey) {
+        return executeOperation(new Supplier<T>() {
+
+            @Override
+            public T get() {
+                try {
+                    return DefaultModelProvider.this.gradleBuild.withConnection(connection -> connection.getModel(model), monitor);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, fetchStrategy, cacheKey);
+    }
+
+    private <T> Collection<T> executeCompositeModelQuery(Class<T> model, final IProgressMonitor monitor, FetchStrategy fetchStrategy, Class<?> cacheKey) {
+        return executeOperation(new Supplier<Collection<T>>() {
+
+            @Override
+            public Collection<T> get() {
+                try {
+                    BuildAction<Collection<T>> query = compositeModelQuery(model);
+                    return DefaultModelProvider.this.gradleBuild.withConnection(connection -> connection.action(query).run(), monitor);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, fetchStrategy, cacheKey);
+    }
+
+    private static <T> BuildAction<Collection<T>> compositeModelQuery(Class<T> model) {
+        if (Platform.inDevelopmentMode()) {
+            return ideFriendlyCompositeModelQuery(model);
+        } else {
+            return new CompositeModelQuery<>(model);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> BuildAction<Collection<T>> ideFriendlyCompositeModelQuery(Class<T> model) {
+        // When Buildship is launched from the IDE - as an Eclipse application or as a plug-in
+        // test - the URLs returned by the Equinox class loader is incorrect. This means, the
+        // Tooling API is unable to find the referenced build actions and fails with a CNF
+        // exception. To work around that, we look up the build action class locations and load the
+        // classes via an isolated URClassLoader.
+        try {
+            ClassLoader coreClassloader = ConnectionAwareLauncherProxy.class.getClassLoader();
+            ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
+            URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""));
+            if (ideFriendlyCustomActionClassLoader == null) {
+                ideFriendlyCustomActionClassLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);
+            }
+            Class<?> actionClass = ideFriendlyCustomActionClassLoader.loadClass(CompositeModelQuery.class.getName());
+            return (BuildAction<Collection<T>>) actionClass.getConstructor(Class.class).newInstance(model);
+        } catch (Exception e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
     }
 
     private <T> T executeOperation(final Supplier<T> operation, FetchStrategy fetchStrategy, Class<?> cacheKey) {
