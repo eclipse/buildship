@@ -113,7 +113,7 @@
       <configurator
             class="org.eclipse.buildship.core.internal.workspace.WtpConfigurator"
             id="org.eclipse.buildship.configurators.wtp"
-            runsBefore="org.eclipse.buildship.configurators.base">
+            runsAfter="org.eclipse.buildship.configurators.base">
       </configurator>
    </extension>
 </plugin>
