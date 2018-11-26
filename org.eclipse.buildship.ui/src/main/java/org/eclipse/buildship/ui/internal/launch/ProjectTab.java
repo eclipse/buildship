@@ -64,8 +64,6 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
 
     private Text tasksText;
     private Text workingDirectoryText;
-    private Button showExecutionViewCheckbox;
-    private Button showConsoleViewCheckbox;
 
     public ProjectTab() {
         this.workingDirValidator = Validators.requiredDirectoryValidator(CoreMessages.RunConfiguration_Label_WorkingDirectory);
@@ -93,9 +91,6 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
 
         Group workingDirectoryGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_WorkingDirectory + ":"); //$NON-NLS-1$
         createWorkingDirectorySelectionControl(workingDirectoryGroup);
-
-        Group buildExecutionGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_BuildExecution + ":"); //$NON-NLS-1$
-        createBuildExecutionControl(buildExecutionGroup);
     }
 
     private Group createGroup(Composite parent, String groupName) {
@@ -189,31 +184,17 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
         }).toArray(IProject.class);
     }
 
-    private void createBuildExecutionControl(Composite container) {
-        this.showExecutionViewCheckbox = new Button(container, SWT.CHECK);
-        this.showExecutionViewCheckbox.setText(CoreMessages.BuildExecution_Label_ShowExecutionView);
-        this.showExecutionViewCheckbox.addSelectionListener( new DialogUpdater());
-
-        this.showConsoleViewCheckbox = new Button(container, SWT.CHECK);
-        this.showConsoleViewCheckbox.setText(CoreMessages.BuildExecution_Label_ShowConsoleView);
-        this.showConsoleViewCheckbox.addSelectionListener(new DialogUpdater());
-    }
-
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(configuration);
         this.tasksText.setText(CollectionsUtils.joinWithSpace(configurationAttributes.getTasks()));
         this.workingDirectoryText.setText(Strings.nullToEmpty(configurationAttributes.getWorkingDirExpression()));
-        this.showExecutionViewCheckbox.setSelection(configurationAttributes.isShowExecutionView());
-        this.showConsoleViewCheckbox.setSelection(configurationAttributes.isShowConsoleView());
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
         GradleRunConfigurationAttributes.applyTasks(CollectionsUtils.splitBySpace(this.tasksText.getText()), configuration);
         GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
-        GradleRunConfigurationAttributes.applyShowExecutionView(this.showExecutionViewCheckbox.getSelection(), configuration);
-        GradleRunConfigurationAttributes.applyShowConsoleView(this.showConsoleViewCheckbox.getSelection(), configuration);
     }
 
     @SuppressWarnings("Contract")
