@@ -68,14 +68,14 @@ public final class AdvancedOptionsGroup extends Group {
         setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
         setLayout(new GridLayout(4, false));
 
-        this.builderFactory.newLabel(this).alignLeft().text("Gradle user home");
+        this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.Preference_Label_Gradle_User_Home);
         this.gradleUserHomeText = this.builderFactory.newText(this).alignFillHorizontal().control();
         this.gradleUserHomeBrowseButton = this.builderFactory.newButton(this).alignLeft().text(UiMessages.Button_Label_Browse).control();
         this.gradleUserHomeWarningLabel = this.builderFactory.newLabel(this).alignLeft().control();
         this.gradleUserHomeWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
         HoverText.createAndAttach(this.gradleUserHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Gradle user home"));
 
-        this.builderFactory.newLabel(this).alignLeft().text("Java home");
+        this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.Preference_Label_Java_Home);
         this.javaHomeText = this.builderFactory.newText(this).alignFillHorizontal().control();
         this.javaHomeBrowseButton = this.builderFactory.newButton(this).alignLeft().text(UiMessages.Button_Label_Browse).control();
         this.javaHomeWarningLabel = this.builderFactory.newLabel(this).alignLeft().control();

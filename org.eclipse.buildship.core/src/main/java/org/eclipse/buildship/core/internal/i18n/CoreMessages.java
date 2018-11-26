@@ -67,6 +67,8 @@ public final class CoreMessages extends NLS {
     public static String ErrorMessage_0_WorkspaceDirectory;
 
     public static String Preference_Label_AdvancedOptions;
+    public static String Preference_Label_Gradle_User_Home;
+    public static String Preference_Label_Java_Home;
     public static String Preference_Label_OfflineMode;
     public static String Preference_Label_BuildScans;
     public static String Preference_Label_BuildScansHover;

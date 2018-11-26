@@ -21,6 +21,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
@@ -46,8 +47,8 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
-        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home"); // TODO (donat) externalize how it was before
-        this.javaHomeValidator = Validators.optionalDirectoryValidator("Java home"); // TODO (donat) externalize
+        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Gradle_User_Home);
+        this.javaHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Java_Home);
         this.distributionValidator = GradleDistributionViewModel.validator();
     }
 
