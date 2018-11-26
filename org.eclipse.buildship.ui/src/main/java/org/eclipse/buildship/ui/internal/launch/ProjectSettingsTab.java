@@ -59,8 +59,8 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
     public ProjectSettingsTab() {
         this.distributionValidator = GradleDistributionViewModel.validator();
-        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
-        this.javaHomeValidator = Validators.optionalDirectoryValidator("Java home");
+        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Gradle_User_Home);
+        this.javaHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Java_Home);
     }
 
     @Override

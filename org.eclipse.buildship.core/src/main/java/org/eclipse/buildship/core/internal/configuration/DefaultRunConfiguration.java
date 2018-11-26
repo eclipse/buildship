@@ -102,18 +102,18 @@ class DefaultRunConfiguration implements RunConfiguration {
     @Override
     public boolean isShowExecutionView() {
         if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.isShowConsoleView();
+            return this.properties.isShowExecutionView();
         } else {
-            return this.projectConfiguration.getBuildConfiguration().isShowConsoleView();
+            return this.projectConfiguration.getBuildConfiguration().isShowExecutionsView();
         }
     }
 
     @Override
     public boolean isShowConsoleView() {
         if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.isShowExecutionView();
+            return this.properties.isShowConsoleView();
         } else {
-            return this.projectConfiguration.getBuildConfiguration().isShowExecutionsView();
+            return this.projectConfiguration.getBuildConfiguration().isShowConsoleView();
         }    }
 
     @Override
