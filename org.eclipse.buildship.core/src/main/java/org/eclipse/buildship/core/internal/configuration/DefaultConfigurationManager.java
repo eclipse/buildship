@@ -172,7 +172,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                     attributes.isOverrideBuildSettings(),
                     attributes.isBuildScansEnabled(),
                     attributes.isOffline(),
-                    loadWorkspaceConfiguration().isAutoSync(),
+                    false,
                     attributes.getArguments(),
                     attributes.getJvmArguments(),
                     attributes.isShowConsoleView(),

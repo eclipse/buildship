@@ -67,12 +67,20 @@ class DefaultRunConfiguration implements RunConfiguration {
 
     @Override
     public List<String> getJvmArguments() {
-        return this.properties.getJvmArguments();
+        if (this.properties.isOverrideBuildSettings()) {
+            return this.properties.getJvmArguments();
+        } else {
+            return this.projectConfiguration.getBuildConfiguration().getJvmArguments();
+        }
     }
 
     @Override
     public List<String> getArguments() {
-        return this.properties.getArguments();
+        if (this.properties.isOverrideBuildSettings()) {
+            return this.properties.getArguments();
+        } else {
+            return this.projectConfiguration.getBuildConfiguration().getArguments();
+        }
     }
 
     private boolean isBuildScansEnabled() {
@@ -93,13 +101,20 @@ class DefaultRunConfiguration implements RunConfiguration {
 
     @Override
     public boolean isShowExecutionView() {
-        return this.properties.isShowExecutionView();
+        if (this.properties.isOverrideBuildSettings()) {
+            return this.properties.isShowConsoleView();
+        } else {
+            return this.projectConfiguration.getBuildConfiguration().isShowConsoleView();
+        }
     }
 
     @Override
     public boolean isShowConsoleView() {
-        return this.properties.isShowConsoleView();
-    }
+        if (this.properties.isOverrideBuildSettings()) {
+            return this.properties.isShowExecutionView();
+        } else {
+            return this.projectConfiguration.getBuildConfiguration().isShowExecutionsView();
+        }    }
 
     @Override
     public boolean equals(Object obj) {
