@@ -66,6 +66,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(getConfiguration().getOverrideWorkspaceConfiguration().getValue());
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(getConfiguration().getDistribution().getValue());
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setGradleUserHome(getConfiguration().getGradleUserHome().getValue());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJavaHome(getConfiguration().getJavaHome().getValue());
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setArguments(getConfiguration().getArguments().getValue());
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJvmArguments(getConfiguration().getJvmArguments().getValue());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(getConfiguration().getBuildScansEnabled().getValue());

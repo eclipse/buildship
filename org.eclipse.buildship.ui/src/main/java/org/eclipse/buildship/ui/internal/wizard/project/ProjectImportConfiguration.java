@@ -196,6 +196,7 @@ public final class ProjectImportConfiguration {
                 .overrideWorkspaceConfiguration(getOverrideWorkspaceConfiguration().getValue())
                 .gradleDistribution(getDistribution().getValue().toGradleDistribution())
                 .gradleUserHome(getGradleUserHome().getValue())
+                .javaHome(getJavaHome().getValue())
                 .buildScansEnabled(getBuildScansEnabled().getValue())
                 .offlineMode(getOfflineMode().getValue())
                 .autoSync(getAutoSync().getValue())

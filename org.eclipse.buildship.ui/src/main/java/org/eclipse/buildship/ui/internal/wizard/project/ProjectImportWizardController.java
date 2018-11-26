@@ -66,6 +66,7 @@ public class ProjectImportWizardController {
     private static final String SETTINGS_KEY_APPLY_WORKING_SETS = "apply_working_sets"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_WORKING_SETS = "working_sets"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_GRADLE_USER_HOME = "gradle_user_home"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_JAVA_HOME = "java_home"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_BUILD_SCANS = "build_scans"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_OFFLINE_MODE = "offline_mode"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_AUTO_SYNC = "auto_sync"; //$NON-NLS-1$
@@ -94,6 +95,7 @@ public class ProjectImportWizardController {
         Optional<File> projectDir = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_PROJECT_DIR));
         String gradleDistributionString = dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION);
         Optional<File> gradleUserHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_GRADLE_USER_HOME));
+        Optional<File> javaHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_JAVA_HOME));
         boolean applyWorkingSets = dialogSettings.get(SETTINGS_KEY_APPLY_WORKING_SETS) != null && dialogSettings.getBoolean(SETTINGS_KEY_APPLY_WORKING_SETS);
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
         boolean buildScansEnabled = dialogSettings.getBoolean(SETTINGS_KEY_BUILD_SCANS);
@@ -114,6 +116,7 @@ public class ProjectImportWizardController {
         }
         this.configuration.setDistribution(GradleDistributionViewModel.from(distribution));
         this.configuration.setGradleUserHome(gradleUserHome.orNull());
+        this.configuration.setJavaHomeHome(javaHome.orNull());
         this.configuration.setApplyWorkingSets(applyWorkingSets);
         this.configuration.setWorkingSets(workingSets);
         this.configuration.setBuildScansEnabled(buildScansEnabled);
@@ -128,6 +131,7 @@ public class ProjectImportWizardController {
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_PROJECT_DIR, this.configuration.getProjectDir());
         saveDistributionPropertyWhenChanged(dialogSettings, this.configuration.getDistribution());
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_GRADLE_USER_HOME, this.configuration.getGradleUserHome());
+        saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_JAVA_HOME, this.configuration.getJavaHome());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_APPLY_WORKING_SETS, this.configuration.getApplyWorkingSets());
         saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_WORKING_SETS, this.configuration.getWorkingSets());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_BUILD_SCANS, this.configuration.getBuildScansEnabled());
