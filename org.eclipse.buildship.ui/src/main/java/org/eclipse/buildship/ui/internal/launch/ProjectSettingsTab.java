@@ -13,6 +13,7 @@ package org.eclipse.buildship.ui.internal.launch;
 
 import java.io.File;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
@@ -91,6 +92,11 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().addModifyListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().addModifyListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsText().addModifyListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsText().addModifyListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().addSelectionListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().addSelectionListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().addSelectionListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getParentPreferenceLink().addSelectionListener(new ProjectPreferenceOpeningSelectionListener());
     }
 
@@ -101,8 +107,12 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(this.attributes.getGradleDistribution()));
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(this.attributes.getGradleUserHomeHomeExpression()));
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText(Strings.nullToEmpty(this.attributes.getJavaHomeExpression()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsText().setText(Joiner.on(' ').join(this.attributes.getArgumentExpressions()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsText().setText(Joiner.on(' ').join(this.attributes.getJvmArgumentExpressions()));
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(this.attributes.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(this.attributes.isBuildScansEnabled());
+        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(this.attributes.isShowConsoleView());
+        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(this.attributes.isShowExecutionView());
         this.gradleProjectSettingsComposite.updateEnablement();
     }
 
@@ -112,8 +122,12 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         GradleRunConfigurationAttributes.applyGradleDistribution(this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution(), configuration);
         GradleRunConfigurationAttributes.applyGradleUserHomeExpression(this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().getText(), configuration);
         GradleRunConfigurationAttributes.applyJavaHomeExpression(this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().getText(), configuration);
+        GradleRunConfigurationAttributes.applyArgumentExpressions(this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments(), configuration);
+        GradleRunConfigurationAttributes.applyJvmArgumentExpressions(this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments(), configuration);
         GradleRunConfigurationAttributes.applyOfflineMode(this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(), configuration);
         GradleRunConfigurationAttributes.applyBuildScansEnabled(this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyShowConsoleView(this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection(), configuration);
+        GradleRunConfigurationAttributes.applyShowExecutionView(this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection(), configuration);
     }
 
     @Override
