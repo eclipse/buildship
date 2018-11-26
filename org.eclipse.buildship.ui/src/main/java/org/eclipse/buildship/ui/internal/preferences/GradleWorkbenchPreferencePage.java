@@ -81,8 +81,8 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
     private void addListeners() {
         AdvancedOptionsGroup advancedOptionsGroup = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup();
-        advancedOptionsGroup.getGradleUserHomeText().addModifyListener(new ValidatingListener(this, () -> advancedOptionsGroup.getGradleUserHome(), this.gradleUserHomeValidator));
-        advancedOptionsGroup.getJavaHomeText().addModifyListener(new ValidatingListener(this, () -> advancedOptionsGroup.getJavaHome(), this.javaHomeValidator));
+        advancedOptionsGroup.getGradleUserHomeText().addModifyListener(new ValidatingListener<>(this, () -> advancedOptionsGroup.getGradleUserHome(), this.gradleUserHomeValidator));
+        advancedOptionsGroup.getJavaHomeText().addModifyListener(new ValidatingListener<>(this, () -> advancedOptionsGroup.getJavaHome(), this.javaHomeValidator));
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionValidatingListener(this, this.distributionValidator));
     }
 

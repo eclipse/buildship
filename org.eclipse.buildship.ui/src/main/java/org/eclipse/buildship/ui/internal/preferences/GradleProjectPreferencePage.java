@@ -83,8 +83,8 @@ public final class GradleProjectPreferencePage extends PropertyPage {
     private void addListeners() {
         this.gradleProjectSettingsComposite.getParentPreferenceLink().addSelectionListener(new WorkbenchPreferenceOpeningSelectionListener());
         AdvancedOptionsGroup advancedOptionsGroup = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup();
-        advancedOptionsGroup.getGradleUserHomeText().addModifyListener(new ValidatingListener(this, () -> advancedOptionsGroup.getGradleUserHome(), this.gradleUserHomeValidator));
-        advancedOptionsGroup.getJavaHomeText().addModifyListener(new ValidatingListener(this, () -> advancedOptionsGroup.getJavaHome(), this.javaHomeValidator));
+        advancedOptionsGroup.getGradleUserHomeText().addModifyListener(new ValidatingListener<>(this, () -> advancedOptionsGroup.getGradleUserHome(), this.gradleUserHomeValidator));
+        advancedOptionsGroup.getJavaHomeText().addModifyListener(new ValidatingListener<>(this, () -> advancedOptionsGroup.getJavaHome(), this.javaHomeValidator));
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionValidatingListener(this, this.distributionValidator));
     }
 
