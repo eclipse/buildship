@@ -12,6 +12,7 @@
 package org.eclipse.buildship.ui.internal.wizard.project;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
@@ -57,10 +58,16 @@ public final class ProjectImportConfiguration {
         this.buildScansEnabled = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.offlineMode = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.autoSync = Property.<Boolean>create(Validators.<Boolean>noOp());
+        // TODO (donat) hook properties into UI
         this.arguments = Property.<List<String>>create(Validators.<List<String>>noOp());
         this.jvmArguments = Property.<List<String>>create(Validators.<List<String>>noOp());
         this.showConsoleView = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.showExecutionsView = Property.<Boolean>create(Validators.<Boolean>noOp());
+        // TODO delete  the things below
+        setArguments(Collections.emptyList());
+        setJvmArguments(Collections.emptyList());
+        setShowConsoleView(true);
+        setShowExecutionsView(true);
     }
 
     public Property<File> getProjectDir() {
