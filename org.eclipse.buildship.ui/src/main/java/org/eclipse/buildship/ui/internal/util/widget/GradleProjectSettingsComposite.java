@@ -8,8 +8,6 @@
 
 package org.eclipse.buildship.ui.internal.util.widget;
 
-import com.google.common.base.Optional;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -51,7 +49,7 @@ public final class GradleProjectSettingsComposite extends Composite {
     private Button showConsoleViewCheckbox;
     private Button showExecutionsViewCheckbox;
 
-    private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideCheckboxLabel, String configureParentPrefsLinkLabel, boolean hasAutoSyncCheckbox) {
+    private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideCheckboxLabel, String configureParentPrefsLinkLabel, boolean hasAutoSyncCheckbox, boolean variableSelector) {
         super(parent, SWT.NONE);
 
         this.overrideCheckboxLabel = overrideCheckboxLabel;
@@ -65,7 +63,7 @@ public final class GradleProjectSettingsComposite extends Composite {
             createHorizontalLine(this);
         }
         createGradleDistributionGroup(this);
-        createGradleUserHomeGroup(this);
+        createAdvancedOptionsGroup(this, variableSelector);
         createOfflineModeCheckbox(this);
         createBuildScansCheckbox(this);
         if (hasAutoSyncCheckbox) {
@@ -102,8 +100,8 @@ public final class GradleProjectSettingsComposite extends Composite {
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.gradleDistributionGroup);
     }
 
-    private void createGradleUserHomeGroup(Composite parent) {
-        this.advancedOptionsGroup = new AdvancedOptionsGroup(parent);
+    private void createAdvancedOptionsGroup(Composite parent, boolean variableSelector) {
+        this.advancedOptionsGroup = new AdvancedOptionsGroup(parent, variableSelector);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.advancedOptionsGroup);
     }
 
@@ -227,25 +225,31 @@ public final class GradleProjectSettingsComposite extends Composite {
      *
      */
     public static class GradleProjectSettingsCompositeBuilder {
-        private Optional<Pair<String, String>> overrideCheckbox = Optional.absent();
+        private Pair<String, String> overrideCheckbox = null;
         private boolean autoSyncCheckbox = false;
+        private boolean variableSelector = false;
         private Composite parent;
         private GradleProjectSettingsCompositeBuilder(Composite parent) {
             this.parent = parent;
         }
         public GradleProjectSettingsCompositeBuilder withOverrideCheckbox(String overrideCheckboxLabel, String configureParentPrefsLinkLabel) {
-            this.overrideCheckbox = Optional.of(new Pair<>(overrideCheckboxLabel, configureParentPrefsLinkLabel));
+            this.overrideCheckbox = new Pair<>(overrideCheckboxLabel, configureParentPrefsLinkLabel);
             return this;
         }
         public GradleProjectSettingsCompositeBuilder withAutoSyncCheckbox() {
             this.autoSyncCheckbox = true;
             return this;
         }
+        public GradleProjectSettingsCompositeBuilder showVariableSelector() {
+            this.variableSelector = true;
+            return this;
+        }
+
         public GradleProjectSettingsComposite build() {
-            if (this.overrideCheckbox.isPresent()) {
-                return new GradleProjectSettingsComposite(this.parent, true, this.overrideCheckbox.get().getFirst(), this.overrideCheckbox.get().getSecond(), this.autoSyncCheckbox);
+            if (this.overrideCheckbox != null) {
+                return new GradleProjectSettingsComposite(this.parent, true, this.overrideCheckbox.getFirst(), this.overrideCheckbox.getSecond(), this.autoSyncCheckbox, this.variableSelector);
             } else {
-                return new GradleProjectSettingsComposite(this.parent, false, null, null, this.autoSyncCheckbox);
+                return new GradleProjectSettingsComposite(this.parent, false, null, null, this.autoSyncCheckbox, this.variableSelector);
             }
         }
     }

@@ -14,8 +14,11 @@ import java.util.List;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
+import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -30,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.ui.internal.i18n.UiMessages;
+import org.eclipse.buildship.ui.internal.launch.LaunchMessages;
 import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 
@@ -54,7 +58,7 @@ public final class AdvancedOptionsGroup extends Group {
     private Text argumentsText;
     private Text jvmArgumentsText;
 
-    public AdvancedOptionsGroup(Composite parent) {
+    public AdvancedOptionsGroup(Composite parent, boolean variableSelector) {
         super(parent, SWT.NONE);
         setText(CoreMessages.Preference_Label_AdvancedOptions);
 
@@ -78,12 +82,24 @@ public final class AdvancedOptionsGroup extends Group {
         this.javaHomeWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
         HoverText.createAndAttach(this.gradleUserHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Java home"));
 
-        this.builderFactory.newLabel(this).alignLeft().text("Program arguments");
-        this.argumentsText = this.builderFactory.newText(this).alignFillBoth(2).control();
+        this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.RunConfiguration_Label_Arguments);
+        if (variableSelector) {
+            this.argumentsText = createMultlineText(this);
+            createVariablesSelectorButton(this, this.argumentsText);
+        } else {
+            this.argumentsText = this.builderFactory.newText(this).alignFillBoth(1).control();
+            this.builderFactory.newLabel(this).control().setVisible(false);
+        }
         this.builderFactory.newLabel(this).control().setVisible(false);
 
-        this.builderFactory.newLabel(this).alignLeft().text("JVM arguments");
-        this.jvmArgumentsText = this.builderFactory.newText(this).alignFillBoth(2).control();
+        this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.RunConfiguration_Label_JvmArguments);
+        if (variableSelector) {
+            this.jvmArgumentsText = createMultlineText(this);
+            createVariablesSelectorButton(this, this.jvmArgumentsText);
+        } else {
+            this.jvmArgumentsText = this.builderFactory.newText(this).alignFillBoth(1).control();
+            this.builderFactory.newLabel(this).control().setVisible(false);
+        }
         this.builderFactory.newLabel(this).control().setVisible(false);
 
         addListeners();
@@ -94,6 +110,38 @@ public final class AdvancedOptionsGroup extends Group {
         this.javaHomeText.addModifyListener(l -> updateWarningVisibility());
         this.gradleUserHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.gradleUserHomeText, "Gradle user home"));
         this.javaHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.javaHomeText, "Java home"));
+    }
+
+    private Text createMultlineText(Composite container) {
+        Text textControl = new Text(container, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+        GridData textLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
+        textLayoutData.heightHint = 65;
+        textControl.setLayoutData(textLayoutData);
+        return textControl;
+    }
+
+    private void createVariablesSelectorButton(Composite container, final Text target) {
+        Composite buttonContainer = new Composite(container, SWT.NONE);
+        GridLayout buttonContainerLayout = new GridLayout(1, false);
+        buttonContainerLayout.marginHeight = 1;
+        buttonContainerLayout.marginWidth = 0;
+        buttonContainer.setLayout(buttonContainerLayout);
+        buttonContainer.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
+
+        Button selectVariableButton = new Button(buttonContainer, SWT.NONE);
+        selectVariableButton.setText(LaunchMessages.Button_Label_SelectVariables);
+        selectVariableButton.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
+                dialog.open();
+                String variable = dialog.getVariableExpression();
+                if (variable != null) {
+                    target.insert(variable);
+                }
+            }
+        });
     }
 
     public Text getGradleUserHomeText() {
