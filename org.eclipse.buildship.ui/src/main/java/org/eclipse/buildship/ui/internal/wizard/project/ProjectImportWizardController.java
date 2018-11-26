@@ -38,6 +38,7 @@ import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType;
 import org.eclipse.buildship.core.internal.util.binding.Property;
@@ -85,8 +86,8 @@ public class ProjectImportWizardController {
         Validator<GradleDistributionViewModel> gradleDistributionValidator = GradleDistributionViewModel.validator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
-        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home"); // TODO (donat) externalize
-        Validator<File> javaHomeValidator = Validators.optionalDirectoryValidator("Java home"); // TODO (donat) externalize
+        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Gradle_User_Home);
+        Validator<File> javaHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Java_Home);
 
         this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, javaHomeValidator, applyWorkingSetsValidator, workingSetsValidator);
 

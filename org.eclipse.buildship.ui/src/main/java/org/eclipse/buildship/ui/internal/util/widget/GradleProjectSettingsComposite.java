@@ -129,7 +129,7 @@ public final class GradleProjectSettingsComposite extends Composite {
         this.showConsoleViewCheckbox = new Button(parent, SWT.CHECK);
         this.showConsoleViewCheckbox.setText("Show Console View");
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.showConsoleViewCheckbox);
-        HoverText.createAndAttach(this.showConsoleViewCheckbox, "Makes the Console view visible during task execution"); //TODO (donat) externalize
+        HoverText.createAndAttach(this.showConsoleViewCheckbox, CoreMessages.Preference_Label_ShowConsoleViewHover);
         new Label(parent, SWT.NONE).setVisible(false);
     }
 
@@ -137,7 +137,7 @@ public final class GradleProjectSettingsComposite extends Composite {
         this.showExecutionsViewCheckbox = new Button(parent, SWT.CHECK);
         this.showExecutionsViewCheckbox.setText("Show Executions View");
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.showExecutionsViewCheckbox);
-        HoverText.createAndAttach(this.showExecutionsViewCheckbox, "Makes the Executions view visible during task execution"); //TODO (donat) externalize
+        HoverText.createAndAttach(this.showExecutionsViewCheckbox, CoreMessages.Preference_Label_ShowExecutionsViewHover);
         new Label(parent, SWT.NONE).setVisible(false);
     }
 

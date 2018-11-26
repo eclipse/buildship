@@ -74,6 +74,8 @@ public final class CoreMessages extends NLS {
     public static String Preference_Label_BuildScansHover;
     public static String Preference_Label_AutoSync;
     public static String Preference_Label_AutoSyncHover;
+    public static String Preference_Label_ShowConsoleViewHover;
+    public static String Preference_Label_ShowExecutionsViewHover;
 
     static {
         // initialize resource bundle
