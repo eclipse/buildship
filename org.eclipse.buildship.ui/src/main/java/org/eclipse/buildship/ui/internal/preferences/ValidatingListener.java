@@ -37,8 +37,8 @@ final class ValidatingListener<T> implements ModifyListener {
 
     @Override
     public void modifyText(ModifyEvent e) {
-        T validatedValue = this.target.get();
-        Optional<String> error = this.validator.validate(validatedValue);
+        T targetValue = this.target.get();
+        Optional<String> error = this.validator.validate(targetValue);
         this.preferencePage.setValid(!error.isPresent());
         this.preferencePage.setErrorMessage(error.orNull());
     }

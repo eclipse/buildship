@@ -38,7 +38,7 @@ import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListe
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 
 /**
- * Composite to select advanced options, such as the Gradle user home, the Java home, and the arguments.
+ * Composite to select advanced options such as the Gradle user home, the Java home, and program/JVM arguments.
  *
  * @author Donat Csikos
  */
