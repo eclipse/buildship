@@ -194,11 +194,10 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             workspaceConfig.gradleIsOffline,
             workspaceConfig.buildScansEnabled,
             autoSync,
-            Collections.emptyList(), // TODO (donat) adjust when available
-            Collections.emptyList(), // TODO (donat) adjust when available
-            false, // TODO (donat) adjust when available
-            false // TODO (donat) adjust when available
-            )
+            workspaceConfig.arguments,
+            workspaceConfig.jvmArguments,
+            workspaceConfig.showConsoleView,
+            workspaceConfig.showExecutionsView)
         configurationManager.saveWorkspaceConfiguration(workspaceConfig)
     }
 
@@ -219,7 +218,11 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             currentConfig.javaHome,
             currentConfig.buildScansEnabled,
             currentConfig.offlineMode,
-            autoSync)
+            autoSync
+            ,currentConfig.arguments,
+            currentConfig.jvmArguments,
+            currentConfig.showConsoleView,
+            currentConfig.showExecutionsView)
         configurationManager.saveBuildConfiguration(updatedConfig)
     }
 
@@ -232,7 +235,11 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             currentConfig.javaHome,
             currentConfig.buildScansEnabled,
             currentConfig.offlineMode,
-            true)
+            true,
+            currentConfig.arguments,
+            currentConfig.jvmArguments,
+            currentConfig.showConsoleView,
+            currentConfig.showExecutionsView)
         configurationManager.saveBuildConfiguration(updatedConfig)
     }
 }

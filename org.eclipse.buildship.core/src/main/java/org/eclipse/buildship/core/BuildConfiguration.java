@@ -9,6 +9,8 @@
 package org.eclipse.buildship.core;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.Preconditions;
@@ -34,6 +36,10 @@ public final class BuildConfiguration {
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
     private final boolean autoSync;
+    private final List<String> arguments;
+    private final List<String> jvmArguments;
+    private final boolean showConsoleView;
+    private final boolean showExecutionsView;
 
     private BuildConfiguration(BuildConfigurationBuilder builder) {
         this.rootProjectDirectory = Preconditions.checkNotNull(builder.rootProjectDirectory);
@@ -44,6 +50,10 @@ public final class BuildConfiguration {
         this.buildScansEnabled = builder.buildScansEnabled;
         this.offlineMode = builder.offlineMode;
         this.autoSync = builder.autoSync;
+        this.arguments = builder.arguments;
+        this.jvmArguments = builder.jvmArguments;
+        this.showConsoleView = builder.showConsoleView;
+        this.showExecutionsView = builder.showExecutionsView;
     }
 
     public static BuildConfigurationBuilder forRootProjectDirectory(File rootProjectDirectory) {
@@ -70,6 +80,7 @@ public final class BuildConfiguration {
     public File getRootProjectDirectory() {
         return this.rootProjectDirectory;
     }
+
     /**
      * Returns Gradle user home for this configuration.
      * <p>
@@ -159,6 +170,24 @@ public final class BuildConfiguration {
         return this.gradleDistribution;
     }
 
+    // TODO (donat) javadoc
+
+    public List<String> getArguments() {
+        return this.arguments;
+    }
+
+    public List<String> getJvmArguments() {
+        return this.jvmArguments;
+    }
+
+    public boolean isShowConsoleView() {
+        return this.showConsoleView;
+    }
+
+    public boolean isShowExecutionsView() {
+        return this.showExecutionsView;
+    }
+
     public static final class BuildConfigurationBuilder {
 
         private final File rootProjectDirectory;
@@ -169,6 +198,10 @@ public final class BuildConfiguration {
         private boolean buildScansEnabled = false;
         private boolean offlineMode = false;
         private boolean autoSync = false;
+        private List<String> arguments = new ArrayList<>();
+        private List<String> jvmArguments = new ArrayList<>();
+        private boolean showConsoleView = true;
+        private boolean showExecutionsView = true;
 
         private BuildConfigurationBuilder(File rootProjectDirectory) {
             this.rootProjectDirectory = rootProjectDirectory;
@@ -179,33 +212,53 @@ public final class BuildConfiguration {
             return this;
         }
 
-         public BuildConfigurationBuilder gradleDistribution(GradleDistribution gradleDistribution) {
-             this.gradleDistribution = gradleDistribution;
-             return this;
-         }
+        public BuildConfigurationBuilder gradleDistribution(GradleDistribution gradleDistribution) {
+            this.gradleDistribution = gradleDistribution;
+            return this;
+        }
 
-         public BuildConfigurationBuilder gradleUserHome(File gradleUserHome) {
-             this.gradleUserHome = gradleUserHome;
-             return this;
-         }
+        public BuildConfigurationBuilder gradleUserHome(File gradleUserHome) {
+            this.gradleUserHome = gradleUserHome;
+            return this;
+        }
 
-         public BuildConfigurationBuilder javaHome(File javaHome) {
-             this.javaHome = javaHome;
-             return this;
-         }
+        public BuildConfigurationBuilder javaHome(File javaHome) {
+            this.javaHome = javaHome;
+            return this;
+        }
 
-         public BuildConfigurationBuilder buildScansEnabled(boolean buildScansEnabled) {
-             this.buildScansEnabled = buildScansEnabled;
-             return this;
-         }
+        public BuildConfigurationBuilder buildScansEnabled(boolean buildScansEnabled) {
+            this.buildScansEnabled = buildScansEnabled;
+            return this;
+        }
 
-         public BuildConfigurationBuilder offlineMode(boolean offlineMode) {
-             this.offlineMode = offlineMode;
-             return this;
-         }
+        public BuildConfigurationBuilder offlineMode(boolean offlineMode) {
+            this.offlineMode = offlineMode;
+            return this;
+        }
 
-         public BuildConfigurationBuilder autoSync(boolean autoSync) {
-             this.autoSync = autoSync;
+        public BuildConfigurationBuilder autoSync(boolean autoSync) {
+            this.autoSync = autoSync;
+            return this;
+        }
+
+        public BuildConfigurationBuilder arguments(List<String> arguments) {
+            this.arguments = arguments;
+            return this;
+        }
+
+        public BuildConfigurationBuilder jvmArguments(List<String> jvmArguments) {
+            this.jvmArguments = jvmArguments;
+            return this;
+        }
+
+        public BuildConfigurationBuilder showConsoleView(boolean showConsoleView) {
+            this.showConsoleView = showConsoleView;
+            return this;
+        }
+
+        public BuildConfigurationBuilder showExecutionsView(boolean showExecutionsView) {
+            this.showExecutionsView = showExecutionsView;
             return this;
         }
 

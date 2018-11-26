@@ -30,7 +30,9 @@ public interface ConfigurationManager {
     BuildConfiguration createBuildConfiguration(File rootProjectDirectory, boolean overrideWorkspaceSettings,
                                                 GradleDistribution gradleDistribution, File gradleUserHome,
                                                 File javaHome, boolean buildScansEnabled,
-                                                boolean offlineMode, boolean autoSync);
+                                                boolean offlineMode, boolean autoSync,
+                                                List<String> arguments, List<String> jvmArguments,
+                                                boolean showConsoleView, boolean showExecutionsView);
 
     BuildConfiguration loadBuildConfiguration(File rootProject);
 

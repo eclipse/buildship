@@ -11,8 +11,6 @@ package org.eclipse.buildship.ui.internal.preferences;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.base.Joiner;
-
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;

@@ -39,7 +39,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
             buildOfflineMode,
             false,
             buildGradleUserHome,
-            buildJavaHome)
+            buildJavaHome) // TODO (donat) fix that
         RunConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
                 tasks,
                 runJavaHome,

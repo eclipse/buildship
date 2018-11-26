@@ -9,7 +9,7 @@
 package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.List;
 
 import com.google.common.base.Objects;
 
@@ -92,6 +92,42 @@ public final class DefaultBuildConfiguration implements BuildConfiguration {
     }
 
     @Override
+    public List<String> getArguments() {
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.getArguments();
+        } else {
+            return this.workspaceConfiguration.getArguments();
+        }
+    }
+
+    @Override
+    public List<String> getJvmArguments() {
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.getJvmArguments();
+        } else {
+            return this.workspaceConfiguration.getJvmArguments();
+        }
+    }
+
+    @Override
+    public boolean isShowConsoleView() {
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.isShowConsoleView();
+        } else {
+            return this.workspaceConfiguration.isShowConsoleView();
+        }
+    }
+
+    @Override
+    public boolean isShowExecutionsView() {
+        if (this.properties.isOverrideWorkspaceSettings()) {
+            return this.properties.isShowExecutionsView();
+        } else {
+            return this.workspaceConfiguration.isShowExecutionsView();
+        }
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof DefaultBuildConfiguration) {
             DefaultBuildConfiguration other = (DefaultBuildConfiguration) obj;
@@ -119,8 +155,8 @@ public final class DefaultBuildConfiguration implements BuildConfiguration {
             getJavaHome(),
             isBuildScansEnabled(),
             isOfflineMode(),
-            Collections.<String>emptyList(), // arguments
-            Collections.<String>emptyList()); // JVM arguments
+            getArguments(),
+            getJvmArguments());
     }
 
     @Override
@@ -144,6 +180,10 @@ public final class DefaultBuildConfiguration implements BuildConfiguration {
                 .buildScansEnabled(this.properties.isBuildScansEnabled())
                 .offlineMode(this.properties.isOfflineMode())
                 .autoSync(this.properties.isAutoSync())
+                .arguments(this.properties.getArguments())
+                .jvmArguments(this.properties.getJvmArguments())
+                .showConsoleView(this.properties.isShowConsoleView())
+                .showExecutionsView(this.properties.isShowExecutionsView())
                 .build();
     }
 }

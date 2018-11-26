@@ -9,6 +9,7 @@
 package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.buildship.core.GradleDistribution;
 
@@ -36,6 +37,14 @@ public interface BuildConfiguration {
     boolean isOfflineMode();
 
     boolean isAutoSync();
+
+    List<String> getArguments();
+
+    List<String> getJvmArguments();
+
+    boolean isShowConsoleView();
+
+    boolean isShowExecutionsView();
 
     GradleArguments toGradleArguments();
 
