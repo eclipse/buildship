@@ -66,16 +66,11 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     private void initValues() {
         WorkspaceConfiguration config = CorePlugin.configurationManager().loadWorkspaceConfiguration();
         GradleDistribution gradleDistribution = config.getGradleDistribution();
-        File gradleUserHome = config.getGradleUserHome();
-        String gradleUserHomePath = gradleUserHome == null ? "" : gradleUserHome.getPath();
-        File javaHome = config.getJavaHome();
-        String javaHomePath = javaHome == null ? "" : javaHome.getPath();
-
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(gradleDistribution));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText(gradleUserHomePath);
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText(javaHomePath);
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setGradleUserHome(config.getGradleUserHome());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJavaHome(config.getJavaHome());
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setArguments(config.getArguments());
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJvmArguments(config.getJvmArguments()); // TODO (donat) why not use the direct setters on the other calls here?
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJvmArguments(config.getJvmArguments());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(config.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(config.isBuildScansEnabled());
         this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(config.isAutoSync());
