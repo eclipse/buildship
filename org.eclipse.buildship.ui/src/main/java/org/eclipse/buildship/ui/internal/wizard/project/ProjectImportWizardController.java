@@ -200,10 +200,11 @@ public class ProjectImportWizardController {
                 @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     BuildConfiguration internalBuildConfiguration = ProjectImportWizardController.this.configuration.toInternalBuildConfiguration();
+                    boolean showExecutionsView = internalBuildConfiguration.getWorkspaceConfiguration().isShowExecutionsView();
                     org.eclipse.buildship.core.BuildConfiguration buildConfiguration = ProjectImportWizardController.this.configuration.toBuildConfiguration();
                     org.eclipse.buildship.core.GradleBuild gradleBuild = GradleCore.getWorkspace().createBuild(buildConfiguration);
 
-                    ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
+                    ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration, showExecutionsView);
                     InitializeNewProjectOperation initializeOperation = new InitializeNewProjectOperation(internalBuildConfiguration);
                     try {
                         CorePlugin.operationManager().run(initializeOperation, monitor);
@@ -238,12 +239,14 @@ public class ProjectImportWizardController {
 
         private final ProjectImportConfiguration configuration;
         private final NewProjectHandler importedBuildDelegate;
+        private final boolean showExecutionsView;
 
         private volatile boolean gradleViewsVisible;
 
-        private ImportWizardNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration) {
+        private ImportWizardNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration, boolean showExecutionsView) {
             this.importedBuildDelegate = delegate;
             this.configuration = configuration;
+            this.showExecutionsView = showExecutionsView;
         }
 
         @Override
@@ -274,7 +277,9 @@ public class ProjectImportWizardController {
                     if (!ImportWizardNewProjectHandler.this.gradleViewsVisible) {
                         ImportWizardNewProjectHandler.this.gradleViewsVisible = true;
                         WorkbenchUtils.showView(TaskView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
-                        WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
+                        if (ImportWizardNewProjectHandler.this.showExecutionsView) {
+                            WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
+                        }
                     }
                 }
             });
