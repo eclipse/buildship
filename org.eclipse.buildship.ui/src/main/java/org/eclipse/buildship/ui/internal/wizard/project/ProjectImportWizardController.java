@@ -69,6 +69,10 @@ public class ProjectImportWizardController {
     private static final String SETTINGS_KEY_BUILD_SCANS = "build_scans"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_OFFLINE_MODE = "offline_mode"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_AUTO_SYNC = "auto_sync"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_ARGUMENTS = "arguments"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_JVM_ARGUMENTS = "jvm_arguments"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_SHOW_CONSOLE_VIEW = "show_console_view"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_SHOW_EXECUTIONS_VIEW = "show_executions_view"; //$NON-NLS-1$
 
     private final ProjectImportConfiguration configuration;
 
@@ -95,6 +99,10 @@ public class ProjectImportWizardController {
         boolean buildScansEnabled = dialogSettings.getBoolean(SETTINGS_KEY_BUILD_SCANS);
         boolean offlineMode = dialogSettings.getBoolean(SETTINGS_KEY_OFFLINE_MODE);
         boolean autoSync = dialogSettings.getBoolean(SETTINGS_KEY_AUTO_SYNC);
+        List<String> arguments = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_ARGUMENTS)));
+        List<String> jvmArguments = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_JVM_ARGUMENTS)));
+        boolean showConsoleView = dialogSettings.getBoolean(SETTINGS_KEY_SHOW_CONSOLE_VIEW);
+        boolean showExecutionsView = dialogSettings.getBoolean(SETTINGS_KEY_SHOW_EXECUTIONS_VIEW);
 
         this.configuration.setProjectDir(projectDir.orNull());
         this.configuration.setOverwriteWorkspaceSettings(false);
@@ -111,6 +119,10 @@ public class ProjectImportWizardController {
         this.configuration.setBuildScansEnabled(buildScansEnabled);
         this.configuration.setOfflineMode(offlineMode);
         this.configuration.setAutoSync(autoSync);
+        this.configuration.setArguments(arguments);
+        this.configuration.setJvmArguments(jvmArguments);
+        this.configuration.setShowConsoleView(showConsoleView);
+        this.configuration.setShowExecutionsView(showExecutionsView);
 
         // store the values every time they change
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_PROJECT_DIR, this.configuration.getProjectDir());
@@ -121,6 +133,10 @@ public class ProjectImportWizardController {
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_BUILD_SCANS, this.configuration.getBuildScansEnabled());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_OFFLINE_MODE, this.configuration.getOfflineMode());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_AUTO_SYNC, this.configuration.getAutoSync());
+        saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_ARGUMENTS, this.configuration.getArguments());
+        saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_JVM_ARGUMENTS, this.configuration.getJvmArguments());
+        saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_SHOW_CONSOLE_VIEW, this.configuration.getShowConsoleView());
+        saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_SHOW_EXECUTIONS_VIEW, this.configuration.getShowExecutionsView());
     }
 
     private void saveBooleanPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<Boolean> target) {

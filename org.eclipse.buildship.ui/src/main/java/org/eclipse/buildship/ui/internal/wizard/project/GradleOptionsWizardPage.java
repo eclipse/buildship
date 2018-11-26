@@ -66,9 +66,13 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(getConfiguration().getOverrideWorkspaceConfiguration().getValue());
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(getConfiguration().getDistribution().getValue());
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setGradleUserHome(getConfiguration().getGradleUserHome().getValue());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setArguments(getConfiguration().getArguments().getValue());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJvmArguments(getConfiguration().getJvmArguments().getValue());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(getConfiguration().getBuildScansEnabled().getValue());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(getConfiguration().getOfflineMode().getValue());
         this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(getConfiguration().getAutoSync().getValue());
+        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(getConfiguration().getShowConsoleView().getValue());
+        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(getConfiguration().getShowExecutionsView().getValue());
         this.gradleProjectSettingsComposite.updateEnablement();
     }
 
@@ -150,6 +154,50 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
             @Override
             public void widgetDefaultSelected(SelectionEvent e) {
                 getConfiguration().getAutoSync().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection());
+            }
+        });
+
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsText().addModifyListener(new ModifyListener() {
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                getConfiguration().getArguments().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments());
+            }
+        });
+
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsText().addModifyListener(new ModifyListener() {
+
+            @Override
+            public void modifyText(ModifyEvent e) {
+                getConfiguration().getJvmArguments().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments());
+            }
+        });
+
+        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                getConfiguration().getShowConsoleView().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection());
+
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                getConfiguration().getShowConsoleView().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection());
+            }
+        });
+
+        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                getConfiguration().getShowExecutionsView().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection());
+
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                getConfiguration().getShowExecutionsView().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection());
             }
         });
 
