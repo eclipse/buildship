@@ -27,7 +27,7 @@ public final class GradleRunConfigurationTabGroup extends AbstractLaunchConfigur
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
                 new ProjectTab(),
                 new ProjectSettingsTab(),
-                new CommonTab() // TODO merge the removed tab functionality with the new elements in the property page
+                new CommonTab()
         };
         setTabs(tabs);
         // @formatter:on

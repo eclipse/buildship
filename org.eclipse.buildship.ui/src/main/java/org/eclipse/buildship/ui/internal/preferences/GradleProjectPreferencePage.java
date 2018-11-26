@@ -104,7 +104,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
            this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments(),
            this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments(),
            this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection(),
-           this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection()); // TODO (donat) init and update values
+           this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection());
        manager.saveBuildConfiguration(updatedConfig);
        return true;
     }

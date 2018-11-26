@@ -32,7 +32,6 @@ final class BuildConfigurationPersistence {
 
     private static final String PREF_NODE = CorePlugin.PLUGIN_ID;
 
-    // TODO (donat) duplicate key set in workspace persistene
     private static final String PREF_KEY_CONNECTION_PROJECT_DIR = "connection.project.dir";
     private static final String PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION = "connection.gradle.distribution";
     private static final String PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS = "override.workspace.settings";
