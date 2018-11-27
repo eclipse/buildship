@@ -123,7 +123,7 @@ public final class DefaultModelProvider implements ModelProvider {
         // exception. To work around that, we look up the build action class locations and load the
         // classes via an isolated URClassLoader.
         try {
-            ClassLoader coreClassloader = ConnectionAwareLauncherProxy.class.getClassLoader();
+            ClassLoader coreClassloader = DefaultModelProvider.class.getClassLoader();
             ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
             URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""));
             if (ideFriendlyCustomActionClassLoader == null) {
