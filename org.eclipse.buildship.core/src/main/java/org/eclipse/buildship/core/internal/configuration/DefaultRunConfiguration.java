@@ -114,7 +114,8 @@ class DefaultRunConfiguration implements RunConfiguration {
             return this.properties.isShowConsoleView();
         } else {
             return this.projectConfiguration.getBuildConfiguration().isShowConsoleView();
-        }    }
+        }
+    }
 
     @Override
     public boolean equals(Object obj) {
