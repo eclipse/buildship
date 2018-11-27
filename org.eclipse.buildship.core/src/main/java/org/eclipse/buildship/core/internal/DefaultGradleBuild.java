@@ -66,7 +66,7 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
     public DefaultGradleBuild(org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfiguration) {
         this.buildConfig = buildConfiguration;
-        this.modelProvider = new DefaultModelProvider(this, this.buildConfig);
+        this.modelProvider = new DefaultModelProvider(this);
         this.projectConnectionCache = new ProjectConnectionCache();
     }
 

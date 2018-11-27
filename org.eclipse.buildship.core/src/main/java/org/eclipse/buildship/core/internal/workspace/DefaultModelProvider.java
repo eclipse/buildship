@@ -14,14 +14,11 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import org.gradle.tooling.BuildAction;
-import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
-import com.google.common.base.Supplier;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
@@ -34,8 +31,6 @@ import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.ModelUtils;
 
@@ -49,12 +44,10 @@ public final class DefaultModelProvider implements ModelProvider {
     private static URLClassLoader ideFriendlyCustomActionClassLoader;
 
     private final GradleBuild gradleBuild;
-    private final BuildConfiguration buildConfiguration;
     private final Cache<Object, Object> cache = CacheBuilder.newBuilder().build();
 
-    public DefaultModelProvider(GradleBuild gradleBuild, BuildConfiguration buildConfiguration) {
+    public DefaultModelProvider(GradleBuild gradleBuild) {
         this.gradleBuild = gradleBuild;
-        this.buildConfiguration = buildConfiguration;
     }
 
     @Override
@@ -69,13 +62,6 @@ public final class DefaultModelProvider implements ModelProvider {
         } else {
             return ImmutableList.of(fetchModel(model, strategy, tokenSource, monitor));
         }
-    }
-
-    private GradleProgressAttributes createProgressAttributes(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        return GradleProgressAttributes.builder(tokenSource, monitor)
-                .forBackgroundProcess()
-                .withFilteredProgress()
-                .build();
     }
 
     @SuppressWarnings("unchecked")
@@ -100,51 +86,23 @@ public final class DefaultModelProvider implements ModelProvider {
         return models;
     }
 
-    private <T> T executeBuildActionExecuter(final BuildActionExecuter<T> executer, FetchStrategy fetchStrategy, Class<?> cacheKey) {
-        return executeOperation(new Supplier<T>() {
-
-            @Override
-            public T get() {
-                return executer.run();
-            }
-        }, fetchStrategy, cacheKey);
-    }
-
-    private <T> T executeModelBuilder(final ModelBuilder<T> builder, FetchStrategy fetchStrategy, Class<?> cacheKey) {
-        return executeOperation(new Supplier<T>() {
-
-            @Override
-            public T get() {
-                return builder.get();
-            }
-        }, fetchStrategy, cacheKey);
-    }
-
     private <T> T executeModelQuery(final Class<T> model, final IProgressMonitor monitor, FetchStrategy fetchStrategy, Class<?> cacheKey) {
-        return executeOperation(new Supplier<T>() {
+        return executeOperation(new Callable<T>() {
 
             @Override
-            public T get() {
-                try {
-                    return DefaultModelProvider.this.gradleBuild.withConnection(connection -> connection.getModel(model), monitor);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+            public T call() throws Exception {
+                return DefaultModelProvider.this.gradleBuild.withConnection(connection -> connection.getModel(model), monitor);
             }
         }, fetchStrategy, cacheKey);
     }
 
     private <T> Collection<T> executeCompositeModelQuery(Class<T> model, final IProgressMonitor monitor, FetchStrategy fetchStrategy, Class<?> cacheKey) {
-        return executeOperation(new Supplier<Collection<T>>() {
+        return executeOperation(new Callable<Collection<T>>() {
 
             @Override
-            public Collection<T> get() {
-                try {
-                    BuildAction<Collection<T>> query = compositeModelQuery(model);
-                    return DefaultModelProvider.this.gradleBuild.withConnection(connection -> connection.action(query).run(), monitor);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+            public Collection<T> call() throws Exception {
+                BuildAction<Collection<T>> query = compositeModelQuery(model);
+                return DefaultModelProvider.this.gradleBuild.withConnection(connection -> connection.action(query).run(), monitor);
             }
         }, fetchStrategy, cacheKey);
     }
@@ -178,7 +136,7 @@ public final class DefaultModelProvider implements ModelProvider {
         }
     }
 
-    private <T> T executeOperation(final Supplier<T> operation, FetchStrategy fetchStrategy, Class<?> cacheKey) {
+    private <T> T executeOperation(final Callable<T> operation, FetchStrategy fetchStrategy, Class<?> cacheKey) {
         if (FetchStrategy.FROM_CACHE_ONLY == fetchStrategy) {
             @SuppressWarnings("unchecked")
             T result = (T) this.cache.getIfPresent(cacheKey);
@@ -189,14 +147,7 @@ public final class DefaultModelProvider implements ModelProvider {
             this.cache.invalidate(cacheKey);
         }
 
-        T value = getFromCache(cacheKey, new Callable<T>() {
-
-            @Override
-            public T call() {
-                T model = operation.get();
-                return model;
-            }
-        });
+        T value = getFromCache(cacheKey, operation);
 
         return value;
     }
