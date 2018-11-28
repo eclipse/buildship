@@ -59,7 +59,7 @@ class CacheKey {
     }
 
     public void addArguments(List<String> arguments) {
-        List<String> newArguments = new ArrayList<>(this.arguments);
+        List<String> newArguments = this.arguments == null ? new ArrayList<>() : new ArrayList<>(this.arguments);
         newArguments.addAll(arguments);
         this.arguments = newArguments;
     }
@@ -69,7 +69,7 @@ class CacheKey {
     }
 
     public void addJvmArguments(List<String> jvmArguments) {
-        List<String> newJvmArguments = new ArrayList<>(this.jvmArguments);
+        List<String> newJvmArguments = this.jvmArguments == null ? new ArrayList<>() : new ArrayList<>(this.jvmArguments);
         newJvmArguments.addAll(jvmArguments);
         this.jvmArguments = newJvmArguments;
     }

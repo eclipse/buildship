@@ -1,6 +1,7 @@
 package org.eclipse.buildship.core.internal.test.fixtures
 
-import java.util.function.Supplier
+import org.gradle.tooling.BuildAction
+import org.gradle.tooling.ProjectConnection
 
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
@@ -8,15 +9,18 @@ import com.google.common.base.Preconditions
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspaceRunnable
+import org.eclipse.core.runtime.FileLocator
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.BuildConfiguration
 import org.eclipse.buildship.core.GradleBuild
+import org.eclipse.buildship.core.GradleBuildConnectionTest
 import org.eclipse.buildship.core.GradleCore
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.workspace.CompositeModelQuery
 
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {

@@ -2,14 +2,12 @@ package org.eclipse.buildship.core
 
 import java.util.function.Function
 
-import org.gradle.tooling.BuildAction
 import org.gradle.tooling.IntermediateResultHandler
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.UnknownModelException
 import org.gradle.tooling.model.GradleProject
 
-import org.eclipse.core.runtime.FileLocator
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.preferences.IEclipsePreferences
 
@@ -17,7 +15,7 @@ import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.internal.test.fixtures.TestProcessStreamProvider
-import org.eclipse.buildship.core.internal.workspace.CompositeModelQuery
+import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider
 
 class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
 
@@ -136,7 +134,7 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
        when:
        File location = dir('GradleBuildConnectionTest_1')
        GradleBuild gradleBuild = gradleBuildFor(location)
-       Function query = { ProjectConnection c -> c.action(ideFriendlyCompositeModelQuery(GradleProject)).run() }
+       Function query = { ProjectConnection c -> c.action(DefaultModelProvider.ideFriendlyCompositeModelQuery(GradleProject)).run() }
        Collection<GradleProject> result= gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
@@ -145,7 +143,7 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
        when:
        location = dir('GradleBuildConnectionTest_2')
        gradleBuild = gradleBuildFor(location)
-       query = { ProjectConnection c -> c.action().projectsLoaded(ideFriendlyCompositeModelQuery(GradleProject), resultHandler).build().run() }
+       query = { ProjectConnection c -> c.action().projectsLoaded(DefaultModelProvider.ideFriendlyCompositeModelQuery(GradleProject), resultHandler).build().run() }
        result = gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
@@ -154,7 +152,7 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
        when:
        location = dir('GradleBuildConnectionTest_3')
        gradleBuild = gradleBuildFor(location)
-       query = { ProjectConnection c -> c.action().buildFinished(ideFriendlyCompositeModelQuery(GradleProject), resultHandler).build().run() }
+       query = { ProjectConnection c -> c.action().buildFinished(DefaultModelProvider.ideFriendlyCompositeModelQuery(GradleProject), resultHandler).build().run() }
        result = gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
@@ -172,15 +170,5 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
 
        then:
        thrown UnknownModelException
-   }
-
-   private BuildAction ideFriendlyCompositeModelQuery(Class model) {
-       // Gradle doesn't know about the Eclipse-specific class-loader so we need to load the class with a separate class loader
-       ClassLoader coreClassloader = GradleBuildConnectionTest.class.getClassLoader()
-       ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader()
-       URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""))
-       def ideFriendlyCustomActionClassLoader = new URLClassLoader([ actionRootUrl ] as URL[], tapiClassloader)
-       Class<?> actionClass = ideFriendlyCustomActionClassLoader.loadClass(CompositeModelQuery.class.getName())
-       actionClass.getConstructor(Class).newInstance(model);
    }
 }
