@@ -12,7 +12,6 @@
 package org.eclipse.buildship.ui.internal.view.task;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Optional;
@@ -111,11 +110,11 @@ public final class TaskNodeSelectionUtils {
                                                     projectDirectoryExpression(workingDir),
                                                     buildConfig.getGradleDistribution().toString(),
                                                     gradleUserHomeExpression(buildConfig.getGradleUserHome()),
-                                                    null,
-                                                    Collections.<String>emptyList(),
-                                                    Collections.<String>emptyList(),
-                                                    true,
-                                                    true,
+                                                    javaHomeExpression(buildConfig.getJavaHome()),
+                                                    buildConfig.getJvmArguments(),
+                                                    buildConfig.getArguments(),
+                                                    buildConfig.isShowExecutionsView(),
+                                                    buildConfig.isShowExecutionsView(),
                                                     buildConfig.isOverrideWorkspaceSettings(),
                                                     buildConfig.isOfflineMode(),
                                                     buildConfig.isBuildScansEnabled());
@@ -134,6 +133,10 @@ public final class TaskNodeSelectionUtils {
 
     private static String gradleUserHomeExpression(File gradleUserHome) {
         return gradleUserHome == null ? "" : gradleUserHome.getAbsolutePath();
+    }
+
+    private static String javaHomeExpression(File javaHome) {
+        return javaHome == null ? "" : javaHome.getAbsolutePath();
     }
 
     private static ImmutableList<String> getTaskPathStrings(NodeSelection selection) {
