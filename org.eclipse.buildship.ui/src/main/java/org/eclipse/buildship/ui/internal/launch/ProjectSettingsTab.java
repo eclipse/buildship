@@ -33,7 +33,9 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.CoreTraceScopes;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
@@ -104,16 +106,22 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         this.attributes = GradleRunConfigurationAttributes.from(configuration);
-        this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(this.attributes.isOverrideBuildSettings());
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(this.attributes.getGradleDistribution()));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(this.attributes.getGradleUserHomeHomeExpression()));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText(Strings.nullToEmpty(this.attributes.getJavaHomeExpression()));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsText().setText(Joiner.on(' ').join(this.attributes.getArgumentExpressions()));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsText().setText(Joiner.on(' ').join(this.attributes.getJvmArgumentExpressions()));
-        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(this.attributes.isOffline());
-        this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(this.attributes.isBuildScansEnabled());
-        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(this.attributes.isShowConsoleView());
-        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(this.attributes.isShowExecutionView());
+
+        boolean overrideBuildSettings = this.attributes.isOverrideBuildSettings();
+        ProjectConfiguration projectConfig = projectConfigurationFor(this.attributes);
+        BuildConfiguration buildConfig = projectConfig != null ? projectConfig.getBuildConfiguration() : null;
+        boolean useBuildConfig = !overrideBuildSettings && buildConfig != null;
+
+        this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(overrideBuildSettings);
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(useBuildConfig ? buildConfig.getGradleDistribution() : this.attributes.getGradleDistribution()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(useBuildConfig ? buildConfig.getGradleUserHome().getAbsolutePath() : this.attributes.getGradleUserHomeHomeExpression()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText(Strings.nullToEmpty(useBuildConfig ? buildConfig.getJavaHome().getAbsolutePath() : this.attributes.getJavaHomeExpression()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsText().setText(Joiner.on(' ').join(useBuildConfig ? buildConfig.getArguments() : this.attributes.getArgumentExpressions()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsText().setText(Joiner.on(' ').join(useBuildConfig ? buildConfig.getJvmArguments() : this.attributes.getJvmArgumentExpressions()));
+        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(useBuildConfig ? buildConfig.isOfflineMode() : this.attributes.isOffline());
+        this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(useBuildConfig ? buildConfig.isBuildScansEnabled() : this.attributes.isBuildScansEnabled());
+        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(useBuildConfig ? buildConfig.isShowConsoleView() : this.attributes.isShowConsoleView());
+        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(useBuildConfig ? buildConfig.isShowExecutionsView() : this.attributes.isShowExecutionView());
         this.gradleProjectSettingsComposite.updateEnablement();
     }
 
@@ -148,6 +156,15 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     @Override
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
         // leave the controls empty
+    }
+
+    private static ProjectConfiguration projectConfigurationFor(GradleRunConfigurationAttributes attributes) {
+        try {
+            Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(attributes.getWorkingDir());
+            return project.isPresent() ? CorePlugin.configurationManager().tryLoadProjectConfiguration(project.get()) : null;
+        } catch (RuntimeException ignore) {
+        }
+        return null;
     }
 
     /**
