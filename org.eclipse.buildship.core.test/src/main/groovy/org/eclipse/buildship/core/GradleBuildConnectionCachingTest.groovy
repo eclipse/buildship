@@ -76,8 +76,8 @@ class GradleBuildConnectionCachingTest extends BaseProjectConfiguratorTest {
     def "Build action loads value from cache during synchronization"() {
         setup:
         ResultHandler<Collection<EclipseProject>> resultHandler = Mock(ResultHandler)
-        Function<ProjectConnection, EclipseProject> firstAction = { ProjectConnection p -> p.action(DefaultModelProvider.ideFriendlyCompositeModelQuery(EclipseProject.class)).run() }
-        Function<ProjectConnection, EclipseProject> secondAction = { ProjectConnection p -> p.action(DefaultModelProvider.ideFriendlyCompositeModelQuery(EclipseProject.class)).run(resultHandler) }
+        Function<ProjectConnection, EclipseProject> firstAction = { ProjectConnection p -> p.action(DefaultModelProvider.compositeModelQuery(EclipseProject.class)).run() }
+        Function<ProjectConnection, EclipseProject> secondAction = { ProjectConnection p -> p.action(DefaultModelProvider.compositeModelQuery(EclipseProject.class)).run(resultHandler) }
         TestConfigurator firstConfigurator = new TestConfigurator(firstAction)
         TestConfigurator secondConfigurator = new TestConfigurator(secondAction)
         registerConfigurator(firstConfigurator)
