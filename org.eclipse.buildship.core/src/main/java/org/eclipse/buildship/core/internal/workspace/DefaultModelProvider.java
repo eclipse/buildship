@@ -8,14 +8,11 @@
  */
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.CancellationTokenSource;
-import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
@@ -25,12 +22,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.util.gradle.BuildActionUtil;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.ModelUtils;
 
@@ -40,8 +36,6 @@ import org.eclipse.buildship.core.internal.util.gradle.ModelUtils;
  * @author Stefan Oehme
  */
 public final class DefaultModelProvider implements ModelProvider {
-
-    private static URLClassLoader ideFriendlyCustomActionClassLoader;
 
     private final GradleBuild gradleBuild;
     private final Cache<Object, Object> cache = CacheBuilder.newBuilder().build();
@@ -101,39 +95,10 @@ public final class DefaultModelProvider implements ModelProvider {
 
             @Override
             public Collection<T> call() throws Exception {
-                BuildAction<Collection<T>> query = compositeModelQuery(model);
+                BuildAction<Collection<T>> query = BuildActionUtil.compositeModelQuery(model);
                 return DefaultModelProvider.this.gradleBuild.withConnection(connection -> connection.action(query).run(), monitor);
             }
         }, fetchStrategy, cacheKey);
-    }
-
-    private static <T> BuildAction<Collection<T>> compositeModelQuery(Class<T> model) {
-        if (Platform.inDevelopmentMode()) {
-            return ideFriendlyCompositeModelQuery(model);
-        } else {
-            return new CompositeModelQuery<>(model);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> BuildAction<Collection<T>> ideFriendlyCompositeModelQuery(Class<T> model) {
-        // When Buildship is launched from the IDE - as an Eclipse application or as a plug-in
-        // test - the URLs returned by the Equinox class loader is incorrect. This means, the
-        // Tooling API is unable to find the referenced build actions and fails with a CNF
-        // exception. To work around that, we look up the build action class locations and load the
-        // classes via an isolated URClassLoader.
-        try {
-            ClassLoader coreClassloader = DefaultModelProvider.class.getClassLoader();
-            ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
-            URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""));
-            if (ideFriendlyCustomActionClassLoader == null) {
-                ideFriendlyCustomActionClassLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);
-            }
-            Class<?> actionClass = ideFriendlyCustomActionClassLoader.loadClass(CompositeModelQuery.class.getName());
-            return (BuildAction<Collection<T>>) actionClass.getConstructor(Class.class).newInstance(model);
-        } catch (Exception e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
     }
 
     private <T> T executeOperation(final Callable<T> operation, FetchStrategy fetchStrategy, Class<?> cacheKey) {
