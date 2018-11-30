@@ -47,14 +47,20 @@ public class DefaultConfigurationManager implements ConfigurationManager {
 
     @Override
     public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, boolean overrideWorkspaceSettings, GradleDistribution gradleDistribution, File gradleUserHome,
-            boolean buildScansEnabled, boolean offlineMode, boolean autoSync) {
+            File javaHome, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, List<String> arguments, List<String> jvmArguments,
+            boolean showConsoleView, boolean showExecutionsView) {
         DefaultBuildConfigurationProperties persistentBuildConfigProperties = new DefaultBuildConfigurationProperties(rootProjectDirectory,
                                                                                                         gradleDistribution,
                                                                                                         gradleUserHome,
+                                                                                                        javaHome,
                                                                                                         overrideWorkspaceSettings,
                                                                                                         buildScansEnabled,
                                                                                                         offlineMode,
-                                                                                                        autoSync);
+                                                                                                        autoSync,
+                                                                                                        arguments,
+                                                                                                        jvmArguments,
+                                                                                                        showConsoleView,
+                                                                                                        showExecutionsView);
         return new DefaultBuildConfiguration(persistentBuildConfigProperties, loadWorkspaceConfiguration());
     }
 
@@ -158,13 +164,19 @@ public class DefaultConfigurationManager implements ConfigurationManager {
             projectConfiguration = loadProjectConfiguration(attributes.getWorkingDir());
         } catch (Exception e) {
             CorePlugin.logger().trace(CoreTraceScopes.PREFERENCES, "Can't load build config from " + attributes.getWorkingDir(), e);
-            DefaultBuildConfigurationProperties buildConfigProperties = new DefaultBuildConfigurationProperties(attributes.getWorkingDir(),
+            DefaultBuildConfigurationProperties buildConfigProperties = new DefaultBuildConfigurationProperties(
+                    attributes.getWorkingDir(),
                     attributes.getGradleDistribution(),
                     attributes.getGradleUserHome(),
+                    attributes.getJavaHome(),
                     attributes.isOverrideBuildSettings(),
                     attributes.isBuildScansEnabled(),
                     attributes.isOffline(),
-                    false);
+                    false,
+                    attributes.getArguments(),
+                    attributes.getJvmArguments(),
+                    attributes.isShowConsoleView(),
+                    attributes.isShowExecutionView());
             BuildConfiguration buildConfiguration = new DefaultBuildConfiguration(buildConfigProperties, loadWorkspaceConfiguration());
             projectConfiguration = new DefaultProjectConfiguration(canonicalize(attributes.getWorkingDir()), buildConfiguration);
         }

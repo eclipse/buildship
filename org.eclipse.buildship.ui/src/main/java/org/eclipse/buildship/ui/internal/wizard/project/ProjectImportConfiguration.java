@@ -30,27 +30,37 @@ public final class ProjectImportConfiguration {
     private final Property<Boolean> overwriteWorkspaceSettings;
     private final Property<GradleDistributionViewModel> distribution;
     private final Property<File> gradleUserHome;
+    private final Property<File> javaHome;
     private final Property<Boolean> applyWorkingSets;
     private final Property<List<String>> workingSets;
     private final Property<Boolean> buildScansEnabled;
     private final Property<Boolean> offlineMode;
     private final Property<Boolean> autoSync;
+    private final Property<List<String>> arguments;
+    private final Property<List<String>> jvmArguments;
+    private final Property<Boolean> showConsoleView;
+    private final Property<Boolean> showExecutionsView;
 
     public ProjectImportConfiguration() {
-        this(Validators.<File>noOp(), Validators.<GradleDistributionViewModel>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
+        this(Validators.<File>noOp(), Validators.<GradleDistributionViewModel>noOp(), Validators.<File>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp());
     }
 
     public ProjectImportConfiguration(Validator<File> projectDirValidator, Validator<GradleDistributionViewModel> distributionValidator,
-            Validator<File> gradleUserHomeValidator, Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
+            Validator<File> gradleUserHomeValidator, Validator<File> javaHomeValidator, Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators) {
         this.projectDir = Property.create(projectDirValidator);
         this.overwriteWorkspaceSettings = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.distribution = Property.create(distributionValidator);
         this.gradleUserHome = Property.create(gradleUserHomeValidator);
+        this.javaHome = Property.create(javaHomeValidator);
         this.applyWorkingSets = Property.create(applyWorkingSetsValidator);
         this.workingSets = Property.create(workingSetsValidators);
         this.buildScansEnabled = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.offlineMode = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.autoSync = Property.<Boolean>create(Validators.<Boolean>noOp());
+        this.arguments = Property.<List<String>>create(Validators.<List<String>>noOp());
+        this.jvmArguments = Property.<List<String>>create(Validators.<List<String>>noOp());
+        this.showConsoleView = Property.<Boolean>create(Validators.<Boolean>noOp());
+        this.showExecutionsView = Property.<Boolean>create(Validators.<Boolean>noOp());
     }
 
     public Property<File> getProjectDir() {
@@ -84,6 +94,14 @@ public final class ProjectImportConfiguration {
 
     public void setGradleUserHome(File gradleUserHome) {
         this.gradleUserHome.setValue(gradleUserHome);
+    }
+
+    public Property<File> getJavaHome() {
+        return this.javaHome;
+    }
+
+    public void setJavaHomeHome(File javaHome) {
+        this.javaHome.setValue(javaHome);
     }
 
     public Property<Boolean> getApplyWorkingSets() {
@@ -126,14 +144,51 @@ public final class ProjectImportConfiguration {
         this.autoSync.setValue(Boolean.valueOf(autoSync));
     }
 
+    public Property<List<String>> getArguments() {
+        return this.arguments;
+    }
+
+    public void setArguments(List<String> arguments) {
+        this.arguments.setValue(arguments);
+    }
+
+    public Property<List<String>> getJvmArguments() {
+        return this.jvmArguments;
+    }
+
+    public void setJvmArguments(List<String> jvmArguments) {
+        this.jvmArguments.setValue(jvmArguments);
+    }
+
+    public Property<Boolean> getShowConsoleView() {
+        return this.showConsoleView;
+    }
+
+    public void setShowConsoleView(boolean showConsoleView) {
+        this.showConsoleView.setValue(Boolean.valueOf(showConsoleView));
+    }
+
+    public Property<Boolean> getShowExecutionsView() {
+        return this.showExecutionsView;
+    }
+
+    public void setShowExecutionsView(boolean showExecutionsView) {
+        this.showExecutionsView.setValue(Boolean.valueOf(showExecutionsView));
+    }
+
     public BuildConfiguration toInternalBuildConfiguration() {
         return CorePlugin.configurationManager().createBuildConfiguration(getProjectDir().getValue(),
                 getOverrideWorkspaceConfiguration().getValue(),
                 getDistribution().getValue().toGradleDistribution(),
                 getGradleUserHome().getValue(),
+                getJavaHome().getValue(),
                 getBuildScansEnabled().getValue(),
                 getOfflineMode().getValue(),
-                getAutoSync().getValue());
+                getAutoSync().getValue(),
+                getArguments().getValue(),
+                getJvmArguments().getValue(),
+                getShowConsoleView().getValue(),
+                getShowExecutionsView().getValue());
     }
 
     public org.eclipse.buildship.core.BuildConfiguration toBuildConfiguration() {
@@ -141,9 +196,14 @@ public final class ProjectImportConfiguration {
                 .overrideWorkspaceConfiguration(getOverrideWorkspaceConfiguration().getValue())
                 .gradleDistribution(getDistribution().getValue().toGradleDistribution())
                 .gradleUserHome(getGradleUserHome().getValue())
+                .javaHome(getJavaHome().getValue())
                 .buildScansEnabled(getBuildScansEnabled().getValue())
                 .offlineMode(getOfflineMode().getValue())
                 .autoSync(getAutoSync().getValue())
+                .arguments(getArguments().getValue())
+                .jvmArguments(getJvmArguments().getValue())
+                .showConsoleView(getShowConsoleView().getValue())
+                .showExecutionsView(getShowExecutionsView().getValue())
                 .build();
     }
 }

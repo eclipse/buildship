@@ -9,8 +9,12 @@
 package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
+import java.util.List;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
@@ -32,9 +36,14 @@ final class BuildConfigurationPersistence {
     private static final String PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION = "connection.gradle.distribution";
     private static final String PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS = "override.workspace.settings";
     private static final String PREF_KEY_GRADLE_USER_HOME = "gradle.user.home";
+    private static final String PREF_KEY_JAVA_HOME = "java.home";
     private static final String PREF_KEY_BUILD_SCANS_ENABLED = "build.scans.enabled";
     private static final String PREF_KEY_OFFLINE_MODE = "offline.mode";
     private static final String PREF_KEY_AUTO_SYNC = "auto.sync";
+    private static final String PREF_KEY_ARGUMENTS = "arguments";
+    private static final String PREF_KEY_JVM_ARGUMENTS = "jvm.arguments";
+    private static final String PREF_KEY_SHOW_CONSOLE_VIEW = "show.console.view";
+    private static final String PREF_KEY_SHOW_EXECUTIONS_VIEW = "show.executions.view";
 
     public DefaultBuildConfigurationProperties readBuildConfiguratonProperties(IProject project) {
         Preconditions.checkNotNull(project);
@@ -124,12 +133,20 @@ final class BuildConfigurationPersistence {
         File gradleUserHome = gradleUserHomeString.isEmpty()
                 ? null
                 : new File(gradleUserHomeString);
+        String javaHomeString = preferences.readString(PREF_KEY_JAVA_HOME, "");
+        File javaHome = javaHomeString.isEmpty()
+                ? null
+                : new File(javaHomeString);
 
         boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
         boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);
         boolean autoSync = preferences.readBoolean(PREF_KEY_AUTO_SYNC, false);
+        List<String> arguments = Lists.newArrayList(Splitter.on(' ').omitEmptyStrings().split(preferences.readString(PREF_KEY_ARGUMENTS, "")));
+        List<String> jvmArguments = Lists.newArrayList(Splitter.on(' ').omitEmptyStrings().split(preferences.readString(PREF_KEY_JVM_ARGUMENTS, "")));
+        boolean showConsoleView = preferences.readBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, true);
+        boolean showExecutionsView = preferences.readBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, true);
 
-        return new DefaultBuildConfigurationProperties(rootDir, distribution, gradleUserHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode, autoSync);
+        return new DefaultBuildConfigurationProperties(rootDir, distribution, gradleUserHome, javaHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
     }
 
     private static void savePreferences(DefaultBuildConfigurationProperties properties, PreferenceStore preferences) {
@@ -138,17 +155,27 @@ final class BuildConfigurationPersistence {
             String gradleDistribution = properties.getGradleDistribution().toString();
             preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
             preferences.write(PREF_KEY_GRADLE_USER_HOME, toPortableString(properties.getGradleUserHome()));
+            preferences.write(PREF_KEY_JAVA_HOME, toPortableString(properties.getJavaHome()));
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());
             preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, properties.isBuildScansEnabled());
             preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, properties.isOfflineMode());
             preferences.writeBoolean(PREF_KEY_AUTO_SYNC, properties.isAutoSync());
+            preferences.write(PREF_KEY_ARGUMENTS, Joiner.on(' ').join(properties.getArguments()));
+            preferences.write(PREF_KEY_JVM_ARGUMENTS, Joiner.on(' ').join(properties.getJvmArguments()));
+            preferences.writeBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, properties.isShowConsoleView());
+            preferences.writeBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, properties.isShowExecutionsView());
         } else {
             preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
             preferences.delete(PREF_KEY_GRADLE_USER_HOME);
+            preferences.delete(PREF_KEY_JAVA_HOME);
             preferences.delete(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS);
             preferences.delete(PREF_KEY_BUILD_SCANS_ENABLED);
             preferences.delete(PREF_KEY_OFFLINE_MODE);
             preferences.delete(PREF_KEY_AUTO_SYNC);
+            preferences.delete(PREF_KEY_ARGUMENTS);
+            preferences.delete(PREF_KEY_JVM_ARGUMENTS);
+            preferences.delete(PREF_KEY_SHOW_CONSOLE_VIEW);
+            preferences.delete(PREF_KEY_SHOW_EXECUTIONS_VIEW);
         }
         preferences.flush();
     }
@@ -156,6 +183,8 @@ final class BuildConfigurationPersistence {
     private static String toPortableString(File file) {
         return file == null ? "" : new Path(file.getPath()).toPortableString();
     }
+
+
 
     private static File getProjectPrefsFile(File projectDir, String node) {
         return new File(projectDir, ".settings/" + node + ".prefs");

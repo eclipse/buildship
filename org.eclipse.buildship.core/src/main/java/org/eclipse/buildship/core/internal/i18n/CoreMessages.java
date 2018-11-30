@@ -66,12 +66,16 @@ public final class CoreMessages extends NLS {
     public static String ErrorMessage_0_AlreadyExists;
     public static String ErrorMessage_0_WorkspaceDirectory;
 
-    public static String Preference_Label_GradleUserHome;
+    public static String Preference_Label_AdvancedOptions;
+    public static String Preference_Label_Gradle_User_Home;
+    public static String Preference_Label_Java_Home;
     public static String Preference_Label_OfflineMode;
     public static String Preference_Label_BuildScans;
     public static String Preference_Label_BuildScansHover;
     public static String Preference_Label_AutoSync;
     public static String Preference_Label_AutoSyncHover;
+    public static String Preference_Label_ShowConsoleViewHover;
+    public static String Preference_Label_ShowExecutionsViewHover;
 
     static {
         // initialize resource bundle

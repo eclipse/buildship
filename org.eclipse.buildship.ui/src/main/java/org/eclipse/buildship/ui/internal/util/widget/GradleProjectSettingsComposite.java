@@ -8,8 +8,6 @@
 
 package org.eclipse.buildship.ui.internal.util.widget;
 
-import com.google.common.base.Optional;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -44,12 +42,14 @@ public final class GradleProjectSettingsComposite extends Composite {
     private Button overrideSettingsCheckbox;
     private Link parentPreferenceLink;
     private GradleDistributionGroup gradleDistributionGroup;
-    private GradleUserHomeGroup gradleUserHomeGroup;
+    private AdvancedOptionsGroup advancedOptionsGroup;
     private Button offlineModeCheckbox;
     private Button buildScansCheckbox;
     private Button autoSyncCheckbox;
+    private Button showConsoleViewCheckbox;
+    private Button showExecutionsViewCheckbox;
 
-    private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideCheckboxLabel, String configureParentPrefsLinkLabel, boolean hasAutoSyncCheckbox) {
+    private GradleProjectSettingsComposite(Composite parent, boolean hasOverrideCheckbox, String overrideCheckboxLabel, String configureParentPrefsLinkLabel, boolean hasAutoSyncCheckbox, boolean variableSelector) {
         super(parent, SWT.NONE);
 
         this.overrideCheckboxLabel = overrideCheckboxLabel;
@@ -63,12 +63,14 @@ public final class GradleProjectSettingsComposite extends Composite {
             createHorizontalLine(this);
         }
         createGradleDistributionGroup(this);
-        createGradleUserHomeGroup(this);
+        createAdvancedOptionsGroup(this, variableSelector);
         createOfflineModeCheckbox(this);
         createBuildScansCheckbox(this);
         if (hasAutoSyncCheckbox) {
             createAutoSyncCheckbox(this);
         }
+        createShowConsoleViewCheckbox(this);
+        createShowExecutionsViewCheckbox(this);
 
         addListeners();
 
@@ -98,9 +100,9 @@ public final class GradleProjectSettingsComposite extends Composite {
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.gradleDistributionGroup);
     }
 
-    private void createGradleUserHomeGroup(Composite parent) {
-        this.gradleUserHomeGroup = new GradleUserHomeGroup(parent);
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.gradleUserHomeGroup);
+    private void createAdvancedOptionsGroup(Composite parent, boolean variableSelector) {
+        this.advancedOptionsGroup = new AdvancedOptionsGroup(parent, variableSelector);
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.advancedOptionsGroup);
     }
 
     private void createOfflineModeCheckbox(Composite parent) {
@@ -121,6 +123,22 @@ public final class GradleProjectSettingsComposite extends Composite {
         this.autoSyncCheckbox.setText(CoreMessages.Preference_Label_AutoSync);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).span(2, 1).applyTo(this.autoSyncCheckbox);
         HoverText.createAndAttach(this.autoSyncCheckbox, CoreMessages.Preference_Label_AutoSyncHover);
+    }
+
+    private void createShowConsoleViewCheckbox(Composite parent) {
+        this.showConsoleViewCheckbox = new Button(parent, SWT.CHECK);
+        this.showConsoleViewCheckbox.setText("Show Console View");
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.showConsoleViewCheckbox);
+        HoverText.createAndAttach(this.showConsoleViewCheckbox, CoreMessages.Preference_Label_ShowConsoleViewHover);
+        new Label(parent, SWT.NONE).setVisible(false);
+    }
+
+    private void createShowExecutionsViewCheckbox(Composite parent) {
+        this.showExecutionsViewCheckbox = new Button(parent, SWT.CHECK);
+        this.showExecutionsViewCheckbox.setText("Show Executions View");
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.showExecutionsViewCheckbox);
+        HoverText.createAndAttach(this.showExecutionsViewCheckbox, CoreMessages.Preference_Label_ShowExecutionsViewHover);
+        new Label(parent, SWT.NONE).setVisible(false);
     }
 
     private void addListeners() {
@@ -144,12 +162,14 @@ public final class GradleProjectSettingsComposite extends Composite {
         if (this.overrideSettingsCheckbox != null) {
             boolean enabled = this.overrideSettingsCheckbox.getSelection();
             this.gradleDistributionGroup.setEnabled(enabled);
-            this.gradleUserHomeGroup.setEnabled(enabled);
+            this.advancedOptionsGroup.setEnabled(enabled);
             this.offlineModeCheckbox.setEnabled(enabled);
             this.buildScansCheckbox.setEnabled(enabled);
             if (this.autoSyncCheckbox != null) {
                 this.autoSyncCheckbox.setEnabled(enabled);
             }
+            this.showConsoleViewCheckbox.setEnabled(enabled);
+            this.showExecutionsViewCheckbox.setEnabled(enabled);
         }
     }
 
@@ -170,8 +190,8 @@ public final class GradleProjectSettingsComposite extends Composite {
         return this.gradleDistributionGroup;
     }
 
-    public GradleUserHomeGroup getGradleUserHomeGroup() {
-        return this.gradleUserHomeGroup;
+    public AdvancedOptionsGroup getAdvancedOptionsGroup() {
+        return this.advancedOptionsGroup;
     }
 
     public Button getOfflineModeCheckbox() {
@@ -186,6 +206,14 @@ public final class GradleProjectSettingsComposite extends Composite {
         return this.autoSyncCheckbox;
     }
 
+    public Button getShowConsoleViewCheckbox() {
+        return this.showConsoleViewCheckbox;
+    }
+
+    public Button getShowExecutionsViewCheckbox() {
+        return this.showExecutionsViewCheckbox;
+    }
+
     public static final GradleProjectSettingsCompositeBuilder builder(Composite parent) {
         return new GradleProjectSettingsCompositeBuilder(parent);
     }
@@ -197,25 +225,31 @@ public final class GradleProjectSettingsComposite extends Composite {
      *
      */
     public static class GradleProjectSettingsCompositeBuilder {
-        private Optional<Pair<String, String>> overrideCheckbox = Optional.absent();
+        private Pair<String, String> overrideCheckbox = null;
         private boolean autoSyncCheckbox = false;
+        private boolean variableSelector = false;
         private Composite parent;
         private GradleProjectSettingsCompositeBuilder(Composite parent) {
             this.parent = parent;
         }
         public GradleProjectSettingsCompositeBuilder withOverrideCheckbox(String overrideCheckboxLabel, String configureParentPrefsLinkLabel) {
-            this.overrideCheckbox = Optional.of(new Pair<>(overrideCheckboxLabel, configureParentPrefsLinkLabel));
+            this.overrideCheckbox = new Pair<>(overrideCheckboxLabel, configureParentPrefsLinkLabel);
             return this;
         }
         public GradleProjectSettingsCompositeBuilder withAutoSyncCheckbox() {
             this.autoSyncCheckbox = true;
             return this;
         }
+        public GradleProjectSettingsCompositeBuilder showVariableSelector() {
+            this.variableSelector = true;
+            return this;
+        }
+
         public GradleProjectSettingsComposite build() {
-            if (this.overrideCheckbox.isPresent()) {
-                return new GradleProjectSettingsComposite(this.parent, true, this.overrideCheckbox.get().getFirst(), this.overrideCheckbox.get().getSecond(), this.autoSyncCheckbox);
+            if (this.overrideCheckbox != null) {
+                return new GradleProjectSettingsComposite(this.parent, true, this.overrideCheckbox.getFirst(), this.overrideCheckbox.getSecond(), this.autoSyncCheckbox, this.variableSelector);
             } else {
-                return new GradleProjectSettingsComposite(this.parent, false, null, null, this.autoSyncCheckbox);
+                return new GradleProjectSettingsComposite(this.parent, false, null, null, this.autoSyncCheckbox, this.variableSelector);
             }
         }
     }

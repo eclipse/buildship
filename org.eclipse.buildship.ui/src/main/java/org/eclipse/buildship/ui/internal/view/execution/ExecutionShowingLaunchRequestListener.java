@@ -40,19 +40,19 @@ public final class ExecutionShowingLaunchRequestListener implements EventListene
 
     private void handleLaunchRequest(final ExecuteLaunchRequestEvent event) {
         // call synchronously to make sure we do not miss any progress events
-        PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+        if (event.getProcessDescription().getRunConfig().isShowExecutionView()) {
+            PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
-            @Override
-            public void run() {
-                ProcessDescription processDescription = event.getProcessDescription();
+                @Override
+                public void run() {
+                    ProcessDescription processDescription = event.getProcessDescription();
 
-                // activate the executions view
-                int mode = processDescription.getRunConfig().isShowExecutionView() ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_CREATE;
-                ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, mode);
+                    ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
 
-                // show the launched build in a new page of the Executions View
-                view.addExecutionPage(processDescription, event.getOperation());
-            }
-        });
+                    // show the launched build in a new page of the Executions View
+                    view.addExecutionPage(processDescription, event.getOperation());
+                }
+            });
+        }
     }
 }

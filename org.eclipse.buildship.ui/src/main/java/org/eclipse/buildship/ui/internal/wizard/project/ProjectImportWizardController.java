@@ -38,6 +38,7 @@ import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType;
 import org.eclipse.buildship.core.internal.util.binding.Property;
@@ -66,9 +67,14 @@ public class ProjectImportWizardController {
     private static final String SETTINGS_KEY_APPLY_WORKING_SETS = "apply_working_sets"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_WORKING_SETS = "working_sets"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_GRADLE_USER_HOME = "gradle_user_home"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_JAVA_HOME = "java_home"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_BUILD_SCANS = "build_scans"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_OFFLINE_MODE = "offline_mode"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_AUTO_SYNC = "auto_sync"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_ARGUMENTS = "arguments"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_JVM_ARGUMENTS = "jvm_arguments"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_SHOW_CONSOLE_VIEW = "show_console_view"; //$NON-NLS-1$
+    private static final String SETTINGS_KEY_SHOW_EXECUTIONS_VIEW = "show_executions_view"; //$NON-NLS-1$
 
     private final ProjectImportConfiguration configuration;
 
@@ -80,20 +86,26 @@ public class ProjectImportWizardController {
         Validator<GradleDistributionViewModel> gradleDistributionValidator = GradleDistributionViewModel.validator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
-        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
+        Validator<File> gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Gradle_User_Home);
+        Validator<File> javaHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Java_Home);
 
-        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, applyWorkingSetsValidator, workingSetsValidator);
+        this.configuration = new ProjectImportConfiguration(projectDirValidator, gradleDistributionValidator, gradleUserHomeValidator, javaHomeValidator, applyWorkingSetsValidator, workingSetsValidator);
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings = projectImportWizard.getDialogSettings();
         Optional<File> projectDir = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_PROJECT_DIR));
         String gradleDistributionString = dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION);
         Optional<File> gradleUserHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_GRADLE_USER_HOME));
+        Optional<File> javaHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_JAVA_HOME));
         boolean applyWorkingSets = dialogSettings.get(SETTINGS_KEY_APPLY_WORKING_SETS) != null && dialogSettings.getBoolean(SETTINGS_KEY_APPLY_WORKING_SETS);
         List<String> workingSets = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_WORKING_SETS)));
         boolean buildScansEnabled = dialogSettings.getBoolean(SETTINGS_KEY_BUILD_SCANS);
         boolean offlineMode = dialogSettings.getBoolean(SETTINGS_KEY_OFFLINE_MODE);
         boolean autoSync = dialogSettings.getBoolean(SETTINGS_KEY_AUTO_SYNC);
+        List<String> arguments = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_ARGUMENTS)));
+        List<String> jvmArguments = ImmutableList.copyOf(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_JVM_ARGUMENTS)));
+        boolean showConsoleView = dialogSettings.getBoolean(SETTINGS_KEY_SHOW_CONSOLE_VIEW);
+        boolean showExecutionsView = dialogSettings.getBoolean(SETTINGS_KEY_SHOW_EXECUTIONS_VIEW);
 
         this.configuration.setProjectDir(projectDir.orNull());
         this.configuration.setOverwriteWorkspaceSettings(false);
@@ -105,21 +117,31 @@ public class ProjectImportWizardController {
         }
         this.configuration.setDistribution(GradleDistributionViewModel.from(distribution));
         this.configuration.setGradleUserHome(gradleUserHome.orNull());
+        this.configuration.setJavaHomeHome(javaHome.orNull());
         this.configuration.setApplyWorkingSets(applyWorkingSets);
         this.configuration.setWorkingSets(workingSets);
         this.configuration.setBuildScansEnabled(buildScansEnabled);
         this.configuration.setOfflineMode(offlineMode);
         this.configuration.setAutoSync(autoSync);
+        this.configuration.setArguments(arguments);
+        this.configuration.setJvmArguments(jvmArguments);
+        this.configuration.setShowConsoleView(showConsoleView);
+        this.configuration.setShowExecutionsView(showExecutionsView);
 
         // store the values every time they change
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_PROJECT_DIR, this.configuration.getProjectDir());
         saveDistributionPropertyWhenChanged(dialogSettings, this.configuration.getDistribution());
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_GRADLE_USER_HOME, this.configuration.getGradleUserHome());
+        saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_JAVA_HOME, this.configuration.getJavaHome());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_APPLY_WORKING_SETS, this.configuration.getApplyWorkingSets());
         saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_WORKING_SETS, this.configuration.getWorkingSets());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_BUILD_SCANS, this.configuration.getBuildScansEnabled());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_OFFLINE_MODE, this.configuration.getOfflineMode());
         saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_AUTO_SYNC, this.configuration.getAutoSync());
+        saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_ARGUMENTS, this.configuration.getArguments());
+        saveStringArrayPropertyWhenChanged(dialogSettings, SETTINGS_KEY_JVM_ARGUMENTS, this.configuration.getJvmArguments());
+        saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_SHOW_CONSOLE_VIEW, this.configuration.getShowConsoleView());
+        saveBooleanPropertyWhenChanged(dialogSettings, SETTINGS_KEY_SHOW_EXECUTIONS_VIEW, this.configuration.getShowExecutionsView());
     }
 
     private void saveBooleanPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<Boolean> target) {
@@ -178,10 +200,11 @@ public class ProjectImportWizardController {
                 @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                     BuildConfiguration internalBuildConfiguration = ProjectImportWizardController.this.configuration.toInternalBuildConfiguration();
+                    boolean showExecutionsView = internalBuildConfiguration.getWorkspaceConfiguration().isShowExecutionsView();
                     org.eclipse.buildship.core.BuildConfiguration buildConfiguration = ProjectImportWizardController.this.configuration.toBuildConfiguration();
                     org.eclipse.buildship.core.GradleBuild gradleBuild = GradleCore.getWorkspace().createBuild(buildConfiguration);
 
-                    ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration);
+                    ImportWizardNewProjectHandler workingSetsAddingNewProjectHandler = new ImportWizardNewProjectHandler(newProjectHandler, ProjectImportWizardController.this.configuration, showExecutionsView);
                     InitializeNewProjectOperation initializeOperation = new InitializeNewProjectOperation(internalBuildConfiguration);
                     try {
                         CorePlugin.operationManager().run(initializeOperation, monitor);
@@ -216,12 +239,14 @@ public class ProjectImportWizardController {
 
         private final ProjectImportConfiguration configuration;
         private final NewProjectHandler importedBuildDelegate;
+        private final boolean showExecutionsView;
 
         private volatile boolean gradleViewsVisible;
 
-        private ImportWizardNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration) {
+        private ImportWizardNewProjectHandler(NewProjectHandler delegate, ProjectImportConfiguration configuration, boolean showExecutionsView) {
             this.importedBuildDelegate = delegate;
             this.configuration = configuration;
+            this.showExecutionsView = showExecutionsView;
         }
 
         @Override
@@ -252,7 +277,9 @@ public class ProjectImportWizardController {
                     if (!ImportWizardNewProjectHandler.this.gradleViewsVisible) {
                         ImportWizardNewProjectHandler.this.gradleViewsVisible = true;
                         WorkbenchUtils.showView(TaskView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
-                        WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
+                        if (ImportWizardNewProjectHandler.this.showExecutionsView) {
+                            WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_VISIBLE);
+                        }
                     }
                 }
             });

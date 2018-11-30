@@ -45,9 +45,7 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
 
                 @Override
                 public void run() {
-                    // if both the executions view and the console view should be shown, do not activate the console view
-                    int mode = attributes.get().isShowExecutionView() ? IWorkbenchPage.VIEW_VISIBLE : IWorkbenchPage.VIEW_ACTIVATE;
-                    WorkbenchUtils.showView(UiPluginConstants.CONSOLE_VIEW_ID, null, mode);
+                    WorkbenchUtils.showView(UiPluginConstants.CONSOLE_VIEW_ID, null, IWorkbenchPage.VIEW_ACTIVATE);
                 }
             });
         }

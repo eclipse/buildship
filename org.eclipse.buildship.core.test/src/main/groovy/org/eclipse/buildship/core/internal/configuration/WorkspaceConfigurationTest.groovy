@@ -13,32 +13,42 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
         configuration.offline == false
         configuration.buildScansEnabled == false
         configuration.autoSync == false
+        configuration.arguments == []
+        configuration.jvmArguments == []
+        configuration.showConsoleView == true
+        configuration.showExecutionsView == true
 
     }
-    def "Can save workpsace configuration"(GradleDistribution distribution, String gradleUserHome, boolean offlineMode, boolean buildScansEnabled, boolean autoSync) {
+    def "Can save workpsace configuration"(GradleDistribution distribution, String gradleUserHome, String javaHome, boolean offlineMode, boolean buildScansEnabled, boolean autoSync, List args, List jvmArgs, boolean showConsole, boolean showExecutions) {
         setup:
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         when:
         File gradleUserHomeDir = dir(gradleUserHome)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, offlineMode, buildScansEnabled, autoSync))
+        File javaHomeDir = dir(javaHome)
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, javaHomeDir, offlineMode, buildScansEnabled, autoSync, args, jvmArgs, showConsole, showExecutions))
         WorkspaceConfiguration updatedConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         then:
         updatedConfiguration.gradleDistribution == distribution
         updatedConfiguration.gradleUserHome == gradleUserHomeDir
+        updatedConfiguration.javaHome == javaHomeDir
         updatedConfiguration.offline == offlineMode
         updatedConfiguration.buildScansEnabled == buildScansEnabled
         updatedConfiguration.autoSync == autoSync
+        updatedConfiguration.arguments == args
+        updatedConfiguration.jvmArguments == jvmArgs
+        updatedConfiguration.showConsoleView == showConsole
+        updatedConfiguration.showExecutionsView == showExecutions
 
         cleanup:
         configurationManager.saveWorkspaceConfiguration(orignalConfiguration)
 
         where:
-        distribution                                                                 | gradleUserHome    | offlineMode  | buildScansEnabled | autoSync
-        GradleDistribution.fromBuild()                                               | 'customUserHome1' |  false       | false             | true
-        GradleDistribution.forVersion("3.2.1")                                       | 'customUserHome2' |  false       | true              | false
-        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | 'customUserHome3' |  true        | true              | true
-        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | 'customUserHome4' |  true        | false             | false
+        distribution                                                                 | gradleUserHome    | javaHome    | offlineMode  | buildScansEnabled | autoSync | args   | jvmArgs | showConsole | showExecutions
+        GradleDistribution.fromBuild()                                               | 'customUserHome1' | 'javaHome1' |  false       | false             | true     | ['a1'] | ['j1']  | false       | true
+        GradleDistribution.forVersion("3.2.1")                                       | 'customUserHome2' | 'javaHome2' |  false       | true              | false    | ['a2'] | ['j2']  | true        | false
+        GradleDistribution.forLocalInstallation(new File('/').canonicalFile)         | 'customUserHome3' | 'javaHome3' |  true        | true              | true     | ['a3'] | ['j3']  | false       | true
+        GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | 'customUserHome4' | 'javaHome4' |  true        | false             | false    | ['a4'] | ['j4']  | true        | false
     }
 }

@@ -9,6 +9,7 @@
 package org.eclipse.buildship.ui.internal.preferences;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.graphics.Font;
@@ -25,8 +26,8 @@ import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
+import org.eclipse.buildship.ui.internal.util.widget.AdvancedOptionsGroup;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
-import org.eclipse.buildship.ui.internal.util.widget.GradleUserHomeGroup;
 
 /**
  * The main workspace preference page for Buildship. Currently only used to configure the Gradle
@@ -38,13 +39,16 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
     private final Font defaultFont;
     private final Validator<File> gradleUserHomeValidator;
+    private final Validator<File> javaHomeValidator;
     private final Validator<GradleDistributionViewModel> distributionValidator;
 
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
+
     public GradleWorkbenchPreferencePage() {
         this.defaultFont = FontUtils.getDefaultDialogFont();
-        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_GradleUserHome);
+        this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Gradle_User_Home);
+        this.javaHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Java_Home);
         this.distributionValidator = GradleDistributionViewModel.validator();
     }
 
@@ -63,38 +67,48 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     private void initValues() {
         WorkspaceConfiguration config = CorePlugin.configurationManager().loadWorkspaceConfiguration();
         GradleDistribution gradleDistribution = config.getGradleDistribution();
-        File gradleUserHome = config.getGradleUserHome();
-        String gradleUserHomePath = gradleUserHome == null ? "" : gradleUserHome.getPath();
-
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(gradleDistribution));
-        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText(gradleUserHomePath);
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setGradleUserHome(config.getGradleUserHome());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJavaHome(config.getJavaHome());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setArguments(config.getArguments());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJvmArguments(config.getJvmArguments());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(config.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(config.isBuildScansEnabled());
         this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(config.isAutoSync());
+        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(config.isShowConsoleView());
+        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(config.isShowExecutionsView());
     }
 
     private void addListeners() {
-        GradleUserHomeGroup gradleUserHomeGroup = this.gradleProjectSettingsComposite.getGradleUserHomeGroup();
-        gradleUserHomeGroup.getGradleUserHomeText().addModifyListener(new GradleUserHomeValidatingListener(this, gradleUserHomeGroup, this.gradleUserHomeValidator));
+        AdvancedOptionsGroup advancedOptionsGroup = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup();
+        advancedOptionsGroup.getGradleUserHomeText().addModifyListener(new ValidatingListener<>(this, () -> advancedOptionsGroup.getGradleUserHome(), this.gradleUserHomeValidator));
+        advancedOptionsGroup.getJavaHomeText().addModifyListener(new ValidatingListener<>(this, () -> advancedOptionsGroup.getJavaHome(), this.javaHomeValidator));
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(new GradleDistributionValidatingListener(this, this.distributionValidator));
     }
 
     @Override
     public boolean performOk() {
         GradleDistribution distribution = this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution();
-        String gradleUserHomeString = this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().getText();
+        String gradleUserHomeString = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().getText();
         File gradleUserHome = gradleUserHomeString.isEmpty() ? null : new File(gradleUserHomeString);
+        String javaHomeString = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().getText();
+        File javaHome = javaHomeString.isEmpty() ? null : new File(javaHomeString);
         boolean offlineMode = this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection();
         boolean buildScansEnabled = this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection();
         boolean autoSync = this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection();
-        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, offlineMode, buildScansEnabled, autoSync);
+        List<String> arguments = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments();
+        List<String> jvmArguments = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments();
+        boolean showConsoleView = this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection();
+        boolean showExecutionsView = this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection();
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
         CorePlugin.configurationManager().saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }
 
     @Override
     protected void performDefaults() {
-        this.gradleProjectSettingsComposite.getGradleUserHomeGroup().getGradleUserHomeText().setText("");
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText("");
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText("");
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(GradleDistribution.fromBuild()));
         super.performDefaults();
     }

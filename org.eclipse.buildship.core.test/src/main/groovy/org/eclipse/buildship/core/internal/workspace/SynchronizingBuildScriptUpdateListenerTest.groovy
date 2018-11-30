@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils
 
 class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationSpecification {
 
@@ -189,9 +190,14 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
     private void setWorkspaceAutoSync(boolean autoSync) {
         WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(workspaceConfig.gradleDistribution,
             workspaceConfig.gradleUserHome,
+            workspaceConfig.javaHome,
             workspaceConfig.gradleIsOffline,
             workspaceConfig.buildScansEnabled,
-            autoSync)
+            autoSync,
+            workspaceConfig.arguments,
+            workspaceConfig.jvmArguments,
+            workspaceConfig.showConsoleView,
+            workspaceConfig.showExecutionsView)
         configurationManager.saveWorkspaceConfiguration(workspaceConfig)
     }
 
@@ -209,9 +215,14 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             true,
             currentConfig.gradleDistribution,
             currentConfig.gradleUserHome,
+            currentConfig.javaHome,
             currentConfig.buildScansEnabled,
             currentConfig.offlineMode,
-            autoSync)
+            autoSync
+            ,currentConfig.arguments,
+            currentConfig.jvmArguments,
+            currentConfig.showConsoleView,
+            currentConfig.showExecutionsView)
         configurationManager.saveBuildConfiguration(updatedConfig)
     }
 
@@ -221,9 +232,14 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             false,
             currentConfig.gradleDistribution,
             currentConfig.gradleUserHome,
+            currentConfig.javaHome,
             currentConfig.buildScansEnabled,
             currentConfig.offlineMode,
-            true)
+            true,
+            currentConfig.arguments,
+            currentConfig.jvmArguments,
+            currentConfig.showConsoleView,
+            currentConfig.showExecutionsView)
         configurationManager.saveBuildConfiguration(updatedConfig)
     }
 }

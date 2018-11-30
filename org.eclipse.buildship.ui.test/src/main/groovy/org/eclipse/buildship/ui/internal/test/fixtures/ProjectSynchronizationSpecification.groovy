@@ -27,11 +27,12 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         waitForGradleJobsToFinish()
     }
 
-    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
+    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild(), List<String> arguments = []) {
         BuildConfiguration configuration = BuildConfiguration
              .forRootProjectDirectory(location)
              .gradleDistribution(gradleDistribution)
              .overrideWorkspaceConfiguration(true)
+             .arguments(arguments)
              .build()
         GradleBuild gradleBuild = GradleCore.workspace.createBuild(configuration)
         gradleBuild.synchronize(new NullProgressMonitor())

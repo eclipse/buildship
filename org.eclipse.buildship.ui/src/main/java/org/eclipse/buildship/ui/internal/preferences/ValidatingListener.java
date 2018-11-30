@@ -9,38 +9,36 @@
 
 package org.eclipse.buildship.ui.internal.preferences;
 
-import java.io.File;
-
 import com.google.common.base.Optional;
+import com.google.common.base.Supplier;
 
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 
 import org.eclipse.buildship.core.internal.util.binding.Validator;
-import org.eclipse.buildship.ui.internal.util.widget.GradleUserHomeGroup;
 
 /**
- * Updates Gradle user home validation messages on the preference pages.
+ * Updates validation messages on the preference pages when the input changes.
  *
  * @author Donat Csikos
  */
-final class GradleUserHomeValidatingListener implements ModifyListener {
+final class ValidatingListener<T> implements ModifyListener {
 
     private final PreferencePage preferencePage;
-    private GradleUserHomeGroup gradleUserHomeGroup;
-    private final Validator<File> gradleUserHomeValidator;
+    private final Supplier<T> target;
+    private final Validator<T> validator;
 
-    public GradleUserHomeValidatingListener(PreferencePage preferencePage, GradleUserHomeGroup gradleUserHomeGroup, Validator<File> gradleUserHomeValidator) {
+    public ValidatingListener(PreferencePage preferencePage, Supplier<T> target, Validator<T> validator) {
         this.preferencePage = preferencePage;
-        this.gradleUserHomeGroup = gradleUserHomeGroup;
-        this.gradleUserHomeValidator = gradleUserHomeValidator;
+        this.target = target;
+        this.validator = validator;
     }
 
     @Override
     public void modifyText(ModifyEvent e) {
-        File gradleUserHome = this.gradleUserHomeGroup.getGradleUserHome();
-        Optional<String> error = this.gradleUserHomeValidator.validate(gradleUserHome);
+        T targetValue = this.target.get();
+        Optional<String> error = this.validator.validate(targetValue);
         this.preferencePage.setValid(!error.isPresent());
         this.preferencePage.setErrorMessage(error.orNull());
     }

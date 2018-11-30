@@ -9,12 +9,14 @@
 package org.eclipse.buildship.core;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.Preconditions;
 
 /**
- * Describes a configuration of a Gradle build.
+ * Describes a Gradle build configuration.
  *
  * @see GradleWorkspace#createBuild(BuildConfiguration)
  * @author Donat Csikos
@@ -28,26 +30,42 @@ public final class BuildConfiguration {
     private final boolean overrideWorkspaceConfiguration;
     private final GradleDistribution gradleDistribution;
     private final File gradleUserHome;
+    private final File javaHome;
     private final boolean buildScansEnabled;
     private final boolean offlineMode;
     private final boolean autoSync;
+    private final List<String> arguments;
+    private final List<String> jvmArguments;
+    private final boolean showConsoleView;
+    private final boolean showExecutionsView;
 
     private BuildConfiguration(BuildConfigurationBuilder builder) {
         this.rootProjectDirectory = Preconditions.checkNotNull(builder.rootProjectDirectory);
         this.overrideWorkspaceConfiguration = builder.overrideWorkspaceConfiguration;
         this.gradleDistribution = Preconditions.checkNotNull(builder.gradleDistribution);
         this.gradleUserHome = builder.gradleUserHome;
+        this.javaHome = builder.javaHome;
         this.buildScansEnabled = builder.buildScansEnabled;
         this.offlineMode = builder.offlineMode;
         this.autoSync = builder.autoSync;
+        this.arguments = builder.arguments;
+        this.jvmArguments = builder.jvmArguments;
+        this.showConsoleView = builder.showConsoleView;
+        this.showExecutionsView = builder.showExecutionsView;
     }
 
+    /**
+     * Builder pattern to create new build configuration instances.
+     *
+     * @param rootProjectDirectory the root project directory of the Gradle build
+     * @return the build configuration builder
+     */
     public static BuildConfigurationBuilder forRootProjectDirectory(File rootProjectDirectory) {
         return new BuildConfigurationBuilder(rootProjectDirectory);
     }
 
     /**
-     * If set to true, the workspace configuration is ignored and the attributes defined in the
+     * If set to true, the workspace configuration is ignored and the attributes defined in this
      * build configuration will be used. If set to false, the created build configuration will
      * inherit all attributes from the current workspace configuration and the build configuration
      * attributes will be ignored.
@@ -59,36 +77,32 @@ public final class BuildConfiguration {
     }
 
     /**
-     * Returns the root project directory of the current build.
-     *
-     * @return the root project directory
+     * @return the root project directory of the current build
      */
     public File getRootProjectDirectory() {
         return this.rootProjectDirectory;
     }
+
     /**
-     * Returns Gradle user home for this configuration.
-     * <p>
-     * If {@link #isOverrideWorkspaceConfiguration()} returns true then the Gradle user home from
-     * this object is returned. Otherwise, the Gradle user home for the workspace configuration is
-     * returned.
-     * <p>
-     * If no Gradle user home is specified then this method returns {@link Optional#empty()} .
-     *
-     * @return the Gradle user home
+     * @return the Gradle user home or {@link Optional#empty()} if not specified.
      */
     public Optional<File> getGradleUserHome() {
         return Optional.ofNullable(this.gradleUserHome);
     }
 
     /**
+     * @return the Java home or {@link Optional#empty()} if not specified.
+     */
+    public Optional<File> getJavaHome() {
+        return Optional.ofNullable(this.javaHome);
+    }
+
+    /**
      * Returns whether build scans are enabled for this configuration.
+     *
      * <p>
-     * If this attribute is enabled then the Gradle task executions automatically create a build.
+     * If this attribute is enabled then the Gradle task executions automatically create a build
      * scan.
-     * <p>
-     * If {@link #isOverrideWorkspaceConfiguration()} returns true then value from this object is
-     * returned. Otherwise, the value for the workspace configuration is returned.
      *
      * @return whether build scans are enabled
      */
@@ -101,10 +115,6 @@ public final class BuildConfiguration {
      * <p>
      * If the offline mode is enabled then all project synchronizations and the task executions are
      * executed in offline mode (e.g. the {@code --offline} parameter is added to all invocations).
-     * <p>
-     * If {@link #isOverrideWorkspaceConfiguration()} returns true then value from this object is
-     * returned. Otherwise, the value for the workspace configuration is returned.
-     * <p>
      *
      * @return whether offline mode is enabled
      */
@@ -114,13 +124,10 @@ public final class BuildConfiguration {
 
     /**
      * Returns whether auto-sync feature is enabled for this configuration.
+     *
      * <p>
      * If the auto-sync feature is enabled then the project synchronization is triggered every time
      * the content of the build script changes.
-     * <p>
-     * If {@link #isOverrideWorkspaceConfiguration()} returns true then value from this object is
-     * returned. Otherwise, the value for the workspace configuration is returned.
-     * <p>
      *
      * @return whether the auto-sync feature is enabled
      */
@@ -129,16 +136,39 @@ public final class BuildConfiguration {
     }
 
     /**
-     * Returns the Gradle distribution for this configuration.
-     * <p>
-     * If {@link #isOverrideWorkspaceConfiguration()} returns true then the Gradle distribution from
-     * this object is returned. Otherwise, the distribution for the workspace configuration is
-     * returned.
-     *
      * @return the Gradle distribution
      */
     public GradleDistribution getGradleDistribution() {
         return this.gradleDistribution;
+    }
+
+    /**
+     *
+     * @return the list of program arguments
+     */
+    public List<String> getArguments() {
+        return this.arguments;
+    }
+
+    /**
+     * @return the list of JVM arguments
+     */
+    public List<String> getJvmArguments() {
+        return this.jvmArguments;
+    }
+
+    /**
+     * @return {@code true} if the Console view should be visible at the beginning of each build
+     */
+    public boolean isShowConsoleView() {
+        return this.showConsoleView;
+    }
+
+    /**
+     * @return {@code true} if the Executions view should be visible at the beginning of each build
+     */
+    public boolean isShowExecutionsView() {
+        return this.showExecutionsView;
     }
 
     public static final class BuildConfigurationBuilder {
@@ -147,9 +177,14 @@ public final class BuildConfiguration {
         private boolean overrideWorkspaceConfiguration = false;
         private GradleDistribution gradleDistribution = GradleDistribution.fromBuild();
         private File gradleUserHome = null;
+        private File javaHome = null;
         private boolean buildScansEnabled = false;
         private boolean offlineMode = false;
         private boolean autoSync = false;
+        private List<String> arguments = new ArrayList<>();
+        private List<String> jvmArguments = new ArrayList<>();
+        private boolean showConsoleView = true;
+        private boolean showExecutionsView = true;
 
         private BuildConfigurationBuilder(File rootProjectDirectory) {
             this.rootProjectDirectory = rootProjectDirectory;
@@ -160,30 +195,55 @@ public final class BuildConfiguration {
             return this;
         }
 
-         public BuildConfigurationBuilder gradleDistribution(GradleDistribution gradleDistribution) {
-             this.gradleDistribution = gradleDistribution;
-             return this;
-         }
+        public BuildConfigurationBuilder gradleDistribution(GradleDistribution gradleDistribution) {
+            this.gradleDistribution = gradleDistribution;
+            return this;
+        }
 
-         public BuildConfigurationBuilder gradleUserHome(File gradleUserHome) {
-             this.gradleUserHome = gradleUserHome;
-             return this;
-         }
+        public BuildConfigurationBuilder gradleUserHome(File gradleUserHome) {
+            this.gradleUserHome = gradleUserHome;
+            return this;
+        }
 
-         public BuildConfigurationBuilder buildScansEnabled(boolean buildScansEnabled) {
-             this.buildScansEnabled = buildScansEnabled;
-             return this;
-         }
+        public BuildConfigurationBuilder javaHome(File javaHome) {
+            this.javaHome = javaHome;
+            return this;
+        }
 
-         public BuildConfigurationBuilder offlineMode(boolean offlineMode) {
-             this.offlineMode = offlineMode;
-             return this;
-         }
+        public BuildConfigurationBuilder buildScansEnabled(boolean buildScansEnabled) {
+            this.buildScansEnabled = buildScansEnabled;
+            return this;
+        }
 
-         public BuildConfigurationBuilder autoSync(boolean autoSync) {
-             this.autoSync = autoSync;
-             return this;
-         }
+        public BuildConfigurationBuilder offlineMode(boolean offlineMode) {
+            this.offlineMode = offlineMode;
+            return this;
+        }
+
+        public BuildConfigurationBuilder autoSync(boolean autoSync) {
+            this.autoSync = autoSync;
+            return this;
+        }
+
+        public BuildConfigurationBuilder arguments(List<String> arguments) {
+            this.arguments = arguments;
+            return this;
+        }
+
+        public BuildConfigurationBuilder jvmArguments(List<String> jvmArguments) {
+            this.jvmArguments = jvmArguments;
+            return this;
+        }
+
+        public BuildConfigurationBuilder showConsoleView(boolean showConsoleView) {
+            this.showConsoleView = showConsoleView;
+            return this;
+        }
+
+        public BuildConfigurationBuilder showExecutionsView(boolean showExecutionsView) {
+            this.showExecutionsView = showExecutionsView;
+            return this;
+        }
 
         public BuildConfiguration build() {
             return new BuildConfiguration(this);
