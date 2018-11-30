@@ -10,6 +10,7 @@ package org.eclipse.buildship.core.internal.workspace;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildController;
@@ -45,4 +46,26 @@ public final class CompositeModelQuery<T> implements BuildAction<Collection<T>> 
             collectRootModels(controller, includedBuild, models);
         }
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.modelType);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        CompositeModelQuery<?> other = (CompositeModelQuery<?>) obj;
+        return Objects.equals(this.modelType, other.modelType);
+    }
+
+
 }

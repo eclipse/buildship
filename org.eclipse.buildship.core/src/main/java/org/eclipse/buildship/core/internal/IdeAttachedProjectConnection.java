@@ -63,7 +63,6 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
     private <T extends LongRunningOperation> T configureOperation(T operation) {
         BuildEnvironment buildEnvironment = this.delegate.getModel(BuildEnvironment.class);
         this.gradleArguments.applyTo(operation, buildEnvironment);
-        this.gradleArguments.describe(this.progressAttributes, buildEnvironment);
         this.progressAttributes.applyTo(operation);
         return operation;
     }

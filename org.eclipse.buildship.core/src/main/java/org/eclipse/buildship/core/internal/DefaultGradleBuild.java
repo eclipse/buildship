@@ -23,6 +23,8 @@ import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -61,11 +63,17 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
     private static Map<DefaultGradleBuild, SynchronizeOperation> syncOperations = new ConcurrentHashMap<>();
 
     private final org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfig;
+
+    // TODO (donat) Now, we have two caches: one for the project configurators and that lives within
+    // a synchronization (projectConnectionCache field) and one that lives forever (modelProvider).
+    // We should revisit this at some point and unify them.
     private final ModelProvider modelProvider;
+    private final Cache<Object, Object> projectConnectionCache;
 
     public DefaultGradleBuild(org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfiguration) {
         this.buildConfig = buildConfiguration;
-        this.modelProvider = new DefaultModelProvider(this.buildConfig);
+        this.modelProvider = new DefaultModelProvider(this);
+        this.projectConnectionCache = CacheBuilder.newBuilder().build();
     }
 
     @Override
@@ -157,11 +165,11 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
      */
     private static class SynchronizeOperation extends BaseToolingApiOperation {
 
-        private final InternalGradleBuild gradleBuild;
+        private final DefaultGradleBuild gradleBuild;
         private final NewProjectHandler newProjectHandler;
         private List<SynchronizationProblem> failures;
 
-        public SynchronizeOperation(InternalGradleBuild gradleBuild, NewProjectHandler newProjectHandler) {
+        public SynchronizeOperation(DefaultGradleBuild gradleBuild, NewProjectHandler newProjectHandler) {
             super("Synchronize project " + gradleBuild.getBuildConfig().getRootProjectDirectory().getName());
             this.gradleBuild = gradleBuild;
             this.newProjectHandler = newProjectHandler;
@@ -181,7 +189,7 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
                 }
                 result = DefaultSynchronizationResult.from(getFailures());
             } catch (CoreException e) {
-                ToolingApiStatus status = ToolingApiStatus.from("Project synchronization" , e);
+                ToolingApiStatus status = ToolingApiStatus.from("Project synchronization", e);
                 if (status.severityMatches(IStatus.WARNING | IStatus.ERROR)) {
                     GradleMarkerManager.addError(this.gradleBuild, status);
                 }
@@ -201,13 +209,19 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
-            SubMonitor progress = SubMonitor.convert(monitor, 5);
-            progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.gradleBuild.getBuildConfig().getRootProjectDirectory())));
-            new ImportRootProjectOperation(this.gradleBuild.getBuildConfig(), this.newProjectHandler).run(progress.newChild(1));
-            Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
-            new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
-            new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
-            this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler, ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
+
+            try {
+                SubMonitor progress = SubMonitor.convert(monitor, 5);
+                progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.gradleBuild.getBuildConfig().getRootProjectDirectory())));
+                new ImportRootProjectOperation(this.gradleBuild.getBuildConfig(), this.newProjectHandler).run(progress.newChild(1));
+                Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
+                new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
+                new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
+                this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler,
+                        ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
+            } finally {
+                this.gradleBuild.projectConnectionCache.invalidateAll();
+            }
         }
 
         @Override
@@ -290,6 +304,10 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
             // TODO (donat) use AutoCloseable once we update to Tooling API 5.0
             ProjectConnection connection = IdeAttachedProjectConnection.newInstance(tokenSource, getGradleArguments(), monitor);
+            if (isSynchronizing()) {
+                connection = new CachingProjectConnection(connection, DefaultGradleBuild.this.projectConnectionCache);
+            }
+
             try {
                 this.result = this.action.apply(connection);
             } finally {

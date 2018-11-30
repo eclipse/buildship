@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.ImmutableList;
@@ -34,19 +33,23 @@ import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.DefaultGradleBuild;
-
+import org.eclipse.buildship.core.internal.util.gradle.BuildActionUtil;
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 public class BaseConfigurator implements ProjectConfigurator {
 
     private Map<File, EclipseProject> locationToProject;
-    private DefaultGradleBuild internalGradleBuild;
 
     @Override
     public void init(InitializationContext context, IProgressMonitor monitor) {
         GradleBuild gradleBuild = context.getGradleBuild();
-        this.internalGradleBuild = ((DefaultGradleBuild)gradleBuild);
-        Collection<EclipseProject> eclipseProjects = ModelProviderUtil.fetchAllEclipseProjects(this.internalGradleBuild, GradleConnector.newCancellationTokenSource(), FetchStrategy.LOAD_IF_NOT_CACHED, monitor);
-        this.locationToProject = eclipseProjects.stream().collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+        try {
+            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> connection.action(BuildActionUtil.compositeModelQuery(EclipseProject.class)).run(), monitor);
+            this.locationToProject = rootModels.stream()
+                .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
+                .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+        } catch (Exception e) {
+            context.error("Cannot Query Eclipse model", e);
+        }
     }
 
     @Override
