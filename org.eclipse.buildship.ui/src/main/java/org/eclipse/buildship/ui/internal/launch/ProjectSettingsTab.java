@@ -114,8 +114,8 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(overrideBuildSettings);
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(useBuildConfig ? buildConfig.getGradleDistribution() : this.attributes.getGradleDistribution()));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(useBuildConfig ? buildConfig.getGradleUserHome().getAbsolutePath() : this.attributes.getGradleUserHomeHomeExpression()));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText(Strings.nullToEmpty(useBuildConfig ? buildConfig.getJavaHome().getAbsolutePath() : this.attributes.getJavaHomeExpression()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(useBuildConfig ? (buildConfig.getGradleUserHome() == null ? null : buildConfig.getGradleUserHome().getAbsolutePath()) : this.attributes.getGradleUserHomeHomeExpression()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText(Strings.nullToEmpty(useBuildConfig ? (buildConfig.getJavaHome() == null ? null : buildConfig.getJavaHome().getAbsolutePath()) : this.attributes.getJavaHomeExpression()));
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsText().setText(Joiner.on(' ').join(useBuildConfig ? buildConfig.getArguments() : this.attributes.getArgumentExpressions()));
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsText().setText(Joiner.on(' ').join(useBuildConfig ? buildConfig.getJvmArguments() : this.attributes.getJvmArgumentExpressions()));
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(useBuildConfig ? buildConfig.isOfflineMode() : this.attributes.isOffline());
