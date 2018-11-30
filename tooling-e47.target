@@ -2,8 +2,8 @@
 <?pde version="3.8"?><target name="Buildship Eclipse Oxygen Target Platform" sequenceNumber="1">
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-            <unit id="org.eclipse.m2e.feature.feature.group" version="1.8.0.20160921-2002"/>
-            <unit id="org.eclipse.sdk.ide" version="4.7.1.M20171009-0410"/>
+            <unit id="org.eclipse.m2e.feature.feature.group" version="1.8.3.20180227-2137"/>
+            <unit id="org.eclipse.sdk.ide" version="4.7.3.M20180330-0640"/>
             <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
