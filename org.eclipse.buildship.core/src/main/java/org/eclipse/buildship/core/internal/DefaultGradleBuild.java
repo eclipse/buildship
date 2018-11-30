@@ -63,6 +63,10 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
     private static Map<DefaultGradleBuild, SynchronizeOperation> syncOperations = new ConcurrentHashMap<>();
 
     private final org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfig;
+
+    // TODO (donat) Now, we have two caches: one for the project configurators and that lives within
+    // a synchronization (projectConnectionCache field) and one that lives forever (modelProvider).
+    // We should revisit this at some point and unify them.
     private final ModelProvider modelProvider;
     private final Cache<Object, Object> projectConnectionCache;
 
@@ -185,7 +189,7 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
                 }
                 result = DefaultSynchronizationResult.from(getFailures());
             } catch (CoreException e) {
-                ToolingApiStatus status = ToolingApiStatus.from("Project synchronization" , e);
+                ToolingApiStatus status = ToolingApiStatus.from("Project synchronization", e);
                 if (status.severityMatches(IStatus.WARNING | IStatus.ERROR)) {
                     GradleMarkerManager.addError(this.gradleBuild, status);
                 }
@@ -213,7 +217,8 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
                 Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
                 new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
                 new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
-                this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler, ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
+                this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler,
+                        ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
             } finally {
                 this.gradleBuild.projectConnectionCache.invalidateAll();
             }
