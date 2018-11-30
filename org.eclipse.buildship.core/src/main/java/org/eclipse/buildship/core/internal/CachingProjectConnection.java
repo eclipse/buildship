@@ -62,6 +62,7 @@ final class CachingProjectConnection implements ProjectConnection {
 
     @Override
     public Builder action() {
+        // TODO (donat) use cache for this method too
         return this.delegate.action();
     }
 
