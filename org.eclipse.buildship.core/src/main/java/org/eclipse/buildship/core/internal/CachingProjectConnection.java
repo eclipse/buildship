@@ -18,12 +18,14 @@ import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.TestLauncher;
 
+import com.google.common.cache.Cache;
+
 final class CachingProjectConnection implements ProjectConnection {
 
     private final ProjectConnection delegate;
-    private final ProjectConnectionCache cache;
+    private final Cache<Object, Object> cache;
 
-    public CachingProjectConnection(ProjectConnection delegate, ProjectConnectionCache cache) {
+    public CachingProjectConnection(ProjectConnection delegate, Cache<Object, Object> cache) {
         this.delegate = delegate;
         this.cache = cache;
     }

@@ -8,7 +8,6 @@
 
 package org.eclipse.buildship.core.internal;
 
-import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.cache.Cache;
@@ -28,9 +27,5 @@ public class ProjectConnectionCache {
 
     public void put(Object key, Object value) {
         this.cache.put(key, value);
-    }
-
-    public Map<Object, Object> asMap() {
-        return this.cache.asMap();
     }
 }

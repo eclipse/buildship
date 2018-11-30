@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.gradle.tooling.BuildAction;
@@ -24,15 +23,16 @@ import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.events.OperationType;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 
 public class CachingBuildActionExecuter<T> implements BuildActionExecuter<T> {
 
     private final BuildActionExecuter<T> delegate;
-    private final ProjectConnectionCache cache;
+    private final Cache<Object, Object> cache;
     private final CacheKey cacheKey;
 
-    CachingBuildActionExecuter(BuildActionExecuter<T> delegate, BuildAction<T> buildAction, ProjectConnectionCache cache) {
+    CachingBuildActionExecuter(BuildActionExecuter<T> delegate, BuildAction<T> buildAction, Cache<Object, Object> cache) {
         this.delegate = delegate;
         this.cache = cache;
         this.cacheKey = new CacheKey();
@@ -188,9 +188,9 @@ public class CachingBuildActionExecuter<T> implements BuildActionExecuter<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T run() throws GradleConnectionException, IllegalStateException {
-        Optional<Object> cachedValue = this.cacheKey.isInvalid() ? Optional.empty() : this.cache.get(this.cacheKey);
-        if (cachedValue.isPresent()) {
-            return (T) cachedValue.get();
+        Object cachedValue = this.cacheKey.isInvalid() ? null : this.cache.getIfPresent(this.cacheKey);
+        if (cachedValue != null) {
+            return (T) cachedValue;
         } else {
             T result = this.delegate.run();
             this.cache.put(this.cacheKey, result);
@@ -201,9 +201,9 @@ public class CachingBuildActionExecuter<T> implements BuildActionExecuter<T> {
     @Override
     @SuppressWarnings("unchecked")
     public void run(ResultHandler<? super T> handler) throws IllegalStateException {
-        Optional<Object> cachedValue = this.cacheKey.isInvalid() ? Optional.empty() : this.cache.get(this.cacheKey);
-        if (cachedValue.isPresent()) {
-            handler.onComplete((T) cachedValue.get());
+        Object cachedValue = this.cacheKey.isInvalid() ? null : this.cache.getIfPresent(this.cacheKey);
+        if (cachedValue != null) {
+            handler.onComplete((T) cachedValue);
         } else {
             InspectableResultHandler<T> inspectableResultHandler = new InspectableResultHandler<>();
             this.delegate.run(inspectableResultHandler);

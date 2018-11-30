@@ -23,6 +23,8 @@ import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -62,12 +64,12 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
     private final org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfig;
     private final ModelProvider modelProvider;
-    private final ProjectConnectionCache projectConnectionCache;
+    private final Cache<Object, Object> projectConnectionCache;
 
     public DefaultGradleBuild(org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfiguration) {
         this.buildConfig = buildConfiguration;
         this.modelProvider = new DefaultModelProvider(this);
-        this.projectConnectionCache = new ProjectConnectionCache();
+        this.projectConnectionCache = CacheBuilder.newBuilder().build();
     }
 
     @Override
@@ -213,7 +215,7 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
                 new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
                 this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler, ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
             } finally {
-                this.gradleBuild.projectConnectionCache.clear();
+                this.gradleBuild.projectConnectionCache.invalidateAll();
             }
         }
 
