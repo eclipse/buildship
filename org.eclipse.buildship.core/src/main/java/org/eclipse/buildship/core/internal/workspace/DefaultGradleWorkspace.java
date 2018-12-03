@@ -52,7 +52,7 @@ public final class DefaultGradleWorkspace implements InternalGradleWorkspace {
                 .filter(GradleProjectNature.isPresentOn())
                 .map(project -> toBuildConfigurationOrNull(project))
                 .filter(Objects::nonNull)
-                .map(buildConfig -> new DefaultGradleBuild(buildConfig))
+                .map(buildConfig -> getGradleBuild(buildConfig))
                 .collect(Collectors.toSet());
     }
 
