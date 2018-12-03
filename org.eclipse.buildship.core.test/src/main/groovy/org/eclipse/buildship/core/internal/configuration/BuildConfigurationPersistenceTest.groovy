@@ -159,8 +159,8 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
         importedProjectProperties.autoSync == false
         importedProjectProperties.arguments == []
         importedProjectProperties.jvmArguments == []
-        importedProjectProperties.showConsoleView == true
-        importedProjectProperties.showExecutionsView == true
+        importedProjectProperties.showConsoleView == false
+        importedProjectProperties.showExecutionsView == false
 
         externalProjectProperties.overrideWorkspaceSettings == false
         externalProjectProperties.gradleDistribution == GradleDistribution.fromBuild()
@@ -171,8 +171,8 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
         externalProjectProperties.autoSync == false
         importedProjectProperties.arguments == []
         importedProjectProperties.jvmArguments == []
-        importedProjectProperties.showConsoleView == true
-        importedProjectProperties.showExecutionsView == true
+        importedProjectProperties.showConsoleView == false
+        importedProjectProperties.showExecutionsView == false
     }
 
     def "If workspace override is set then overridden configuration properties are persisted"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, boolean showConsole, boolean showExecutions) {
@@ -321,10 +321,10 @@ connection.gradle.distribution=MODIFIED_DISTRIBUTION"""
     }
 
     private DefaultBuildConfigurationProperties validProperties(IProject project) {
-        new DefaultBuildConfigurationProperties(project.getLocation().toFile(), GradleDistribution.fromBuild(), null, null, false, false, false, false, [], [], true, true)
+        new DefaultBuildConfigurationProperties(project.getLocation().toFile(), GradleDistribution.fromBuild(), null, null, false, false, false, false, [], [], false, false)
     }
 
     private DefaultBuildConfigurationProperties validProperties(File projectDir) {
-        new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.fromBuild(), null, null, false, false, false, false, [], [], true, true)
+        new DefaultBuildConfigurationProperties(projectDir, GradleDistribution.fromBuild(), null, null, false, false, false, false, [], [], false, false)
     }
 }

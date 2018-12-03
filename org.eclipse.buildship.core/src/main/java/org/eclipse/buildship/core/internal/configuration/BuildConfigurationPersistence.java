@@ -143,8 +143,8 @@ final class BuildConfigurationPersistence {
         boolean autoSync = preferences.readBoolean(PREF_KEY_AUTO_SYNC, false);
         List<String> arguments = Lists.newArrayList(Splitter.on(' ').omitEmptyStrings().split(preferences.readString(PREF_KEY_ARGUMENTS, "")));
         List<String> jvmArguments = Lists.newArrayList(Splitter.on(' ').omitEmptyStrings().split(preferences.readString(PREF_KEY_JVM_ARGUMENTS, "")));
-        boolean showConsoleView = preferences.readBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, true);
-        boolean showExecutionsView = preferences.readBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, true);
+        boolean showConsoleView = preferences.readBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, false);
+        boolean showExecutionsView = preferences.readBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, false);
 
         return new DefaultBuildConfigurationProperties(rootDir, distribution, gradleUserHome, javaHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
     }
