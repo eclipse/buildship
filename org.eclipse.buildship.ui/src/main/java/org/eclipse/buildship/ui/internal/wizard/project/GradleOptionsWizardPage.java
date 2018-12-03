@@ -43,7 +43,7 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
     }
 
     public GradleOptionsWizardPage(ProjectImportConfiguration configuration, String title, String defaultMessage, String pageContextInformation) {
-        super("GradleOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getDistribution(), configuration.getGradleUserHome()));
+        super("GradleOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getDistribution(), configuration.getGradleUserHome(), configuration.getJavaHome()));
         this.pageContextInformation = pageContextInformation;
     }
 
