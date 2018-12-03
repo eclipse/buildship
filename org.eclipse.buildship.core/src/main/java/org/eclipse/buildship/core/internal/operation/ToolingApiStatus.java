@@ -12,6 +12,7 @@ import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.BuildException;
 import org.gradle.tooling.GradleConnectionException;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
@@ -83,6 +84,8 @@ public final class ToolingApiStatus extends Status implements IStatus {
             return new ToolingApiStatus(ToolingApiStatusType.IMPORT_ROOT_DIR_FAILED, workName, (ImportRootProjectException) failure);
         } else if (failure instanceof UnsupportedConfigurationException) {
             return new ToolingApiStatus(ToolingApiStatusType.UNSUPPORTED_CONFIGURATION, workName, (UnsupportedConfigurationException) failure);
+        } else if (failure instanceof CoreException && ((CoreException) failure).getStatus().getException() != null) {
+            return from(workName, ((CoreException) failure).getStatus().getException());
         } else if (failure instanceof GradlePluginsRuntimeException) {
             return new ToolingApiStatus(ToolingApiStatusType.PLUGIN_FAILED, workName, (GradlePluginsRuntimeException) failure);
         } else {
