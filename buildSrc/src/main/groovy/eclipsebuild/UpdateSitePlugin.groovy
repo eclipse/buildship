@@ -123,12 +123,10 @@ class UpdateSitePlugin implements Plugin<Project> {
               def dependency = projectDependency.dependencyProject
                 if (dependency.plugins.hasPlugin(BundlePlugin)) {
                     copyBundlesTask.inputs.files dependency.tasks.jar.outputs.files
-                    copyBundlesTask.inputs.files dependency.tasks.sourcesJar.outputs.files
                 } else {
                     dependency.afterEvaluate {
                       if (dependency.plugins.hasPlugin(BundlePlugin)) {
-                          copyBundlesTask.inputs.files dependency.tasks.jar.outputs.files
-                          copyBundlesTask.inputs.files dependency.tasks.sourcesJar.outputs.files
+                        copyBundlesTask.inputs.files dependency.tasks.jar.outputs.files
                       }
                     }
                 }
@@ -145,7 +143,6 @@ class UpdateSitePlugin implements Plugin<Project> {
                     dependency.afterEvaluate {
                         if (dependency.plugins.hasPlugin(FeaturePlugin)) {
                             copyBundlesTask.inputs.files dependency.tasks.jar.outputs.files
-                            copyBundlesTask.inputs.files dependency.tasks.sourcesJar.outputs.files
                         }
                     }
                 }
@@ -174,10 +171,6 @@ class UpdateSitePlugin implements Plugin<Project> {
                 project.logger.debug("Copy plugin project '${dependency.name}' with jar '${dependency.tasks.jar.outputs.files.singleFile.absolutePath}' to '${pluginsDir}'")
                 project.copy {
                     from dependency.tasks.jar.outputs.files.singleFile
-                    into pluginsDir
-                }
-                project.copy {
-                    from dependency.tasks.sourcesJar.outputs.files.singleFile
                     into pluginsDir
                 }
             }
@@ -383,15 +376,6 @@ class UpdateSitePlugin implements Plugin<Project> {
             from project.updateSite.extraResources
             into repositoryDir
         }
-
-        // copy source bundles
-        project.copy {
-            from(new File(project.buildDir, "$COMPRESSED_BUNDLES_DIR_NAME/$PLUGINS_DIR_NAME")) {
-                include "**/*.source*.jar*"
-            }
-            into "$repositoryDir/$PLUGINS_DIR_NAME"
-        }
-
     }
 
     static void updateArtifactsXmlFromArchive(Project project, File repositoryLocation, Closure mutateArtifactsXml) {
