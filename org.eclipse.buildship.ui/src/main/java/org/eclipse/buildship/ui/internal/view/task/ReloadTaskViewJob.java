@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
@@ -50,6 +51,7 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         this.taskView = Preconditions.checkNotNull(taskView);
         this.modelFetchStrategy = Preconditions.checkNotNull(modelFetchStrategy);
         setResultHandler(new ResultHandler());
+        setRule(ResourcesPlugin.getWorkspace().getRoot());
     }
 
     @Override
@@ -60,6 +62,7 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
     private TaskViewContent loadContent(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         List<EclipseProject> projects = Lists.newArrayList();
         Map<String, IProject> faultyProjects = allGradleWorkspaceProjects();
+        System.out.println(faultyProjects);
 
         for (InternalGradleBuild gradleBuild : CorePlugin.internalGradleWorkspace().getGradleBuilds()) {
             try {
