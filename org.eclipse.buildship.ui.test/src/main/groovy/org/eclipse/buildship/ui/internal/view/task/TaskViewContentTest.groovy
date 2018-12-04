@@ -152,15 +152,13 @@ class TaskViewContentTest extends BaseTaskViewTest {
         def second = dir("b") { file 'build.gradle' }
         importAndWait(first)
         importAndWait(second)
-        fileTree(first) { file 'build.gradle', "error" }
 
         when:
         findProject("b").delete(true, true, null)
         waitForTaskView()
 
         then:
-        waitFor { taskTree.find { it == 'a' } }
-        waitFor { !taskTree.find { it == 'b' } }
+        waitFor { taskTree.collect { k, v -> k } == ['a'] }
     }
 
     def "The task view is refreshed when projects are closed/opened"() {
@@ -169,15 +167,13 @@ class TaskViewContentTest extends BaseTaskViewTest {
         def opened = dir("b") { file 'build.gradle' }
         importAndWait(closed)
         importAndWait(opened)
-        fileTree(closed) { file 'build.gradle', "error" }
 
         when:
         findProject("b").close(null)
         waitForTaskView()
 
         then:
-        taskTree.find { it == 'a' }
-        !taskTree.find { it == 'b' }
+        waitFor { taskTree.collect { k, v -> k } == ['a'] }
     }
 
     def "Subprojects should be under the parent project's folder when not showing flatten project hierarchy"() {

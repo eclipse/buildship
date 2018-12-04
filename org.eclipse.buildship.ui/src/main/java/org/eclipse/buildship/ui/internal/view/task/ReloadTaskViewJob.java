@@ -62,7 +62,6 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
     private TaskViewContent loadContent(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         List<EclipseProject> projects = Lists.newArrayList();
         Map<String, IProject> faultyProjects = allGradleWorkspaceProjects();
-        System.out.println(faultyProjects);
 
         for (InternalGradleBuild gradleBuild : CorePlugin.internalGradleWorkspace().getGradleBuilds()) {
             try {
