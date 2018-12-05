@@ -47,6 +47,25 @@ class PluginUtils {
                 }
             }
         }
+
+        project.sourcesJar {
+            manifest {
+                attributes 'Bundle-Version' : project.version
+                from('META-INF/MANIFEST.MF') {
+                    eachEntry { entry ->
+                        if (entry.key == 'Bundle-Version') {
+                            entry.value = project.version
+                        } else if (entry.key == 'Bundle-SymbolicName') {
+                            entry.value = "${project.name}.source;singleton:=true"
+                        }
+                    }
+                }
+                def sourceReference = sourceReference(project)
+                if (sourceReference) {
+                    attributes 'Eclipse-SourceReferences' : sourceReference
+                }
+            }
+        }
     }
 
     /**
@@ -74,8 +93,15 @@ class PluginUtils {
      */
     static void configurePluginJarInput(Project project) {
         def buildProperties = readBuildPropertiesFile(project)
-        Set resources = splitBinIncludes(buildProperties.getProperty('bin.includes'))
+
+        Set resources = splitIncludesEntry(buildProperties.getProperty('bin.includes'))
         addPluginJarInput(resources, project)
+
+        String srcIncludes = buildProperties.getProperty('src.includes')
+        if (srcIncludes) {
+            Set sources = splitIncludesEntry(srcIncludes)
+            addPluginSourcesJarInput(sources, project)
+        }
     }
 
     /**
@@ -87,7 +113,7 @@ class PluginUtils {
      */
     static void configureFeatureJarInput(Project project) {
         def buildProperties = readBuildPropertiesFile(project)
-        Set resources = splitBinIncludes(buildProperties.getProperty('bin.includes'))
+        Set resources = splitIncludesEntry(buildProperties.getProperty('bin.includes'))
         addFeatureJarInput(resources, project)
     }
 
@@ -99,7 +125,7 @@ class PluginUtils {
         buildProperties
     }
 
-    private static Set splitBinIncludes(String binIncludes) {
+    private static Set splitIncludesEntry(String binIncludes) {
         Set result = new LinkedHashSet()
         def virtualResources = ['.']
         binIncludes.split(',').each { relPath ->
@@ -120,6 +146,21 @@ class PluginUtils {
                 }
             } else {
                 project.jar {
+                    from location
+                }
+            }
+        }
+    }
+
+    private static void addPluginSourcesJarInput(Set locations, Project project) {
+        for (String location in locations) {
+            File resource = project.file(location)
+            if (resource.isDirectory()) {
+                project.sourcesJar {
+                    from(location, { into(location) })
+                }
+            } else {
+                project.sourcesJar {
                     from location
                 }
             }

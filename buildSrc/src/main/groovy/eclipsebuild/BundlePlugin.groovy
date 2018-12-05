@@ -11,7 +11,8 @@
 
 package eclipsebuild
 
-import org.gradle.api.GradleException;
+import org.gradle.api.GradleException
+import org.gradle.jvm.tasks.Jar;
 import org.osgi.framework.VersionRange;
 
 import org.eclipse.osgi.framework.util.Headers
@@ -83,6 +84,13 @@ class BundlePlugin implements Plugin<Project> {
         // make sure the required descriptors exist
         assert project.file('build.properties').exists()
         assert project.file('META-INF/MANIFEST.MF').exists()
+
+        // add sources jar task
+        project.task('sourcesJar', type: Jar, dependsOn: 'classes') {
+            classifier = 'sources'
+            from project.sourceSets.main.allSource
+        }
+        project.artifacts { archives project.tasks.sourcesJar }
 
         // use the same MANIFEST.MF file as it is in the project except the Bundle-Version
         PluginUtils.updatePluginManifest(project)
