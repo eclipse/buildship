@@ -151,17 +151,19 @@ final class BuildConfigurationPersistence {
 
     private static void savePreferences(DefaultBuildConfigurationProperties properties, PreferenceStore preferences) {
         if (properties.isOverrideWorkspaceSettings()) {
-
-            String gradleDistribution = properties.getGradleDistribution().toString();
-            preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistribution);
+            GradleDistribution gradleDistribution = properties.getGradleDistribution();
+            String gradleDistributionString = gradleDistribution == null ? GradleDistribution.fromBuild().toString() : gradleDistribution.toString();
+            preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistributionString);
             preferences.write(PREF_KEY_GRADLE_USER_HOME, toPortableString(properties.getGradleUserHome()));
             preferences.write(PREF_KEY_JAVA_HOME, toPortableString(properties.getJavaHome()));
             preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());
             preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, properties.isBuildScansEnabled());
             preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, properties.isOfflineMode());
             preferences.writeBoolean(PREF_KEY_AUTO_SYNC, properties.isAutoSync());
-            preferences.write(PREF_KEY_ARGUMENTS, Joiner.on(' ').join(properties.getArguments()));
-            preferences.write(PREF_KEY_JVM_ARGUMENTS, Joiner.on(' ').join(properties.getJvmArguments()));
+            List<String> arguments = properties.getArguments();
+            preferences.write(PREF_KEY_ARGUMENTS, arguments == null ? "" : Joiner.on(' ').join(arguments));
+            List<String> jvmArguments = properties.getJvmArguments();
+            preferences.write(PREF_KEY_JVM_ARGUMENTS, jvmArguments == null ? "" : Joiner.on(' ').join(jvmArguments));
             preferences.writeBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, properties.isShowConsoleView());
             preferences.writeBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, properties.isShowExecutionsView());
         } else {
