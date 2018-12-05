@@ -10,6 +10,7 @@ package org.eclipse.buildship.core;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,14 +43,14 @@ public final class BuildConfiguration {
     private BuildConfiguration(BuildConfigurationBuilder builder) {
         this.rootProjectDirectory = Preconditions.checkNotNull(builder.rootProjectDirectory);
         this.overrideWorkspaceConfiguration = builder.overrideWorkspaceConfiguration;
-        this.gradleDistribution = Preconditions.checkNotNull(builder.gradleDistribution);
+        this.gradleDistribution = builder.gradleDistribution == null ? GradleDistribution.fromBuild() : builder.gradleDistribution;
         this.gradleUserHome = builder.gradleUserHome;
         this.javaHome = builder.javaHome;
         this.buildScansEnabled = builder.buildScansEnabled;
         this.offlineMode = builder.offlineMode;
         this.autoSync = builder.autoSync;
-        this.arguments = builder.arguments;
-        this.jvmArguments = builder.jvmArguments;
+        this.arguments = builder.arguments == null ? Collections.emptyList() : builder.arguments;
+        this.jvmArguments = builder.jvmArguments == null ? Collections.emptyList() : builder.jvmArguments;
         this.showConsoleView = builder.showConsoleView;
         this.showExecutionsView = builder.showExecutionsView;
     }
@@ -175,7 +176,7 @@ public final class BuildConfiguration {
 
         private final File rootProjectDirectory;
         private boolean overrideWorkspaceConfiguration = false;
-        private GradleDistribution gradleDistribution = GradleDistribution.fromBuild();
+        private GradleDistribution gradleDistribution;
         private File gradleUserHome = null;
         private File javaHome = null;
         private boolean buildScansEnabled = false;
