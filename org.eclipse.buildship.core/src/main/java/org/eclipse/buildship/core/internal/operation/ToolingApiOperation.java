@@ -30,12 +30,12 @@ public interface ToolingApiOperation {
     public String getName();
 
     /**
-     * Returns the scheduling rule that is applied when the operation is executed synchronously or asynchronously.
+     * Returns the scheduling rule that is applied when the operation is executed. Returns
+     * <code>null</code> if this operation has no scheduling rule.
      *
      * @return the operation's scheduling rule
      */
     public ISchedulingRule getRule();
-
 
     /**
      * Executes the operation.
