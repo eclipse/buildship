@@ -2,85 +2,78 @@ package org.eclipse.buildship.core
 
 import java.util.function.Function
 
+import org.gradle.tooling.CancellationTokenSource
+import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
-import org.gradle.tooling.model.GradleProject
+import spock.lang.Issue
 
+import org.eclipse.core.resources.IFile
 import org.eclipse.core.resources.IResource
-import org.eclipse.core.resources.IWorkspaceRunnable
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Status
 import org.eclipse.core.runtime.jobs.Job
 
-import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.event.Event
-import org.eclipse.buildship.core.internal.event.EventListener
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent
 
 class GradleBuildConnectionConcurrencyTest extends ProjectSynchronizationSpecification {
 
-    def "Concurrently executed actions runs sequentially"() {
+    @Issue("https://github.com/eclipse/buildship/issues/818")
+    def "Can use continuous task execution while editing workspace files"() {
         setup:
-        List<ModelQueryJob> jobs = (0..4).collect {
-                File location = dir("GradleBuildConnectionConcurrencyTest_$it") {
-                    file 'build.gradle', 'Thread.sleep(500)'
+        File mainJava = null
+        File location = dir('GradleBuildConnectionConcurrencyTest') {
+            file 'build.gradle', """
+                plugins {
+                    id 'java'
                 }
-                BuildConfiguration buildConfiguration = BuildConfiguration.forRootProjectDirectory(location).build()
-                GradleBuild gradleBuild = GradleCore.workspace.createBuild(buildConfiguration)
-                new ModelQueryJob(gradleBuild)
-            }
-
-        when:
-        jobs.each { it.schedule() }
-        jobs.each { it.join() }
-
-        List<Long> finishTimes = jobs.collect { it.finishTime }.sort()
-
-        then:
-        (1..3).each { assert finishTimes[it + 1] - finishTimes[it] > 500 }
-    }
-
-    def "Action requires workspace rule"() {
-        setup:
-        // import a sample project
-        File location = dir('GradleBuildConnectionConcurrencyTest')
-        BuildConfiguration buildConfiguration = BuildConfiguration.forRootProjectDirectory(location).build()
-        GradleBuild gradleBuild = GradleCore.workspace.createBuild(buildConfiguration)
-        Job modelQueryJob = new ModelQueryJob(gradleBuild)
-
-        when:
-        IWorkspaceRunnable modelQueryOperation = {
-            modelQueryJob.schedule()
-            try { // Eclipse 4.3 did not implement Job#join(timeout, monitor)
-                waitFor(1000) { modelQueryJob.state == Job.NONE }
-            } catch (RuntimeException e) {
-            }
-            assert modelQueryJob.state != Job.NONE
+            """
+            dir ('src/main/java') { mainJava = file 'Main.java', """
+                    public class Main { }
+                """ }
         }
-        workspace.run(modelQueryOperation, workspace.root, IResource.NONE, new NullProgressMonitor())
+        importAndWait(location)
+
+        when:
+        ExecuteJarTaskInContinuousModeJob job = new ExecuteJarTaskInContinuousModeJob(location)
+        job.schedule()
+        waitFor { job.out.toString().count("BUILD SUCCESSFUL") == 1 }
+        IFile file = findProject('GradleBuildConnectionConcurrencyTest').getFile('src/main/java/Main.java')
+        file.setContents(new ByteArrayInputStream("public class Main { int i = 0; }".bytes),  IResource.FORCE, new NullProgressMonitor())
 
         then:
-        // synchronization won't start until the job with the workspace rule finishes
-        waitFor(1000) { modelQueryJob.state == Job.NONE }
+        waitFor { job.out.toString().count("BUILD SUCCESSFUL") == 2 }
     }
 
-    class ModelQueryJob extends Job {
+    class ExecuteJarTaskInContinuousModeJob extends Job {
+        private GradleBuild gradleBuild
+        private CancellationTokenSource cancellation
+        private OutputStream out = new ByteArrayOutputStream()
+        private OutputStream err = new ByteArrayOutputStream()
 
-        GradleBuild gradleBuild
-        long finishTime
-
-        ModelQueryJob(GradleBuild gradleBuild) {
-            super('model query job')
-            this.gradleBuild = gradleBuild;
+        ExecuteJarTaskInContinuousModeJob(File location) {
+            super('ExecuteJarTaskInContinuousModeJob')
+            BuildConfiguration buildConfiguration = BuildConfiguration.forRootProjectDirectory(location).build()
+            this.gradleBuild = GradleCore.workspace.createBuild(buildConfiguration)
+            this.cancellation = GradleConnector.newCancellationTokenSource()
         }
 
         protected IStatus run(IProgressMonitor monitor) {
-            Function action = { ProjectConnection c -> c.model(GradleProject).get() }
+
+            Function action = { ProjectConnection c -> c.newBuild().forTasks("jar").addArguments("--continuous").withCancellationToken(cancellation.token()).setStandardOutput(out).setStandardError(err).setStandardInput(mockedInput()).run() }
             gradleBuild.withConnection(action, monitor)
-            finishTime = System.currentTimeMillis()
             Status.OK_STATUS
         }
+        protected void canceling() {
+            cancellation.cancel()
+        }
+    }
+
+    private InputStream mockedInput() {
+        InputStream input = Mock(InputStream)
+        input.read(*_) >> 1
+        input.available() >> true
+        input
     }
 }

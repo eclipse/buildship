@@ -321,7 +321,7 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
         @Override
         public ISchedulingRule getRule() {
-            return ResourcesPlugin.getWorkspace().getRoot();
+            return null;
         }
     }
 }
