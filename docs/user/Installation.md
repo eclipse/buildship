@@ -29,20 +29,28 @@ For manual installation use one of the update sites below.
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
 2018-12         | snapshot  | `http://download.eclipse.org/buildship/updates/e410/snapshots/3.x`
+2018-12         | milestone | `http://download.eclipse.org/buildship/updates/e410/milestones/3.x`
 2018-12         | release   | `http://download.eclipse.org/buildship/updates/e410/releases/3.x`
 2018-09         | snapshot  | `http://download.eclipse.org/buildship/updates/e49/snapshots/3.x`
+2018-09         | milestone | `http://download.eclipse.org/buildship/updates/e49/milestones/3.x`
 2018-09         | release   | `http://download.eclipse.org/buildship/updates/e49/releases/3.x`
 Photon (4.8)    | snapshot  | `http://download.eclipse.org/buildship/updates/e48/snapshots/3.x`
+Photon (4.8)    | milestone | `http://download.eclipse.org/buildship/updates/e48/milestones/3.x`
 Photon (4.8)    | release   | `http://download.eclipse.org/buildship/updates/e48/releases/3.x`
 Oxygen (4.7)    | snapshot  | `http://download.eclipse.org/buildship/updates/e47/snapshots/3.x`
+Oxygen (4.7)    | milestone | `http://download.eclipse.org/buildship/updates/e47/milestones/3.x`
 Oxygen (4.7)    | release   | `http://download.eclipse.org/buildship/updates/e47/releases/3.x`
 Neon (4.6)      | snapshot  | `http://download.eclipse.org/buildship/updates/e46/snapshots/3.x`
+Neon (4.6)      | milestone | `http://download.eclipse.org/buildship/updates/e46/milestones/3.x`
 Neon (4.6)      | release   | `http://download.eclipse.org/buildship/updates/e46/releases/3.x`
 Mars (4.5)      | snapshot  | `http://download.eclipse.org/buildship/updates/e45/snapshots/3.x`
+Mars (4.5)      | milestone | `http://download.eclipse.org/buildship/updates/e45/milestones/3.x`
 Mars (4.5)      | release   | `http://download.eclipse.org/buildship/updates/e45/releases/3.x`
 Luna (4.4)      | snapshot  | `http://download.eclipse.org/buildship/updates/e44/snapshots/3.x`
+Luna (4.4)      | milestone | `http://download.eclipse.org/buildship/updates/e44/milestones/3.x`
 Luna (4.4)      | release   | `http://download.eclipse.org/buildship/updates/e44/releases/3.x`
 Kepler (4.3)    | snapshot  | `http://download.eclipse.org/buildship/updates/e43/snapshots/3.x`
+Kepler (4.3)    | milestone | `http://download.eclipse.org/buildship/updates/e43/milestones/3.x`
 Kepler (4.3)    | release   | `http://download.eclipse.org/buildship/updates/e43/releases/3.x`
 
 ### Update sites for Buildship 2.x
