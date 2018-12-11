@@ -58,13 +58,13 @@ public class BaseConfigurator implements ProjectConfigurator {
     public void configure(ProjectContext context, IProgressMonitor monitor) {
         IProject project = context.getProject();
         try {
-            configure(project, monitor);
+            configure(context, project, monitor);
         } catch (CoreException e) {
             context.error("Failed to configure project " + project.getName(), e);
         }
     }
 
-    private void configure(IProject project, IProgressMonitor monitor) throws CoreException {
+    private void configure(ProjectContext context, IProject project, IProgressMonitor monitor) throws CoreException {
         SubMonitor progress = SubMonitor.convert(monitor);
         progress.setWorkRemaining(4);
 
@@ -81,7 +81,7 @@ public class BaseConfigurator implements ProjectConfigurator {
 
         // TODO (donat) extract Java synchronization to external configurator
         if (isJavaProject(model)) {
-            synchronizeJavaProject(model, project, persistentModel, progress);
+            synchronizeJavaProject(context, model, project, persistentModel, progress);
         } else {
             persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
         }
@@ -89,22 +89,22 @@ public class BaseConfigurator implements ProjectConfigurator {
         CorePlugin.modelPersistence().saveModel(persistentModel.build());
     }
 
-    private void synchronizeJavaProject(final EclipseProject model, final IProject project, final PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
+    private void synchronizeJavaProject(final ProjectContext context, final EclipseProject model, final IProject project, final PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
         JavaCore.run(new IWorkspaceRunnable() {
             @Override
             public void run(IProgressMonitor monitor) throws CoreException {
                 SubMonitor progress = SubMonitor.convert(monitor);
-                synchronizeJavaProjectInTransaction(model, project, persistentModel, progress);
+                synchronizeJavaProjectInTransaction(context, model, project, persistentModel, progress);
             }
         }, progress.newChild(1));
     }
 
-    private void synchronizeJavaProjectInTransaction(final EclipseProject model, final IProject project, PersistentModelBuilder persistentModel, SubMonitor progress) throws JavaModelException, CoreException {
+    private void synchronizeJavaProjectInTransaction(final ProjectContext context, final EclipseProject model, final IProject project, PersistentModelBuilder persistentModel, SubMonitor progress) throws JavaModelException, CoreException {
         progress.setWorkRemaining(7);
         //old Gradle versions did not expose natures, so we need to add the Java nature explicitly
         CorePlugin.workspaceOperations().addNature(project, JavaCore.NATURE_ID, progress.newChild(1));
         IJavaProject javaProject = JavaCore.create(project);
-        OutputLocationUpdater.update(javaProject, model.getOutputLocation(), progress.newChild(1));
+        OutputLocationUpdater.update(context, javaProject, model, progress.newChild(1));
         SourceFolderUpdater.update(javaProject, ImmutableList.copyOf(model.getSourceDirectories()), progress.newChild(1));
         LibraryFilter.update(javaProject, model, progress.newChild(1));
         ClasspathContainerUpdater.update(javaProject, model, progress.newChild(1));
