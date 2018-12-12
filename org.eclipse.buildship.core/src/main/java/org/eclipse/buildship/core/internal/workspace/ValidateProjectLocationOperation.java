@@ -49,7 +49,7 @@ public final class ValidateProjectLocationOperation {
         for (File location : locationToProjectNames.keySet()) {
             List<String> projectNames = locationToProjectNames.get(location);
             if (projectNames.size() > 1) {
-                throw new UnsupportedConfigurationException(String.format("The following projects all located in the %s directory: %s", location.getAbsolutePath(), Joiner.on(", ").join(projectNames)));
+                throw new UnsupportedConfigurationException(String.format("The following projects are all located in the %s directory: %s", location.getAbsolutePath(), Joiner.on(", ").join(projectNames)));
             } else if (location.equals(WORKSPACE_ROOT)) {
                 throw new UnsupportedConfigurationException(String.format("Project %s location matches workspace root %s", projectNames.get(0), WORKSPACE_ROOT.getAbsolutePath()));
             }
