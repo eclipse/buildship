@@ -14,7 +14,6 @@ import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
@@ -49,7 +48,7 @@ public final class ValidateProjectLocationOperation {
         for (File location : locationToProjectNames.keySet()) {
             List<String> projectNames = locationToProjectNames.get(location);
             if (projectNames.size() > 1) {
-                throw new UnsupportedConfigurationException(String.format("The following projects are all located in the %s directory: %s", location.getAbsolutePath(), Joiner.on(", ").join(projectNames)));
+                throw new UnsupportedConfigurationException(String.format("Multiple projects in the build are located in the same directory: %s", location.getAbsolutePath()));
             } else if (location.equals(WORKSPACE_ROOT)) {
                 throw new UnsupportedConfigurationException(String.format("Project %s location matches workspace root %s", projectNames.get(0), WORKSPACE_ROOT.getAbsolutePath()));
             }
