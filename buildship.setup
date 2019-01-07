@@ -23,15 +23,10 @@
         name="org.codehaus.groovy.eclipse.feature.feature.group"/>
     <requirement
         name="org.codehaus.groovy24.feature.feature.group"/>
-    <requirement
-        name="org.jetbrains.kotlin.feature.feature.group"
-        versionRange="0.8.0"/>
     <repository
-        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.8"/>
+        url="http://dist.springsource.org/release/GRECLIPSE/e4.10"/>
     <repository
-        url="http://download.eclipse.org/buildship/updates/e48/snapshots/3.x"/>
-    <repository
-        url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
+        url="http://download.eclipse.org/buildship/updates/e410/snapshots/3.x"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
@@ -70,17 +65,17 @@
           xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.source"
           key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.source"
-          value="1.7"/>
+          value="1.8"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.compilance"
           key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.compliance"
-          value="1.7"/>
+          value="1.8"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.codegen"
           key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-          value="1.7"/>
+          value="1.8"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
           id="buildship.preferences.compiler.goovycompilerlevel"
@@ -201,7 +196,7 @@
         xsi:type="setup:VariableTask"
         id="buildship.variables.buildshiptargetplatform"
         name="buildship.target.platform"
-        defaultValue="2018-09"
+        defaultValue="2018-12"
         label="Buildship Target Platform">
       <choice
           value="Photon"
@@ -224,13 +219,16 @@
       <choice
           value="2018-09"
           label="Eclipse 2018-09"/>
+      <choice
+          value="2018-12"
+          label="Eclipse 2018-12"/>
       <description>Buildship Target Platform</description>
     </setupTask>
     <setupTask
         xsi:type="setup:VariableTask"
         id="buildship.variables.latestversion"
         name="buildship.latest.version"
-        value="2.0"
+        value="3.0"
         defaultValue=""/>
   </setupTask>
   <setupTask
@@ -284,10 +282,7 @@
             pattern="org\.eclipse\.buildship\.stsmigration\.test"/>
         <operand
             xsi:type="predicates:NamePredicate"
-            pattern="org\.eclipse\.buildship\.kotlin"/>
-        <operand
-            xsi:type="predicates:NamePredicate"
-            pattern="org\.eclipse\.buildship\.kotlin\.feature"/>
+            pattern="org\.gradle\.toolingapi"/>
       </predicate>
     </sourceLocator>
   </setupTask>
@@ -304,7 +299,7 @@
           versionRange="2.7.0"/>
       <requirement
           name="com.google.guava"
-          versionRange="15.0.0"/>
+          versionRange="21.0.0"/>
       <requirement
           name="org.jetbrains.kotlin.feature.feature.group"
           versionRange="0.8.5"/>
@@ -316,8 +311,6 @@
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-photon-m7"/>
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
-        <repository
-            url="jar:https://repo.gradle.org/gradle/tooling-libs-snapshots-local/com/gradleware/tooling/p2-repository/0.19.5-20181001144510/p2-repository-0.19.5-20181001144510.zip!/"/>
       </repositoryList>
       <repositoryList
           name="Oxygen">
@@ -368,6 +361,15 @@
           name="2018-09">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-2018-09"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+        <repository
+            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
+      </repositoryList>
+      <repositoryList
+          name="2018-12">
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-2018-12"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
         <repository
@@ -427,6 +429,13 @@
       </repositoryList>
       <repositoryList
           name="2018-09">
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+        <repository
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+      </repositoryList>
+      <repositoryList
+          name="2018-12">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
