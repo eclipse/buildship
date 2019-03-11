@@ -1,7 +1,10 @@
 package org.eclipse.buildship.core.internal.workspace
 
+import spock.lang.Issue
+
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IStatus
+import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.Path
 
 import org.eclipse.buildship.core.SynchronizationResult
@@ -87,6 +90,32 @@ class ImportingHierarchicalMultiProjectBuild extends ProjectSynchronizationSpeci
 
         then:
         0 * logger.error(_)
+    }
+
+    @Issue("https://github.com/eclipse/buildship/issues/844")
+    def "Can synchronize project with closed root project"() {
+        setup:
+        def logger = Mock(Logger)
+        environment.registerService(Logger, logger)
+
+        File projectDir = dir('multi-project') {
+            file 'settings.gradle', """
+                include 'sub'
+            """
+            dir('sub')
+        }
+
+        importAndWait(projectDir)
+        IProject rootProject = findProject('multi-project')
+        IProject subProject = findProject('sub')
+        rootProject.close(new NullProgressMonitor())
+
+        when:
+        synchronizeAndWait(subProject)
+
+        then:
+        0 * logger.error(_)
+        gradleErrorMarkers.empty
     }
 
     private File createSampleProject() {
