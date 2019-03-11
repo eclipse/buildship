@@ -13,6 +13,8 @@ package org.eclipse.buildship.core.internal.event;
 
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +25,7 @@ import java.util.Set;
 public final class DefaultListenerRegistry implements ListenerRegistry {
 
     private final Object LOCK = new Object();
-    private final Set<EventListener> listeners = new LinkedHashSet<EventListener>();
+    private final Set<EventListener> listeners = new LinkedHashSet<>();
 
     @Override
     public void addEventListener(EventListener listener) {
@@ -46,8 +48,11 @@ public final class DefaultListenerRegistry implements ListenerRegistry {
             listeners = ImmutableList.copyOf(this.listeners);
         }
         for (EventListener listener : listeners) {
-            listener.onEvent(event);
+            try {
+                listener.onEvent(event);
+            } catch (Exception e) {
+                CorePlugin.logger().warn("Listener " + listener.getClass().getName() + " failed to handle " + event.getClass().getName(), e);
+            }
         }
     }
-
 }
