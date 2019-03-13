@@ -4,7 +4,7 @@
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.9.1.20180912-1601"/>
             <unit id="org.eclipse.sdk.ide" version="4.10.0.I20181010-1800"/>
-            <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-2018-12/"/>
+            <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-rolling/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.jetbrains.kotlin.feature.feature.group" version="0.8.7.v20180910-1609"/>
