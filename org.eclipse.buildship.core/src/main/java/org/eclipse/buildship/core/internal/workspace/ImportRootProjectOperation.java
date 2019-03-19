@@ -96,6 +96,10 @@ public final class ImportRootProjectOperation {
 
         if (projectOrNull.isPresent()) {
             IProject project = projectOrNull.get();
+            if (!project.isAccessible()) {
+                return;
+            }
+
             project.refreshLocal(IResource.DEPTH_INFINITE, progress.newChild(1));
             CorePlugin.workspaceOperations().addNature(project, GradleProjectNature.ID, progress.newChild(1));
             this.newProjectHandler.afterProjectImported(project);
