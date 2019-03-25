@@ -86,6 +86,16 @@ public final class UiBuilder<T extends Control> {
         this.control.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         return this;
     }
+    
+    /**
+     * Aligns the created widget to fill the cell vertically aligned at top.
+     *
+     * @return the builder
+     */
+	public UiBuilder<T> alignFillVerticalTop() {
+        this.control.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true, 1, 1));
+		return this;
+	}
 
     /**
      * Aligns the created widget to fill both horizontal and vertical.
@@ -178,6 +188,17 @@ public final class UiBuilder<T extends Control> {
             init(builder);
             return builder;
         }
+        
+        /**
+         * Creates a new {@link Composite} control.
+         *
+         * @param parent the parent control
+         * @return the builder
+         */
+        public UiBuilder<Composite> newComposite(Composite parent) {
+			UiBuilder<Composite> builder = new UiBuilder<>(new Composite(parent, SWT.NONE));
+			return builder;
+		}
 
         /**
          * Creates a new {@link Text} control.
@@ -252,6 +273,18 @@ public final class UiBuilder<T extends Control> {
             init(builder);
             return builder;
         }
+        
+        /**
+         * Creates a new {@link CheckboxTree} control.
+         *
+         * @param parent The parent control of the result tree.
+         * @return the builder
+         */
+        public UiBuilder<Tree> newCheckboxTree(Composite parent) {
+        	UiBuilder<Tree> builder = new UiBuilder<>(new Tree(parent, SWT.CHECK));
+            init(builder);
+            return builder;
+		}
 
         /**
          * Creates a new {@link Group} control.
