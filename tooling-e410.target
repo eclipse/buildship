@@ -3,7 +3,7 @@
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.9.1.20180912-1601"/>
-            <unit id="org.eclipse.sdk.ide" version="4.10.0.I20181010-1800"/>
+            <unit id="org.eclipse.sdk.ide" version="4.10.0.I20181206-0815"/>
             <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-rolling/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
