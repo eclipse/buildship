@@ -1,5 +1,6 @@
 package org.eclipse.buildship.core.internal.launch
 
+import spock.lang.Ignore
 import spock.lang.Timeout
 import spock.lang.Unroll
 
@@ -46,6 +47,7 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
     }
 
     @Unroll
+    @Ignore // TODO (donat) re-enable after Gradle 5.4 is released
     def "Can launch task with Gradle #distribution.configuration"(GradleDistribution distribution) {
         setup:
         def job = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, distribution))

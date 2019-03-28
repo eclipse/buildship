@@ -2,6 +2,7 @@ package org.eclipse.buildship.core
 
 import java.util.function.Function
 
+import org.gradle.tooling.IntermediateResultHandler
 import org.gradle.tooling.ModelBuilder
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.ResultHandler
@@ -17,7 +18,7 @@ import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.internal.test.fixtures.TestProcessStreamProvider
 import org.eclipse.buildship.core.internal.util.gradle.BuildActionUtil
-import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider
+import org.eclipse.buildship.core.internal.workspace.CompositeModelQuery
 
 class GradleBuildConnectionCachingTest extends BaseProjectConfiguratorTest {
 
@@ -164,6 +165,27 @@ class GradleBuildConnectionCachingTest extends BaseProjectConfiguratorTest {
         'standard in'                | { ModelBuilder b -> b.setStandardInput(CorePlugin.processStreamsProvider().backgroundJobProcessStreams.input) }
         'standard out'               | { ModelBuilder b -> b.setStandardOutput(CorePlugin.processStreamsProvider().backgroundJobProcessStreams.output) }
         'standard error'             | { ModelBuilder b -> b.setStandardError(CorePlugin.processStreamsProvider().backgroundJobProcessStreams.error) }
+    }
+
+    def "Result cached when model loaded via BuildActionExecuter.Builder"() {
+        setup:
+        TestConfigurator firstConfigurator = new TestConfigurator({ ProjectConnection p ->
+            p.action().buildFinished(BuildActionUtil.compositeModelQuery(EclipseProject.class), {} as IntermediateResultHandler).build().forTasks().run()
+        })
+        TestConfigurator secondConfigurator = new TestConfigurator({ ProjectConnection p ->
+            p.action(BuildActionUtil.compositeModelQuery(EclipseProject.class)).run()
+        })
+        registerConfigurator(firstConfigurator)
+        registerConfigurator(secondConfigurator)
+
+        GradleBuild gradleBuild = gradleBuildFor(location)
+
+        when:
+        gradleBuild.synchronize(new NullProgressMonitor())
+
+        then:
+        assertModelLoadedTwice()
+
     }
 
     private void assertModelLoadedOnce() {
