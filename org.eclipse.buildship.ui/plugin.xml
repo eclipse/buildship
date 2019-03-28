@@ -59,7 +59,7 @@
             class="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeCreationWizard"
             category="org.eclipse.buildship.ui.creationwizards"
             icon="icons/full/etool16/creation_wiz.png"
-            name="Gradle Workspace Composite"
+            name="Gradle Composite"
             canFinishEarly="false"
             hasPages="true"
             project="true">
