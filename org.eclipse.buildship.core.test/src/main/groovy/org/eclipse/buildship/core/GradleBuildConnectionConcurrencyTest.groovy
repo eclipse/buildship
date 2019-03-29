@@ -44,6 +44,9 @@ class GradleBuildConnectionConcurrencyTest extends ProjectSynchronizationSpecifi
 
         then:
         waitFor { job.out.toString().count("BUILD SUCCESSFUL") == 2 }
+
+        cleanup:
+        job.cleanup()
     }
 
     class ExecuteJarTaskInContinuousModeJob extends Job {
@@ -67,6 +70,10 @@ class GradleBuildConnectionConcurrencyTest extends ProjectSynchronizationSpecifi
         }
         protected void canceling() {
             cancellation.cancel()
+        }
+
+        public void cleanup() {
+            canceling();
         }
     }
 
