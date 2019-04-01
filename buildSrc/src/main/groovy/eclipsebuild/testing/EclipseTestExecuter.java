@@ -13,6 +13,7 @@ package eclipsebuild.testing;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,9 +140,11 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         programArgs.add("-loaderpluginname");
         programArgs.add("org.eclipse.jdt.junit4.runtime");
         programArgs.add("-classNames");
-        for (String clzName : collectTestNames(testTask, testTaskOperationId, rootTestSuiteId)) {
-            programArgs.add(clzName);
-        }
+
+        List testNames = new ArrayList(collectTestNames(testTask, testTaskOperationId, rootTestSuiteId));
+        Collections.sort(testNames);
+        programArgs.addAll(testNames);
+
         programArgs.add("-application");
         programArgs.add(getExtension(testTask).getApplicationName());
         programArgs.add("-product org.eclipse.platform.ide");
