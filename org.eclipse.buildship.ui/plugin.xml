@@ -64,7 +64,7 @@
             hasPages="true"
             project="true">
          <description>
-            Create a new Gradle Workspace Composite.
+            Create a new Gradle workspace composite.
          </description>
          <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
       </wizard>
