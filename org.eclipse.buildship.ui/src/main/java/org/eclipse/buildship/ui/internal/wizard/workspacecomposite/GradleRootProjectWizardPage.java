@@ -26,12 +26,12 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Text;
 
 /**
- * Page in the {@link ProjectImportWizard} showing a preview about the project about to be imported.
+ * Page in the {@link WorkspaceCompositeCreationWizard} for setting a project as composite root 
  */
 @SuppressWarnings("unused")
 public final class GradleRootProjectWizardPage extends AbstractWizardPage {
 
-	private Text workspaceCompositeRootProjectLabel;
+    private Text workspaceCompositeRootProjectLabel;
     private Text overrideCheckboxLabel;
     private Button overrideSettingsCheckbox;
 
