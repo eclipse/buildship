@@ -33,13 +33,12 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
 
     public static final String PAGE_ID = "org.eclipse.buildship.ui.compositeRootProjectProperties";
 
-	private Text workspaceCompositeRootProjectLabel;
+    private Text workspaceCompositeRootProjectLabel;
     private Text overrideCheckboxLabel;
     private Button overrideSettingsCheckbox;
     private Button selectRootProject;
     private Composite rootProjectSettingsComposite;
     private Label rootProjectLabel;
-    
     
     private Layout createLayout() {
         GridLayout layout = LayoutUtils.newGridLayout(2);
