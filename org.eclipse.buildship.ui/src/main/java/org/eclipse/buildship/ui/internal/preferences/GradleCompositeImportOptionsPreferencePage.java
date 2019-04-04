@@ -28,9 +28,9 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 /**
- * Preference page for Gradle projects.
+ * Preference page for composite import options.
  *
- * @author Donat Csikos
+ * @author Sebastian Kuzniarz
  */
 public final class GradleCompositeImportOptionsPreferencePage extends PropertyPage {
 
@@ -41,8 +41,6 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
     private final Validator<GradleDistributionViewModel> distributionValidator;
     private final Validator<File> javaHomeValidator;
     private final Validator<File> gradleUserHomeValidator;
-
-    
 
     public GradleCompositeImportOptionsPreferencePage() {
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator("Gradle user home");
@@ -56,10 +54,8 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
                 .withAutoSyncCheckbox()
                 .withOverrideCheckbox("Override workspace settings", "Configure Workspace Settings")
                 .build();
-
         initValues();
         addListeners();
-
         return this.gradleProjectSettingsComposite;
     }
 
