@@ -8,14 +8,12 @@
 
 package org.eclipse.buildship.ui.internal.preferences;
 
-import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
 import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeWizardMessages;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -26,7 +24,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 /**
- * Preference page for Gradle projects.
+ * Preference page for composite root project.
  *
  * @author Sebastian Kuzniarz
  */
@@ -35,17 +33,13 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
 
     public static final String PAGE_ID = "org.eclipse.buildship.ui.compositeRootProjectProperties";
 
-    private final Font defaultFont;
-    private final UiBuilder.UiBuilderFactory builderFactory;
 	private Text workspaceCompositeRootProjectLabel;
     private Text overrideCheckboxLabel;
     private Button overrideSettingsCheckbox;
+    private Button selectRootProject;
     private Composite rootProjectSettingsComposite;
+    private Label rootProjectLabel;
     
-    public GradleCompositeRootProjectPreferencePage() {
-    	this.defaultFont = FontUtils.getDefaultDialogFont();
-        this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
-    }
     
     private Layout createLayout() {
         GridLayout layout = LayoutUtils.newGridLayout(2);
@@ -57,7 +51,7 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
     @Override
     protected Control createContents(Composite parent) {
     	
-    	this.rootProjectSettingsComposite = builderFactory.newComposite(parent).control();
+    	this.rootProjectSettingsComposite = new Composite(parent, SWT.NONE);
     	rootProjectSettingsComposite.setLayout(createLayout());
 
         this.overrideSettingsCheckbox = new Button(rootProjectSettingsComposite, SWT.CHECK);
@@ -73,13 +67,18 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).span(3, SWT.DEFAULT).applyTo(workspaceCompositeNameComposite);
 
         // root project label
-        builderFactory.newLabel(workspaceCompositeNameComposite).alignLeft().text(WorkspaceCompositeWizardMessages.Label_RootProject).control();
+        this.rootProjectLabel = new Label(workspaceCompositeNameComposite, SWT.NONE);
+        this.rootProjectLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1));
+        this.rootProjectLabel.setText(WorkspaceCompositeWizardMessages.Label_RootProject);
 
         // root project text field
-        this.workspaceCompositeRootProjectLabel = builderFactory.newText(workspaceCompositeNameComposite).alignFillHorizontal().control();
+        this.workspaceCompositeRootProjectLabel = new Text(workspaceCompositeNameComposite, SWT.BORDER);
+        this.workspaceCompositeRootProjectLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         
         // root project select button
-        builderFactory.newButton(workspaceCompositeNameComposite).alignRight().text(WorkspaceCompositeWizardMessages.Button_Select_RootProject).control();
+        this.selectRootProject = new Button(workspaceCompositeNameComposite, SWT.PUSH);
+        this.selectRootProject.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+        this.selectRootProject.setText(WorkspaceCompositeWizardMessages.Button_Select_RootProject);
         return rootProjectSettingsComposite;
     }
 
