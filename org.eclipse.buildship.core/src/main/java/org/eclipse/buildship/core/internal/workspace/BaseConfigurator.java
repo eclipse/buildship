@@ -35,7 +35,6 @@ import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.util.gradle.BuildActionUtil;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
-import org.eclipse.buildship.core.internal.util.gradle.ModelUtils;
 public class BaseConfigurator implements ProjectConfigurator {
 
     private Map<File, EclipseProject> locationToProject;
@@ -46,7 +45,6 @@ public class BaseConfigurator implements ProjectConfigurator {
         try {
             Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> connection.action(BuildActionUtil.compositeModelQuery(EclipseProject.class)).run(), monitor);
             this.locationToProject = rootModels.stream()
-                .map(p -> ModelUtils.createCompatibilityModel(p))
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
                 .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
         } catch (Exception e) {

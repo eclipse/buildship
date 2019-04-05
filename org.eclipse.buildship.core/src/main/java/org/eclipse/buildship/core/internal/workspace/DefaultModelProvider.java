@@ -14,12 +14,10 @@ import java.util.concurrent.Callable;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.model.build.BuildEnvironment;
-import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,7 +26,6 @@ import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.util.gradle.BuildActionUtil;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
-import org.eclipse.buildship.core.internal.util.gradle.ModelUtils;
 
 /**
  * Default implementation of {@link ModelProvider}.
@@ -46,38 +43,16 @@ public final class DefaultModelProvider implements ModelProvider {
 
     @Override
     public <T> T fetchModel(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        return injectCompatibilityModel(executeModelQuery(model, monitor, strategy, model));
+        return executeModelQuery(model, monitor, strategy, model);
     }
 
     @Override
     public <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         if (supportsCompositeBuilds(tokenSource, monitor)) {
-            return injectCompatibilityModel(model, executeCompositeModelQuery(model, monitor, strategy, model));
+            return executeCompositeModelQuery(model, monitor, strategy, model);
         } else {
             return ImmutableList.of(fetchModel(model, strategy, tokenSource, monitor));
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T injectCompatibilityModel(T model) {
-        if (model instanceof EclipseProject) {
-            return (T) ModelUtils.createCompatibilityModel((EclipseProject) model);
-        }
-
-        return model;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> Collection<T> injectCompatibilityModel(Class<T> modelClass, Collection<T> models) {
-        if (modelClass == EclipseProject.class) {
-            Builder<EclipseProject> result = ImmutableList.builder();
-            for (T model : models) {
-                result.add(ModelUtils.createCompatibilityModel((EclipseProject) model));
-            }
-            return (Collection<T>) result.build();
-        }
-
-        return models;
     }
 
     private <T> T executeModelQuery(final Class<T> model, final IProgressMonitor monitor, FetchStrategy fetchStrategy, Class<?> cacheKey) {

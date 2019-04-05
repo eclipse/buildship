@@ -35,6 +35,7 @@ import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
  * @author Donat Csikos
  */
 @SuppressWarnings("unchecked")
+// TODO (donat) replace this class with IdeAttachedProjectConnection
 public final class ConnectionAwareLauncherProxy implements InvocationHandler {
 
     private final LongRunningOperation launcher;

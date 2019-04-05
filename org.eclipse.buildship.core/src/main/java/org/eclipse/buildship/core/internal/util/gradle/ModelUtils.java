@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.gradle.tooling.model.DomainObjectSet;
-import org.gradle.tooling.model.eclipse.EclipseProject;
 
 /**
  * Contains helper methods related to the Tooling API models.
@@ -28,21 +27,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 public final class ModelUtils {
 
     private ModelUtils() {
-    }
-
-    /**
-     * Creates decorator for the target {@link EclipseProject} that returns sensible defaults for
-     * attributes for older Gradle versions.
-     * <p>
-     * There are a few use-cases where Buildship needs to distinguish if the model element is
-     * missing from the model or not. In those cases, the attributes need to be accessed via the
-     * helper methods defined in the Compatibility model classes.
-     *
-     * @param model the target model
-     * @return the decorated model
-     */
-    public static EclipseProject createCompatibilityModel(EclipseProject model) {
-        return new CompatEclipseProject(model);
     }
 
     static <T> DomainObjectSet<? extends T> asDomainObjectSet(Iterable<? extends T> result) {
@@ -64,7 +48,7 @@ public final class ModelUtils {
     private static class ImmutableDomainObjectSet<T> extends AbstractSet<T> implements DomainObjectSet<T>, Serializable {
         private static final long serialVersionUID = 1L;
 
-        private final Set<T> elements = new LinkedHashSet<T>();
+        private final Set<T> elements = new LinkedHashSet<>();
 
         public ImmutableDomainObjectSet(Iterable<? extends T> elements) {
             for (T element : elements) {
@@ -89,11 +73,11 @@ public final class ModelUtils {
 
         @Override
         public List<T> getAll() {
-            return new ArrayList<T>(this.elements);
+            return new ArrayList<>(this.elements);
         }
 
         public static <T> ImmutableDomainObjectSet<T> of(Iterable<? extends T> elements) {
-            return new ImmutableDomainObjectSet<T>(elements);
+            return new ImmutableDomainObjectSet<>(elements);
         }
     }
 }

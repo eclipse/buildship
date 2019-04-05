@@ -25,6 +25,8 @@ import org.gradle.tooling.events.OperationType;
 import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 
+import org.eclipse.buildship.core.internal.util.gradle.InspectableResultHandler;
+
 final class CachingModelBuilder<T> implements ModelBuilder<T> {
 
     private final ModelBuilder<T> delegate;

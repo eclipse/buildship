@@ -6,14 +6,14 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal;
+package org.eclipse.buildship.core.internal.util.gradle;
 
 import java.util.Optional;
 
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.ResultHandler;
 
-class InspectableResultHandler<T> implements ResultHandler<T> {
+public class InspectableResultHandler<T> implements ResultHandler<T> {
 
     private T result;
     private GradleConnectionException failure;

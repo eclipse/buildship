@@ -44,6 +44,7 @@ import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 import org.eclipse.buildship.core.internal.marker.GradleMarkerManager;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.util.gradle.IdeAttachedProjectConnection;
 import org.eclipse.buildship.core.internal.workspace.ConnectionAwareLauncherProxy;
 import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider;
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
