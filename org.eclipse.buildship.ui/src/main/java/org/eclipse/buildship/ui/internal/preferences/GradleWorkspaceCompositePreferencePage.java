@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 /**
- * Preference page for Gradle projects.
+ * Preference page for workspace composite configuration
  *
  * @author Sebastian Kuzniarz
  */
@@ -35,7 +35,7 @@ public final class GradleWorkspaceCompositePreferencePage extends PropertyPage {
     private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
     private Text workspaceCompositeNameText;
-	private GradleProjectGroup gradleProjectCheckboxtreeComposite;
+    private GradleProjectGroup gradleProjectCheckboxtreeComposite;
     private Composite gradleWorkspaceCompositeSettingsComposite;
 
     public GradleWorkspaceCompositePreferencePage() {
