@@ -8,6 +8,7 @@
 
 package org.eclipse.buildship.core.internal;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,6 +26,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableSet;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -44,6 +46,7 @@ import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 import org.eclipse.buildship.core.internal.marker.GradleMarkerManager;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.internal.util.gradle.IdeAttachedProjectConnection;
 import org.eclipse.buildship.core.internal.workspace.ConnectionAwareLauncherProxy;
 import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider;
@@ -215,11 +218,17 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
                 SubMonitor progress = SubMonitor.convert(monitor, 5);
                 progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.gradleBuild.getBuildConfig().getRootProjectDirectory())));
                 new ImportRootProjectOperation(this.gradleBuild.getBuildConfig(), this.newProjectHandler).run(progress.newChild(1));
-                Set<EclipseProject> allProjects = ModelProviderUtil.fetchAllEclipseProjectsWithSyncTask(this.gradleBuild, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
+                Collection<EclipseProject> rootProjects = ModelProviderUtil.fetchAllEclipseProjectsWithSyncTask(this.gradleBuild, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
+                Set<EclipseProject> allProjects = collectAll(rootProjects);
                 new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
                 new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
                 this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler,
                         ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
+
+                // The root projects are no longer loaded via GradleBuild.getModelProvider(). To avoid unnecessary
+                // model loads (e.g. when somebody opens the test sources from the Execution view) we add the result
+                // to the cache here.
+                ((DefaultModelProvider)this.gradleBuild.getModelProvider()).getCache().put(EclipseProject.class, rootProjects);
             } finally {
                 this.gradleBuild.projectConnectionCache.invalidateAll();
             }
@@ -249,6 +258,14 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
             SynchronizeOperation other = (SynchronizeOperation) obj;
             return Objects.equals(this.gradleBuild, other.gradleBuild) && Objects.equals(this.newProjectHandler, other.newProjectHandler);
         }
+    }
+
+    private static Set<EclipseProject> collectAll(Collection<EclipseProject> models) {
+        ImmutableSet.Builder<EclipseProject> result = ImmutableSet.builder();
+        for (EclipseProject model : models) {
+            result.addAll(HierarchicalElementUtils.getAll(model));
+        }
+        return result.build();
     }
 
     private static class DefaultSynchronizationResult implements SynchronizationResult {

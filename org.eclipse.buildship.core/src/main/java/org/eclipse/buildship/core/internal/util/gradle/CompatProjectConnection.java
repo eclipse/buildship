@@ -92,7 +92,7 @@ public class CompatProjectConnection implements ProjectConnection {
         } else if (model instanceof Collection<?>) {
             return (T) ((Collection<?>) model).stream().map(m -> injectCompatibilityModel(m)).collect(Collectors.toList());
         } else {
-            return (T) model;
+            return model;
         }
     }
 

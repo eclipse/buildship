@@ -106,6 +106,10 @@ public final class DefaultModelProvider implements ModelProvider {
         }
     }
 
+    public Cache<Object, Object> getCache() {
+        return this.cache;
+    }
+
     private boolean supportsCompositeBuilds(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         BuildEnvironment buildEnvironment = fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, tokenSource, monitor);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());

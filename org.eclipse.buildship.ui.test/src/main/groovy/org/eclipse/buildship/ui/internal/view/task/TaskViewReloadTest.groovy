@@ -32,26 +32,25 @@ class TaskViewReloadTest extends BaseTaskViewTest {
                     id 'eclipse'
                 }
 
-                task foo {
+                task testingTaskView {
                 }
 
                 eclipse {
-                    synchronizationTasks foo
+                    synchronizationTasks testingTaskView
                 }
             """
         }
         importAndWait(project)
         waitForTaskView()
-        operationsConsole.clearConsole()
 
-        expect:
-        operationsConsole.document.get() == ''
+        operationsConsole.clearConsole()
+        waitFor { operationsConsole.document.get() == '' }
 
         when:
         reloadTaskView()
 
         then:
-        !operationsConsole.document.get().contains('> Task :foo')
+        !operationsConsole.document.get().contains('> Task :testingTaskView')
     }
 
     private TextConsole getOperationsConsole() {
