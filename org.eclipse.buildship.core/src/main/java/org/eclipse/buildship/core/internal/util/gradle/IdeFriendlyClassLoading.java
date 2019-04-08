@@ -8,7 +8,6 @@
 
 package org.eclipse.buildship.core.internal.util.gradle;
 
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
@@ -31,18 +30,15 @@ public class IdeFriendlyClassLoading {
     // exception. To work around that, we look up the build action class locations and load the
     // classes via an isolated URClassLoader.
 
-    private static URLClassLoader ideFriendlyClassLoader;
-
     private IdeFriendlyClassLoading() {
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> BuildAction<Collection<T>> loadCompositeModelQuery(Class<T> model) {
         try {
             if (Platform.inDevelopmentMode()) {
-                Class<?> actionClass = getIdeFriendlyClassLoader().loadClass(CompositeModelQuery.class.getName());
-                @SuppressWarnings("unchecked")
-                BuildAction<Collection<T>> instance = (BuildAction<Collection<T>>) actionClass.getConstructor(Class.class).newInstance(model);
-                return instance;
+                Class<?> actionClass = loadClassWithIdeFriendlyClassLoader(CompositeModelQuery.class.getName());
+                return (BuildAction<Collection<T>>) actionClass.getConstructor(Class.class).newInstance(model);
             } else {
                 return new CompositeModelQuery<>(model);
             }
@@ -51,12 +47,11 @@ public class IdeFriendlyClassLoading {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T loadClass(Class<T> cls) {
         try {
             if (Platform.inDevelopmentMode()) {
-                @SuppressWarnings("unchecked")
-                T instance = (T) getIdeFriendlyClassLoader().loadClass(cls.getName()).newInstance();
-                return instance;
+                return (T) loadClassWithIdeFriendlyClassLoader(cls.getName()).newInstance();
             } else {
                 return cls.newInstance();
             }
@@ -65,15 +60,13 @@ public class IdeFriendlyClassLoading {
         }
     }
 
-    private static final ClassLoader getIdeFriendlyClassLoader() throws IOException {
+    private static final Class<?> loadClassWithIdeFriendlyClassLoader(String classname) throws Exception {
         ClassLoader coreClassloader = DefaultModelProvider.class.getClassLoader();
         ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
         URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""));
-        if (ideFriendlyClassLoader == null) {
-            ideFriendlyClassLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);
+
+        try (URLClassLoader classLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader)) {
+            return classLoader.loadClass(classname);
         }
-        return ideFriendlyClassLoader;
     }
-
-
 }
