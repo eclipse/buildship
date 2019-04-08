@@ -31,7 +31,7 @@ public class ModelProviderUtil {
             BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
             GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
 
-            if (supportsTaskExecution(gradleVersion)) {
+            if (supportsSyncTasksInEclipsePluginConfig(gradleVersion)) {
                 return runTasksAndQueryCompositeEclipseModel(connection);
             } else if (supportsCompositeBuilds(gradleVersion)) {
                 return queryCompositeEclipseModel(connection);
@@ -42,7 +42,7 @@ public class ModelProviderUtil {
 
     }
 
-    private static boolean supportsTaskExecution(GradleVersion gradleVersion) {
+    private static boolean supportsSyncTasksInEclipsePluginConfig(GradleVersion gradleVersion) {
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("5.4")) >= 0;
     }
 
