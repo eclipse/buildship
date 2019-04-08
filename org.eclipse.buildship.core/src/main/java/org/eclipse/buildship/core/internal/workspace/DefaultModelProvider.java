@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.util.gradle.BuildActionUtil;
+import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
@@ -70,7 +70,7 @@ public final class DefaultModelProvider implements ModelProvider {
 
             @Override
             public Collection<T> call() throws Exception {
-                BuildAction<Collection<T>> query = BuildActionUtil.compositeModelQuery(model);
+                BuildAction<Collection<T>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(model);
                 return DefaultModelProvider.this.gradleBuild.withConnection(connection -> connection.action(query).run(), monitor);
             }
         }, fetchStrategy, cacheKey);

@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.internal.util.gradle.BuildActionUtil;
+import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.SimpleIntermediateResultHandler;
 
@@ -51,15 +51,15 @@ public class ModelProviderUtil {
     }
 
     private static Collection<EclipseProject> runTasksAndQueryCompositeEclipseModel(ProjectConnection connection) {
-        BuildAction<Collection<EclipseProject>> query = BuildActionUtil.compositeModelQuery(EclipseProject.class);
+        BuildAction<Collection<EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class);
         SimpleIntermediateResultHandler<Collection<EclipseProject>> resultHandler = new SimpleIntermediateResultHandler<>();
-        connection.action().projectsLoaded(new TellGradleToRunSynchronizationTasks(), new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build()
+        connection.action().projectsLoaded(IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class), new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build()
                 .forTasks().run();
         return resultHandler.getValue();
     }
 
     private static Collection<EclipseProject> queryCompositeEclipseModel(ProjectConnection connection) {
-        BuildAction<Collection<EclipseProject>> query = BuildActionUtil.compositeModelQuery(EclipseProject.class);
+        BuildAction<Collection<EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class);
         return connection.action(query).run();
     }
 

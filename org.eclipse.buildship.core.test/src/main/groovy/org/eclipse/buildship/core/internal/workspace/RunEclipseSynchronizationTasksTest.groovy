@@ -42,6 +42,6 @@ class RunEclipseSynchronizationTasksTest extends ProjectSynchronizationSpecifica
 
          then:
          findProject('run-eclipse-sync-task-1')
-         syncConsoleOutput.contains "Task :foo"
+         waitFor { syncConsoleOutput.contains "Task :foo" }
     }
 }

@@ -179,6 +179,11 @@ public class CompatEclipseProject extends CompatModelElement<EclipseProject> imp
         return ModelUtils.<CompatEclipseSourceDirectory> asDomainObjectSet(result);
     }
 
+    @Override
+    public boolean hasAutoBuildTasks() {
+        return getElement().hasAutoBuildTasks();
+    }
+
     /**
      * Supplies a default output location for older Gradle versions.
      */

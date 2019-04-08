@@ -12,12 +12,22 @@
 package org.eclipse.buildship.core.internal.configuration;
 
 import java.util.Map;
+import java.util.Optional;
+
+import org.gradle.tooling.IntermediateResultHandler;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+
+import org.eclipse.buildship.core.GradleBuild;
+import org.eclipse.buildship.core.GradleCore;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
+import org.eclipse.buildship.core.internal.workspace.TellGradleToRunAutoSyncTasks;
 
 /**
  * Backing implementation class for the {@link org.eclipse.buildship.core.internal.configuration.GradleProjectBuilder}.
@@ -34,6 +44,8 @@ public final class DefaultGradleProjectBuilder extends IncrementalProjectBuilder
         IProject project = getProject();
         if (kind == FULL_BUILD) {
             fullBuild(project);
+        } else if (kind == AUTO_BUILD) {
+            runAutoBuild(monitor, project);
         } else {
             IResourceDelta delta = getDelta(project);
             if (delta == null) {
@@ -61,4 +73,37 @@ public final class DefaultGradleProjectBuilder extends IncrementalProjectBuilder
         GradleProjectMarker.INSTANCE.removeMarkerFromResourceRecursively(getProject());
     }
 
+    private void runAutoBuild(IProgressMonitor monitor, IProject project) {
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(project);
+        if (model.isPresent()) {
+            if (model.hasAutoBuildTasks()) {
+                Optional<GradleBuild> gradleBuild = GradleCore.getWorkspace().getBuild(project);
+                if (gradleBuild.isPresent()) {
+                    try {
+                        gradleBuild.get().withConnection(connection -> {
+                            return connection.action()
+                                .projectsLoaded(IdeFriendlyClassLoading.loadClass(TellGradleToRunAutoSyncTasks.class), NoOpResultHandler.newInstance())
+                                .build()
+                                .forTasks()
+                                .run();
+                        }, monitor);
+                    } catch (Exception e) {
+                        CorePlugin.logger().warn("Can't run auto-build tasks", e);
+                    }
+                }
+            }
+        }
+    }
+
+    private static final class NoOpResultHandler<T> implements IntermediateResultHandler<T> {
+
+        @Override
+        public void onComplete(T result) {
+        }
+
+        static <T> NoOpResultHandler<T> newInstance() {
+            return new NoOpResultHandler<>();
+        }
+
+    }
 }

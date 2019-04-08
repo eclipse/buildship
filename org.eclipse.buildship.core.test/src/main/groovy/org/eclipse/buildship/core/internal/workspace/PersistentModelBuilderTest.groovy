@@ -28,8 +28,9 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         def command = project.description.newCommand()
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
+        def hasAutoBuildTasks = true
 
-        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
         def model = new PersistentModelBuilder(previous).build()
 
         expect:
@@ -57,8 +58,9 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         def command = project.description.newCommand()
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
+        def hasAutoBuildTasks = false
 
-        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
         def builder = new PersistentModelBuilder(previous)
         builder."${method}"(null)
 

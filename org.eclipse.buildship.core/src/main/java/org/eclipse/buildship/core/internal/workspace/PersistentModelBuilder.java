@@ -37,6 +37,7 @@ public final class PersistentModelBuilder {
     private Collection<IPath> linkedResources;
     private Collection<String> managedNatures;
     private Collection<ICommand> managedBuilders;
+    private boolean hasAutoBuildTasks;
 
     public PersistentModelBuilder(PersistentModel previous) {
         this.previous = Preconditions.checkNotNull(previous);
@@ -92,11 +93,16 @@ public final class PersistentModelBuilder {
         return this;
     }
 
+    public PersistentModelBuilder hasAutoBuildTasks(boolean hasAutoBuildTasks) {
+        this.hasAutoBuildTasks = hasAutoBuildTasks;
+        return this;
+    }
+
     public PersistentModel getPrevious() {
         return this.previous;
     }
 
     public PersistentModel build() {
-        return new DefaultPersistentModel(this.previous.getProject(), this.buildDir, this.buildScriptPath, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders);
+        return new DefaultPersistentModel(this.previous.getProject(), this.buildDir, this.buildScriptPath, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders, this.hasAutoBuildTasks);
     }
 }

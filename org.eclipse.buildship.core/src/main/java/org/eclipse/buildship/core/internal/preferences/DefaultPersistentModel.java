@@ -36,11 +36,13 @@ public final class DefaultPersistentModel implements PersistentModel {
     private final Collection<IPath> linkedResources;
     private final List<String> managedNatures;
     private final List<ICommand> managedBuilders;
+    private final boolean hasAutoBuildTasks;
 
     public DefaultPersistentModel(IProject project, IPath buildDir, IPath buildScriptPath,
                                   Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath,
                                   Collection<IPath> derivedResources, Collection<IPath> linkedResources,
-                                  Collection<String> managedNatures, Collection<ICommand> managedBuilders) {
+                                  Collection<String> managedNatures, Collection<ICommand> managedBuilders,
+                                  boolean hasAutoBuildTasks) {
         this.project = Preconditions.checkNotNull(project);
         this.buildDir = Preconditions.checkNotNull(buildDir);
         this.buildScriptPath = Preconditions.checkNotNull(buildScriptPath);
@@ -50,6 +52,7 @@ public final class DefaultPersistentModel implements PersistentModel {
         this.linkedResources = ImmutableList.copyOf(linkedResources);
         this.managedNatures = ImmutableList.copyOf(managedNatures);
         this.managedBuilders = ImmutableList.copyOf(managedBuilders);
+        this.hasAutoBuildTasks = hasAutoBuildTasks;
     }
 
     @Override
@@ -103,6 +106,11 @@ public final class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
+    public boolean hasAutoBuildTasks() {
+        return this.hasAutoBuildTasks;
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (!(obj instanceof DefaultPersistentModel)) {
             return false;
@@ -115,12 +123,13 @@ public final class DefaultPersistentModel implements PersistentModel {
                 && Objects.equal(this.derivedResources, that.derivedResources)
                 && Objects.equal(this.linkedResources, that.linkedResources)
                 && Objects.equal(this.managedNatures, that.managedNatures)
-                && Objects.equal(this.managedBuilders, that.managedBuilders);
+                && Objects.equal(this.managedBuilders, that.managedBuilders)
+                && Objects.equal(this.hasAutoBuildTasks, that.hasAutoBuildTasks);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.project, this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders);
+        return Objects.hashCode(this.project, this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders, this.hasAutoBuildTasks);
     }
 
 }

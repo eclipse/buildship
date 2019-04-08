@@ -41,4 +41,6 @@ public interface PersistentModel {
     List<String> getManagedNatures();
 
     List<ICommand> getManagedBuilders();
+
+    boolean hasAutoBuildTasks();
 }

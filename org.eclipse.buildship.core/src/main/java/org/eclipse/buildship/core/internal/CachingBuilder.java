@@ -16,7 +16,7 @@ import org.gradle.tooling.ProjectConnection;
 
 import com.google.common.cache.Cache;
 
-public class CachingBuilder implements BuildActionExecuter.Builder {
+final class CachingBuilder implements BuildActionExecuter.Builder {
 
     private final Cache<Object, Object> cache;
     private final Builder delegate;
