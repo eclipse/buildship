@@ -20,7 +20,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 
 /**
- * Eclipse wizard for creating Gradle projects in the workspace.
+ * Eclipse wizard for creating Gradle composites in the workspace.
  */
 public final class WorkspaceCompositeCreationWizard extends AbstractWorkspaceCompositeWizard implements INewWizard {
 

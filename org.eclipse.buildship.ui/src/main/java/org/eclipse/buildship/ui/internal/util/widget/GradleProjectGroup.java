@@ -11,9 +11,7 @@
 
 package org.eclipse.buildship.ui.internal.util.widget;
 
-import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
-import org.eclipse.buildship.ui.internal.util.widget.UiBuilder.UiBuilderFactory;
 import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeWizardMessages;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -38,30 +36,33 @@ public class GradleProjectGroup extends Group {
         super(parent, SWT.NONE);
         setText(WorkspaceCompositeWizardMessages.Group_Label_GradleProjects);
 
-        createWidgets();
+        createWidgets(parent);
     }
 	
-	public void createWidgets() {
+	public void createWidgets(Composite parent) {
 		setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(this);
-		
-		this.font = FontUtils.getDefaultDialogFont();
-        UiBuilderFactory uiBuilder = new UiBuilder.UiBuilderFactory(this.font);
         
-		this.gradleProjectTree = uiBuilder.newCheckboxTree(this).alignFillBoth(3).control();
+		this.gradleProjectTree = new Tree(parent, SWT.CHECK);
+		this.gradleProjectTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 		
-		this.buttonComposite = uiBuilder.newComposite(this).alignFillVerticalTop().control();
+		this.buttonComposite = new Composite(parent, SWT.NONE);
+		this.buttonComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true, 1, 1));
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(buttonComposite);
 		
-		this.newGradleProject = uiBuilder.newButton(buttonComposite).text(WorkspaceCompositeWizardMessages.Button_New_GradleProject).alignFillHorizontal().control();
-		this.addExternalGradleProject = uiBuilder.newButton(buttonComposite).text(WorkspaceCompositeWizardMessages.Button_Add_ExternalGradleProject).alignFillHorizontal().control();
+		this.newGradleProject = new Button(buttonComposite, SWT.PUSH);
+		this.newGradleProject.setText(WorkspaceCompositeWizardMessages.Button_New_GradleProject);
+		this.newGradleProject.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		
-		fillCheckboxTree();
+		this.addExternalGradleProject = new Button(buttonComposite, SWT.PUSH);
+		this.addExternalGradleProject.setText(WorkspaceCompositeWizardMessages.Button_Add_ExternalGradleProject);
+		this.addExternalGradleProject.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		fillCheckboxTreeWithFakeData();
 	}
 
 	
-	private void fillCheckboxTree() {
-		/*
+	private void fillCheckboxTreeWithFakeData() {
 		for (int i = 0; i < 4; i++) {
 		      TreeItem iItem = new TreeItem(this.gradleProjectTree, 0);
 		      iItem.setText("TreeItem (0) -" + i);
@@ -78,7 +79,6 @@ public class GradleProjectGroup extends Group {
 		        }
 		      }
 		    }
-		  */
 	}
 	
 	@Override

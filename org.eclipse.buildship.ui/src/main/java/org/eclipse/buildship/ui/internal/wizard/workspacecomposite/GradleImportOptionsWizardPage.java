@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 /**
- * Page on the {@link ProjectImportWizard} declaring the used Gradle distribution and other advanced options for the imported project.
+ * Page on the {@link WorkspaceCompositeCreationWizard} declaring the used Gradle distribution and other advanced options for the composite projects.
  */
 public final class GradleImportOptionsWizardPage extends AbstractWizardPage {
 
