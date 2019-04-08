@@ -28,9 +28,7 @@ class CachingIntermediateResultHandler<T> implements IntermediateResultHandler<T
     @Override
     public void onComplete(T result) {
         if (result != null) {
-            CacheKey cacheKey = new CacheKey();
-            cacheKey.setBuildAction(this.buildAction);
-            this.cache.put(cacheKey, result);
+            this.cache.put(CacheKey.builder().setBuildAction(this.buildAction).build(), result);
         }
         this.delegate.onComplete(result);
     }
