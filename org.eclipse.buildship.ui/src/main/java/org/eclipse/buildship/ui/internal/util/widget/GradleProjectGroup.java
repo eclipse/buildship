@@ -36,17 +36,17 @@ public class GradleProjectGroup extends Group {
         super(parent, SWT.NONE);
         setText(WorkspaceCompositeWizardMessages.Group_Label_GradleProjects);
 
-        createWidgets(parent);
+        createWidgets();
     }
 	
-	public void createWidgets(Composite parent) {
+	public void createWidgets() {
 		setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		GridLayoutFactory.swtDefaults().numColumns(4).applyTo(this);
         
-		this.gradleProjectTree = new Tree(parent, SWT.CHECK);
+		this.gradleProjectTree = new Tree(this, SWT.CHECK);
 		this.gradleProjectTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
 		
-		this.buttonComposite = new Composite(parent, SWT.NONE);
+		this.buttonComposite = new Composite(this, SWT.NONE);
 		this.buttonComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true, 1, 1));
 		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(buttonComposite);
 		
