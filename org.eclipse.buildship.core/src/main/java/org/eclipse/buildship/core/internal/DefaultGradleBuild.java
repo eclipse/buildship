@@ -48,7 +48,6 @@ import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.internal.util.gradle.IdeAttachedProjectConnection;
-import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.workspace.ConnectionAwareLauncherProxy;
 import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider;
 import org.eclipse.buildship.core.internal.workspace.ImportRootProjectOperation;
@@ -228,7 +227,6 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
                         ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
             } finally {
                 this.gradleBuild.projectConnectionCache.invalidateAll();
-                IdeFriendlyClassLoading.cleanup();
             }
         }
 
