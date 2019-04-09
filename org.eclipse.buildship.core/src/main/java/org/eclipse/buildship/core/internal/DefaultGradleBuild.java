@@ -48,13 +48,12 @@ import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.internal.util.gradle.IdeAttachedProjectConnection;
+import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.workspace.ConnectionAwareLauncherProxy;
 import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider;
-import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
 import org.eclipse.buildship.core.internal.workspace.ImportRootProjectOperation;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 import org.eclipse.buildship.core.internal.workspace.ModelProvider;
-import org.eclipse.buildship.core.internal.workspace.ModelProviderUtil;
 import org.eclipse.buildship.core.internal.workspace.NewProjectHandler;
 import org.eclipse.buildship.core.internal.workspace.ProjectConfigurators;
 import org.eclipse.buildship.core.internal.workspace.RunOnImportTasksOperation;
@@ -108,12 +107,17 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
     @Override
     public <T> T withConnection(Function<ProjectConnection, ? extends T> action, IProgressMonitor monitor) throws Exception {
+        return withConnection(action, GradleConnector.newCancellationTokenSource(), monitor);
+    }
+
+    @Override
+    public <T> T withConnection(Function<ProjectConnection, ? extends T> action, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
         Preconditions.checkNotNull(action);
         monitor = monitor != null ? monitor : new NullProgressMonitor();
 
         GradleConnectionOperation<T> operation = new GradleConnectionOperation<>(action);
         try {
-            CorePlugin.operationManager().run(operation, GradleConnector.newCancellationTokenSource(), monitor);
+            CorePlugin.operationManager().run(operation, tokenSource, monitor);
             return operation.result;
         } catch (CoreException e) {
             if (e.getStatus().getException() instanceof Exception) {
@@ -213,24 +217,18 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
-
             try {
                 SubMonitor progress = SubMonitor.convert(monitor, 5);
                 progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.gradleBuild.getBuildConfig().getRootProjectDirectory())));
                 new ImportRootProjectOperation(this.gradleBuild.getBuildConfig(), this.newProjectHandler).run(progress.newChild(1));
-                Collection<EclipseProject> rootProjects = ModelProviderUtil.fetchAllEclipseProjectsWithSyncTask(this.gradleBuild, tokenSource, FetchStrategy.FORCE_RELOAD, progress.newChild(1));
-                Set<EclipseProject> allProjects = collectAll(rootProjects);
+                Set<EclipseProject> allProjects = collectAll(this.gradleBuild.modelProvider.fetchEclipseProjectAndRunSyncTasks(tokenSource, progress.newChild(1)));
                 new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
                 new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
                 this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler,
                         ProjectConfigurators.create(this.gradleBuild, CorePlugin.extensionManager().loadConfigurators())).run(progress.newChild(1));
-
-                // The root projects are no longer loaded via GradleBuild.getModelProvider(). To avoid unnecessary
-                // model loads (e.g. when somebody opens the test sources from the Execution view) we add the result
-                // to the cache here.
-                ((DefaultModelProvider)this.gradleBuild.getModelProvider()).getCache().put(EclipseProject.class, rootProjects);
             } finally {
                 this.gradleBuild.projectConnectionCache.invalidateAll();
+                IdeFriendlyClassLoading.cleanup();
             }
         }
 
