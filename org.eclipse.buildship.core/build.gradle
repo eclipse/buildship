@@ -5,3 +5,7 @@ tasks.processResources.doFirst {
     def buildshipRunimeProperties = file('src/main/resources/org/eclipse/buildship/core/internal/gradle/buildship-runtime.properties')
     buildshipRunimeProperties.text = "ToolingApiVersion=$toolingApiVersion"
 }
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.2'
+}
