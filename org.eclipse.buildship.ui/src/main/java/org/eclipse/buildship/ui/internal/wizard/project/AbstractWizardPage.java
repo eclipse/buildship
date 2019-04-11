@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - refactored HelpContextIdProvider
  */
 
 package org.eclipse.buildship.ui.internal.wizard.project;
@@ -34,6 +35,7 @@ import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.core.internal.util.binding.ValidationListener;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.internal.wizard.HelpContextIdProvider;
 
 /**
  * Common base class for all pages in the {@link ProjectImportWizard}.

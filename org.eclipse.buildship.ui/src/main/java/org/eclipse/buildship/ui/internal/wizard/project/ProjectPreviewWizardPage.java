@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - refactored WizardHelper
  */
 
 package org.eclipse.buildship.ui.internal.wizard.project;
@@ -73,6 +74,7 @@ import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel.Type;
 import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.internal.wizard.WizardHelper;
 
 /**
  * Page in the {@link ProjectImportWizard} showing a preview about the project about to be imported.

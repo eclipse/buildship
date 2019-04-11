@@ -7,13 +7,14 @@
  *
  * Contributors:
  *     Simon Scholz <simon.scholz@vogella.com> - Bug 473545
- *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - adaptation and customization for workspace composite wizard 
+ *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - adaptation and customization for workspace composite wizard, refactored HelpContextIdProvider
  */
 
 package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.ui.internal.UiPlugin;
+import org.eclipse.buildship.ui.internal.wizard.HelpContextIdProvider;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.wizard.Wizard;

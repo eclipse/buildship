@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
+ *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - refactored WizardHelper
  */
 
 package org.eclipse.buildship.ui.internal.wizard.project;
@@ -54,6 +55,7 @@ import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.internal.util.workbench.WorkingSetUtils;
 import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView;
 import org.eclipse.buildship.ui.internal.view.task.TaskView;
+import org.eclipse.buildship.ui.internal.wizard.WizardHelper;
 
 /**
  * Controller class for the {@link ProjectImportWizard}. Contains all non-UI related calculations

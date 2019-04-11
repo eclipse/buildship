@@ -4,12 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Sebastian Kuzniarz (Diebold Nixdorf Inc.) - adaptation and customization for workspace composite wizard 
- * 
  */
 
-package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
+package org.eclipse.buildship.ui.internal.wizard;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -33,7 +30,7 @@ public class WizardHelper {
      * @param exception the target exception
      * @return the new status object
      */
-    static ToolingApiStatus containerExceptionToToolingApiStatus(InvocationTargetException exception) {
+    public static ToolingApiStatus containerExceptionToToolingApiStatus(InvocationTargetException exception) {
         Throwable target = exception.getTargetException() == null ? exception : exception.getTargetException();
         if (target instanceof CoreException && ((CoreException) target).getStatus() instanceof ToolingApiStatus) {
            return (ToolingApiStatus) ((CoreException) target).getStatus();

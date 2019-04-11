@@ -9,7 +9,7 @@
  *     Simon Scholz (vogella GmbH) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.internal.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard;
 
 /**
  * Implemented by components for which there is a help context id.
