@@ -26,18 +26,17 @@ import org.eclipse.swt.widgets.TreeItem;
 @SuppressWarnings("unused")
 public class GradleProjectGroup extends Group {
 	
-    private Font font;
+	private Font font;
 	private Button newGradleProject;
 	private Button addExternalGradleProject;
 	private Composite buttonComposite;
 	private Tree gradleProjectTree;
 	
 	public GradleProjectGroup(Composite parent) {
-        super(parent, SWT.NONE);
-        setText(WorkspaceCompositeWizardMessages.Group_Label_GradleProjects);
-
-        createWidgets();
-    }
+        	super(parent, SWT.NONE);
+        	setText(WorkspaceCompositeWizardMessages.Group_Label_GradleProjects);
+        	createWidgets();
+    	}
 	
 	public void createWidgets() {
 		setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -64,25 +63,25 @@ public class GradleProjectGroup extends Group {
 	
 	private void fillCheckboxTreeWithFakeData() {
 		for (int i = 0; i < 4; i++) {
-		      TreeItem iItem = new TreeItem(this.gradleProjectTree, 0);
-		      iItem.setText("TreeItem (0) -" + i);
-		      for (int j = 0; j < 4; j++) {
-		        TreeItem jItem = new TreeItem(iItem, 0);
-		        jItem.setText("TreeItem (1) -" + j);
+			TreeItem iItem = new TreeItem(this.gradleProjectTree, 0);
+			iItem.setText("TreeItem (0) -" + i);
+			for (int j = 0; j < 4; j++) {
+				TreeItem jItem = new TreeItem(iItem, 0);
+				jItem.setText("TreeItem (1) -" + j);
 		        for (int k = 0; k < 4; k++) {
-		          TreeItem kItem = new TreeItem(jItem, 0);
-		          kItem.setText("TreeItem (2) -" + k);
-		          for (int l = 0; l < 4; l++) {
-		            TreeItem lItem = new TreeItem(kItem, 0);
-		            lItem.setText("TreeItem (3) -" + l);
-		          }
+					TreeItem kItem = new TreeItem(jItem, 0);
+		          	kItem.setText("TreeItem (2) -" + k);
+		          	for (int l = 0; l < 4; l++) {
+						TreeItem lItem = new TreeItem(kItem, 0);
+						lItem.setText("TreeItem (3) -" + l);
+		          	}
 		        }
-		      }
-		    }
+			}
+		}
 	}
 	
 	@Override
-    protected void checkSubclass() {
+    	protected void checkSubclass() {
         // Disable the check that prevents subclassing of SWT components
-    }
+    	}
 }
