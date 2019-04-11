@@ -36,11 +36,10 @@ import com.google.common.base.Strings;
  */
 public abstract class AbstractWizardPage extends WizardPage {
 
-    @SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private final String defaultMessage;
-
-    private final Font defaultFont;
-    private final UiBuilder.UiBuilderFactory builderFactory;
+	private final Font defaultFont;
+	private final UiBuilder.UiBuilderFactory builderFactory;
 
     /**
      * Constructor setting up the main messages and the validation facility for this wizard page.
