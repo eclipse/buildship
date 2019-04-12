@@ -15,7 +15,7 @@ import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.internal.test.fixtures.TestProcessStreamProvider
-import org.eclipse.buildship.core.internal.util.gradle.BuildActionUtil
+import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading
 
 class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
 
@@ -134,7 +134,7 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
        when:
        File location = dir('GradleBuildConnectionTest_1')
        GradleBuild gradleBuild = gradleBuildFor(location)
-       Function query = { ProjectConnection c -> c.action(BuildActionUtil.compositeModelQuery(GradleProject)).run() }
+       Function query = { ProjectConnection c -> c.action(IdeFriendlyClassLoading.loadCompositeModelQuery(GradleProject)).run() }
        Collection<GradleProject> result= gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
@@ -143,7 +143,7 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
        when:
        location = dir('GradleBuildConnectionTest_2')
        gradleBuild = gradleBuildFor(location)
-       query = { ProjectConnection c -> c.action().projectsLoaded(BuildActionUtil.compositeModelQuery(GradleProject), resultHandler).build().run() }
+       query = { ProjectConnection c -> c.action().projectsLoaded(IdeFriendlyClassLoading.loadCompositeModelQuery(GradleProject), resultHandler).build().run() }
        result = gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
@@ -152,7 +152,7 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
        when:
        location = dir('GradleBuildConnectionTest_3')
        gradleBuild = gradleBuildFor(location)
-       query = { ProjectConnection c -> c.action().buildFinished(BuildActionUtil.compositeModelQuery(GradleProject), resultHandler).build().run() }
+       query = { ProjectConnection c -> c.action().buildFinished(IdeFriendlyClassLoading.loadCompositeModelQuery(GradleProject), resultHandler).build().run() }
        result = gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:

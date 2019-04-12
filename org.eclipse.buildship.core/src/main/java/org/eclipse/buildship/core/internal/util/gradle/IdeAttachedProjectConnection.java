@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.buildship.core.internal;
+package org.eclipse.buildship.core.internal.util.gradle;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.internal.configuration.GradleArguments;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 
-final class IdeAttachedProjectConnection implements ProjectConnection {
+public final class IdeAttachedProjectConnection implements ProjectConnection {
 
     private final ProjectConnection delegate;
     private final GradleArguments gradleArguments;
@@ -90,7 +90,7 @@ final class IdeAttachedProjectConnection implements ProjectConnection {
     public static ProjectConnection newInstance(CancellationTokenSource tokenSource, GradleArguments gradleArguments, IProgressMonitor monitor) {
         GradleConnector connector = GradleConnector.newConnector();
         gradleArguments.applyTo(connector);
-        ProjectConnection connection = connector.connect();
+        ProjectConnection connection = new CompatProjectConnection(connector.connect());
 
         GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
                 .forBackgroundProcess()

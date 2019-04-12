@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 the original author or authors.
+ * Copyright (c) 2019 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,67 +16,42 @@ import java.util.Objects;
 
 import org.gradle.tooling.BuildAction;
 
-class CacheKey {
-    private boolean invalid = false;
-    private BuildAction<?> buildAction;
-    private Class<?> modelType;
-    private List<String> tasks;
-    private Map<String, String> envVariables;
-    private File javaHome;
-    private List<String> arguments;
-    private List<String> jvmArguments;
+final class CacheKey {
+
+    private final boolean invalid;
+    private final BuildAction<?> buildAction;
+    private final Class<?> modelType;
+    private final List<String> tasks;
+    private final Map<String, String> envVariables;
+    private final File javaHome;
+    private final List<String> arguments;
+    private final List<String> jvmArguments;
+
+    private CacheKey(Builder cacheKeyBuilder) {
+        this.invalid = cacheKeyBuilder.invalid;
+        this.buildAction = cacheKeyBuilder.buildAction;
+        this.modelType = cacheKeyBuilder.modelType;
+        this.tasks = cacheKeyBuilder.tasks;
+        this.envVariables = cacheKeyBuilder.envVariables;
+        this.javaHome = cacheKeyBuilder.javaHome;
+        this.arguments = cacheKeyBuilder.arguments;
+        this.jvmArguments = cacheKeyBuilder.jvmArguments;
+    }
 
     public boolean isInvalid() {
         return this.invalid;
     }
 
-    public void markInvalid() {
-        this.invalid = true;
-    }
-
-    public void setBuildAction(BuildAction<?> buildAction) {
-        this.buildAction = buildAction;
-    }
-
-    public void setModelType(Class<?> modelType) {
-        this.modelType = modelType;
-    }
-
-    public void setTasks(List<String> tasks) {
-        this.tasks = tasks;
-    }
-
-    public void setEnvironmentVariables(Map<String, String> envVariables) {
-        this.envVariables = envVariables;
-    }
-
-    public void setJavaHome(File javaHome) {
-        this.javaHome = javaHome.getAbsoluteFile();
-    }
-
-    public void setArguments(List<String> arguments) {
-        this.arguments = arguments;
-    }
-
-    public void addArguments(List<String> arguments) {
-        List<String> newArguments = this.arguments == null ? new ArrayList<>() : new ArrayList<>(this.arguments);
-        newArguments.addAll(arguments);
-        this.arguments = newArguments;
-    }
-
-    public void setJvmArguments(List<String> jvmArguments) {
-        this.jvmArguments = jvmArguments;
-    }
-
-    public void addJvmArguments(List<String> jvmArguments) {
-        List<String> newJvmArguments = this.jvmArguments == null ? new ArrayList<>() : new ArrayList<>(this.jvmArguments);
-        newJvmArguments.addAll(jvmArguments);
-        this.jvmArguments = newJvmArguments;
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.buildAction, this.modelType, this.invalid, this.tasks, this.envVariables, this.javaHome, this.arguments, this.jvmArguments);
+        return Objects.hash(this.buildAction, this.modelType,
+                this.invalid, this.tasks,
+                this.envVariables, this.javaHome,
+                this.arguments, this.jvmArguments);
     }
 
     @Override
@@ -100,4 +75,77 @@ class CacheKey {
                 && Objects.equals(this.arguments, other.arguments)
                 && Objects.equals(this.jvmArguments, other.jvmArguments);
     }
+
+    static final class Builder {
+
+        private boolean invalid = false;
+        private BuildAction<?> buildAction;
+        private Class<?> modelType;
+        private List<String> tasks;
+        private Map<String, String> envVariables;
+        private File javaHome;
+        private List<String> arguments;
+        private List<String> jvmArguments;
+
+        private Builder() {
+        }
+
+        public void markInvalid() {
+            this.invalid = true;
+        }
+
+        public Builder setBuildAction(BuildAction<?> buildAction) {
+            this.buildAction = buildAction;
+            return this;
+        }
+
+        public Builder setModelType(Class<?> modelType) {
+            this.modelType = modelType;
+            return this;
+        }
+
+        public Builder setTasks(List<String> tasks) {
+            this.tasks = tasks;
+            return this;
+        }
+
+        public Builder setEnvironmentVariables(Map<String, String> envVariables) {
+            this.envVariables = envVariables;
+            return this;
+        }
+
+        public Builder setJavaHome(File javaHome) {
+            this.javaHome = javaHome.getAbsoluteFile();
+            return this;
+        }
+
+        public Builder setArguments(List<String> arguments) {
+            this.arguments = arguments;
+            return this;
+        }
+
+        public Builder addArguments(List<String> arguments) {
+            List<String> newArguments = this.arguments == null ? new ArrayList<>() : new ArrayList<>(this.arguments);
+            newArguments.addAll(arguments);
+            this.arguments = newArguments;
+            return this;
+        }
+
+        public Builder setJvmArguments(List<String> jvmArguments) {
+            this.jvmArguments = jvmArguments;
+            return this;
+        }
+
+        public Builder addJvmArguments(List<String> jvmArguments) {
+            List<String> newJvmArguments = this.jvmArguments == null ? new ArrayList<>() : new ArrayList<>(this.jvmArguments);
+            newJvmArguments.addAll(jvmArguments);
+            this.jvmArguments = newJvmArguments;
+            return this;
+        }
+
+        public CacheKey build() {
+            return new CacheKey(this);
+        }
+    }
+
 }

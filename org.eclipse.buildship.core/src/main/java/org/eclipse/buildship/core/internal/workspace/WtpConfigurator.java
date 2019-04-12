@@ -15,7 +15,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -40,6 +39,8 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
+import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 
 /**
  * Updates the Gradle classpath container to have the correct deployment attribute if any of its
@@ -61,9 +62,14 @@ public class WtpConfigurator implements ProjectConfigurator {
     public void init(InitializationContext context, IProgressMonitor monitor) {
         // TODO (donat) add required model declarations to the project configurator extension point
         GradleBuild gradleBuild = context.getGradleBuild();
-        this.gradleBuild = (DefaultGradleBuild) gradleBuild;
-        Collection<EclipseProject> eclipseProjects = ModelProviderUtil.fetchAllEclipseProjects(this.gradleBuild, GradleConnector.newCancellationTokenSource(), FetchStrategy.LOAD_IF_NOT_CACHED, monitor);
-        this.locationToProject = eclipseProjects.stream().collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+        try {
+            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> connection.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class)).run(), monitor);
+            this.locationToProject = rootModels.stream()
+                .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
+                .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+        } catch (Exception e) {
+            context.error("Cannot Query Eclipse model", e);
+        }
     }
 
     @Override

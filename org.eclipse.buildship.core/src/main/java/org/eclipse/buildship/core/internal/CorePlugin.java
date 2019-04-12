@@ -44,6 +44,7 @@ import org.eclipse.buildship.core.internal.operation.DefaultToolingApiOperationM
 import org.eclipse.buildship.core.internal.operation.ToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.preferences.DefaultModelPersistence;
 import org.eclipse.buildship.core.internal.preferences.ModelPersistence;
+import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.internal.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.internal.workspace.DefaultGradleWorkspace;
@@ -116,6 +117,7 @@ public final class CorePlugin extends Plugin {
     @Override
     public void stop(BundleContext context) throws Exception {
         unregisterServices();
+        IdeFriendlyClassLoading.cleanup();
         plugin = null;
         super.stop(context);
     }

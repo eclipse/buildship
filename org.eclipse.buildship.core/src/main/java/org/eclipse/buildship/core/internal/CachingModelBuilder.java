@@ -25,92 +25,94 @@ import org.gradle.tooling.events.OperationType;
 import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 
+import org.eclipse.buildship.core.internal.CacheKey.Builder;
+import org.eclipse.buildship.core.internal.util.gradle.InspectableResultHandler;
+
 final class CachingModelBuilder<T> implements ModelBuilder<T> {
 
     private final ModelBuilder<T> delegate;
     private final Cache<Object, Object> cache;
-    private final CacheKey cacheKey;
+    private final Builder cacheKeyBuilder;
 
     CachingModelBuilder(ModelBuilder<T> delegate, Cache<Object, Object> cache, Class<T> modelType) {
         this.delegate = delegate;
         this.cache = cache;
-        this.cacheKey = new CacheKey();
-        this.cacheKey.setModelType(modelType);
+        this.cacheKeyBuilder = CacheKey.builder().setModelType(modelType);
     }
 
     @Override
     public CachingModelBuilder<T> withArguments(String... arguments) {
-        this.cacheKey.setArguments(Arrays.asList(arguments));
+        this.cacheKeyBuilder.setArguments(Arrays.asList(arguments));
         this.delegate.withArguments(arguments);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> withArguments(Iterable<String> arguments) {
-        this.cacheKey.setArguments(arguments == null ? null : Lists.newArrayList(arguments));
+        this.cacheKeyBuilder.setArguments(arguments == null ? null : Lists.newArrayList(arguments));
         this.delegate.withArguments(arguments);
         return this;
     }
 
     @Override
     public ModelBuilder<T> addArguments(String... arguments) {
-        this.cacheKey.addArguments(Arrays.asList(arguments));
+        this.cacheKeyBuilder.addArguments(Arrays.asList(arguments));
         this.delegate.addArguments(arguments);
         return this;
     }
 
     @Override
     public ModelBuilder<T> addArguments(Iterable<String> arguments) {
-        this.cacheKey.addArguments(Lists.newArrayList(arguments));
+        this.cacheKeyBuilder.addArguments(Lists.newArrayList(arguments));
         this.delegate.addArguments(arguments);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> setStandardOutput(OutputStream outputStream) {
-        this.cacheKey.markInvalid();
+        this.cacheKeyBuilder.markInvalid();
         this.delegate.setStandardOutput(outputStream);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> setStandardError(OutputStream outputStream) {
-        this.cacheKey.markInvalid();
+        this.cacheKeyBuilder.markInvalid();
         this.delegate.setStandardError(outputStream);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> setColorOutput(boolean colorOutput) {
-        this.cacheKey.markInvalid();
+        this.cacheKeyBuilder.markInvalid();
         this.delegate.setColorOutput(colorOutput);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> setStandardInput(InputStream inputStream) {
-        this.cacheKey.markInvalid();
+        this.cacheKeyBuilder.markInvalid();
         this.delegate.setStandardInput(inputStream);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> setJavaHome(File javaHome) {
-        this.cacheKey.setJavaHome(javaHome);
+        this.cacheKeyBuilder.setJavaHome(javaHome);
         this.delegate.setJavaHome(javaHome);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> setJvmArguments(String... jvmArguments) {
-        this.cacheKey.setJvmArguments(Arrays.asList(jvmArguments));
+        this.cacheKeyBuilder.setJvmArguments(Arrays.asList(jvmArguments));
         this.delegate.setJvmArguments(jvmArguments);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> setJvmArguments(Iterable<String> jvmArguments) {
-        this.cacheKey.setJvmArguments(jvmArguments == null ? null : Lists.newArrayList(jvmArguments));
+        this.cacheKeyBuilder.setJvmArguments(jvmArguments == null ? null : Lists.newArrayList(jvmArguments));
         this.delegate.setJvmArguments(jvmArguments);
         return this;
     }
@@ -118,49 +120,49 @@ final class CachingModelBuilder<T> implements ModelBuilder<T> {
 
     @Override
     public ModelBuilder<T> addJvmArguments(String... jvmArguments) {
-        this.cacheKey.addJvmArguments(Arrays.asList(jvmArguments));
+        this.cacheKeyBuilder.addJvmArguments(Arrays.asList(jvmArguments));
         this.delegate.addJvmArguments(jvmArguments);
         return this;
     }
 
     @Override
     public ModelBuilder<T> addJvmArguments(Iterable<String> jvmArguments) {
-        this.cacheKey.addJvmArguments(Lists.newArrayList(jvmArguments));
+        this.cacheKeyBuilder.addJvmArguments(Lists.newArrayList(jvmArguments));
         this.delegate.addJvmArguments(jvmArguments);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> setEnvironmentVariables(Map<String, String> envVariables) {
-        this.cacheKey.setEnvironmentVariables(envVariables);
+        this.cacheKeyBuilder.setEnvironmentVariables(envVariables);
         this.delegate.setEnvironmentVariables(envVariables);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> addProgressListener(ProgressListener listener) {
-        this.cacheKey.markInvalid();
+        this.cacheKeyBuilder.markInvalid();
         this.delegate.addProgressListener(listener);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> addProgressListener(org.gradle.tooling.events.ProgressListener listener) {
-        this.cacheKey.markInvalid();
+        this.cacheKeyBuilder.markInvalid();
         this.delegate.addProgressListener(listener);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> addProgressListener(org.gradle.tooling.events.ProgressListener listener, Set<OperationType> eventTypes) {
-        this.cacheKey.markInvalid();
+        this.cacheKeyBuilder.markInvalid();
         this.delegate.addProgressListener(listener, eventTypes);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> addProgressListener(org.gradle.tooling.events.ProgressListener listener, OperationType... operationTypes) {
-        this.cacheKey.markInvalid();
+        this.cacheKeyBuilder.markInvalid();
         this.delegate.addProgressListener(listener, operationTypes);
         return this;
     }
@@ -173,14 +175,14 @@ final class CachingModelBuilder<T> implements ModelBuilder<T> {
 
     @Override
     public CachingModelBuilder<T> forTasks(String... tasks) {
-        this.cacheKey.setTasks(Arrays.asList(tasks));
+        this.cacheKeyBuilder.setTasks(Arrays.asList(tasks));
         this.delegate.forTasks(tasks);
         return this;
     }
 
     @Override
     public CachingModelBuilder<T> forTasks(Iterable<String> tasks) {
-        this.cacheKey.setTasks(tasks == null ? null : Lists.newArrayList(tasks));
+        this.cacheKeyBuilder.setTasks(tasks == null ? null : Lists.newArrayList(tasks));
         this.delegate.forTasks(tasks);
         return this;
     }
@@ -188,12 +190,13 @@ final class CachingModelBuilder<T> implements ModelBuilder<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T get() throws GradleConnectionException, IllegalStateException {
-        Object cachedValue = this.cacheKey.isInvalid() ? null : this.cache.getIfPresent(this.cacheKey);
+        CacheKey key = this.cacheKeyBuilder.build();
+        Object cachedValue = key.isInvalid() ? null : this.cache.getIfPresent(key);
         if (cachedValue != null) {
             return (T) cachedValue;
         } else {
             T result = this.delegate.get();
-            this.cache.put(this.cacheKey, result);
+            this.cache.put(key, result);
             return result;
         }
     }
@@ -201,13 +204,14 @@ final class CachingModelBuilder<T> implements ModelBuilder<T> {
     @Override
     @SuppressWarnings("unchecked")
     public void get(ResultHandler<? super T> handler) throws IllegalStateException {
-        Object cachedValue = this.cacheKey.isInvalid() ? null : this.cache.getIfPresent(this.cacheKey);
+        CacheKey key = this.cacheKeyBuilder.build();
+        Object cachedValue = key.isInvalid() ? null : this.cache.getIfPresent(key);
         if (cachedValue != null) {
             handler.onComplete((T) cachedValue);
         } else {
             InspectableResultHandler<T> inspectableResultHandler = new InspectableResultHandler<>();
             this.delegate.get(inspectableResultHandler);
-            inspectableResultHandler.getResult().ifPresent(r -> this.cache.put(this.cacheKey, r));
+            inspectableResultHandler.getResult().ifPresent(r -> this.cache.put(key, r));
             inspectableResultHandler.forwardResults(handler);
         }
     }

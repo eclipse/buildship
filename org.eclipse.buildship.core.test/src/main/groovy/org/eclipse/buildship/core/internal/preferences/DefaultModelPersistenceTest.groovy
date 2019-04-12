@@ -52,8 +52,9 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def command = project.description.newCommand()
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
+        def hasAutoBuildTasks = true
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
 
         when:
         CorePlugin.modelPersistence().saveModel(model)
@@ -81,8 +82,9 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def command = project.description.newCommand()
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
+        def hasAutoBuildTasks = false
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:
@@ -105,8 +107,9 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         def command = project.description.newCommand()
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
+        def hasAutoBuildTasks = true
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:

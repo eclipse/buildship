@@ -8,8 +8,14 @@
  */
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.util.function.Function;
+
 import org.gradle.tooling.BuildLauncher;
+import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
@@ -56,4 +62,12 @@ public interface InternalGradleBuild extends GradleBuild {
      * @return the build config, never null
      */
     BuildConfiguration getBuildConfig();
+
+
+    /**
+     * Executes an action in the Gradle runtime.
+     *
+     * @see #withConnection(Function, IProgressMonitor)
+     */
+    <T> T withConnection(Function<ProjectConnection, ? extends T> action, CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception;
 }

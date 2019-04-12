@@ -80,4 +80,9 @@ final class AbsentPersistentModel implements PersistentModel {
     public List<ICommand> getManagedBuilders() {
         throw new IllegalStateException("Absent persistent model");
     }
+
+    @Override
+    public boolean hasAutoBuildTasks() {
+        throw new IllegalStateException("Absent persistent model");
+    }
 }

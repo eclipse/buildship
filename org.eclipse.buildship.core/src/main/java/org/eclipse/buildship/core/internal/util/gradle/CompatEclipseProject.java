@@ -32,7 +32,13 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Lists;
 
 /**
- * Compatibility decorator for {@link EclipseProject}.
+ *
+ * {@link EclipseProject}  decorator that returns sensible defaults for attributes that don't
+ * exist in older Gradle versions.
+ * <p>
+ * There are a few use-cases where Buildship needs to distinguish if the model element is
+ * missing from the model or not. In those cases, new static methods are defined on the Compat*
+ * classes.
  *
  * @author Donat Csikos
  */
@@ -171,6 +177,11 @@ public class CompatEclipseProject extends CompatModelElement<EclipseProject> imp
             result.add(new CompatEclipseSourceDirectory(directory));
         }
         return ModelUtils.<CompatEclipseSourceDirectory> asDomainObjectSet(result);
+    }
+
+    @Override
+    public boolean hasAutoBuildTasks() {
+        return getElement().hasAutoBuildTasks();
     }
 
     /**

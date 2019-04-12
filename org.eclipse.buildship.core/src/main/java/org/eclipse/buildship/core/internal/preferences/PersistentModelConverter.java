@@ -42,6 +42,7 @@ final class PersistentModelConverter {
     private static final String PROPERTY_LINKED_RESOURCES = "linkedResources";
     private static final String PROPERTY_MANAGED_NATURES = "managedNatures";
     private static final String PROPERTY_MANAGED_BUILDERS = "managedBuilders";
+    private static final String PROPERTY_HAS_AUTOBUILD_TASKS = "hasAutoBuildTasks";
 
     public static Properties toProperties(final PersistentModel model) {
         Properties properties = new Properties();
@@ -98,6 +99,14 @@ final class PersistentModelConverter {
             @Override
             public String apply(List<ICommand> commands) {
                 return BuildCommandConverter.toXml(model.getProject(), commands);
+            }
+        });
+
+        storeValue(properties, PROPERTY_HAS_AUTOBUILD_TASKS, model.hasAutoBuildTasks(), new Function<Boolean, String>() {
+
+            @Override
+            public String apply(Boolean hasAutoBuildTasks) {
+                return hasAutoBuildTasks.toString();
             }
         });
 
@@ -158,7 +167,15 @@ final class PersistentModelConverter {
                 return BuildCommandConverter.toEntries(project, commands);
             }
         });
-        return new DefaultPersistentModel(project, buildDir, buildScriptPath, subprojects, classpath, derivedResources, linkedResources, managedNatures, managedBuilders);
+
+        boolean hasAutoBuildTaskss = loadValue(properties, PROPERTY_HAS_AUTOBUILD_TASKS, Boolean.FALSE, new Function<String, Boolean>(){
+
+            @Override
+            public Boolean apply(String hasAutoBuildTasks) {
+                return Boolean.valueOf(hasAutoBuildTasks);
+            }});
+
+        return new DefaultPersistentModel(project, buildDir, buildScriptPath, subprojects, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTaskss);
     }
 
     private static <T> T loadValue(Properties properties, String key, T defaultValue, Function<String, T> conversion) {

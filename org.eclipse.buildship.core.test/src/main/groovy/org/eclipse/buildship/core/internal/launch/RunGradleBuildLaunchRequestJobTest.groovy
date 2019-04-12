@@ -1,5 +1,6 @@
 package org.eclipse.buildship.core.internal.launch
 
+import spock.lang.Ignore
 import spock.lang.Timeout
 import spock.lang.Unroll
 

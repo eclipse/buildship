@@ -212,7 +212,7 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected PersistentModel emptyPersistentModel(IProject project) {
-        new DefaultPersistentModel(project, new Path("build"), new Path("build.gradle"), [], [], [], [], [], [])
+        new DefaultPersistentModel(project, new Path("build"), new Path("build.gradle"), [], [], [], [], [], [], false)
     }
 
     protected ILaunchConfigurationWorkingCopy createLaunchConfig(String id, String name = 'launch-config') {

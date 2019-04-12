@@ -33,9 +33,8 @@ import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.util.gradle.BuildActionUtil;
+import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
-import org.eclipse.buildship.core.internal.util.gradle.ModelUtils;
 public class BaseConfigurator implements ProjectConfigurator {
 
     private Map<File, EclipseProject> locationToProject;
@@ -44,9 +43,8 @@ public class BaseConfigurator implements ProjectConfigurator {
     public void init(InitializationContext context, IProgressMonitor monitor) {
         GradleBuild gradleBuild = context.getGradleBuild();
         try {
-            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> connection.action(BuildActionUtil.compositeModelQuery(EclipseProject.class)).run(), monitor);
+            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> connection.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class)).run(), monitor);
             this.locationToProject = rootModels.stream()
-                .map(p -> ModelUtils.createCompatibilityModel(p))
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
                 .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
         } catch (Exception e) {
@@ -111,6 +109,7 @@ public class BaseConfigurator implements ProjectConfigurator {
         JavaSourceSettingsUpdater.update(javaProject, model, progress.newChild(1));
         GradleClasspathContainerUpdater.updateFromModel(javaProject, model, this.locationToProject.values(), persistentModel, progress.newChild(1));
         CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(project);
+        persistentModel.hasAutoBuildTasks(model.hasAutoBuildTasks());
     }
 
     private boolean isJavaProject(EclipseProject model) {

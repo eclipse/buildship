@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.internal.workspace;
 import java.util.Collection;
 
 import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -42,4 +43,11 @@ public interface ModelProvider {
      * @return the returned models
      */
     <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor);
+
+    /**
+     * Queries the {@link EclipseProject} model and executes the synchronization tasks in the same Tooling API query.
+     *
+     * @return the returned models
+     */
+    Collection<EclipseProject> fetchEclipseProjectAndRunSyncTasks(CancellationTokenSource tokenSource, IProgressMonitor monitor);
 }
