@@ -1,13 +1,16 @@
-/*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+/*
+ * Copyright (c) 2015 the original author or authors.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
- * SPDX-License-Identifier: EPL-2.0
- ******************************************************************************/
-package org.eclipse.buildship.ui.internal.wizard.project;
+ * Contributors:
+ *     Simon Scholz <simon.scholz@vogella.com> - Bug 473545
+ *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - adaptation and customization for workspace composite wizard, refactored HelpContextIdProvider
+ */
+
+package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.ui.internal.UiPlugin;
@@ -22,7 +25,7 @@ import com.google.common.base.Preconditions;
 /**
  * Base class for project wizards.
  */
-public abstract class AbstractProjectWizard extends Wizard implements HelpContextIdProvider {
+public abstract class AbstractWorkspaceCompositeWizard extends Wizard implements HelpContextIdProvider {
 
     // the preference key under which it is stored whether to show the welcome page or not
     private final String welcomePageEnabledPreferenceKey;
@@ -30,7 +33,7 @@ public abstract class AbstractProjectWizard extends Wizard implements HelpContex
     // state bit storing that the wizard is blocked to finish globally
     private boolean finishGloballyEnabled;
 
-    protected AbstractProjectWizard(String welcomePageEnabledPreferenceKey) {
+    protected AbstractWorkspaceCompositeWizard(String welcomePageEnabledPreferenceKey) {
         this.welcomePageEnabledPreferenceKey = Preconditions.checkNotNull(welcomePageEnabledPreferenceKey);
 
         // the wizard must not be finishable unless this global flag is enabled

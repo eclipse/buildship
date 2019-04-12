@@ -52,6 +52,7 @@ import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils;
 import org.eclipse.buildship.ui.internal.util.workbench.WorkingSetUtils;
 import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView;
 import org.eclipse.buildship.ui.internal.view.task.TaskView;
+import org.eclipse.buildship.ui.internal.wizard.WizardHelper;
 
 /**
  * Controller class for the {@link ProjectImportWizard}. Contains all non-UI related calculations
