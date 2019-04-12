@@ -11,6 +11,8 @@ package org.eclipse.buildship.ui.internal.wizard.project;
 
 import org.eclipse.jface.wizard.Wizard;
 
+import org.eclipse.buildship.ui.internal.wizard.HelpContextIdProvider;
+
 /**
  * Base class for project wizards.
  */

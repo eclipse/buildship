@@ -51,6 +51,28 @@
             name="Gradle">
       </category>
     </extension>
+    
+    <!-- integration of a Gradle workspace composite creation wizard -->
+    <extension point="org.eclipse.ui.newWizards">
+    	<wizard
+            id="org.eclipse.buildship.ui.wizard.workspaceComposite.creation"
+            class="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeCreationWizard"
+            category="org.eclipse.buildship.ui.creationwizards"
+            icon="icons/full/etool16/creation_wiz.png"
+            name="Gradle Composite"
+            canFinishEarly="false"
+            hasPages="true"
+            project="true">
+         <description>
+            Create a new Gradle workspace composite.
+         </description>
+         <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
+      </wizard>
+      <category
+            id="org.eclipse.buildship.ui.creationwizards"
+            name="Gradle">
+      </category>
+    </extension>
 
     <!-- definition of keywords available in search fields of Gradle project wizards -->
     <extension
