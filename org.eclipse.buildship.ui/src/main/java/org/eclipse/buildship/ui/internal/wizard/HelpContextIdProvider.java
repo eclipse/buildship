@@ -7,7 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ******************************************************************************/
-package org.eclipse.buildship.ui.internal.wizard.project;
+package org.eclipse.buildship.ui.internal.wizard;
 
 /**
  * Implemented by components for which there is a help context id.

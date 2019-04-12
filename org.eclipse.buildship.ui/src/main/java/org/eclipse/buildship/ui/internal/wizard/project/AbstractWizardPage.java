@@ -26,6 +26,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.core.internal.util.binding.ValidationListener;
 import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.internal.wizard.HelpContextIdProvider;
 
 /**
  * Common base class for all pages in the {@link ProjectImportWizard}.
