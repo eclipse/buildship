@@ -47,7 +47,6 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
     }
 
     @Unroll
-    @Ignore // TODO (donat) re-enable after Gradle 5.4 is released
     def "Can launch task with Gradle #distribution.configuration"(GradleDistribution distribution) {
         setup:
         def job = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, distribution))
