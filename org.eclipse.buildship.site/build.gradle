@@ -151,7 +151,7 @@ private void signByEclipseService(signedFolder, unsignedFolder) {
                     for jar in \$(find `pwd` -name '*.jar');
                     do
                         # save the signed jar into a temporary file copy and write it's content to the unsigned jar
-                        curl -o signed.jar -F filedata=@\$jar http://build.eclipse.org:31338/sign
+                        curl -o signed.jar -F file=@\$jar http://build.eclipse.org:31338/sign
                         cp signed.jar \$jar
                         rm signed.jar
                     done
