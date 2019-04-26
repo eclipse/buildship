@@ -16,6 +16,7 @@ import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
+import org.gradle.tooling.model.eclipse.EclipseRuntime;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -74,11 +75,11 @@ public final class DefaultModelProvider implements ModelProvider {
                 BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
                 GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
 
-                if (supportsSyncTasksInEclipsePluginConfig(gradleVersion)) {
-                    return runTasksAndQueryCompositeEclipseModel(connection);
-                } else if (supportsCompositeBuilds(gradleVersion)) {
-                    return queryCompositeModel(EclipseProject.class, connection);
-                } else {
+            if (supportsSyncTasksInEclipsePluginConfig(gradleVersion)) {
+                return runTasksAndQueryCompositeEclipseModel(connection, gradleVersion);
+            } else if (supportsCompositeBuilds(gradleVersion)) {
+                return queryCompositeModel(EclipseProject.class, connection);
+            } else {
                     return ImmutableList.of(queryModel(EclipseProject.class, connection));
                 }
             }, tokenSource, monitor),
@@ -115,6 +116,10 @@ public final class DefaultModelProvider implements ModelProvider {
         }
     }
 
+    private static boolean supportsSendingReservedProjects(GradleVersion gradleVersion) {
+        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("5.5")) >= 0;
+    }
+
     private static boolean supportsSyncTasksInEclipsePluginConfig(GradleVersion gradleVersion) {
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("5.4")) >= 0;
     }
@@ -123,11 +128,17 @@ public final class DefaultModelProvider implements ModelProvider {
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("3.3")) >= 0;
     }
 
-    private static Collection<EclipseProject> runTasksAndQueryCompositeEclipseModel(ProjectConnection connection) {
-        BuildAction<Collection<EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class);
+    private Collection<EclipseProject> runTasksAndQueryCompositeEclipseModel(ProjectConnection connection, GradleVersion gradleVersion) {
+        BuildAction<Collection<EclipseProject>> query;
         SimpleIntermediateResultHandler<Collection<EclipseProject>> resultHandler = new SimpleIntermediateResultHandler<>();
-        connection.action().projectsLoaded(IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class), new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build()
-                .forTasks().run();
+        BuildAction<Void> projectsLoadedAction;
+        if (supportsSendingReservedProjects(gradleVersion)) {
+            query =  IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, new EclipseRuntimeConfigurer());
+        } else {
+            query =  IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class);
+        }
+        projectsLoadedAction = IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class);
+        connection.action().projectsLoaded(projectsLoadedAction, new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build().forTasks().run();
         return resultHandler.getValue();
     }
 
@@ -139,4 +150,5 @@ public final class DefaultModelProvider implements ModelProvider {
     private static <T> T queryModel(Class<T> model, ProjectConnection connection) {
         return connection.getModel(model);
     }
+
 }
