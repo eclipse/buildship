@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.internal.workspace
 
+import org.gradle.tooling.BuildActionFailureException
+
 import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
@@ -47,7 +49,7 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
         SynchronizationResult result = trySynchronizeAndWait(sample)
 
         then:
-        result.status.exception instanceof UnsupportedConfigurationException
+        result.status.exception instanceof BuildActionFailureException
         findProject('already-there') == alreadyThere
     }
 

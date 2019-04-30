@@ -25,7 +25,7 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
 
     // TODO (donat) the test randomly imports subprojects from project 'second'
     // ensure that the project synchronization is ordered
-    def "Same subproject names in different builds interrupt the project synchronization"() {
+    def "Same subproject names in different builds are deduplicated"() {
         setup:
         def firstProject = dir('first') {
             dir 'sub/subsub'
@@ -49,7 +49,14 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
         SynchronizationResult result = tryImportAndWait(secondProject)
 
         then:
-        result.status.severity == IStatus.WARNING
-        result.status.exception instanceof UnsupportedConfigurationException
+        result.status.severity == IStatus.OK
+        findProject('first')
+        findProject('sub')
+        findProject('subsub')
+
+        findProject('second')
+        findProject('second-sub')
+        findProject('sub-subsub')
     }
+
 }
