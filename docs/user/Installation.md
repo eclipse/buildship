@@ -28,6 +28,9 @@ For manual installation use one of the update sites below.
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
+2019-03         | snapshot  | `http://download.eclipse.org/buildship/updates/e411/snapshots/3.x`
+2019-03         | milestone | `http://download.eclipse.org/buildship/updates/e411/milestones/3.x`
+2019-03         | release   | `http://download.eclipse.org/buildship/updates/e411/releases/3.x`
 2018-12         | snapshot  | `http://download.eclipse.org/buildship/updates/e410/snapshots/3.x`
 2018-12         | milestone | `http://download.eclipse.org/buildship/updates/e410/milestones/3.x`
 2018-12         | release   | `http://download.eclipse.org/buildship/updates/e410/releases/3.x`
