@@ -10,20 +10,31 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.gradle.tooling.BuildAction;
+import org.gradle.tooling.BuildActionFailureException;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseRuntime;
+import org.gradle.tooling.model.eclipse.EclipseWorkspaceProject;
 
 import com.google.common.collect.ImmutableList;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.util.gradle.SimpleIntermediateResultHandler;
 
 public final class EclipseModelUtils {
+
+    private static final String EXCEPTION_DUPLICATE_ROOT_ELEMENT_TEXT = "Duplicate root element ";
 
     private EclipseModelUtils() {
     }
@@ -54,6 +65,13 @@ public final class EclipseModelUtils {
         }
     }
 
+    public static EclipseRuntimeConfigurer buildEclipseRuntimeConfigurer() {
+        ImmutableList<IProject> allWorkspaceProjects = CorePlugin.workspaceOperations().getAllProjects();
+        List<EclipseWorkspaceProject> projects = allWorkspaceProjects.stream().map(p -> new DefaultEclipseWorkspaceProject(p.getName(), p.getLocation().toFile()))
+                .collect(Collectors.toList());
+        return new EclipseRuntimeConfigurer(new DefaultEclipseWorkspace(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), projects));
+    }
+
     private static boolean supportsSendingReservedProjects(GradleVersion gradleVersion) {
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("5.5")) >= 0;
     }
@@ -67,8 +85,20 @@ public final class EclipseModelUtils {
     }
 
     private static Collection<EclipseProject> runTasksAndQueryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
+        try {
         return runTasksAndQueryCompositeModel(connection, gradleVersion, IdeFriendlyClassLoading
-                .loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, new EclipseRuntimeConfigurer()));
+                .loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer()));
+        } catch (BuildActionFailureException e) {
+            // For gradle >= 5.5 project name deduplication happens in gradle. In case gradle can't deduplicate then create an UnsupportedConfigurationException
+            // to match the behaviour with previous gradle versions.
+            Throwable cause = e.getCause();
+            if (cause instanceof IllegalArgumentException && cause.getMessage().startsWith(EXCEPTION_DUPLICATE_ROOT_ELEMENT_TEXT)) {
+                String projectName = cause.getMessage().substring(EXCEPTION_DUPLICATE_ROOT_ELEMENT_TEXT.length());
+                String message = String.format("A project with the name %s already exists.", projectName);
+                throw new UnsupportedConfigurationException(message, e);
+            }
+            throw e;
+        }
     }
 
     private static Collection<EclipseProject> runTasksAndQueryCompositeModel(ProjectConnection connection, GradleVersion gradleVersion) {
@@ -84,7 +114,7 @@ public final class EclipseModelUtils {
     }
 
     private static Collection<EclipseProject> queryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
-        BuildAction<Collection<EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, new EclipseRuntimeConfigurer());
+        BuildAction<Collection<EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer());
         return connection.action(query).run();
     }
 

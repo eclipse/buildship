@@ -19,4 +19,7 @@ public final class UnsupportedConfigurationException extends GradlePluginsRuntim
         super(message);
     }
 
+    public UnsupportedConfigurationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

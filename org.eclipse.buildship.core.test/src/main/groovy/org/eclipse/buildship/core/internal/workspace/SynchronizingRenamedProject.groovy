@@ -11,8 +11,7 @@
 
 package org.eclipse.buildship.core.internal.workspace
 
-import org.gradle.tooling.BuildActionFailureException
-
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
@@ -35,6 +34,24 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
         findProject('custom-sample')
     }
 
+    def "Project name is not updated if it conflicts with unrelated workspace project prior to 5.5"() {
+        setup:
+        def sample = dir('sample')
+        importAndWait(sample, GradleDistribution.forVersion("5.4.1"))
+        def alreadyThere = newProject("already-there")
+
+        expect:
+        findProject(sample.name)
+
+        when:
+        renameInGradle(sample, "already-there")
+        SynchronizationResult result = trySynchronizeAndWait(sample)
+
+        then:
+        result.status.exception instanceof UnsupportedConfigurationException
+        findProject('already-there') == alreadyThere
+    }
+
     def "Project name is not updated if it conflicts with unrelated workspace project"() {
         setup:
         def sample = dir('sample')
@@ -49,7 +66,7 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
         SynchronizationResult result = trySynchronizeAndWait(sample)
 
         then:
-        result.status.exception instanceof BuildActionFailureException
+        result.status.exception instanceof UnsupportedConfigurationException
         findProject('already-there') == alreadyThere
     }
 
