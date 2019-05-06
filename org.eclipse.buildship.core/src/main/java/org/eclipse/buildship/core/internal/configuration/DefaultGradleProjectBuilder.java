@@ -42,10 +42,12 @@ public final class DefaultGradleProjectBuilder extends IncrementalProjectBuilder
     @Override
     protected IProject[] build(int kind, @SuppressWarnings("rawtypes") Map args, IProgressMonitor monitor) throws CoreException {
         IProject project = getProject();
+        if (kind == AUTO_BUILD) {
+            runAutoBuild(monitor, project);
+        }
+
         if (kind == FULL_BUILD) {
             fullBuild(project);
-        } else if (kind == AUTO_BUILD) {
-            runAutoBuild(monitor, project);
         } else {
             IResourceDelta delta = getDelta(project);
             if (delta == null) {
