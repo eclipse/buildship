@@ -33,7 +33,6 @@ import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 public class BaseConfigurator implements ProjectConfigurator {
 
@@ -41,9 +40,10 @@ public class BaseConfigurator implements ProjectConfigurator {
 
     @Override
     public void init(InitializationContext context, IProgressMonitor monitor) {
+        // TODO (donat) add required model declarations to the project configurator extension point
         GradleBuild gradleBuild = context.getGradleBuild();
         try {
-            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> connection.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class)).run(), monitor);
+            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> EclipseModelUtils.queryModels(connection), monitor);
             this.locationToProject = rootModels.stream()
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
                 .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
