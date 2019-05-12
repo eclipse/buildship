@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+import org.gradle.api.Action;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildController;
 import org.gradle.tooling.model.gradle.GradleBuild;
@@ -22,14 +23,24 @@ import org.gradle.tooling.model.gradle.GradleBuild;
  * @param <T> The requested model type
  * @author Donat Csikos
  */
-public final class CompositeModelQuery<T> implements BuildAction<Collection<T>> {
+public final class CompositeModelQuery<T, U> implements BuildAction<Collection<T>> {
 
     private static final long serialVersionUID = 1L;
 
     private final Class<T> modelType;
 
+    private final Action<? super U> parameter;
+
+    private Class<U> parameterType;
+
     public CompositeModelQuery(Class<T> modelType) {
+        this(modelType, null, null);
+    }
+
+    public CompositeModelQuery(Class<T> modelType, Class<U> parameterType, Action<? super U> parameter) {
         this.modelType = modelType;
+        this.parameterType = parameterType;
+        this.parameter = parameter;
     }
 
     @Override
@@ -40,7 +51,12 @@ public final class CompositeModelQuery<T> implements BuildAction<Collection<T>> 
     }
 
     private void collectRootModels(BuildController controller, GradleBuild build, Collection<T> models) {
-        models.add(controller.getModel(build.getRootProject(), this.modelType));
+        if (this.parameter != null) {
+            models.add(controller.getModel(build.getRootProject(), this.modelType, this.parameterType, this.parameter));
+        } else {
+            models.add(controller.getModel(build.getRootProject(), this.modelType));
+
+        }
 
         for (GradleBuild includedBuild : build.getIncludedBuilds()) {
             collectRootModels(controller, includedBuild, models);
@@ -49,7 +65,7 @@ public final class CompositeModelQuery<T> implements BuildAction<Collection<T>> 
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.modelType);
+        return Objects.hash(this.modelType, this.parameter);
     }
 
     @Override
@@ -63,9 +79,8 @@ public final class CompositeModelQuery<T> implements BuildAction<Collection<T>> 
         if (getClass() != obj.getClass()) {
             return false;
         }
-        CompositeModelQuery<?> other = (CompositeModelQuery<?>) obj;
-        return Objects.equals(this.modelType, other.modelType);
+        CompositeModelQuery<?, ?> other = (CompositeModelQuery<?, ?>) obj;
+        return Objects.equals(this.modelType, other.modelType) && Objects.equals(this.parameter, other.parameter);
     }
-
 
 }

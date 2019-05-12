@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
-import org.eclipse.buildship.core.internal.util.gradle.SimpleIntermediateResultHandler;
 
 /**
  * Default implementation of {@link ModelProvider}.
@@ -70,18 +69,9 @@ public final class DefaultModelProvider implements ModelProvider {
     @Override
     public Collection<EclipseProject> fetchEclipseProjectAndRunSyncTasks(final CancellationTokenSource tokenSource, final IProgressMonitor monitor) {
         return executeOperation(() ->
-            DefaultModelProvider.this.gradleBuild.withConnection(connection -> {
-                BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
-                GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
-
-                if (supportsSyncTasksInEclipsePluginConfig(gradleVersion)) {
-                    return runTasksAndQueryCompositeEclipseModel(connection);
-                } else if (supportsCompositeBuilds(gradleVersion)) {
-                    return queryCompositeModel(EclipseProject.class, connection);
-                } else {
-                    return ImmutableList.of(queryModel(EclipseProject.class, connection));
-                }
-            }, tokenSource, monitor),
+            // TODO (donat) Right now, project configurators can only get cached model query results if they invoke the same exact actions
+            // used below. We should fix this by letting configurators declare their required models.
+            DefaultModelProvider.this.gradleBuild.withConnection(connection -> EclipseModelUtils.runTasksAndQueryModels(connection), tokenSource, monitor),
         FetchStrategy.FORCE_RELOAD, EclipseProject.class);
     }
 
@@ -114,21 +104,8 @@ public final class DefaultModelProvider implements ModelProvider {
             }
         }
     }
-
-    private static boolean supportsSyncTasksInEclipsePluginConfig(GradleVersion gradleVersion) {
-        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("5.4")) >= 0;
-    }
-
     private static boolean supportsCompositeBuilds(GradleVersion gradleVersion) {
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("3.3")) >= 0;
-    }
-
-    private static Collection<EclipseProject> runTasksAndQueryCompositeEclipseModel(ProjectConnection connection) {
-        BuildAction<Collection<EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class);
-        SimpleIntermediateResultHandler<Collection<EclipseProject>> resultHandler = new SimpleIntermediateResultHandler<>();
-        connection.action().projectsLoaded(IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class), new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build()
-                .forTasks().run();
-        return resultHandler.getValue();
     }
 
     private static <T> Collection<T> queryCompositeModel(Class<T> model, ProjectConnection connection) {
@@ -139,4 +116,5 @@ public final class DefaultModelProvider implements ModelProvider {
     private static <T> T queryModel(Class<T> model, ProjectConnection connection) {
         return connection.getModel(model);
     }
+
 }

@@ -9,6 +9,7 @@ import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.events.OperationType
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.eclipse.EclipseProject
+import org.gradle.tooling.model.eclipse.EclipseRuntime
 import spock.lang.Unroll
 
 import org.eclipse.core.runtime.IProgressMonitor
@@ -18,7 +19,7 @@ import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.internal.test.fixtures.TestProcessStreamProvider
 import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading
-import org.eclipse.buildship.core.internal.workspace.CompositeModelQuery
+import org.eclipse.buildship.core.internal.workspace.EclipseModelUtils
 
 class GradleBuildConnectionCachingTest extends BaseProjectConfiguratorTest {
 
@@ -80,6 +81,26 @@ class GradleBuildConnectionCachingTest extends BaseProjectConfiguratorTest {
         ResultHandler<Collection<EclipseProject>> resultHandler = Mock(ResultHandler)
         Function<ProjectConnection, EclipseProject> firstAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class)).run() }
         Function<ProjectConnection, EclipseProject> secondAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class)).run(resultHandler) }
+        TestConfigurator firstConfigurator = new TestConfigurator(firstAction)
+        TestConfigurator secondConfigurator = new TestConfigurator(secondAction)
+        registerConfigurator(firstConfigurator)
+        registerConfigurator(secondConfigurator)
+        GradleBuild gradleBuild = gradleBuildFor(location, GradleDistribution.forVersion("5.4.1"))
+
+        when:
+        gradleBuild.synchronize(new NullProgressMonitor())
+
+        then:
+        1 * resultHandler.onComplete({ it.is(firstConfigurator.result) })
+        // synchronization also uses composite model query, therefore both configurators get cache hits
+        assertModelLoadedOnce()
+    }
+
+    def "Build action loads value from cache during synchronization while supplying eclipseRuntime"() {
+        setup:
+        ResultHandler<Collection<EclipseProject>> resultHandler = Mock(ResultHandler)
+        Function<ProjectConnection, EclipseProject> firstAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, EclipseModelUtils.buildEclipseRuntimeConfigurer())).run() }
+        Function<ProjectConnection, EclipseProject> secondAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, EclipseModelUtils.buildEclipseRuntimeConfigurer())).run(resultHandler) }
         TestConfigurator firstConfigurator = new TestConfigurator(firstAction)
         TestConfigurator secondConfigurator = new TestConfigurator(secondAction)
         registerConfigurator(firstConfigurator)

@@ -9,10 +9,14 @@
 package org.eclipse.buildship.core.internal.util.gradle;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Collection;
 
+import org.gradle.api.Action;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.ProjectConnection;
 
@@ -38,17 +42,13 @@ public class IdeFriendlyClassLoading {
     }
 
     @SuppressWarnings("unchecked")
+    public static <T, U> BuildAction<Collection<T>> loadCompositeModelQuery(Class<T> model, Class<U> parameterType, Action<? super U> parameter) {
+        return (BuildAction<Collection<T>>) loadClass(CompositeModelQuery.class, new Object[] { model, parameterType, parameter });
+    }
+
+    @SuppressWarnings("unchecked")
     public static <T> BuildAction<Collection<T>> loadCompositeModelQuery(Class<T> model) {
-        try {
-            if (Platform.inDevelopmentMode()) {
-                Class<?> actionClass = loadClassWithIdeFriendlyClassLoader(CompositeModelQuery.class.getName());
-                return (BuildAction<Collection<T>>) actionClass.getConstructor(Class.class).newInstance(model);
-            } else {
-                return new CompositeModelQuery<>(model);
-            }
-        } catch (Exception e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
+        return (BuildAction<Collection<T>>) loadClass(CompositeModelQuery.class, model );
     }
 
     @SuppressWarnings("unchecked")
@@ -62,6 +62,48 @@ public class IdeFriendlyClassLoading {
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException(e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T loadClass(Class<T> cls, Object... arguments) {
+        try {
+            Class<T> theClass;
+            if (Platform.inDevelopmentMode()) {
+                theClass = (Class<T>) loadClassWithIdeFriendlyClassLoader(cls.getName());
+            } else {
+                theClass = cls;
+            }
+            Class<?>[] parameterTypes = new Class[arguments.length];
+            for (int i = 0; i < arguments.length; i++) {
+                parameterTypes[i] = arguments[i].getClass();
+            }
+
+            Constructor<T> constructor = findConstructor(theClass, arguments);
+            return constructor.newInstance(arguments);
+        } catch (Exception e) {
+            throw new GradlePluginsRuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Constructor<T> findConstructor(Class<T> theClass, Object[] arguments) throws NoSuchMethodException {
+        for (Constructor<?> c : theClass.getConstructors()) {
+            if (c.getParameterCount() != arguments.length) {
+                continue;
+            }
+            Parameter[] parameters = c.getParameters();
+            boolean foundConstructor = true;
+            for (int i = 0; i < parameters.length; i++) {
+                if (!parameters[i].getType().isInstance(arguments[i])) {
+                    foundConstructor = false;
+                    break;
+                }
+            }
+            if (foundConstructor) {
+                return (Constructor<T>)c;
+            }
+        }
+        throw new NoSuchMethodException("Failed fo find constructor on " + theClass.getName() + " accepting " + Arrays.asList(arguments));
     }
 
     /**
