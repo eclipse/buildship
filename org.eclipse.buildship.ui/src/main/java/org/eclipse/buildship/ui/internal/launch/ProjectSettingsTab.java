@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.internal.launch;
 
 import java.io.File;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
@@ -46,6 +45,7 @@ import org.eclipse.buildship.ui.internal.preferences.GradleProjectPreferencePage
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
+import org.eclipse.buildship.ui.internal.util.widget.ArgumentsEditor.StringListChangeListener;
 
 /**
  * Specifies the Gradle distribution to apply when executing tasks via the run configurations.
@@ -95,8 +95,8 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().addDistributionChangedListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().addModifyListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().addModifyListener(dialogUpdater);
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsText().addModifyListener(dialogUpdater);
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsText().addModifyListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsEditor().addChangeListener(dialogUpdater);
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsEditor().addChangeListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().addSelectionListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().addSelectionListener(dialogUpdater);
         this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().addSelectionListener(dialogUpdater);
@@ -116,8 +116,8 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(useBuildConfig ? buildConfig.getGradleDistribution() : this.attributes.getGradleDistribution()));
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHomeText().setText(Strings.nullToEmpty(useBuildConfig ? (buildConfig.getGradleUserHome() == null ? null : buildConfig.getGradleUserHome().getAbsolutePath()) : this.attributes.getGradleUserHomeHomeExpression()));
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText(Strings.nullToEmpty(useBuildConfig ? (buildConfig.getJavaHome() == null ? null : buildConfig.getJavaHome().getAbsolutePath()) : this.attributes.getJavaHomeExpression()));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsText().setText(Joiner.on(' ').join(useBuildConfig ? buildConfig.getArguments() : this.attributes.getArgumentExpressions()));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsText().setText(Joiner.on(' ').join(useBuildConfig ? buildConfig.getJvmArguments() : this.attributes.getJvmArgumentExpressions()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setArguments(useBuildConfig ? buildConfig.getArguments() : this.attributes.getArgumentExpressions());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJvmArguments(useBuildConfig ? buildConfig.getJvmArguments() : this.attributes.getJvmArgumentExpressions());
         this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(useBuildConfig ? buildConfig.isOfflineMode() : this.attributes.isOffline());
         this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(useBuildConfig ? buildConfig.isBuildScansEnabled() : this.attributes.isBuildScansEnabled());
         this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(useBuildConfig ? buildConfig.isShowConsoleView() : this.attributes.isShowConsoleView());
@@ -170,7 +170,7 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
     /**
      * Listener implementation to update the dialog buttons and messages.
      */
-    private class DialogUpdater extends SelectionAdapter implements ModifyListener, DistributionChangedListener {
+    private class DialogUpdater extends SelectionAdapter implements ModifyListener, DistributionChangedListener, StringListChangeListener {
 
         @Override
         public void widgetSelected(SelectionEvent e) {
@@ -184,6 +184,11 @@ public final class ProjectSettingsTab extends AbstractLaunchConfigurationTab {
 
         @Override
         public void distributionUpdated(GradleDistributionViewModel distributionViewModel) {
+            updateLaunchConfigurationDialog();
+        }
+
+        @Override
+        public void onChange() {
             updateLaunchConfigurationDialog();
         }
     }

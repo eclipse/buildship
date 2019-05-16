@@ -158,21 +158,11 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
             }
         });
 
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsText().addModifyListener(new ModifyListener() {
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArgumentsEditor().addChangeListener(() ->
+                getConfiguration().getArguments().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments()));
 
-            @Override
-            public void modifyText(ModifyEvent e) {
-                getConfiguration().getArguments().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments());
-            }
-        });
-
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsText().addModifyListener(new ModifyListener() {
-
-            @Override
-            public void modifyText(ModifyEvent e) {
-                getConfiguration().getJvmArguments().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments());
-            }
-        });
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArgumentsEditor().addChangeListener(() ->
+                getConfiguration().getJvmArguments().setValue(GradleOptionsWizardPage.this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments()));
 
         this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().addSelectionListener(new SelectionListener() {
 
