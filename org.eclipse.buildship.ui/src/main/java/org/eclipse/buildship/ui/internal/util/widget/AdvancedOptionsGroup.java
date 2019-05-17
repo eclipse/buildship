@@ -11,14 +11,8 @@ package org.eclipse.buildship.ui.internal.util.widget;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-
-import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -33,7 +27,6 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.ui.internal.i18n.UiMessages;
-import org.eclipse.buildship.ui.internal.launch.LaunchMessages;
 import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
 import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 
@@ -55,8 +48,8 @@ public final class AdvancedOptionsGroup extends Group {
     private Button javaHomeBrowseButton;
     private Label javaHomeWarningLabel;
 
-    private Text argumentsText;
-    private Text jvmArgumentsText;
+    private ArgumentsEditor argumentsEditor;
+    private ArgumentsEditor jvmArgumentsEditor;
 
     public AdvancedOptionsGroup(Composite parent, boolean variableSelector) {
         super(parent, SWT.NONE);
@@ -83,24 +76,10 @@ public final class AdvancedOptionsGroup extends Group {
         HoverText.createAndAttach(this.gradleUserHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Java home"));
 
         this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.RunConfiguration_Label_Arguments);
-        if (variableSelector) {
-            this.argumentsText = createMultlineText(this);
-            createVariablesSelectorButton(this, this.argumentsText);
-        } else {
-            this.argumentsText = this.builderFactory.newText(this).alignFillBoth(1).control();
-            this.builderFactory.newLabel(this).control().setVisible(false);
-        }
-        this.builderFactory.newLabel(this).control().setVisible(false);
+        this.argumentsEditor = new ArgumentsEditor(this, variableSelector);
 
         this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.RunConfiguration_Label_JvmArguments);
-        if (variableSelector) {
-            this.jvmArgumentsText = createMultlineText(this);
-            createVariablesSelectorButton(this, this.jvmArgumentsText);
-        } else {
-            this.jvmArgumentsText = this.builderFactory.newText(this).alignFillBoth(1).control();
-            this.builderFactory.newLabel(this).control().setVisible(false);
-        }
-        this.builderFactory.newLabel(this).control().setVisible(false);
+        this.jvmArgumentsEditor = new ArgumentsEditor(this, variableSelector);
 
         addListeners();
     }
@@ -112,38 +91,6 @@ public final class AdvancedOptionsGroup extends Group {
         this.javaHomeBrowseButton.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.javaHomeText, "Java home"));
     }
 
-    private Text createMultlineText(Composite container) {
-        Text textControl = new Text(container, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-        GridData textLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
-        textLayoutData.heightHint = 65;
-        textControl.setLayoutData(textLayoutData);
-        return textControl;
-    }
-
-    private void createVariablesSelectorButton(Composite container, final Text target) {
-        Composite buttonContainer = new Composite(container, SWT.NONE);
-        GridLayout buttonContainerLayout = new GridLayout(1, false);
-        buttonContainerLayout.marginHeight = 1;
-        buttonContainerLayout.marginWidth = 0;
-        buttonContainer.setLayout(buttonContainerLayout);
-        buttonContainer.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_END));
-
-        Button selectVariableButton = new Button(buttonContainer, SWT.NONE);
-        selectVariableButton.setText(LaunchMessages.Button_Label_SelectVariables);
-        selectVariableButton.addSelectionListener(new SelectionAdapter() {
-
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
-                dialog.open();
-                String variable = dialog.getVariableExpression();
-                if (variable != null) {
-                    target.insert(variable);
-                }
-            }
-        });
-    }
-
     public Text getGradleUserHomeText() {
         return this.gradleUserHomeText;
     }
@@ -152,14 +99,13 @@ public final class AdvancedOptionsGroup extends Group {
         return this.javaHomeText;
     }
 
-
-    public Text getArgumentsText() {
-        return this.argumentsText;
+    public ArgumentsEditor getArgumentsEditor() {
+        return this.argumentsEditor;
     }
 
 
-    public Text getJvmArgumentsText() {
-        return this.jvmArgumentsText;
+    public ArgumentsEditor getJvmArgumentsEditor() {
+        return this.jvmArgumentsEditor;
     }
 
     @Override
@@ -179,6 +125,8 @@ public final class AdvancedOptionsGroup extends Group {
         this.gradleUserHomeBrowseButton.setEnabled(groupEnabled);
         this.javaHomeText.setEnabled(groupEnabled);
         this.javaHomeBrowseButton.setEnabled(groupEnabled);
+        this.argumentsEditor.setEnabled(groupEnabled);
+        this.jvmArgumentsEditor.setEnabled(groupEnabled);
         updateWarningVisibility();
     }
 
@@ -234,20 +182,20 @@ public final class AdvancedOptionsGroup extends Group {
     }
 
     public List<String> getArguments() {
-        return Splitter.on(' ').omitEmptyStrings().splitToList(this.argumentsText.getText());
+        return this.argumentsEditor.getArguments();
     }
 
 
     public void setArguments(List<String> arguments) {
-        this.argumentsText.setText(Joiner.on(' ').join(arguments));
+        this.argumentsEditor.setArguments(arguments);
     }
 
     public List<String> getJvmArguments() {
-        return Splitter.on(' ').omitEmptyStrings().splitToList(this.jvmArgumentsText.getText());
+        return this.jvmArgumentsEditor.getArguments();
     }
 
     public void setJvmArguments(List<String> jvmArguments) {
-        this.jvmArgumentsText.setText(Joiner.on(' ').join(jvmArguments));
+        this.jvmArgumentsEditor.setArguments(jvmArguments);
     }
 
     @Override
