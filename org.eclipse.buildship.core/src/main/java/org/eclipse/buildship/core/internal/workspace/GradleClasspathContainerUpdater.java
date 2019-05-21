@@ -37,6 +37,10 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.CoreTraceScopes;
+import org.eclipse.buildship.core.internal.Logger;
+import org.eclipse.buildship.core.internal.TraceScope;
+import org.eclipse.buildship.core.internal.preferences.ClasspathConverter;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
 
@@ -173,8 +177,19 @@ final class GradleClasspathContainerUpdater {
     }
 
     private static void setClasspathContainer(IJavaProject eclipseProject, List<IClasspathEntry> classpathEntries, IProgressMonitor monitor) throws JavaModelException {
+        traceClasspathEntries(eclipseProject, classpathEntries);
         IClasspathContainer classpathContainer = GradleClasspathContainer.newInstance(classpathEntries);
         JavaCore.setClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, new IJavaProject[] { eclipseProject }, new IClasspathContainer[] { classpathContainer }, monitor);
+    }
+
+    private static void traceClasspathEntries(IJavaProject eclipseProject, List<IClasspathEntry> classpathEntries) {
+        Logger logger = CorePlugin.logger();
+        TraceScope scope = CoreTraceScopes.CLASSPATH;
+        if (logger.isScopeEnabled(scope)) {
+            IPath path = eclipseProject.getPath().append(GradleClasspathContainer.CONTAINER_PATH);
+            String entries = new ClasspathConverter(eclipseProject).toXml(classpathEntries);
+            logger.trace(scope, path + "=" + entries);
+        }
     }
 
 }

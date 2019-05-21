@@ -41,11 +41,11 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 /**
  * Transforms classpath entries to XML format and vica versa.
  */
-final class ClasspathConverter {
+public final class ClasspathConverter {
 
     private final IJavaProject javaProject;
 
-    private ClasspathConverter(IJavaProject javaProject) {
+    public ClasspathConverter(IJavaProject javaProject) {
         this.javaProject = Preconditions.checkNotNull(javaProject);
     }
 

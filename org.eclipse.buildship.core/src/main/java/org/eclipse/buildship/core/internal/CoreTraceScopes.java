@@ -12,6 +12,7 @@ package org.eclipse.buildship.core.internal;
  * Available tracing scopes for the core plug-in.
  */
 public enum CoreTraceScopes implements TraceScope {
+    CLASSPATH("classpath"),
     PREFERENCES("preferences"),
     PROJECT_CONFIGURATORS("projectConfigurators");
 
