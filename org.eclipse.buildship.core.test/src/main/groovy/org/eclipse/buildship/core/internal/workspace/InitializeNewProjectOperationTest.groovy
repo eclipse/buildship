@@ -31,6 +31,6 @@ class InitializeNewProjectOperationTest extends WorkspaceSpecification {
         where:
         gradleDistribution << getSupportedGradleDistributions(">=4.10.2") +
                               GradleDistribution.fromBuild() +
-                              GradleDistribution.forRemoteDistribution(new URI("http://services.gradle.org/distributions/gradle-4.10.2-bin.zip"))
+                              GradleDistribution.forRemoteDistribution(new URI("https://services.gradle.org/distributions/gradle-4.10.2-bin.zip"))
     }
 }
