@@ -188,13 +188,13 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(configuration);
-        this.tasksList.setArguments(configurationAttributes.getTasks());
+        this.tasksList.setEntries(configurationAttributes.getTasks());
         this.workingDirectoryText.setText(Strings.nullToEmpty(configurationAttributes.getWorkingDirExpression()));
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        GradleRunConfigurationAttributes.applyTasks(this.tasksList.getArguments(), configuration);
+        GradleRunConfigurationAttributes.applyTasks(this.tasksList.getEntries(), configuration);
         GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
     }
 

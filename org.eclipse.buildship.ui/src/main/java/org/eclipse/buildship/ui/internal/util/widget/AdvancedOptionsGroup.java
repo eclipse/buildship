@@ -182,20 +182,20 @@ public final class AdvancedOptionsGroup extends Group {
     }
 
     public List<String> getArguments() {
-        return this.argumentsEditor.getArguments();
+        return this.argumentsEditor.getEntries();
     }
 
 
     public void setArguments(List<String> arguments) {
-        this.argumentsEditor.setArguments(arguments);
+        this.argumentsEditor.setEntries(arguments);
     }
 
     public List<String> getJvmArguments() {
-        return this.jvmArgumentsEditor.getArguments();
+        return this.jvmArgumentsEditor.getEntries();
     }
 
     public void setJvmArguments(List<String> jvmArguments) {
-        this.jvmArgumentsEditor.setArguments(jvmArguments);
+        this.jvmArgumentsEditor.setEntries(jvmArguments);
     }
 
     @Override

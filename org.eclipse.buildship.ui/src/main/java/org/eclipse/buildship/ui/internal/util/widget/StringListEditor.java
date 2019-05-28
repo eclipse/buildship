@@ -67,14 +67,14 @@ public class StringListEditor {
         GridDataFactory.swtDefaults().span(2, 1).applyTo(buttonRoot);
         GridLayoutFactory.fillDefaults().margins(0, 0).spacing(0, 0).applyTo(buttonRoot);
 
-        this.addButton = createButton(buttonRoot, "Add", () -> addArguments(Arrays.asList(newEntryName)));
+        this.addButton = createButton(buttonRoot, "Add", () -> addEntries(Arrays.asList(newEntryName)));
         if (variableSelector) {
             this.variablesButton = createButton(buttonRoot, LaunchMessages.Button_Label_SelectVariables, () -> {
                 StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(buttonRoot.getShell());
                 dialog.open();
                 String variable = dialog.getVariableExpression();
                 if (variable != null) {
-                    addArguments(Arrays.asList(variable));
+                    addEntries(Arrays.asList(variable));
                 }
             });
         } else {
@@ -161,12 +161,12 @@ public class StringListEditor {
         return button;
     }
 
-    public void setArguments(List<String> items) {
+    public void setEntries(List<String> items) {
         this.table.removeAll();
-        addArguments(items);
+        addEntries(items);
     }
 
-    public void addArguments(List<String> items) {
+    public void addEntries(List<String> items) {
         for (String item : items) {
             TableItem tableItem = new TableItem(this.table, SWT.NONE);
             tableItem.setText(new String[] { item });
@@ -174,7 +174,7 @@ public class StringListEditor {
         notifyListeners();
     }
 
-    public List<String> getArguments() {
+    public List<String> getEntries() {
         return Arrays.stream(this.table.getItems()).map(ti -> ti.getText()).collect(Collectors.toList());
     }
 
