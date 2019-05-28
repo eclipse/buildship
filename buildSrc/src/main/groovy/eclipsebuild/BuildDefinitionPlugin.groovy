@@ -177,6 +177,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             group = Constants.gradleTaskGroupName
             description = "Downloads an Eclipse SDK to perform P2 operations with."
             downloadUrl = Constants.eclipseSdkDownloadUrl
+            expectedSha256Sum = Constants.eclipseSdkDownloadSha256Hash
             targetDir = config.eclipseSdkDir
         }
     }
