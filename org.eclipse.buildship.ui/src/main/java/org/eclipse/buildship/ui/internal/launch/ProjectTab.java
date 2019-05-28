@@ -48,12 +48,13 @@ import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
-import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
 import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
 import org.eclipse.buildship.ui.internal.PluginImages;
 import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.internal.util.widget.StringListEditor;
+import org.eclipse.buildship.ui.internal.util.widget.StringListEditor.StringListChangeListener;
 
 /**
  * Specifies a root project and a list of tasks to execute via the run configurations.
@@ -62,7 +63,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
 
     private final Validator<File> workingDirValidator;
 
-    private Text tasksText;
+    private StringListEditor tasksList;
     private Text workingDirectoryText;
 
     public ProjectTab() {
@@ -102,11 +103,11 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     }
 
     private void createTasksSelectionControl(Composite container) {
-        this.tasksText = new Text(container, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+        this.tasksList = new StringListEditor(container, false, "task");
         GridData tasksTextLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
         tasksTextLayoutData.heightHint = 50;
-        this.tasksText.setLayoutData(tasksTextLayoutData);
-        this.tasksText.addModifyListener(new DialogUpdater());
+        this.tasksList.setLayoutData(tasksTextLayoutData);
+        this.tasksList.addChangeListener(new DialogUpdater());
     }
 
     private void createWorkingDirectorySelectionControl(Composite container) {
@@ -187,13 +188,13 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(configuration);
-        this.tasksText.setText(CollectionsUtils.joinWithSpace(configurationAttributes.getTasks()));
+        this.tasksList.setArguments(configurationAttributes.getTasks());
         this.workingDirectoryText.setText(Strings.nullToEmpty(configurationAttributes.getWorkingDirExpression()));
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        GradleRunConfigurationAttributes.applyTasks(CollectionsUtils.splitBySpace(this.tasksText.getText()), configuration);
+        GradleRunConfigurationAttributes.applyTasks(this.tasksList.getArguments(), configuration);
         GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
     }
 
@@ -224,7 +225,7 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
     /**
      * Listener implementation to update the dialog buttons and messages.
      */
-    private class DialogUpdater extends SelectionAdapter implements ModifyListener {
+    private class DialogUpdater extends SelectionAdapter implements ModifyListener, StringListChangeListener {
         @Override
         public void widgetSelected(SelectionEvent e) {
             updateLaunchConfigurationDialog();
@@ -232,6 +233,11 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
 
         @Override
         public void modifyText(ModifyEvent e) {
+            updateLaunchConfigurationDialog();
+        }
+
+        @Override
+        public void onChange() {
             updateLaunchConfigurationDialog();
         }
     }
