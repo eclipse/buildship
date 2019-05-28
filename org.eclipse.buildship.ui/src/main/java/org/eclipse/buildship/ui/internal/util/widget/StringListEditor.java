@@ -47,7 +47,7 @@ public class StringListEditor {
     private final Button addButton;
     private final Button variablesButton;
 
-    public StringListEditor(Composite parent, boolean variableSelector) {
+    public StringListEditor(Composite parent, boolean variableSelector, String newEntryName) {
         this.table = new Table(parent, SWT.FULL_SELECTION | SWT.HIDE_SELECTION | SWT.MULTI);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(SWT.DEFAULT, 65).applyTo(this.table);
 
@@ -67,7 +67,7 @@ public class StringListEditor {
         GridDataFactory.swtDefaults().span(2, 1).applyTo(buttonRoot);
         GridLayoutFactory.fillDefaults().margins(0, 0).spacing(0, 0).applyTo(buttonRoot);
 
-        this.addButton = createButton(buttonRoot, "Add", () -> addArguments(Arrays.asList("arg")));
+        this.addButton = createButton(buttonRoot, "Add", () -> addArguments(Arrays.asList(newEntryName)));
         if (variableSelector) {
             this.variablesButton = createButton(buttonRoot, LaunchMessages.Button_Label_SelectVariables, () -> {
                 StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(buttonRoot.getShell());

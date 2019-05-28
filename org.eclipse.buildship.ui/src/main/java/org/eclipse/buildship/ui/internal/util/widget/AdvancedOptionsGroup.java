@@ -76,10 +76,10 @@ public final class AdvancedOptionsGroup extends Group {
         HoverText.createAndAttach(this.gradleUserHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Java home"));
 
         this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.RunConfiguration_Label_Arguments);
-        this.argumentsEditor = new StringListEditor(this, variableSelector);
+        this.argumentsEditor = new StringListEditor(this, variableSelector, "arg");
 
         this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.RunConfiguration_Label_JvmArguments);
-        this.jvmArgumentsEditor = new StringListEditor(this, variableSelector);
+        this.jvmArgumentsEditor = new StringListEditor(this, variableSelector, "jvmArg");
 
         addListeners();
     }
