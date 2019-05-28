@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Text;
 
 import org.eclipse.buildship.ui.internal.launch.LaunchMessages;
 
-public class ArgumentsEditor {
+public class StringListEditor {
 
     private final Table table;
     private final TableEditor editor;
@@ -47,7 +47,7 @@ public class ArgumentsEditor {
     private final Button addButton;
     private final Button variablesButton;
 
-    public ArgumentsEditor(Composite parent, boolean variableSelector) {
+    public StringListEditor(Composite parent, boolean variableSelector) {
         this.table = new Table(parent, SWT.FULL_SELECTION | SWT.HIDE_SELECTION | SWT.MULTI);
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).hint(SWT.DEFAULT, 65).applyTo(this.table);
 
@@ -87,7 +87,7 @@ public class ArgumentsEditor {
 
             @Override
             public void controlResized(ControlEvent e) {
-                column.setWidth(ArgumentsEditor.this.table.getClientArea().width);
+                column.setWidth(StringListEditor.this.table.getClientArea().width);
             }
         });
     }
@@ -97,7 +97,7 @@ public class ArgumentsEditor {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Control oldEditor = ArgumentsEditor.this.editor.getEditor();
+                Control oldEditor = StringListEditor.this.editor.getEditor();
                 if (oldEditor != null) {
                     oldEditor.dispose();
                 }
@@ -107,14 +107,14 @@ public class ArgumentsEditor {
                     return;
                 }
 
-                Text newEditor = new Text(ArgumentsEditor.this.table, SWT.NONE);
+                Text newEditor = new Text(StringListEditor.this.table, SWT.NONE);
                 newEditor.setText(item.getText(0));
                 newEditor.addModifyListener(new ModifyListener() {
 
                     @Override
                     public void modifyText(ModifyEvent e) {
-                        Text text = (Text) ArgumentsEditor.this.editor.getEditor();
-                        ArgumentsEditor.this.editor.getItem().setText(0, text.getText());
+                        Text text = (Text) StringListEditor.this.editor.getEditor();
+                        StringListEditor.this.editor.getItem().setText(0, text.getText());
                         notifyListeners();
 
                     }
@@ -126,9 +126,9 @@ public class ArgumentsEditor {
                     public void focusLost(FocusEvent e) {
                         String text = newEditor.getText();
                         if (text.isEmpty()) {
-                            int index = ArgumentsEditor.this.table.indexOf(ArgumentsEditor.this.editor.getItem());
+                            int index = StringListEditor.this.table.indexOf(StringListEditor.this.editor.getItem());
                             if (index >= 0) {
-                                ArgumentsEditor.this.table.remove(index);
+                                StringListEditor.this.table.remove(index);
                                 notifyListeners();
                             }
                         }
@@ -142,7 +142,7 @@ public class ArgumentsEditor {
                 });
                 newEditor.selectAll();
                 newEditor.setFocus();
-                ArgumentsEditor.this.editor.setEditor(newEditor, item, 0);
+                StringListEditor.this.editor.setEditor(newEditor, item, 0);
             }
         });
     }
@@ -179,10 +179,10 @@ public class ArgumentsEditor {
     }
 
     public void removeSelected() {
-        List<Integer> indexes = Ints.asList(ArgumentsEditor.this.table.getSelectionIndices());
+        List<Integer> indexes = Ints.asList(StringListEditor.this.table.getSelectionIndices());
         Collections.sort(indexes, Collections.reverseOrder());
         for (Integer index : indexes) {
-            ArgumentsEditor.this.table.remove(index);
+            StringListEditor.this.table.remove(index);
             Control cellEditor = this.editor.getEditor();
             if (cellEditor != null && !cellEditor.isDisposed()) {
                 this.editor.getEditor().setVisible(false);
