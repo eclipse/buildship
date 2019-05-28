@@ -64,7 +64,7 @@ public class StringListEditor {
         hookEditoToTable();
 
         Composite buttonRoot = new Composite(parent, SWT.None);
-        GridDataFactory.swtDefaults().span(2, 1).applyTo(buttonRoot);
+        GridDataFactory.swtDefaults().span(2, 1).align(SWT.RIGHT, SWT.BEGINNING).applyTo(buttonRoot);
         GridLayoutFactory.fillDefaults().margins(0, 0).spacing(0, 0).applyTo(buttonRoot);
 
         this.addButton = createButton(buttonRoot, "Add", () -> addEntries(Arrays.asList(newEntryName)));
@@ -150,7 +150,7 @@ public class StringListEditor {
     private Button createButton(Composite root, String label, Runnable onSelection) {
         Button button = new Button(root, SWT.PUSH);
         button.setText(label);
-        GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.FILL).applyTo(button);
+        GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.BEGINNING).applyTo(button);
         button.addSelectionListener(new SelectionAdapter() {
 
             @Override
