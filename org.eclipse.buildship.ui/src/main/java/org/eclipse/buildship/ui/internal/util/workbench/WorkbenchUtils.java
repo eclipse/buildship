@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.ui.internal.util.workbench;
 
+import java.util.Optional;
+
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -47,4 +49,13 @@ public final class WorkbenchUtils {
         }
     }
 
+    /**
+     * Returns the view with the given ID.
+     */
+    public static <T extends IViewPart> Optional<T> findView(String viewId) {
+        IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        @SuppressWarnings("unchecked")
+        T result = (T) activeWorkbenchWindow.getActivePage().findView(viewId);
+        return Optional.ofNullable(result);
+    }
 }

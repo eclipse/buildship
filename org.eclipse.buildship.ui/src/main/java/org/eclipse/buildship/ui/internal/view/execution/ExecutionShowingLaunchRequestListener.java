@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.ui.internal.view.execution;
 
+import java.util.Optional;
+
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
@@ -39,20 +41,20 @@ public final class ExecutionShowingLaunchRequestListener implements EventListene
     }
 
     private void handleLaunchRequest(final ExecuteLaunchRequestEvent event) {
-        // call synchronously to make sure we do not miss any progress events
-        if (event.getProcessDescription().getRunConfig().isShowExecutionView()) {
+            // call synchronously to make sure we do not miss any progress events
             PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
                 @Override
                 public void run() {
-                    ProcessDescription processDescription = event.getProcessDescription();
-
-                    ExecutionsView view = WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE);
-
-                    // show the launched build in a new page of the Executions View
-                    view.addExecutionPage(processDescription, event.getOperation());
+                    Optional<ExecutionsView> view = event.getProcessDescription().getRunConfig().isShowExecutionView() ?
+                        Optional.of(WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE)) :
+                        WorkbenchUtils.findView(ExecutionsView.ID);
+                    if (view.isPresent()) {
+                        // show the launched build in a new page of the Executions View
+                        ProcessDescription processDescription = event.getProcessDescription();
+                        view.get().addExecutionPage(processDescription, event.getOperation());
+                    }
                 }
             });
-        }
     }
 }
