@@ -45,7 +45,7 @@ import org.eclipse.buildship.ui.internal.preferences.GradleProjectPreferencePage
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
-import org.eclipse.buildship.ui.internal.util.widget.ArgumentsEditor.StringListChangeListener;
+import org.eclipse.buildship.ui.internal.util.widget.StringListEditor.StringListChangeListener;
 
 /**
  * Specifies the Gradle distribution to apply when executing tasks via the run configurations.

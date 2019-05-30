@@ -48,8 +48,8 @@ public final class AdvancedOptionsGroup extends Group {
     private Button javaHomeBrowseButton;
     private Label javaHomeWarningLabel;
 
-    private ArgumentsEditor argumentsEditor;
-    private ArgumentsEditor jvmArgumentsEditor;
+    private StringListEditor argumentsEditor;
+    private StringListEditor jvmArgumentsEditor;
 
     public AdvancedOptionsGroup(Composite parent, boolean variableSelector) {
         super(parent, SWT.NONE);
@@ -76,10 +76,10 @@ public final class AdvancedOptionsGroup extends Group {
         HoverText.createAndAttach(this.gradleUserHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Java home"));
 
         this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.RunConfiguration_Label_Arguments);
-        this.argumentsEditor = new ArgumentsEditor(this, variableSelector);
+        this.argumentsEditor = new StringListEditor(this, variableSelector, "arg");
 
         this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.RunConfiguration_Label_JvmArguments);
-        this.jvmArgumentsEditor = new ArgumentsEditor(this, variableSelector);
+        this.jvmArgumentsEditor = new StringListEditor(this, variableSelector, "jvmArg");
 
         addListeners();
     }
@@ -99,12 +99,12 @@ public final class AdvancedOptionsGroup extends Group {
         return this.javaHomeText;
     }
 
-    public ArgumentsEditor getArgumentsEditor() {
+    public StringListEditor getArgumentsEditor() {
         return this.argumentsEditor;
     }
 
 
-    public ArgumentsEditor getJvmArgumentsEditor() {
+    public StringListEditor getJvmArgumentsEditor() {
         return this.jvmArgumentsEditor;
     }
 
@@ -182,20 +182,20 @@ public final class AdvancedOptionsGroup extends Group {
     }
 
     public List<String> getArguments() {
-        return this.argumentsEditor.getArguments();
+        return this.argumentsEditor.getEntries();
     }
 
 
     public void setArguments(List<String> arguments) {
-        this.argumentsEditor.setArguments(arguments);
+        this.argumentsEditor.setEntries(arguments);
     }
 
     public List<String> getJvmArguments() {
-        return this.jvmArgumentsEditor.getArguments();
+        return this.jvmArgumentsEditor.getEntries();
     }
 
     public void setJvmArguments(List<String> jvmArguments) {
-        this.jvmArgumentsEditor.setArguments(jvmArguments);
+        this.jvmArgumentsEditor.setEntries(jvmArguments);
     }
 
     @Override
