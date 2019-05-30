@@ -19,11 +19,13 @@ class DefaultEclipseWorkspaceProject implements EclipseWorkspaceProject, Seriali
     private static final long serialVersionUID = 1L;
     private final String name;
     private final File location;
+    private final boolean isOpen;
 
-    public DefaultEclipseWorkspaceProject(String name, File location) {
+    public DefaultEclipseWorkspaceProject(String name, File location, boolean isOpen) {
         super();
         this.name = name;
         this.location = location;
+        this.isOpen = isOpen;
     }
 
     @Override
@@ -37,8 +39,13 @@ class DefaultEclipseWorkspaceProject implements EclipseWorkspaceProject, Seriali
     }
 
     @Override
+    public boolean isOpen() {
+        return this.isOpen;
+    }
+
+    @Override
     public int hashCode() {
-        return Objects.hash(this.location, this.name);
+        return Objects.hash(this.isOpen, this.location, this.name);
     }
 
     @Override
@@ -53,7 +60,7 @@ class DefaultEclipseWorkspaceProject implements EclipseWorkspaceProject, Seriali
             return false;
         }
         DefaultEclipseWorkspaceProject other = (DefaultEclipseWorkspaceProject) obj;
-        return Objects.equals(this.location, other.location) && Objects.equals(this.name, other.name);
+        return this.isOpen == other.isOpen && Objects.equals(this.location, other.location) && Objects.equals(this.name, other.name);
     }
 
 }
