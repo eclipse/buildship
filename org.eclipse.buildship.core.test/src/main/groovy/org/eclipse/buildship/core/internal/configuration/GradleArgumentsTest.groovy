@@ -17,6 +17,8 @@ class GradleArgumentsTest extends Specification {
         gradleEnvironment.gradleVersion >> gradleVersion
         BuildEnvironment buildEnvironment = Mock(BuildEnvironment)
         buildEnvironment.gradle >> gradleEnvironment
+        def initScriptArgs = ['--init-script', GradleArguments.eclipsePluginInitScriptLocation.absolutePath]
+        expected += initScriptArgs
 
         when:
         gradleArguments.applyTo(operation, buildEnvironment)
@@ -35,5 +37,22 @@ class GradleArgumentsTest extends Specification {
         ['f', '--offline'] | false      | true        | '3.5'         | ['f', '--offline']
         ['g', '--scan']    | true       | false       | '3.5'         | ['g', '--scan']
         ['g', '-Dscan']    | true       | false       | '3.2'         | ['g', '-Dscan']
+    }
+
+    def "applies init script to target operation" (){
+        setup:
+        GradleArguments gradleArguments = GradleArguments.from(new File('.'), GradleDistribution.fromBuild(), null, null, false, false, [], [])
+        LongRunningOperation operation = Mock(LongRunningOperation)
+        GradleEnvironment gradleEnvironment = Mock(GradleEnvironment)
+        BuildEnvironment buildEnvironment = Mock(BuildEnvironment)
+        buildEnvironment.gradle >> gradleEnvironment
+        def expected = ['--init-script', GradleArguments.eclipsePluginInitScriptLocation.absolutePath]
+
+        when:
+        gradleArguments.applyTo(operation, buildEnvironment)
+
+        then:
+        1 * operation.withArguments(expected)
+
     }
 }

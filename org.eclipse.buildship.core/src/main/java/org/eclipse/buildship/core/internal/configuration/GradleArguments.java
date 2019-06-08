@@ -9,6 +9,11 @@
 package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.List;
 
 import org.gradle.tooling.GradleConnector;
@@ -21,13 +26,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
-import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
@@ -36,6 +43,8 @@ import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
  * @author Donat Csikos
  */
 public final class GradleArguments {
+
+    private static final String INITSCRIPT_LOCATION="/org/eclipse/buildship/core/internal/configuration/eclipsePlugin.gradle";
 
     private final File rootDir;
     private final GradleDistribution gradleDistribution;
@@ -111,7 +120,6 @@ public final class GradleArguments {
         return new GradleArguments(rootDir, gradleDistribution, gradleUserHome, javaHome, buildScansEnabled, offlineMode, arguments, jvmArguments);
     }
 
-
     private static List<String> collectArguments(List<String> baseArgs, boolean buildScansEnabled, boolean offlineMode, BuildEnvironment buildEnvironment) {
         List<String> arguments = Lists.newArrayList(baseArgs);
         if (buildScansEnabled) {
@@ -124,6 +132,7 @@ public final class GradleArguments {
             arguments.add("--offline");
         }
         arguments.addAll(CorePlugin.invocationCustomizer().getExtraArguments());
+        arguments.addAll(getInitScriptArguments());
         return arguments;
     }
 
@@ -136,6 +145,34 @@ public final class GradleArguments {
         } else {
             return "-Dscan";
         }
+    }
+
+    private static List<String> getInitScriptArguments() {
+        File initScript = getEclipsePluginInitScriptLocation();
+        try {
+            if (!initScript.exists()) {
+                Files.createParentDirs(initScript);
+                Files.touch(initScript);
+                URL resource = GradleVersion.class.getResource(INITSCRIPT_LOCATION);
+                if (resource == null) {
+                    throw new GradlePluginsRuntimeException(String.format("Resource '%s' not found.", INITSCRIPT_LOCATION));
+                }
+
+                URLConnection connection = resource.openConnection();
+                connection.setUseCaches(false);
+                try (InputStream inputStream = connection.getInputStream()) {
+                    Files.asByteSink(initScript).writeFrom(inputStream);
+                }
+
+            }
+            return Arrays.asList("--init-script", initScript.getAbsolutePath());
+        } catch (IOException e) {
+            throw new GradlePluginsRuntimeException("Failed to create init script", e);
+        }
+    }
+
+    private static File getEclipsePluginInitScriptLocation() {
+        return CorePlugin.getInstance().getStateLocation().append("init.d").append("eclipsePlugin.gradle").toFile();
     }
 
 }

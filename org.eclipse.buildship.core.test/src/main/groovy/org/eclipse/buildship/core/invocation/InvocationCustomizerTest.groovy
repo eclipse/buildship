@@ -51,7 +51,7 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         buildConfiguration.toGradleArguments().applyTo(operation, buildEnvironment)
 
         then:
-        1 * operation.withArguments(EXTRA_ARGUMENTS)
+        1 * operation.withArguments({ it.containsAll(EXTRA_ARGUMENTS) })
     }
 
     def "Run configuration use extra arguments"() {
@@ -68,7 +68,7 @@ class InvocationCustomizerTest extends ProjectSynchronizationSpecification {
         CorePlugin.configurationManager().loadRunConfiguration(createGradleLaunchConfig()).toGradleArguments().applyTo(operation, buildEnvironment)
 
         then:
-        1 * operation.withArguments(EXTRA_ARGUMENTS)
+        1 * operation.withArguments({ it.containsAll(EXTRA_ARGUMENTS) })
     }
 
     private BuildEnvironment defaultBuildEnvironment() {
