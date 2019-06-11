@@ -299,7 +299,7 @@
           versionRange="2.7.0"/>
       <requirement
           name="com.google.guava"
-          versionRange="21.0.0"/>
+          versionRange="27.1.0"/>
       <requirement
           name="org.jetbrains.kotlin.feature.feature.group"
           versionRange="0.8.5"/>
@@ -308,7 +308,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-photon"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-photon-m7"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
       </repositoryList>
@@ -317,7 +317,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
       </repositoryList>
@@ -326,7 +326,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-neon"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
       </repositoryList>
@@ -335,7 +335,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-mars"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
       </repositoryList>
@@ -344,7 +344,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-luna"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
       </repositoryList>
@@ -353,7 +353,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-kepler"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
       </repositoryList>
@@ -362,7 +362,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-2018-09"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
       </repositoryList>
@@ -371,7 +371,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-2018-12"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
             url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
       </repositoryList>
@@ -390,56 +390,56 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-photon-m7"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
       <repositoryList
           name="Oxygen">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
       <repositoryList
           name="Neon">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-oxygen-1a"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
       <repositoryList
           name="Mars">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
       <repositoryList
           name="Luna">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
       <repositoryList
           name="Kepler">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
       <repositoryList
           name="2018-09">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
       <repositoryList
           name="2018-12">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-mars"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
     </targlet>
     <targlet
