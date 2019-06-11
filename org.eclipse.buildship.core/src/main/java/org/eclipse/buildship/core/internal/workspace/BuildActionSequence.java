@@ -9,17 +9,16 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildController;
 
-public class ComposedBuildAction implements BuildAction<Void>, Serializable {
+public class BuildActionSequence implements BuildAction<Void>, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final List<BuildAction<?>> actions;
+    private final BuildAction<?>[] actions;
 
-    public ComposedBuildAction(List<BuildAction<?>> actions) {
+    public BuildActionSequence(BuildAction<?> ... actions) {
         super();
         this.actions = actions;
     }

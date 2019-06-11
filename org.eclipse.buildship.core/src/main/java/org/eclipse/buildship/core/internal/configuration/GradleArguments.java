@@ -159,7 +159,6 @@ public final class GradleArguments {
                 }
 
                 URLConnection connection = resource.openConnection();
-                connection.setUseCaches(false);
                 try (InputStream inputStream = connection.getInputStream()) {
                     Files.asByteSink(initScript).writeFrom(inputStream);
                 }

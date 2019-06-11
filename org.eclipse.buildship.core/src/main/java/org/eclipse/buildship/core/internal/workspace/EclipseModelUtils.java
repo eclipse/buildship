@@ -9,7 +9,6 @@
 
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,7 +73,7 @@ public final class EclipseModelUtils {
         return new EclipseRuntimeConfigurer(new DefaultEclipseWorkspace(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), projects));
     }
 
-    private static boolean supportsSendingRunningClosedProjectTasks(GradleVersion gradleVersion) {
+    private static boolean supportsClosedProjectDependencySubstitution(GradleVersion gradleVersion) {
         return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("5.6")) >= 0;
     }
 
@@ -94,10 +93,10 @@ public final class EclipseModelUtils {
         EclipseRuntimeConfigurer buildEclipseRuntimeConfigurer = buildEclipseRuntimeConfigurer();
         try {
             BuildAction<Void> runSyncTasksAction = IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class);
-            if (supportsSendingRunningClosedProjectTasks(gradleVersion)) {
+            if (supportsClosedProjectDependencySubstitution(gradleVersion)) {
                 // use a composite query to run substitute tasks in included builds too
                 BuildAction<?> runClosedProjectTasksAction = new CompositeModelQuery<>(RunClosedProjectBuildDependencies.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer);
-                ComposedBuildAction projectsLoadedAction = new ComposedBuildAction(Arrays.asList(runSyncTasksAction, runClosedProjectTasksAction));
+                BuildActionSequence projectsLoadedAction = new BuildActionSequence(runSyncTasksAction, runClosedProjectTasksAction);
                 return runPhasedModelQuery(connection, gradleVersion, projectsLoadedAction, IdeFriendlyClassLoading
                         .loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class,buildEclipseRuntimeConfigurer));
             }
