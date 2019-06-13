@@ -1,0 +1,4 @@
+apply plugin: eclipsebuild.BundlePlugin
+
+// oomph setup task implementation is mostly generated
+checkstyleMain.exclude '**/org/eclipse/buildship/oomph/**'
