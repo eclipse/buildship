@@ -52,10 +52,7 @@ import org.eclipse.oomph.setup.SetupTask;
  * </ul>
  *
  * @see org.eclipse.buildship.oomph.GradleImportPackage#getGradleImportTask()
- * @model annotation="http://www.eclipse.org/oomph/setup/Enablement variableName='p2.gradle.import'
- *        repository='${eclipse.update.url}'
- *        installableUnits='org.eclipse.buildship.oomph.feature.group'"
- *        annotation="http://www.eclipse.org/oomph/setup/ValidTriggers triggers='STARTUP MANUAL'"
+ * @model annotation="http://www.eclipse.org/oomph/setup/ValidTriggers triggers='STARTUP MANUAL'"
  * @generated
  */
 public interface GradleImportTask extends SetupTask {

@@ -427,8 +427,6 @@ public class GradleImportPackageImpl extends EPackageImpl implements GradleImpor
         // Create annotations
         // http://www.eclipse.org/emf/2002/Ecore
         createEcoreAnnotations();
-        // http://www.eclipse.org/oomph/setup/Enablement
-        createEnablementAnnotations();
         // http://www.eclipse.org/oomph/setup/ValidTriggers
         createValidTriggersAnnotations();
         // http:///org/eclipse/emf/ecore/util/ExtendedMetaData
@@ -444,18 +442,6 @@ public class GradleImportPackageImpl extends EPackageImpl implements GradleImpor
     protected void createEcoreAnnotations() {
         String source = "http://www.eclipse.org/emf/2002/Ecore";
         addAnnotation(this, source, new String[] { "schemaLocation", "http://www.eclipse.org/buildship/oomph/schemas/GradleImport-1.0.ecore" });
-    }
-
-    /**
-     * Initializes the annotations for <b>http://www.eclipse.org/oomph/setup/Enablement</b>. <!--
-     * begin-user-doc --> <!-- end-user-doc -->
-     * 
-     * @generated
-     */
-    protected void createEnablementAnnotations() {
-        String source = "http://www.eclipse.org/oomph/setup/Enablement";
-        addAnnotation(gradleImportTaskEClass, source, new String[] { "variableName", "p2.gradle.import", "repository", "${eclipse.update.url}", "installableUnits",
-                "org.eclipse.buildship.oomph.feature.group" });
     }
 
     /**
