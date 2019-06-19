@@ -8,6 +8,7 @@
 
 package org.eclipse.buildship.core.internal;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ import org.eclipse.buildship.core.internal.workspace.ValidateProjectLocationOper
 
 public final class DefaultGradleBuild implements InternalGradleBuild {
 
-    private static Map<DefaultGradleBuild, SynchronizeOperation> syncOperations = new ConcurrentHashMap<>();
+    private static Map<File, SynchronizeOperation> syncOperations = new ConcurrentHashMap<>();
 
     private final org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfig;
 
@@ -87,7 +88,7 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         monitor = monitor != null ? monitor : new NullProgressMonitor();
 
         SynchronizeOperation operation = new SynchronizeOperation(this, newProjectHandler);
-        SynchronizeOperation runningOperation = syncOperations.putIfAbsent(this, operation);
+        SynchronizeOperation runningOperation = syncOperations.putIfAbsent(getBuildConfig().getRootProjectDirectory(), operation);
 
         if (runningOperation != null && (newProjectHandler == NewProjectHandler.NO_OP || Objects.equals(newProjectHandler, runningOperation.newProjectHandler))) {
             return DefaultSynchronizationResult.success();
@@ -96,12 +97,12 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         try {
             return operation.run(tokenSource, monitor);
         } finally {
-            syncOperations.remove(this);
+            syncOperations.remove(this.getBuildConfig().getRootProjectDirectory());
         }
     }
 
     public boolean isSynchronizing() {
-        return syncOperations.containsKey(this);
+        return syncOperations.containsKey(this.getBuildConfig().getRootProjectDirectory());
     }
 
     @Override
