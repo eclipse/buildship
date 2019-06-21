@@ -212,7 +212,7 @@ abstract class WorkspaceSpecification extends Specification {
         new PersistentModelBuilder(samplePersistentModel(project))
     }
 
-    protected PersistentModel samplePersistentModel(IProject project) {
+    protected PersistentModel emptyPersistentModel(IProject project) {
         new DefaultPersistentModel(project, new Path("build"), new Path("build.gradle"), [], [], [], [], [], [], false, GradleVersion.version('5.6'))
     }
 
