@@ -41,6 +41,11 @@ public final class MissingFeatures {
         addIfNeeded("2.14", "WTP deployment attributes defined for web projects", missingFeatures);
         addIfNeeded("3.0", "Output location, classpath containers, source folder excludes-includes and JRE name are set on Java projects", missingFeatures);
         addIfNeeded("3.0", "Java classpath customization done in 'eclipse.classpath.file.whenMerged' is synchronized", missingFeatures);
+        addIfNeeded("3.3", "Support for composite builds", missingFeatures);
+        addIfNeeded("5.4", "Run tasks upon synchronization", missingFeatures);
+        addIfNeeded("5.5", "Import projects with overlapping names", missingFeatures);
+        addIfNeeded("5.6", "Receive compile-time error when referencing test source in main source set", missingFeatures);
+        addIfNeeded("5.6", "Substitute closed project references with their publications", missingFeatures);
         return missingFeatures.build();
     }
 

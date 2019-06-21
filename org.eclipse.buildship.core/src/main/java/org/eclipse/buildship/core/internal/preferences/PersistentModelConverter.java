@@ -29,6 +29,8 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+
 /**
  * Contains helper methods for the {@link PersistentModel} <-> {@link Properties} conversion.
  */
@@ -43,6 +45,7 @@ final class PersistentModelConverter {
     private static final String PROPERTY_MANAGED_NATURES = "managedNatures";
     private static final String PROPERTY_MANAGED_BUILDERS = "managedBuilders";
     private static final String PROPERTY_HAS_AUTOBUILD_TASKS = "hasAutoBuildTasks";
+    private static final String PROPERTY_GRADLE_VERSION = "gradleVersion";
 
     public static Properties toProperties(final PersistentModel model) {
         Properties properties = new Properties();
@@ -110,6 +113,13 @@ final class PersistentModelConverter {
             }
         });
 
+        storeValue(properties, PROPERTY_GRADLE_VERSION, model.getGradleVersion(), new Function<GradleVersion, String>(){
+            @Override
+            public String apply(GradleVersion gradleVersion) {
+                return gradleVersion.getVersion();
+            }
+        });
+
         return properties;
     }
 
@@ -168,14 +178,24 @@ final class PersistentModelConverter {
             }
         });
 
-        boolean hasAutoBuildTaskss = loadValue(properties, PROPERTY_HAS_AUTOBUILD_TASKS, Boolean.FALSE, new Function<String, Boolean>(){
+        boolean hasAutoBuildTasks = loadValue(properties, PROPERTY_HAS_AUTOBUILD_TASKS, Boolean.FALSE, new Function<String, Boolean>(){
 
             @Override
             public Boolean apply(String hasAutoBuildTasks) {
                 return Boolean.valueOf(hasAutoBuildTasks);
             }});
 
-        return new DefaultPersistentModel(project, buildDir, buildScriptPath, subprojects, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTaskss);
+        GradleVersion gradleVersion = loadValue(properties, PROPERTY_GRADLE_VERSION, null,  new Function<String, GradleVersion>(){
+            @Override
+            public GradleVersion apply(String version) {
+                return GradleVersion.version(version);
+            }
+        });
+        if (gradleVersion == null) {
+            return new AbsentPersistentModel(project);
+        } else {
+            return new DefaultPersistentModel(project, buildDir, buildScriptPath, subprojects, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks, gradleVersion);
+        }
     }
 
     private static <T> T loadValue(Properties properties, String key, T defaultValue, Function<String, T> conversion) {

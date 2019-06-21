@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 
 import org.eclipse.buildship.core.internal.preferences.DefaultPersistentModel;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
  * Builder for {@link PersistentModel}.
@@ -38,6 +39,7 @@ public final class PersistentModelBuilder {
     private Collection<String> managedNatures;
     private Collection<ICommand> managedBuilders;
     private boolean hasAutoBuildTasks;
+    private GradleVersion gradleVersion;
 
     public PersistentModelBuilder(PersistentModel previous) {
         this.previous = Preconditions.checkNotNull(previous);
@@ -50,6 +52,7 @@ public final class PersistentModelBuilder {
             this.linkedResources = previous.getLinkedResources();
             this.managedNatures = previous.getManagedNatures();
             this.managedBuilders = previous.getManagedBuilders();
+            this.gradleVersion = previous.getGradleVersion();
         }
     }
 
@@ -98,11 +101,16 @@ public final class PersistentModelBuilder {
         return this;
     }
 
+    public PersistentModelBuilder gradleVersion(GradleVersion gradleVersion) {
+        this.gradleVersion = gradleVersion;
+        return this;
+    }
+
     public PersistentModel getPrevious() {
         return this.previous;
     }
 
     public PersistentModel build() {
-        return new DefaultPersistentModel(this.previous.getProject(), this.buildDir, this.buildScriptPath, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders, this.hasAutoBuildTasks);
+        return new DefaultPersistentModel(this.previous.getProject(), this.buildDir, this.buildScriptPath, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders, this.hasAutoBuildTasks, this.gradleVersion);
     }
 }

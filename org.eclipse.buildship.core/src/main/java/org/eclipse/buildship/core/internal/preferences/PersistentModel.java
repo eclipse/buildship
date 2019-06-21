@@ -16,6 +16,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+
 /**
  * Contract how to read Gradle model elements stored in the workspace plugin state area.
  *
@@ -43,4 +45,6 @@ public interface PersistentModel {
     List<ICommand> getManagedBuilders();
 
     boolean hasAutoBuildTasks();
+
+    GradleVersion getGradleVersion();
 }

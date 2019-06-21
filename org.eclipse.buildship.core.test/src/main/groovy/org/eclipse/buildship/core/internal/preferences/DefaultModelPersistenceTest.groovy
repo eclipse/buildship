@@ -9,6 +9,8 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersionTest
 
 class DefaultModelPersistenceTest extends WorkspaceSpecification {
 
@@ -53,8 +55,9 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
         def hasAutoBuildTasks = true
+        def gradleVersion = GradleVersion.version('5.6')
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks, gradleVersion)
 
         when:
         CorePlugin.modelPersistence().saveModel(model)
@@ -83,8 +86,9 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
         def hasAutoBuildTasks = false
+        def gradleVersion = GradleVersion.version('5.6')
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks, gradleVersion)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:
@@ -108,8 +112,9 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
         def hasAutoBuildTasks = true
+        def gradleVersion = GradleVersion.version('5.6')
 
-        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
+        PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks, gradleVersion)
         CorePlugin.modelPersistence().saveModel(model)
 
         when:

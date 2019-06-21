@@ -30,7 +30,6 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         then:
         assertConsoleOutputContains('pkg.Main available')
         assertConsoleOutputContains('pkg.JunitTest available')
-        assertConsoleOutputContains('org.apache.commons.io.IOUtils available')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
         assertConsoleOutputContains('main.txt available')
@@ -40,7 +39,6 @@ class ClasspathSeparationTest extends SwtBotSpecification {
     def "All dependencies are available when target source folders doesn't supply scope information"() {
         setup:
         File projectDir = createSampleProject('sample-project')
-
         importAndWait(projectDir, GradleDistribution.forVersion('4.4'))
 
         when:
@@ -49,7 +47,6 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         then:
         assertConsoleOutputContains('pkg.Main available')
         assertConsoleOutputContains('pkg.JunitTest available')
-        assertConsoleOutputContains('org.apache.commons.io.IOUtils available')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
         assertConsoleOutputContains('main.txt available')
@@ -59,8 +56,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
     def "Source folder is included in classpath if it doesn't supply scope information"() {
         setup:
         File projectDir = createSampleProject('sample-project')
-
-        importAndWait(projectDir, GradleDistribution.forVersion('4.4'))
+        importAndWait(projectDir)
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.CustomMain'))
@@ -73,15 +69,14 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Only main dependencies are available when Java application launched from src/main/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
+        importAndWait(createSampleProject('sample-project'))
 
         when:
-        launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main'))
+        launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main', true))
 
         then:
         assertConsoleOutputContains('pkg.Main available')
         assertConsoleOutputContains('pkg.JunitTest inaccessible')
-        assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test inaccessible')
         assertConsoleOutputContains('main.txt available')
@@ -90,7 +85,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when Java application launched from src/test/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
+        importAndWait(createSampleProject('sample-project'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.JunitTest'))
@@ -98,7 +93,6 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         then:
         assertConsoleOutputContains('pkg.Main available')
         assertConsoleOutputContains('pkg.JunitTest available')
-        assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
         assertConsoleOutputContains('main.txt available')
@@ -107,7 +101,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when JUnit test method executed"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
+        importAndWait(createSampleProject('sample-project'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project', 'pkg.JunitTest', 'test'))
@@ -115,7 +109,6 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         then:
         assertConsoleOutputContains('pkg.Main available')
         assertConsoleOutputContains('pkg.JunitTest available')
-        assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
         assertConsoleOutputContains('main.txt available')
@@ -124,7 +117,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when JUnit test project executedt"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('4.4'))
+        importAndWait(createSampleProject('sample-project'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project'))
@@ -132,7 +125,6 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         then:
         assertConsoleOutputContains('pkg.Main available')
         assertConsoleOutputContains('pkg.JunitTest available')
-        assertConsoleOutputContains('org.apache.commons.io.IOUtils inaccessible')
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
         assertConsoleOutputContains('main.txt available')
@@ -155,7 +147,6 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                 dependencies {
                     compile project(':resource-library')
                     compile 'com.google.guava:guava:18.0'
-                    compileOnly 'commons-io:commons-io:1.4'
                     testCompile 'junit:junit:4.12'
                 }
 
@@ -179,7 +170,6 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                             exists("pkg.CustomMain");
                             exists("pkg.JunitTest");
                             exists("com.google.common.collect.ImmutableList");
-                            exists("org.apache.commons.io.IOUtils");
                             exists("junit.framework.Test");
                             resourceExists("main.txt");
                             resourceExists("test.txt");
@@ -246,9 +236,10 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         }
     }
 
-    private ILaunchConfiguration createJavaLaunchConfiguration(String projectName, String mainType) {
+    private ILaunchConfiguration createJavaLaunchConfiguration(String projectName, String mainType, boolean excludeTestCode = false) {
          createLaunchConfiguration('org.eclipse.jdt.launching.localJavaApplication', [
              'org.eclipse.jdt.launching.PROJECT_ATTR' : projectName,
+             'org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE' : excludeTestCode,
              'org.eclipse.jdt.launching.MAIN_TYPE' : mainType
          ])
     }
@@ -271,7 +262,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     private ILaunchConfiguration createLaunchConfiguration(String id, Map attributes) {
         ILaunchConfigurationWorkingCopy workingCopy = createLaunchConfig(id)
-        attributes.each { String k, String v -> workingCopy.setAttribute(k, v) }
+        attributes.each { k, v -> workingCopy.setAttribute(k, v) }
         workingCopy.doSave()
     }
 

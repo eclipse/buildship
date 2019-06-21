@@ -8,6 +8,10 @@
 
 package org.eclipse.buildship.core.internal.util.gradle;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
@@ -16,11 +20,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * Represents a released version of Gradle
@@ -232,6 +231,30 @@ public final class GradleVersion implements Comparable<GradleVersion> {
 
     public boolean isValid() {
         return this.versionPart != null;
+    }
+
+    public boolean supportsCompositeBuilds() {
+        return getBaseVersion().compareTo(GradleVersion.version("3.3")) >= 0;
+    }
+
+    public boolean supportsDashDashScan() {
+        return getBaseVersion().compareTo(GradleVersion.version("3.5")) >= 0;
+    }
+
+    public boolean supportsSyncTasksInEclipsePluginConfig() {
+        return getBaseVersion().compareTo(GradleVersion.version("5.4")) >= 0;
+    }
+
+    public boolean supportsSendingReservedProjects() {
+        return getBaseVersion().compareTo(GradleVersion.version("5.5")) >= 0;
+    }
+
+    public boolean supportsTestAttributes() {
+        return getBaseVersion().compareTo(GradleVersion.version("5.6")) >= 0;
+    }
+
+    public boolean supportsClosedProjectDependencySubstitution() {
+        return getBaseVersion().compareTo(GradleVersion.version("5.6")) >= 0;
     }
 
     /**
