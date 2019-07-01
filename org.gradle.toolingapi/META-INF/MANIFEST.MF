@@ -25,4 +25,4 @@ Export-Package: org.gradle.api;version="5.5.0",
  org.gradle.tooling.model.gradle;version="5.5.0",
  org.gradle.tooling.model.idea;version="5.5.0",
  org.gradle.tooling.model.java;version="5.5.0"
-Bundle-Version: 5.5.0.qualifier
+Bundle-Version: 3.1.2.qualifier
