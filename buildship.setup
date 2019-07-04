@@ -18,15 +18,11 @@
       id="buildship.p2"
       label="Project Development Tools">
     <requirement
-        name="org.eclipse.buildship.feature.group"/>
-    <requirement
         name="org.codehaus.groovy.eclipse.feature.feature.group"/>
     <requirement
         name="org.codehaus.groovy24.feature.feature.group"/>
     <repository
-        url="http://dist.springsource.org/release/GRECLIPSE/e4.10"/>
-    <repository
-        url="http://download.eclipse.org/buildship/updates/e410/snapshots/3.x"/>
+        url="https://dist.springsource.org/release/GRECLIPSE/3.4.0/e4.12"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
@@ -187,49 +183,22 @@
         xsi:type="setup:VariableTask"
         id="buildship.variables.eclipsetargetplatform"
         name="eclipse.target.platform"
-        value="None"
-        defaultValue="None"
+        value="${eclipse.target.platform.latest.released}"
+        defaultValue=""
         storageURI="scope://Workspace">
       <description>This variable comes predefined with a list of All Eclipse distributions. The value is set to 'None' not to inherit it. The Actual target platform definitions are in the buildship.target.platform variable. </description>
     </setupTask>
     <setupTask
         xsi:type="setup:VariableTask"
-        id="buildship.variables.buildshiptargetplatform"
-        name="buildship.target.platform"
-        defaultValue="2018-12"
-        label="Buildship Target Platform">
-      <choice
-          value="Photon"
-          label="Eclipse Photon - 4.8"/>
-      <choice
-          value="Oxygen"
-          label="Eclipse Oxygen - 4.7"/>
-      <choice
-          value="Neon"
-          label="Eclipse Neon - 4.6"/>
-      <choice
-          value="Mars"
-          label="Eclipse Mars - 4.5"/>
-      <choice
-          value="Luna"
-          label="Eclipse Luna - 4.4"/>
-      <choice
-          value="Kepler"
-          label="Eclipse Kepler - 4.3"/>
-      <choice
-          value="2018-09"
-          label="Eclipse 2018-09"/>
-      <choice
-          value="2018-12"
-          label="Eclipse 2018-12"/>
-      <description>Buildship Target Platform</description>
-    </setupTask>
+        id="git.checkout.branch"
+        name="git.checkout.branch"
+        defaultValue="master"
+        label="Git branch"/>
     <setupTask
         xsi:type="setup:VariableTask"
-        id="buildship.variables.latestversion"
-        name="buildship.latest.version"
-        value="3.0"
-        defaultValue=""/>
+        id="installation.id"
+        name="installation.id"
+        defaultValue="buildship"/>
   </setupTask>
   <setupTask
       xsi:type="git:GitCloneTask"
@@ -291,7 +260,7 @@
       id="buildship.targlets">
     <targlet
         name="Buildship Main Dependencies"
-        activeRepositoryList="${buildship.target.platform}">
+        activeRepositoryList="${eclipse.target.platform}">
       <requirement
           name="org.eclipse.sdk.ide"/>
       <requirement
@@ -304,81 +273,18 @@
           name="org.jetbrains.kotlin.feature.feature.group"
           versionRange="0.8.5"/>
       <repositoryList
-          name="Photon">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-photon"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-        <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
-      </repositoryList>
-      <repositoryList
-          name="Oxygen">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-        <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
-      </repositoryList>
-      <repositoryList
-          name="Neon">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-neon"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-        <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
-      </repositoryList>
-      <repositoryList
-          name="Mars">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-mars"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-        <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
-      </repositoryList>
-      <repositoryList
-          name="Luna">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-luna"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-        <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
-      </repositoryList>
-      <repositoryList
-          name="Kepler">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-kepler"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-        <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
-      </repositoryList>
-      <repositoryList
-          name="2018-09">
+          name="${eclipse.target.platform}">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-rolling"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
-      </repositoryList>
-      <repositoryList
-          name="2018-12">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-rolling"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-        <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.5"/>
+            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.16"/>
       </repositoryList>
     </targlet>
     <targlet
         name="Buildship Test Dependencies"
-        activeRepositoryList="${buildship.target.platform}">
+        activeRepositoryList="${eclipse.target.platform}">
       <requirement
           name="org.junit"
           versionRange="4.12.0"/>
@@ -386,56 +292,7 @@
           name="org.eclipse.swtbot.eclipse.feature.group"
           versionRange="2.2.1"/>
       <repositoryList
-          name="Photon">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-      </repositoryList>
-      <repositoryList
-          name="Oxygen">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-      </repositoryList>
-      <repositoryList
-          name="Neon">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-      </repositoryList>
-      <repositoryList
-          name="Mars">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-      </repositoryList>
-      <repositoryList
-          name="Luna">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-      </repositoryList>
-      <repositoryList
-          name="Kepler">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-      </repositoryList>
-      <repositoryList
-          name="2018-09">
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-      </repositoryList>
-      <repositoryList
-          name="2018-12">
+          name="${eclipse.target.platform}">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
         <repository
