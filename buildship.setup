@@ -279,7 +279,7 @@
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
         <repository
-            url="http://dl.bintray.com/jetbrains/kotlin/eclipse-plugin/0.8.16"/>
+            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
       </repositoryList>
     </targlet>
     <targlet

@@ -8,7 +8,3 @@ include ':org.eclipse.buildship.core.test'
 include ':org.eclipse.buildship.ui.test'
 include ':org.eclipse.buildship.stsmigration'
 include ':org.eclipse.buildship.stsmigration.test'
-if (hasProperty('include.experimental.features')) {
-    include ':org.eclipse.buildship.kotlin'
-    include ':org.eclipse.buildship.kotlin.feature'
-}
