@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<target name="Buildship Eclipse 2019-03 Target Platform" sequenceNumber="1">
+<target name="Buildship Eclipse 2019-06 Target Platform" sequenceNumber="1">
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.10.0.20181127-2120"/>
-            <unit id="org.eclipse.sdk.ide" version="4.11.0.I20190307-0500"/>
+            <unit id="org.eclipse.sdk.ide" version="4.12.0.I20190605-1800"/>
             <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-rolling/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
