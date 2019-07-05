@@ -269,17 +269,12 @@
       <requirement
           name="com.google.guava"
           versionRange="27.1.0"/>
-      <requirement
-          name="org.jetbrains.kotlin.feature.feature.group"
-          versionRange="0.8.5"/>
       <repositoryList
           name="${eclipse.target.platform}">
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-rolling"/>
         <repository
             url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
-        <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/kotlin-eclipse-dev"/>
       </repositoryList>
     </targlet>
     <targlet
