@@ -302,8 +302,8 @@ eclipseBuild {
         eclipseVersion = '412'
         targetDefinition = file('tooling-e412.target')
         versionMapping = [
-            "$swtPluginId"                          : '3.110.0',
-            'com.ibm.icu'                           : '64.3.0',
+            "$swtPluginId"                          : '3.111.0',
+            'com.ibm.icu'                           : '64.2.0',
             'org.eclipse.core.expressions'          : '3.6.400',
             'org.eclipse.core.filesystem'           : '1.7.400',
             'org.eclipse.core.net'                  : '1.3.500',
