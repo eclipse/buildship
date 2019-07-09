@@ -4,6 +4,7 @@
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.8.3.20180227-2137"/>
             <unit id="org.eclipse.sdk.ide" version="4.7.3.M20180330-0640"/>
+            <unit id="org.eclipse.oomph.setup.feature.group" version="1.8.0.v20170531-0903"/>
             <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-oxygen/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">

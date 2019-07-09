@@ -4,6 +4,7 @@
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.7.0.20160603-1933"/>
             <unit id="org.eclipse.sdk.ide" version="4.6.0.I20160606-1100"/>
+            <unit id="org.eclipse.oomph.setup.feature.group" version="1.7.0.v20170305-1123"/>
             <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-neon/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
