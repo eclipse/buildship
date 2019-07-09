@@ -422,7 +422,7 @@ public class GradleImportPackageImpl extends EPackageImpl implements GradleImpor
         addEEnumLiteral(distributionTypeEEnum, DistributionType.SPECIFIC_GRADLE_VERSION);
 
         // Create resource
-        createResource("http://www.eclipse.org/buildship/oomph/schemas/GradleImport-1.0.ecore");
+        createResource("https://raw.githubusercontent.com/eclipse/buildship/master/org.eclipse.buildship.oomph/model/GradleImport-1.0.ecore");
 
         // Create annotations
         // http://www.eclipse.org/emf/2002/Ecore
@@ -443,7 +443,8 @@ public class GradleImportPackageImpl extends EPackageImpl implements GradleImpor
      */
     protected void createEcoreAnnotations() {
         String source = "http://www.eclipse.org/emf/2002/Ecore";
-        addAnnotation(this, source, new String[] { "schemaLocation", "http://www.eclipse.org/buildship/oomph/schemas/GradleImport-1.0.ecore" });
+        addAnnotation(this, source, new String[] { "schemaLocation",
+                "https://raw.githubusercontent.com/eclipse/buildship/master/org.eclipse.buildship.oomph/model/GradleImport-1.0.ecore" });
     }
 
     /**

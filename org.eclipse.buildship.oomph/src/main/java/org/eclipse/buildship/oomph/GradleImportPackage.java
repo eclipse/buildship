@@ -29,7 +29,7 @@ import org.eclipse.oomph.setup.SetupPackage;
  * 
  * @see org.eclipse.buildship.oomph.GradleImportFactory
  * @model kind="package" annotation="http://www.eclipse.org/emf/2002/Ecore
- *        schemaLocation='http://www.eclipse.org/buildship/oomph/schemas/GradleImport-1.0.ecore'"
+ *        schemaLocation='https://raw.githubusercontent.com/eclipse/buildship/master/org.eclipse.buildship.oomph/model/GradleImport-1.0.ecore'"
  * @generated
  */
 public interface GradleImportPackage extends EPackage {
