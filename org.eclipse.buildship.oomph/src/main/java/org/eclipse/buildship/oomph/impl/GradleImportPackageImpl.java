@@ -429,6 +429,8 @@ public class GradleImportPackageImpl extends EPackageImpl implements GradleImpor
         createEcoreAnnotations();
         // http://www.eclipse.org/oomph/setup/ValidTriggers
         createValidTriggersAnnotations();
+        // http://www.eclipse.org/oomph/setup/Enablement
+        createEnablementAnnotations();
         // http:///org/eclipse/emf/ecore/util/ExtendedMetaData
         createExtendedMetaDataAnnotations();
     }
@@ -453,6 +455,20 @@ public class GradleImportPackageImpl extends EPackageImpl implements GradleImpor
     protected void createValidTriggersAnnotations() {
         String source = "http://www.eclipse.org/oomph/setup/ValidTriggers";
         addAnnotation(gradleImportTaskEClass, source, new String[] { "triggers", "STARTUP MANUAL" });
+    }
+
+    /**
+     * Initializes the annotations for <b>http://www.eclipse.org/oomph/setup/Enablement</b>. <!--
+     * begin-user-doc --> <!-- end-user-doc -->
+     * 
+     * @generated
+     */
+    protected void createEnablementAnnotations() {
+        String source = "http://www.eclipse.org/oomph/setup/Enablement";
+        addAnnotation(gradleImportTaskEClass, source, new String[] { "variableName", "setup.buildship.p2", "repository",
+                "https://download.eclipse.org/buildship/updates/e411/releases", "installableUnits", "org.eclipse.buildship.feature.group" });
+        addAnnotation(gradleImportTaskEClass, source, new String[] { "variableName", "setup.buildship.oomph.p2", "repository",
+                "https://download.eclipse.org/buildship/updates/e411/releases", "installableUnits", "org.eclipse.buildship.oomph.feature.group" });
     }
 
     /**

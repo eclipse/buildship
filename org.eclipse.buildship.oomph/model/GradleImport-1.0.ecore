@@ -8,6 +8,16 @@
     <eAnnotations source="http://www.eclipse.org/oomph/setup/ValidTriggers">
       <details key="triggers" value="STARTUP MANUAL"/>
     </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/oomph/setup/Enablement">
+      <details key="variableName" value="setup.buildship.p2"/>
+      <details key="repository" value="https://download.eclipse.org/buildship/updates/e411/releases"/>
+      <details key="installableUnits" value="org.eclipse.buildship.feature.group"/>
+    </eAnnotations>
+    <eAnnotations source="http://www.eclipse.org/oomph/setup/Enablement">
+      <details key="variableName" value="setup.buildship.oomph.p2"/>
+      <details key="repository" value="https://download.eclipse.org/buildship/updates/e411/releases"/>
+      <details key="installableUnits" value="org.eclipse.buildship.oomph.feature.group"/>
+    </eAnnotations>
     <eStructuralFeatures xsi:type="ecore:EReference" name="sourceLocators" lowerBound="1"
         upperBound="-1" eType="ecore:EClass http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Resources.ecore#//SourceLocator"
         containment="true">

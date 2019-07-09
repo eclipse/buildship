@@ -53,6 +53,14 @@ import org.eclipse.oomph.setup.SetupTask;
  *
  * @see org.eclipse.buildship.oomph.GradleImportPackage#getGradleImportTask()
  * @model annotation="http://www.eclipse.org/oomph/setup/ValidTriggers triggers='STARTUP MANUAL'"
+ *        annotation="http://www.eclipse.org/oomph/setup/Enablement
+ *        variableName='setup.buildship.p2'
+ *        repository='https://download.eclipse.org/buildship/updates/e411/releases'
+ *        installableUnits='org.eclipse.buildship.feature.group'"
+ *        annotation="http://www.eclipse.org/oomph/setup/Enablement
+ *        variableName='setup.buildship.oomph.p2'
+ *        repository='https://download.eclipse.org/buildship/updates/e411/releases'
+ *        installableUnits='org.eclipse.buildship.oomph.feature.group'"
  * @generated
  */
 public interface GradleImportTask extends SetupTask {
