@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
     xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright (c) 2019 the original author or authors.&#xA;All rights reserved. This program and the accompanying materials&#xA;are made available under the terms of the Eclipse Public License v1.0&#xA;which accompanies this distribution, and is available at&#xA;http://www.eclipse.org/legal/epl-v10.html&#xA;"
-    modelDirectory="/org.eclipse.buildship.oomph/src/main/java" creationIcons="false"
-    editDirectory="/org.eclipse.buildship.oomph.edit/src/main/java" editorDirectory=""
+    modelDirectory="/org.eclipse.buildship.oomph/src/main/java-generated" creationIcons="false"
+    editDirectory="/org.eclipse.buildship.oomph.edit/src/main/java-generated" editorDirectory=""
     modelPluginID="org.eclipse.buildship.oomph" modelName="GradleImport" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
     codeFormatting="true" commentFormatting="true" testsDirectory="" importerID="org.eclipse.emf.importer.ecore"
     complianceLevel="8.0" optimizedHasChildren="true" usedGenPackages="../../org.eclipse.oomph.base/model/Base.genmodel#//base ../../org.eclipse.oomph.predicates/model/Predicates.genmodel#//predicates ../../org.eclipse.oomph.resources/model/Resources.genmodel#//resources ../../org.eclipse.oomph.setup/model/Setup.genmodel#//setup"

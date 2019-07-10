@@ -52,6 +52,7 @@ public enum DistributionType implements Enumerator {
      * @ordered
      */
     REMOTE_DISTRIBUTION(2, "REMOTE_DISTRIBUTION", "REMOTE_DISTRIBUTION"),
+
     /**
      * The '<em><b>SPECIFIC GRADLE VERSION</b></em>' literal object. <!-- begin-user-doc --> <!--
      * end-user-doc -->

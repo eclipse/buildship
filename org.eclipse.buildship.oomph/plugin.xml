@@ -19,5 +19,12 @@
             class="org.eclipse.buildship.oomph.GradleImportPackage"
             genModel="model/GradleImport.genmodel"/>
    </extension>
+   <extension
+         point="org.eclipse.emf.ecore.factory_override">
+      <factory
+            class="org.eclipse.buildship.oomph.impl.CustomGradleImportFactoryImpl"
+            uri="http://www.eclipse.org/buildship/oomph/1.0">
+      </factory>
+   </extension>
 
 </plugin>

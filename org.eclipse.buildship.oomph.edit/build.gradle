@@ -1,4 +1,4 @@
 apply plugin: eclipsebuild.BundlePlugin
 
-// oomph setup task implementation is mostly generated
-checkstyleMain.exclude '**/org/eclipse/buildship/oomph/**'
+sourceSets.main.java.srcDir 'src/main/java-generated'
+checkstyleMain.source = fileTree('src/main/java')
