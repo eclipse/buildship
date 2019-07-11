@@ -57,9 +57,24 @@ class PluginUtils {
                             entry.value = project.version
                         } else if (entry.key == 'Bundle-SymbolicName') {
                             entry.value = "${project.name}.source;singleton:=true"
+                        } else if (entry.key == 'Require-Bundle') {
+                            entry.exclude()
+                        } else if (entry.key == 'Import-Package') {
+                            entry.exclude()
+                        } else if (entry.key == 'Export-Package') {
+                            entry.exclude()
+                        } else if (entry.key == 'Bundle-ClassPath') {
+                            entry.exclude()
+                        } else if (entry.key == 'Bundle-Activator') {
+                            entry.exclude()
+                        } else if (entry.key == 'Bundle-ActivationPolicy') {
+                            entry.exclude()
+                        } else if (entry.key == 'Bundle-RequiredExecutionEnvironment') {
+                            entry.exclude()
                         }
                     }
                 }
+                attributes 'Eclipse-SourceBundle' : "${project.name};version=\"${project.version}\""
                 def sourceReference = sourceReference(project)
                 if (sourceReference) {
                     attributes 'Eclipse-SourceReferences' : sourceReference
