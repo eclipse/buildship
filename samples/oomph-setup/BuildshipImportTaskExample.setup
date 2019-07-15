@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup:Project
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:git="http://www.eclipse.org/oomph/setup/git/1.0"
+    xmlns:oomph="http://www.eclipse.org/buildship/oomph/1.0"
+    xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
+    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/buildship/oomph/1.0 https://raw.githubusercontent.com/eclipse/buildship/master/org.eclipse.buildship.oomph/model/GradleImport-1.0.ecore"
+    name="buildship"
+    label="Buildship Import Task Example">
+  <setupTask
+      xsi:type="git:GitCloneTask"
+      id="git"
+      remoteURI="https://github.com/gradle-guides/building-java-libraries.git"
+      checkoutBranch="master">
+    <description>Buildship example</description>
+  </setupTask>
+  <setupTask
+      xsi:type="oomph:GradleImportTask"
+      overrideWorkspaceSettings="true"
+      distributionType="SPECIFIC_GRADLE_VERSION"
+      specificGradleVersion="5.5">
+    <sourceLocator
+        rootFolder="${git.location}"/>
+  </setupTask>
+  <stream name="master"
+      label="Master"/>
+  <logicalProjectContainer
+      xsi:type="setup:ProjectCatalog"
+      href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']"/>
+  <description>
+    Buildship Import Task Example is an example
+    on how to use the Gradle Import Task
+  </description>
+</setup:Project>
