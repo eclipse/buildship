@@ -20,6 +20,7 @@ import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseRuntime;
 import org.gradle.tooling.model.eclipse.EclipseWorkspaceProject;
+import org.gradle.tooling.model.eclipse.RunClosedProjectBuildDependencies;
 
 import com.google.common.collect.ImmutableList;
 
@@ -67,9 +68,13 @@ public final class EclipseModelUtils {
 
     public static EclipseRuntimeConfigurer buildEclipseRuntimeConfigurer() {
         ImmutableList<IProject> allWorkspaceProjects = CorePlugin.workspaceOperations().getAllProjects();
-        List<EclipseWorkspaceProject> projects = allWorkspaceProjects.stream().map(p -> new DefaultEclipseWorkspaceProject(p.getName(), p.getLocation().toFile()))
+        List<EclipseWorkspaceProject> projects = allWorkspaceProjects.stream().map(p -> new DefaultEclipseWorkspaceProject(p.getName(), p.getLocation().toFile(), p.isOpen()))
                 .collect(Collectors.toList());
         return new EclipseRuntimeConfigurer(new DefaultEclipseWorkspace(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), projects));
+    }
+
+    private static boolean supportsClosedProjectDependencySubstitution(GradleVersion gradleVersion) {
+        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("5.6")) >= 0;
     }
 
     private static boolean supportsSendingReservedProjects(GradleVersion gradleVersion) {
@@ -85,9 +90,18 @@ public final class EclipseModelUtils {
     }
 
     private static Collection<EclipseProject> runTasksAndQueryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
+        EclipseRuntimeConfigurer buildEclipseRuntimeConfigurer = buildEclipseRuntimeConfigurer();
         try {
-        return runTasksAndQueryCompositeModel(connection, gradleVersion, IdeFriendlyClassLoading
-                .loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer()));
+            BuildAction<Void> runSyncTasksAction = IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class);
+            if (supportsClosedProjectDependencySubstitution(gradleVersion)) {
+                // use a composite query to run substitute tasks in included builds too
+                BuildAction<?> runClosedProjectTasksAction = new CompositeModelQuery<>(RunClosedProjectBuildDependencies.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer);
+                BuildActionSequence projectsLoadedAction = new BuildActionSequence(runSyncTasksAction, runClosedProjectTasksAction);
+                return runPhasedModelQuery(connection, gradleVersion, projectsLoadedAction, IdeFriendlyClassLoading
+                        .loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class,buildEclipseRuntimeConfigurer));
+            }
+            return runPhasedModelQuery(connection, gradleVersion, runSyncTasksAction, IdeFriendlyClassLoading
+                    .loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer));
         } catch (BuildActionFailureException e) {
             // For gradle >= 5.5 project name deduplication happens in gradle. In case gradle can't deduplicate then create an UnsupportedConfigurationException
             // to match the behaviour with previous gradle versions.
@@ -102,13 +116,12 @@ public final class EclipseModelUtils {
     }
 
     private static Collection<EclipseProject> runTasksAndQueryCompositeModel(ProjectConnection connection, GradleVersion gradleVersion) {
-        return runTasksAndQueryCompositeModel(connection, gradleVersion, IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class));
+        return runPhasedModelQuery(connection, gradleVersion, IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class), IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class));
     }
 
-    private static Collection<EclipseProject> runTasksAndQueryCompositeModel(ProjectConnection connection, GradleVersion gradleVersion,
-            BuildAction<Collection<EclipseProject>> query) {
+    private static Collection<EclipseProject> runPhasedModelQuery(ProjectConnection connection, GradleVersion gradleVersion,
+            BuildAction<Void> projectsLoadedAction, BuildAction<Collection<EclipseProject>> query) {
         SimpleIntermediateResultHandler<Collection<EclipseProject>> resultHandler = new SimpleIntermediateResultHandler<>();
-        BuildAction<Void> projectsLoadedAction = IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class);
         connection.action().projectsLoaded(projectsLoadedAction, new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build().forTasks().run();
         return resultHandler.getValue();
     }
