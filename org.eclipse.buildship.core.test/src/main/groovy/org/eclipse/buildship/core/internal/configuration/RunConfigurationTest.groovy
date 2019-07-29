@@ -2,19 +2,21 @@ package org.eclipse.buildship.core.internal.configuration
 
 import spock.lang.Issue
 
+import org.eclipse.core.runtime.Platform
 import org.eclipse.core.variables.IStringVariableManager
 import org.eclipse.core.variables.IValueVariable
 import org.eclipse.core.variables.VariablesPlugin
 import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.debug.core.ILaunchConfigurationType
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchManager
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.GradleDistribution
 
 class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
@@ -93,7 +95,17 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "load default settings"() {
         given:
-        ILaunchConfiguration launchConfig = createGradleLaunchConfig()
+        ILaunchConfigurationWorkingCopy launchConfig = createGradleLaunchConfig()
+        // when executed from the IDE, the working directory is set to the core.test plugin folder
+        // which makes this test read the run configuration from the `.settings` folder
+        boolean isDev = Platform.inDevelopmentMode()
+        File tmpDir
+        if (isDev) {
+            tmpDir = dir("tmpDir")
+            launchConfig.setAttribute(GradleRunConfigurationAttributes.WORKING_DIR, tmpDir.absolutePath)
+            launchConfig.doSave()
+        }
+
         RunConfiguration runConfig = configurationManager.loadRunConfiguration(launchConfig)
 
         expect:
@@ -103,8 +115,8 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         runConfig.jvmArguments == []
         runConfig.showExecutionView == true
         runConfig.showConsoleView == true
-        runConfig.projectConfiguration.projectDir.path == new File('').canonicalPath
-        runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory.path == new File('').canonicalPath
+        runConfig.projectConfiguration.projectDir.path == (isDev ? tmpDir.canonicalPath : new File('').canonicalPath)
+        runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory.path == (isDev ? tmpDir.canonicalPath : new File('').canonicalPath)
         runConfig.projectConfiguration.buildConfiguration.gradleDistribution == GradleDistribution.fromBuild()
         runConfig.projectConfiguration.buildConfiguration.overrideWorkspaceSettings == false
         runConfig.projectConfiguration.buildConfiguration.buildScansEnabled == false
