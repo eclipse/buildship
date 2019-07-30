@@ -9,6 +9,9 @@
 package org.eclipse.buildship.core.internal.launch;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +23,6 @@ import java.util.Map;
 import org.gradle.tooling.TestLauncher;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.core.resources.IProject;
@@ -33,6 +35,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
@@ -152,9 +155,33 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
     }
 
     private static int findAvailablePort() {
-        return 4008; // TODO (donat) implement
+        for (int p = 1024; p < 65535; p++) {
+            if (isAvailable(p)) {
+                return p;
+            }
+        }
+        throw new GradlePluginsRuntimeException("Cannot find available port for debugging");
     }
 
+    private static boolean isAvailable(int port) {
+        try {
+            ServerSocket ss = new ServerSocket(port);
+            try {
+                ss.setReuseAddress(true);
+            } finally {
+                ss.close();
+            }
+            DatagramSocket ds = new DatagramSocket(port);
+            try {
+                ds.setReuseAddress(true);
+            } finally {
+                ds.close();
+            }
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
     @Override
     protected void writeExtraConfigInfo(GradleProgressAttributes progressAttributes) {
