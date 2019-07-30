@@ -308,6 +308,11 @@
                 configTypeID="org.eclipse.buildship.core.launch.runconfiguration"
                 icon="icons/full/obj16/launch_config.png">
         </launchConfigurationTypeImage>
+        <launchConfigurationTypeImage
+                id="org.eclipse.buildship.ui.launch.test.runconfigurationtypeimage"
+                configTypeID="org.eclipse.buildship.core.launch.test.runconfiguration"
+                icon="icons/full/obj16/launch_config.png">
+        </launchConfigurationTypeImage>
     </extension>
     <extension
             point="org.eclipse.debug.ui.launchConfigurationTabGroups">
@@ -315,6 +320,11 @@
                 id="org.eclipse.buildship.ui.launch.runconfigurationtabgroup"
                 type="org.eclipse.buildship.core.launch.runconfiguration"
                 class="org.eclipse.buildship.ui.internal.launch.GradleRunConfigurationTabGroup">
+        </launchConfigurationTabGroup>
+        <launchConfigurationTabGroup
+              id="org.eclipse.buildship.ui.launch.test.runconfigurationtabgroup"
+              type="org.eclipse.buildship.core.launch.test.runconfiguration"
+              class="org.eclipse.buildship.ui.internal.launch.GradleTestLaunchConfigurationTabGroup">
         </launchConfigurationTabGroup>
     </extension>
 
