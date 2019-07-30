@@ -11,11 +11,16 @@
 
 package org.eclipse.buildship.ui.internal.launch;
 
+import java.util.List;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 
 import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
@@ -41,6 +46,12 @@ public final class UiGradleLaunchConfigurationManager implements GradleLaunchCon
     @Override
     public ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         return this.delegate.getOrCreateRunConfiguration(configurationAttributes);
+    }
+
+
+    @Override
+    public ILaunchConfiguration getOrCreateTestRunConfiguration(IProject project, List<IType> types, List<IMethod> methods) {
+        return this.delegate.getOrCreateTestRunConfiguration(project, types, methods);
     }
 
     @Override

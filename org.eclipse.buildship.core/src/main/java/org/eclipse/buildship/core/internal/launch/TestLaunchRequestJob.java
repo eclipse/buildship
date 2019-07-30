@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
@@ -47,25 +48,27 @@ import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
  */
 public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
 
-    private final ILaunch launch;
+    private final ILaunchConfiguration launchConfiguration;
+    private final String mode;
     private final RunConfiguration runConfig;
     private List<String> testClasses;
     private List<String> testMethods;
 
-    public TestLaunchRequestJob(ILaunch launch) {
+    public TestLaunchRequestJob(ILaunchConfiguration launchConfiguration, String mode) {
         super("Launching Gradle tests");
-        this.launch = Preconditions.checkNotNull(launch);
-        this.runConfig = CorePlugin.configurationManager().loadRunConfiguration(launch.getLaunchConfiguration());
+        this.launchConfiguration = Preconditions.checkNotNull(launchConfiguration);
+        this.mode = mode;
+        this.runConfig = CorePlugin.configurationManager().loadRunConfiguration(launchConfiguration);
 
         try {
-            this.testClasses = this.launch.getLaunchConfiguration().getAttribute("test_classes", Collections.emptyList());
+            this.testClasses = this.launchConfiguration.getAttribute("test_classes", Collections.emptyList());
         } catch (CoreException e) {
             CorePlugin.logger().warn("Cannot read run configuration", e);
             this.testClasses = Collections.emptyList();
         }
 
         try {
-            this.testMethods = this.launch.getLaunchConfiguration().getAttribute("test_methods", Collections.emptyList());
+            this.testMethods = this.launchConfiguration.getAttribute("test_methods", Collections.emptyList());
         } catch (CoreException e) {
             CorePlugin.logger().warn("Cannot read run configuration", e);
             this.testMethods = Collections.emptyList();
@@ -90,7 +93,7 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
         List<String> tests = new ArrayList<>();
         tests.addAll(this.testClasses);
         tests.addAll(this.testMethods);
-        String processName = createProcessName(tests, this.runConfig.getProjectConfiguration().getProjectDir(), this.launch.getLaunchConfiguration().getName());
+        String processName = createProcessName(tests, this.runConfig.getProjectConfiguration().getProjectDir(), this.launchConfiguration.getName());
         return new BuildLaunchProcessDescription(processName);
     }
 
@@ -114,7 +117,7 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
 
     @Override
     protected void executeLaunch(TestLauncher launcher) {
-         if (this.launch.getLaunchMode().equals("debug")) { // TODO (donat) restrict debugging to Gradle 5.6+
+         if (this.mode.equals("debug")) { // TODO (donat) restrict debugging to Gradle 5.6+
             try {
                 int port = findAvailablePort();
                 ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
@@ -132,7 +135,7 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
     }
 
     private ILaunch startDebuggerSession(ILaunchManager launchManager, int port) throws CoreException {
-        String workingDirExpr = this.launch.getLaunchConfiguration().getAttribute("working_dir", (String) null);
+        String workingDirExpr = this.launchConfiguration.getAttribute("working_dir", (String) null);
         String workingDir = ExpressionUtils.decode(workingDirExpr);
         IProject project = null;
 
@@ -205,10 +208,8 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
 
         @Override
         public void rerun() {
-            ILaunch launch = TestLaunchRequestJob.this.launch;
-            CorePlugin.gradleLaunchConfigurationManager().launch(launch.getLaunchConfiguration(), launch.getLaunchMode());
+            CorePlugin.gradleLaunchConfigurationManager().launch(TestLaunchRequestJob.this.launchConfiguration, TestLaunchRequestJob.this.mode);
         }
-
     }
 
 }

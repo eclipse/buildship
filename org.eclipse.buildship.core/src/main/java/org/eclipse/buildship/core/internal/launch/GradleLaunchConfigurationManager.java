@@ -11,9 +11,14 @@
 
 package org.eclipse.buildship.core.internal.launch;
 
+import java.util.List;
+
 import com.google.common.base.Optional;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 
 /**
  * Manages the interactions with the Gradle {@link ILaunchConfiguration} instances.
@@ -39,6 +44,8 @@ public interface GradleLaunchConfigurationManager {
      * @return the new or existing Gradle run configuration
      */
     ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes);
+
+    ILaunchConfiguration getOrCreateTestRunConfiguration(IProject project, List<IType> types, List<IMethod> methods);
 
     /**
      * Launches the given target configuration.

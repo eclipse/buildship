@@ -20,6 +20,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -29,15 +30,17 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.launch.RunGradleJvmTestLaunchRequestJob;
+import org.eclipse.buildship.core.internal.launch.TestLaunchRequestJob;
 import org.eclipse.buildship.core.internal.launch.TestMethod;
 import org.eclipse.buildship.core.internal.launch.TestTarget;
 import org.eclipse.buildship.core.internal.launch.TestType;
-import org.eclipse.buildship.core.GradleDistribution;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.
@@ -47,27 +50,45 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     @Override
     public void launch(ISelection selection, String mode) {
         JavaElementResolver resolver = SelectionJavaElementResolver.from(selection);
-        launch(resolver);
+        launch(resolver, mode);
     }
 
     @Override
     public void launch(IEditorPart editor, String mode) {
         JavaElementResolver resolver = EditorJavaElementResolver.from(editor);
-        launch(resolver);
+        launch(resolver, mode);
     }
 
-    private void launch(JavaElementResolver resolver) {
+    private void launch(JavaElementResolver resolver, String mode) {
         List<IType> types = resolver.resolveTypes();
         List<IMethod> methods = resolver.resolveMethods();
         if (TestLaunchShortcutValidator.validateTypesAndMethods(types, methods)) {
             ImmutableList.Builder<TestTarget> targets = ImmutableList.builder();
             targets.addAll(convertTypesToTestTargets(types));
             targets.addAll(convertMethodsToTestTargets(methods));
+
+            IProject project = findProject(types, methods);
+            ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateTestRunConfiguration(project, types, methods);
+
+
+            new TestLaunchRequestJob(launchConfiguration, mode).schedule();
             RunConfiguration runConfiguration = collectRunConfiguration(resolver.findFirstContainerProject().get());
             new RunGradleJvmTestLaunchRequestJob(targets.build(), runConfiguration).schedule();
         } else {
             showNoTestsFoundDialog();
         }
+    }
+
+    private IProject findProject(List<IType> types, List<IMethod> methods) {
+        for (IType t : types) {
+            return t.getJavaProject().getProject();
+        }
+
+        for (IMethod m : methods) {
+            return m.getJavaProject().getProject();
+        }
+
+        throw new GradlePluginsRuntimeException("Empty selection should not be valid for test launch shortcut");
     }
 
     @SuppressWarnings("ConstantConditions")

@@ -336,7 +336,7 @@
              icon="icons/full/obj16/launch_config.png"
              id="org.eclipse.buildship.ui.shortcut.test"
              label="Gradle Test"
-             modes="run">
+             modes="run,debug">
           <configurationType
                 id="org.eclipse.buildship.core.launch.runconfiguration">
           </configurationType>

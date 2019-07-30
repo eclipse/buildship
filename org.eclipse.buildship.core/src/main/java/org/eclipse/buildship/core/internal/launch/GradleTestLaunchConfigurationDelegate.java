@@ -27,7 +27,7 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 public final class GradleTestLaunchConfigurationDelegate extends LaunchConfigurationDelegate {
 
     // configuration type id declared in the plugin.xml
-    public static final String ID = "org.eclipse.buildship.core.launch.testrunconfiguration";
+    public static final String ID = "org.eclipse.buildship.core.launch.test.runconfiguration";
 
     @Override
     public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) {
@@ -35,7 +35,7 @@ public final class GradleTestLaunchConfigurationDelegate extends LaunchConfigura
         try {
             // schedule the test
             final CountDownLatch latch = new CountDownLatch(1);
-            TestLaunchRequestJob job = new TestLaunchRequestJob(launch);
+            TestLaunchRequestJob job = new TestLaunchRequestJob(configuration, mode);
             job.addJobChangeListener(new JobChangeAdapter() {
 
                 @Override
