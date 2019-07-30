@@ -35,7 +35,7 @@ public final class GradleTestLaunchConfigurationDelegate extends LaunchConfigura
         try {
             // schedule the test
             final CountDownLatch latch = new CountDownLatch(1);
-            RunGradleBuildLaunchRequestJob job = new RunGradleBuildLaunchRequestJob(launch);
+            TestLaunchRequestJob job = new TestLaunchRequestJob(launch);
             job.addJobChangeListener(new JobChangeAdapter() {
 
                 @Override
