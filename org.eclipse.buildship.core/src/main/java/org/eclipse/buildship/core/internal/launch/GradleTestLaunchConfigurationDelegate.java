@@ -24,7 +24,7 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 /**
  * Execute Gradle tests.
  */
-public final class GradleTestRunConfigurationDelegate extends LaunchConfigurationDelegate {
+public final class GradleTestLaunchConfigurationDelegate extends LaunchConfigurationDelegate {
 
     // configuration type id declared in the plugin.xml
     public static final String ID = "org.eclipse.buildship.core.launch.testrunconfiguration";

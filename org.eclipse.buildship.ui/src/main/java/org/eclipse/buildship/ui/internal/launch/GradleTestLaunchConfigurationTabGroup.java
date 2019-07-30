@@ -22,7 +22,7 @@ public final class GradleTestLaunchConfigurationTabGroup extends AbstractLaunchC
     public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
         // @formatter:off
         ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-                new ProjectTab(),
+                new TestsTab(),
                 new ProjectSettingsTab(),
                 new CommonTab()
         };

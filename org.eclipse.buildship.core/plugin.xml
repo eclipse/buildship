@@ -57,7 +57,7 @@
       </launchConfigurationType>
        <launchConfigurationType
             id="org.eclipse.buildship.core.launch.test.runconfiguration"
-            delegate="org.eclipse.buildship.core.internal.launch.GradleTestRunConfigurationDelegate"
+            delegate="org.eclipse.buildship.core.internal.launch.GradleTestLaunchConfigurationDelegate"
             name="Gradle Test"
             modes="run,debug">
       </launchConfigurationType>
