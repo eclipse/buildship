@@ -23,6 +23,7 @@ import java.util.Map;
 import org.gradle.tooling.TestLauncher;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.core.resources.IProject;
@@ -40,6 +41,7 @@ import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
@@ -53,6 +55,7 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
     private final RunConfiguration runConfig;
     private List<String> testClasses;
     private List<String> testMethods;
+    private final boolean supportsTestDebugging;
 
     public TestLaunchRequestJob(ILaunchConfiguration launchConfiguration, String mode) {
         super("Launching Gradle tests");
@@ -72,6 +75,30 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
         } catch (CoreException e) {
             CorePlugin.logger().warn("Cannot read run configuration", e);
             this.testMethods = Collections.emptyList();
+        }
+
+        try {
+            String workingDirExpr = launchConfiguration.getAttribute("working_dir", (String) null);
+            if (workingDirExpr == null) {
+                throw new GradlePluginsRuntimeException("Target project not specified");
+            }
+            String workingDirLocation = ExpressionUtils.decode(workingDirExpr);
+            Optional<IProject> project = CorePlugin.workspaceOperations().findProjectByLocation(new File(workingDirLocation));
+            if (!project.isPresent()) {
+                throw new GradlePluginsRuntimeException("Target project not present");
+            }
+
+            IProject p = project.get();
+            PersistentModel model = CorePlugin.modelPersistence().loadModel(p);
+            if (!model.isPresent()) {
+                throw new GradlePluginsRuntimeException("Not synced. Execute sync!");
+            }
+
+            this.supportsTestDebugging = model.getGradleVersion().supportsTestDebugging(); // TODO refactor and ensure this works correctly
+
+
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(e);
         }
     }
 
@@ -117,7 +144,7 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
 
     @Override
     protected void executeLaunch(TestLauncher launcher) {
-         if (this.mode.equals("debug")) { // TODO (donat) restrict debugging to Gradle 5.6+
+         if (this.mode.equals("debug") && this.supportsTestDebugging) {
             try {
                 int port = findAvailablePort();
                 ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
@@ -188,8 +215,12 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
 
     @Override
     protected void writeExtraConfigInfo(GradleProgressAttributes progressAttributes) {
-        progressAttributes.writeConfig(String.format("%s: %s", "Test classes", this.testClasses));
-        progressAttributes.writeConfig(String.format("%s: %s%n", "Test methods", this.testMethods));
+        if ("debug".equals(this.mode) && !this.supportsTestDebugging) {
+            progressAttributes.writeConfig("[WARN] Current Gradle distribution does not support test debugging. Upgrade to 5.6 to make use of this feature");
+        } else {
+            progressAttributes.writeConfig(String.format("%s: %s", "Test classes", this.testClasses));
+            progressAttributes.writeConfig(String.format("%s: %s%n", "Test methods", this.testMethods));
+        }
     }
 
     /**
