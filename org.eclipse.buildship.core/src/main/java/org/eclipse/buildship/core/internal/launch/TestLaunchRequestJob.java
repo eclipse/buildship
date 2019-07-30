@@ -13,20 +13,30 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.gradle.tooling.TestLauncher;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
@@ -101,12 +111,54 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
 
     @Override
     protected void executeLaunch(TestLauncher launcher) {
-        launcher.run();
+         if (this.launch.getLaunchMode().equals("debug")) { // TODO (donat) restrict debugging to Gradle 5.6+
+            try {
+                int port = findAvailablePort();
+                ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+                ILaunch debuggerSession = startDebuggerSession(launchManager, port);
+                launcher.debugTestsOn(port);
+                launcher.run();
+                debuggerSession.terminate();
+                launchManager.removeLaunch(debuggerSession);
+            } catch (CoreException e) {
+                CorePlugin.logger().warn("Failed to launch debugger", e);
+            }
+        } else {
+            launcher.run();
+        }
     }
+
+    private ILaunch startDebuggerSession(ILaunchManager launchManager, int port) throws CoreException {
+        String workingDirExpr = this.launch.getLaunchConfiguration().getAttribute("working_dir", (String) null);
+        String workingDir = ExpressionUtils.decode(workingDirExpr);
+        IProject project = null;
+
+        if (workingDir != null) {
+            project = CorePlugin.workspaceOperations().findProjectByLocation(new File(workingDir)).orNull();
+        }
+
+        ILaunchConfigurationType launchConfigurationType = launchManager.getLaunchConfigurationType("org.eclipse.jdt.launching.remoteJavaApplication");
+        ILaunchConfigurationWorkingCopy launchConfiguration = launchConfigurationType.newInstance(null, "Gradle remote launch");
+        launchConfiguration.setAttribute("org.eclipse.jdt.launching.ALLOW_TERMINATE", false);
+        Map<String, String> map = new HashMap<>();
+        map.put("connectionLimit", "1");
+        map.put("port", String.valueOf(port));
+        launchConfiguration.setAttribute("org.eclipse.jdt.launching.CONNECT_MAP", map);
+        if (project != null) { // TODO what happens if project is null?
+            launchConfiguration.setAttribute("org.eclipse.jdt.launching.PROJECT_ATTR", project.getFullPath().toPortableString());
+        }
+        launchConfiguration.setAttribute("org.eclipse.jdt.launching.VM_CONNECTOR_ID", "org.eclipse.jdt.launching.socketListenConnector");
+        return launchConfiguration.launch("debug", new NullProgressMonitor());
+    }
+
+    private static int findAvailablePort() {
+        return 4008; // TODO (donat) implement
+    }
+
 
     @Override
     protected void writeExtraConfigInfo(GradleProgressAttributes progressAttributes) {
-        progressAttributes.writeConfig(String.format("%s: %s%n", "Test classes", this.testClasses));
+        progressAttributes.writeConfig(String.format("%s: %s", "Test classes", this.testClasses));
         progressAttributes.writeConfig(String.format("%s: %s%n", "Test methods", this.testMethods));
     }
 
