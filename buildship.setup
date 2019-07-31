@@ -269,6 +269,9 @@
       <requirement
           name="com.google.guava"
           versionRange="27.1.0"/>
+      <requirement
+          name="org.slf4j.api"
+          versionRange="1.7.2"/>
       <repositoryList
           name="${eclipse.target.platform}">
         <repository
