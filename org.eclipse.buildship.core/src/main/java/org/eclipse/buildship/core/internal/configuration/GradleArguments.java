@@ -137,10 +137,7 @@ public final class GradleArguments {
     }
 
     private static String buildScanArgumentFor(BuildEnvironment environment) {
-        GradleVersion currentVersion = GradleVersion.version(environment.getGradle().getGradleVersion());
-        GradleVersion supportsDashDashScanVersion = GradleVersion.version("3.5");
-
-        if (supportsDashDashScanVersion.compareTo(currentVersion) <= 0) {
+        if (GradleVersion.version(environment.getGradle().getGradleVersion()).supportsDashDashScan()) {
             return "--scan";
         } else {
             return "-Dscan";

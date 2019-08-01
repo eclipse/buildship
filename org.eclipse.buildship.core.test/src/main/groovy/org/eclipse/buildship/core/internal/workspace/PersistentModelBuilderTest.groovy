@@ -6,6 +6,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.internal.preferences.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 
 class PersistentModelBuilderTest extends WorkspaceSpecification {
@@ -29,8 +30,9 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
         def hasAutoBuildTasks = true
+        def gradleVersion = GradleVersion.version('5.6')
 
-        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
+        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks, gradleVersion)
         def model = new PersistentModelBuilder(previous).build()
 
         expect:
@@ -43,6 +45,7 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         model.linkedResources == linkedResources
         model.managedNatures == managedNatures
         model.managedBuilders == managedBuilders
+        model.gradleVersion == gradleVersion
     }
 
 
@@ -59,8 +62,9 @@ class PersistentModelBuilderTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
         def hasAutoBuildTasks = false
+        def gradleVersion = GradleVersion.version('5.6')
 
-        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks)
+        def previous = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks, gradleVersion)
         def builder = new PersistentModelBuilder(previous)
         builder."${method}"(null)
 

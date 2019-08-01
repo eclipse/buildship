@@ -15,6 +15,7 @@ package org.eclipse.buildship.core.internal;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -24,11 +25,15 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.google.common.collect.Maps;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.internal.configuration.DefaultConfigurationManager;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.console.StdProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.event.DefaultListenerRegistry;
@@ -44,13 +49,16 @@ import org.eclipse.buildship.core.internal.operation.DefaultToolingApiOperationM
 import org.eclipse.buildship.core.internal.operation.ToolingApiOperationManager;
 import org.eclipse.buildship.core.internal.preferences.DefaultModelPersistence;
 import org.eclipse.buildship.core.internal.preferences.ModelPersistence;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.core.internal.util.logging.EclipseLogger;
 import org.eclipse.buildship.core.internal.workspace.DefaultGradleWorkspace;
 import org.eclipse.buildship.core.internal.workspace.DefaultWorkspaceOperations;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleWorkspace;
 import org.eclipse.buildship.core.internal.workspace.ProjectChangeListener;
+import org.eclipse.buildship.core.internal.workspace.SynchronizationJob;
 import org.eclipse.buildship.core.internal.workspace.SynchronizingBuildScriptUpdateListener;
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations;
 import org.eclipse.buildship.core.invocation.InvocationCustomizer;
@@ -62,8 +70,8 @@ import org.eclipse.buildship.core.invocation.InvocationCustomizer;
  * <tt>Bundle-Activator</tt> entry in the <tt>META-INF/MANIFEST.MF</tt> file. The registered
  * instance can be obtained during runtime through the {@link CorePlugin#getInstance()} method.
  * <p/>
- * Moreover, this is the entry point for accessing associated services. All service references
- * are accessible via static methods on this class.
+ * Moreover, this is the entry point for accessing associated services. All service references are
+ * accessible via static methods on this class.
  * <p/>
  * The {@link #start(BundleContext)} and {@link #stop(BundleContext)} methods' responsibility is to
  * assign and free the managed services along the plugin runtime lifecycle.
@@ -112,6 +120,7 @@ public final class CorePlugin extends Plugin {
         plugin = this;
         ensureProxySettingsApplied();
         registerServices(bundleContext);
+        scheduleSynchronizationForAbsentModels();
     }
 
     @Override
@@ -202,6 +211,28 @@ public final class CorePlugin extends Plugin {
 
     private ListenerRegistry createListenerRegistry() {
         return new DefaultListenerRegistry();
+    }
+
+    private void scheduleSynchronizationForAbsentModels() {
+        Map<BuildConfiguration, IProject> projects = Maps.newHashMap();
+        for (IProject p : workspaceOperations().getAllProjects().stream().filter(GradleProjectNature::isPresentOn).collect(Collectors.toList())) {
+            ProjectConfiguration config = configurationManager().tryLoadProjectConfiguration(p);
+            if (config != null) {
+                projects.put(config.getBuildConfiguration(), p);
+            }
+        }
+
+        for (BuildConfiguration config : projects.keySet()) {
+            PersistentModel model = modelPersistence().loadModel(projects.get(config));
+            if (!model.isPresent()) {
+                InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(config);
+                if (!((DefaultGradleBuild) gradleBuild).isSynchronizing()) {
+                    SynchronizationJob job = new SynchronizationJob(gradleBuild);
+                    job.setUser(false);
+                    job.schedule();
+                }
+            }
+        }
     }
 
     private void unregisterServices() {

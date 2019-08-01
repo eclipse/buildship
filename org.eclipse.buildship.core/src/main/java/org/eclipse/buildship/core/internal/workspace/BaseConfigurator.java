@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.ImmutableList;
@@ -33,17 +34,22 @@ import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 public class BaseConfigurator implements ProjectConfigurator {
 
     private Map<File, EclipseProject> locationToProject;
+    private GradleVersion gradleVersion;
 
     @Override
     public void init(InitializationContext context, IProgressMonitor monitor) {
         // TODO (donat) add required model declarations to the project configurator extension point
         GradleBuild gradleBuild = context.getGradleBuild();
         try {
-            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> EclipseModelUtils.queryModels(connection), monitor);
+            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> {
+                this.gradleVersion = GradleVersion.version(connection.getModel(BuildEnvironment.class).getGradle().getGradleVersion());
+                return EclipseModelUtils.queryModels(connection);
+            }, monitor);
             this.locationToProject = rootModels.stream()
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
                 .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
@@ -70,6 +76,8 @@ public class BaseConfigurator implements ProjectConfigurator {
         EclipseProject model = lookupEclipseModel(project);
         progress.worked(1);
 
+        persistentModel.gradleVersion(this.gradleVersion);
+
         BuildScriptLocationUpdater.update(model, persistentModel, progress.newChild(1));
 
         LinkedResourcesUpdater.update(project, ImmutableList.copyOf(model.getLinkedResources()), persistentModel, progress.newChild(1));
@@ -85,6 +93,7 @@ public class BaseConfigurator implements ProjectConfigurator {
         }
 
         CorePlugin.modelPersistence().saveModel(persistentModel.build());
+        CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(project); // classpath provider depends on persistent model
     }
 
     private void synchronizeJavaProject(final ProjectContext context, final EclipseProject model, final IProject project, final PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
@@ -108,7 +117,6 @@ public class BaseConfigurator implements ProjectConfigurator {
         ClasspathContainerUpdater.update(javaProject, model, progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, model, progress.newChild(1));
         GradleClasspathContainerUpdater.updateFromModel(javaProject, model, this.locationToProject.values(), persistentModel, progress.newChild(1));
-        CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(project);
         persistentModel.hasAutoBuildTasks(model.hasAutoBuildTasks());
     }
 

@@ -33,6 +33,8 @@ import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureConf
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNatureDeconfiguredEvent;
 import org.eclipse.buildship.core.internal.event.Event;
 import org.eclipse.buildship.core.internal.event.EventListener;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
+import org.eclipse.buildship.core.internal.util.eclipse.PlatformUtils;
 import org.eclipse.buildship.core.internal.workspace.ProjectCreatedEvent;
 import org.eclipse.buildship.core.internal.workspace.ProjectDeletedEvent;
 
@@ -81,7 +83,7 @@ public final class DefaultExternalLaunchConfigurationManager implements External
     }
 
     private static boolean hasProject(ILaunchConfiguration configuration, IProject project) throws CoreException {
-        String projectName = configuration.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, (String)null);
+        String projectName = configuration.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, (String) null);
         return project.getName().equals(projectName);
     }
 
@@ -92,12 +94,9 @@ public final class DefaultExternalLaunchConfigurationManager implements External
                 return;
             }
 
-            boolean isGradleProject = isGradleProject(configuration);
-            boolean hasGradleClasspathProvider = hasGradleClasspathProvider(configuration);
-
-            if (isGradleProject && !hasGradleClasspathProvider) {
-                addGradleClasspathProvider(configuration);
-            } else if (!isGradleProject && hasGradleClasspathProvider) {
+            if (shouldUseGradleClasspathProvder(configuration)) {
+                ensureGradleClasspathProviderPresent(configuration);
+            } else {
                 removeGradleClasspathProvider(configuration);
             }
         } catch (CoreException e) {
@@ -105,9 +104,34 @@ public final class DefaultExternalLaunchConfigurationManager implements External
         }
     }
 
+    private boolean shouldUseGradleClasspathProvder(ILaunchConfiguration configuration) {
+        // the classpath provider should be only used if the Gradle distribution doesn't provide
+        // test attributes or the host Eclipse version doesn't support test sources
+        return isGradleProject(configuration) && (!PlatformUtils.supportsTestAttributes() || !gradleSupportsTestAttributes(configuration));
+    }
+
     private boolean isGradleProject(ILaunchConfiguration configuration) {
         IJavaProject javaProject = getJavaProject(configuration);
         return javaProject != null && GradleProjectNature.isPresentOn(javaProject.getProject());
+    }
+
+    private boolean gradleSupportsTestAttributes(ILaunchConfiguration configuration) {
+        IJavaProject javaProject = getJavaProject(configuration);
+        if (javaProject == null) {
+            return false;
+        }
+
+        IProject project = javaProject.getProject();
+        if (!GradleProjectNature.isPresentOn(project)) {
+            return false;
+        }
+
+        PersistentModel persistentModel = CorePlugin.modelPersistence().loadModel(project);
+        if (!persistentModel.isPresent()) {
+            return false;
+        }
+
+        return persistentModel.getGradleVersion().supportsTestAttributes();
     }
 
     private IJavaProject getJavaProject(ILaunchConfiguration configuration) {
@@ -118,12 +142,12 @@ public final class DefaultExternalLaunchConfigurationManager implements External
         }
     }
 
-    private boolean hasGradleClasspathProvider(ILaunchConfiguration configuration) throws CoreException {
-        return GradleClasspathProvider.ID.equals(configuration.getAttributes().get(IJavaLaunchConfigurationConstants.ATTR_CLASSPATH_PROVIDER));
-    }
-
-    private void addGradleClasspathProvider(ILaunchConfiguration configuration) throws CoreException {
+    private void ensureGradleClasspathProviderPresent(ILaunchConfiguration configuration) throws CoreException {
         String originalClasspathProvider = configuration.getAttribute(IJavaLaunchConfigurationConstants.ATTR_CLASSPATH_PROVIDER, (String) null);
+        if (GradleClasspathProvider.ID.equals(originalClasspathProvider)) {
+            return;
+        }
+
         Map<String, String> plusEntries = Maps.newHashMap();
         plusEntries.put(IJavaLaunchConfigurationConstants.ATTR_CLASSPATH_PROVIDER, GradleClasspathProvider.ID);
         if (originalClasspathProvider != null) {
@@ -133,6 +157,10 @@ public final class DefaultExternalLaunchConfigurationManager implements External
     }
 
     private void removeGradleClasspathProvider(ILaunchConfiguration configuration) throws CoreException {
+        if (!hasGradleClasspathProvider(configuration)) {
+            return;
+        }
+
         String originalClasspathProvider = configuration.getAttribute(ORIGINAL_CLASSPATH_PROVIDER_ATTRIBUTE, (String) null);
         Map<String, String> plusEntries = Maps.newHashMap();
         Set<String> minusEntries = Sets.newHashSet();
@@ -145,7 +173,12 @@ public final class DefaultExternalLaunchConfigurationManager implements External
         updateLaunchConfiguration(configuration, plusEntries, minusEntries);
     }
 
+    private boolean hasGradleClasspathProvider(ILaunchConfiguration configuration) throws CoreException {
+        return GradleClasspathProvider.ID.equals(configuration.getAttributes().get(IJavaLaunchConfigurationConstants.ATTR_CLASSPATH_PROVIDER));
+    }
+
     private void updateLaunchConfiguration(ILaunchConfiguration configuration, Map<String, String> plusEntries, Set<String> minusEntries) throws CoreException {
+
         if (configuration instanceof ILaunchConfigurationWorkingCopy) {
             updateLaunchConfiguration((ILaunchConfigurationWorkingCopy) configuration, plusEntries, minusEntries);
         } else {
@@ -169,12 +202,12 @@ public final class DefaultExternalLaunchConfigurationManager implements External
      */
     private class LaunchConfigurationListener implements ILaunchConfigurationListener, EventListener {
 
-
         // If another ILaunchConfigurationListener changes the target launch configuration then
         // a new change event is generated. That event is handled synchronously invoking this
         // listener again and causing a stack overflow error.
         // see https://github.com/eclipse/buildship/issues/617
         private final ThreadLocal<Boolean> configChangeCalled = new ThreadLocal<Boolean>() {
+
             @Override
             protected Boolean initialValue() {
                 return Boolean.FALSE;
@@ -207,13 +240,13 @@ public final class DefaultExternalLaunchConfigurationManager implements External
         @Override
         public void onEvent(Event event) {
             if (event instanceof GradleProjectNatureConfiguredEvent) {
-                updateClasspathProviders(((GradleProjectNatureConfiguredEvent)event).getProject());
+                updateClasspathProviders(((GradleProjectNatureConfiguredEvent) event).getProject());
             } else if (event instanceof GradleProjectNatureDeconfiguredEvent) {
-                updateClasspathProviders(((GradleProjectNatureDeconfiguredEvent)event).getProject());
+                updateClasspathProviders(((GradleProjectNatureDeconfiguredEvent) event).getProject());
             } else if (event instanceof ProjectCreatedEvent) {
-                updateClasspathProviders(((ProjectCreatedEvent)event).getProject());
+                updateClasspathProviders(((ProjectCreatedEvent) event).getProject());
             } else if (event instanceof ProjectDeletedEvent) {
-                updateClasspathProviders(((ProjectDeletedEvent)event).getProject());
+                updateClasspathProviders(((ProjectDeletedEvent) event).getProject());
             }
         }
     }

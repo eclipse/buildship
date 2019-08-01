@@ -57,7 +57,7 @@ public final class DefaultModelProvider implements ModelProvider {
             DefaultModelProvider.this.gradleBuild.withConnection(connection -> {
                 BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
                 GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
-                if (supportsCompositeBuilds(gradleVersion)) {
+                if (gradleVersion.supportsCompositeBuilds()) {
                     return queryCompositeModel(model, connection);
                 } else {
                     return ImmutableList.of(queryModel(model, connection));
@@ -103,9 +103,6 @@ public final class DefaultModelProvider implements ModelProvider {
                 throw new GradlePluginsRuntimeException(e);
             }
         }
-    }
-    private static boolean supportsCompositeBuilds(GradleVersion gradleVersion) {
-        return gradleVersion.getBaseVersion().compareTo(GradleVersion.version("3.3")) >= 0;
     }
 
     private static <T> Collection<T> queryCompositeModel(Class<T> model, ProjectConnection connection) {

@@ -18,6 +18,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+
 /**
  * Marker PersistentModel implementation for missing models.
  *
@@ -83,6 +85,11 @@ final class AbsentPersistentModel implements PersistentModel {
 
     @Override
     public boolean hasAutoBuildTasks() {
+        throw new IllegalStateException("Absent persistent model");
+    }
+
+    @Override
+    public GradleVersion getGradleVersion() {
         throw new IllegalStateException("Absent persistent model");
     }
 }
