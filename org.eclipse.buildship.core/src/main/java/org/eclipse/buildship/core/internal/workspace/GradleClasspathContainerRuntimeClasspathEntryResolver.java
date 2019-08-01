@@ -159,7 +159,7 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
 
     private boolean hasTestAttribute(IClasspathEntry entry) {
         for (IClasspathAttribute a : entry.getExtraAttributes()) {
-            if ("test".equals(a.getName()) && "true".equals(a.getValue())) {
+            if ("test".equals(a.getName()) && Boolean.valueOf(a.getValue())) {
                 return true;
             }
         }

@@ -55,7 +55,7 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
         command.setBuilderName('custom-command')
         def managedBuilders = [command]
         def hasAutoBuildTasks = true
-        def gradleVersion = GradleVersion.version('5.6')
+        def gradleVersion = GradleVersion.current()
 
         PersistentModel model = new DefaultPersistentModel(project, buildDir, buildScriptPath, subProjectPaths, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks, gradleVersion)
 
