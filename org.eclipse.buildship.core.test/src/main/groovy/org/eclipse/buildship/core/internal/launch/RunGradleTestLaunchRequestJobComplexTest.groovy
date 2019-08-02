@@ -49,7 +49,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
 
         when:
         // execute only the tests containing the word 'test1'
-        def testJob = new RunGradleTestLaunchRequestJob(descriptors.findAll { it.name.contains('test1') }, runConfig)
+        def testJob = new RunGradleTestLaunchRequestJob(descriptors.findAll { it.name.contains('test1') }, CorePlugin.configurationManager().loadTestLaunchConfiguration(runConfig))
         descriptors.clear()
         testJob.schedule()
         testJob.join()

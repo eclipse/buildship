@@ -185,7 +185,7 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
                 progressAttributes.writeConfig("[WARN] Cannot initate debugging as no accessible project present at " + this.launchConfiguration.getProjectConfiguration().getProjectDir());
             }
         } else {
-            progressAttributes.writeConfig(String.format("%s: %s", "Tests", this.launchConfiguration.getTests()));
+            progressAttributes.writeConfig(String.format("%s: %s", "Tests", Joiner.on(", ").join(this.launchConfiguration.getTests())));
         }
 
         progressAttributes.writeConfig("");

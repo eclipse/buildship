@@ -209,7 +209,7 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected PersistentModelBuilder persistentModelBuilder(IProject project) {
-        new PersistentModelBuilder(samplePersistentModel(project))
+        new PersistentModelBuilder(emptyPersistentModel(project))
     }
 
     protected PersistentModel emptyPersistentModel(IProject project) {
