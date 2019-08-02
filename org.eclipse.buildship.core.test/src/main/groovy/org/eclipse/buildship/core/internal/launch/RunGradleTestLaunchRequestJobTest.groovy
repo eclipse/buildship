@@ -4,7 +4,7 @@ package org.eclipse.buildship.core.internal.launch
 import org.eclipse.jdt.core.IType
 
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration
+import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration
 
 class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
@@ -54,7 +54,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         buildConfig.contains 'Tests: MyTest'
     }
 
-    RunConfiguration createRunConfigurationMock() {
+    LaunchConfiguration createRunConfigurationMock() {
         CorePlugin.configurationManager().loadRunConfiguration(createLaunchConfiguration(projectDir))
     }
 

@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BaseLaunchConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.event.Event;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
@@ -52,13 +52,13 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         monitor.beginTask(getJobTaskName(), IProgressMonitor.UNKNOWN);
 
         ProcessDescription processDescription = createProcessDescription();
-        RunConfiguration runConfig = getRunConfig();
-        InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(runConfig.getProjectConfiguration().getBuildConfiguration());
+        BaseLaunchConfiguration launchConfiguration = getLaunchConfiguration();
+        InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(launchConfiguration.getProjectConfiguration().getBuildConfiguration());
         GradleProgressAttributes attributes = GradleProgressAttributes.builder(tokenSource, monitor)
                 .forDedicatedProcess(processDescription)
                 .withFullProgress()
                 .build();
-        T launcher = createLaunch(gradleBuild, runConfig, attributes, processDescription);
+        T launcher = createLaunch(gradleBuild, attributes, processDescription);
 
         writeExtraConfigInfo(attributes);
 
@@ -69,18 +69,16 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
     }
 
     /**
+     * The launch configuration associated with this job.
+     */
+    protected abstract BaseLaunchConfiguration getLaunchConfiguration();
+
+    /**
      * The name of the job to display in the progress view.
      *
      * @return the name of the job
      */
     protected abstract String getJobTaskName();
-
-    /**
-     * The run configuration attributes to apply when executing the request.
-     *
-     * @return the run configuration attributes
-     */
-    protected abstract RunConfiguration getRunConfig();
 
     /**
      * The process description.
@@ -94,7 +92,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
      *
      * @return the new launcher
      */
-    protected abstract T createLaunch(InternalGradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes, ProcessDescription processDescription);
+    protected abstract T createLaunch(InternalGradleBuild gradleBuild, GradleProgressAttributes progressAttributes, ProcessDescription processDescription);
 
     /**
      * Execute the launcher created by {@code #createLaunch()}.
@@ -117,12 +115,12 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
         private final String name;
         private final Job job;
-        private final RunConfiguration runConfig;
+        private final BaseLaunchConfiguration launchConfiguration;
 
-        protected BaseProcessDescription(String name, Job job, RunConfiguration runConfig) {
+        protected BaseProcessDescription(String name, Job job, BaseLaunchConfiguration runConfig) {
             this.name = Preconditions.checkNotNull(name);
             this.job = Preconditions.checkNotNull(job);
-            this.runConfig = Preconditions.checkNotNull(runConfig);
+            this.launchConfiguration = Preconditions.checkNotNull(runConfig);
         }
 
         @Override
@@ -136,8 +134,8 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         }
 
         @Override
-        public RunConfiguration getRunConfig() {
-            return this.runConfig;
+        public BaseLaunchConfiguration getLaunchConfiguration() {
+            return this.launchConfiguration;
         }
 
         @Override
@@ -146,14 +144,14 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
                 BaseProcessDescription that = (BaseProcessDescription) obj;
                 return Objects.equal(this.name, that.name)
                     && Objects.equal(this.job, that.job)
-                    && Objects.equal(this.runConfig, that.runConfig);
+                    && Objects.equal(this.launchConfiguration, that.launchConfiguration);
             }
             return false;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(this.name, this.job, this.runConfig);
+            return Objects.hashCode(this.name, this.job, this.launchConfiguration);
         }
 
     }

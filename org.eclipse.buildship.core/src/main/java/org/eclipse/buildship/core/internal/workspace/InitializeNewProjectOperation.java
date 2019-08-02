@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 
@@ -51,7 +51,7 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
             if (projectDir.mkdir()) {
                 List<String> tasks = ImmutableList.of("init", "--type", "java-library");
                 InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig);
-                RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(buildConfig);
+                LaunchConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(buildConfig);
                 GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
                         .forNonInteractiveBackgroundProcess()
                         .withFilteredProgress()

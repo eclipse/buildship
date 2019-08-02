@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 the original author or authors.
+ * Copyright (c) 2019 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,27 +15,19 @@ import com.google.common.base.Objects;
 
 import org.eclipse.buildship.core.GradleDistribution;
 
-/**
- * Properties backing a {@code RunConfiguration} instance.
- *
- * @author Donat Csikos
- */
-final class RunConfigurationProperties {
+abstract class BaseLaunchConfigurationProperties {
+    protected final GradleDistribution gradleDistribution;
+    protected final File gradleUserHome;
+    protected final File javaHome;
+    protected final List<String> jvmArguments;
+    protected final List<String> arguments;
+    protected final boolean showConsoleView;
+    protected final boolean showExecutionsView;
+    protected final boolean overrideBuildSettings;
+    protected final boolean buildScansEnabled;
+    protected final boolean offlineMode;
 
-    private final List<String> tasks;
-    private final GradleDistribution gradleDistribution;
-    private final File gradleUserHome;
-    private final File javaHome;
-    private final List<String> jvmArguments;
-    private final List<String> arguments;
-    private final boolean showConsoleView;
-    private final boolean showExecutionsView;
-    private final boolean overrideBuildSettings;
-    private final boolean buildScansEnabled;
-    private final boolean offlineMode;
-
-    public RunConfigurationProperties(List<String> tasks, GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
-        this.tasks = tasks;
+    protected BaseLaunchConfigurationProperties(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.javaHome = javaHome;
@@ -46,10 +38,6 @@ final class RunConfigurationProperties {
         this.overrideBuildSettings = overrideBuildSettings;
         this.buildScansEnabled = buildScansEnabled;
         this.offlineMode = offlineMode;
-    }
-
-    public List<String> getTasks() {
-        return this.tasks;
     }
 
     public GradleDistribution getGradleDistribution() {
@@ -94,10 +82,9 @@ final class RunConfigurationProperties {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof RunConfigurationProperties) {
-            RunConfigurationProperties other = (RunConfigurationProperties) obj;
-            return Objects.equal(this.tasks, other.tasks)
-                    && Objects.equal(this.gradleDistribution, other.gradleDistribution)
+        if (obj instanceof BaseLaunchConfigurationProperties) {
+            BaseLaunchConfigurationProperties other = (BaseLaunchConfigurationProperties) obj;
+            return Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.gradleUserHome, other.gradleUserHome)
                     && Objects.equal(this.javaHome, other.javaHome)
                     && Objects.equal(this.jvmArguments, other.jvmArguments)
@@ -113,6 +100,6 @@ final class RunConfigurationProperties {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.tasks, this.gradleDistribution, this.gradleUserHome, this.javaHome, this.jvmArguments, this.arguments, this.showConsoleView, this.showExecutionsView, this.overrideBuildSettings, this.buildScansEnabled, this.offlineMode);
+        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.javaHome, this.jvmArguments, this.arguments, this.showConsoleView, this.showExecutionsView, this.overrideBuildSettings, this.buildScansEnabled, this.offlineMode);
     }
 }

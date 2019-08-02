@@ -30,7 +30,8 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BaseLaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.TestLaunchConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
@@ -42,12 +43,12 @@ import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
 
     private final ImmutableList<TestOperationDescriptor> testDescriptors;
-    private final RunConfiguration runConfig;
+    private final TestLaunchConfiguration runConfiguration;
 
-    public RunGradleTestLaunchRequestJob(List<TestOperationDescriptor> testDescriptors, RunConfiguration configurationAttributes) {
+    public RunGradleTestLaunchRequestJob(List<TestOperationDescriptor> testDescriptors, TestLaunchConfiguration runConfig) {
         super("Launching Gradle tests");
         this.testDescriptors = ImmutableList.copyOf(testDescriptors);
-        this.runConfig = Preconditions.checkNotNull(configurationAttributes);
+        this.runConfiguration = Preconditions.checkNotNull(runConfig);
     }
 
     @Override
@@ -56,13 +57,13 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
     }
 
     @Override
-    protected RunConfiguration getRunConfig() {
-        return this.runConfig;
+    protected BaseLaunchConfiguration getLaunchConfiguration() {
+        return this.runConfiguration;
     }
 
     @Override
     protected ProcessDescription createProcessDescription() {
-        String processName = createProcessName(this.runConfig.getProjectConfiguration().getProjectDir());
+        String processName = createProcessName(this.runConfiguration.getProjectConfiguration().getProjectDir());
         return new TestLaunchProcessDescription(processName);
     }
 
@@ -92,9 +93,8 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
     }
 
     @Override
-    protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes,
-            ProcessDescription processDescription) {
-        TestLauncher launcher = gradleBuild.newTestLauncher(runConfiguration, progressAttributes);
+    protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
+        TestLauncher launcher = gradleBuild.newTestLauncher(this.runConfiguration, progressAttributes);
         launcher.withTests(RunGradleTestLaunchRequestJob.this.testDescriptors);
         return launcher;
     }
@@ -126,7 +126,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
         }).toList();
     }
 
-    private static List<String> collectSimpleDisplayNames(List<TestOperationDescriptor> testDescriptors) {
+    private static List<String> collectSimpleDisplayNames(List<TestOperationDescriptor>  testDescriptors) {
         return FluentIterable.from(testDescriptors).transform(new Function<TestOperationDescriptor, String>() {
 
             @Override
@@ -153,7 +153,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
     private final class TestLaunchProcessDescription extends BaseProcessDescription {
 
         public TestLaunchProcessDescription(String processName) {
-            super(processName, RunGradleTestLaunchRequestJob.this, RunGradleTestLaunchRequestJob.this.runConfig);
+            super(processName, RunGradleTestLaunchRequestJob.this, RunGradleTestLaunchRequestJob.this.runConfiguration);
         }
 
         @Override
@@ -165,11 +165,10 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
         public void rerun() {
             RunGradleTestLaunchRequestJob job = new RunGradleTestLaunchRequestJob(
                     RunGradleTestLaunchRequestJob.this.testDescriptors,
-                    RunGradleTestLaunchRequestJob.this.runConfig
+                    RunGradleTestLaunchRequestJob.this.runConfiguration
             );
             job.schedule();
         }
 
     }
-
 }

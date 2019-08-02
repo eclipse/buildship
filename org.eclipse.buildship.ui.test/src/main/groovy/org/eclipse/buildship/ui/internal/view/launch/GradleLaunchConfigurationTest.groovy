@@ -3,7 +3,7 @@ package org.eclipse.buildship.ui.internal.view.launch
 import org.eclipse.debug.core.ILaunchConfiguration
 
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpecification
 
@@ -21,7 +21,7 @@ class GradleLaunchConfigurationTest extends ProjectSynchronizationSpecification 
 
         when:
         deleteAllProjects(true)
-        attributes = GradleRunConfigurationAttributes.from(configuration)
+        attributes = GradleLaunchConfigurationAttributes.from(configuration)
         attributes.getWorkingDirExpression()
 
         then:
@@ -34,8 +34,8 @@ class GradleLaunchConfigurationTest extends ProjectSynchronizationSpecification 
         thrown(Exception)
     }
 
-    private GradleRunConfigurationAttributes attributes(String projectLoc) {
-        new GradleRunConfigurationAttributes([],
+    private GradleLaunchConfigurationAttributes attributes(String projectLoc) {
+        new GradleLaunchConfigurationAttributes([],
             projectLoc,
             GradleDistribution.fromBuild().toString(),
             "",

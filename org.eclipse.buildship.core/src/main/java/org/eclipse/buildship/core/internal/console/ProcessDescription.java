@@ -13,7 +13,7 @@ package org.eclipse.buildship.core.internal.console;
 
 import org.eclipse.core.runtime.jobs.Job;
 
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BaseLaunchConfiguration;
 
 /**
  * Describes the process that runs a Gradle build.
@@ -39,7 +39,7 @@ public interface ProcessDescription {
      *
      * @return the {@code GradleRunConfigurationAttributes} instance of the process
      */
-    RunConfiguration getRunConfig();
+    BaseLaunchConfiguration getLaunchConfiguration();
 
     /**
      * Returns whether the process can be rerun.

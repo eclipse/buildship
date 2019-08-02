@@ -22,7 +22,8 @@ import com.google.common.collect.FluentIterable;
 
 import org.eclipse.jface.action.Action;
 
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.TestLaunchConfiguration;
 import org.eclipse.buildship.core.internal.launch.RunGradleTestLaunchRequestJob;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleUtils;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
@@ -46,7 +47,9 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
     public void run() {
         List<TestOperationDescriptor> tests = collectSelectedTests(this.executionPage.getSelection());
         List<TestOperationDescriptor> filteredTests = GradleUtils.filterChildren(tests);
-        RunConfiguration runConfig = this.executionPage.getProcessDescription().getRunConfig();
+
+        TestLaunchConfiguration runConfig = CorePlugin.configurationManager().loadTestLaunchConfiguration(this.executionPage.getProcessDescription().getLaunchConfiguration());
+
         RunGradleTestLaunchRequestJob runTestsJob = new RunGradleTestLaunchRequestJob(filteredTests, runConfig);
         runTestsJob.schedule();
     }

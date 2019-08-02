@@ -19,7 +19,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.TestLaunchConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 
 /**
@@ -44,7 +45,7 @@ public interface InternalGradleBuild extends GradleBuild {
      * @param progressAttributes the progress attributes for the launcher.
      * @return the build launcher
      */
-    BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes);
+    BuildLauncher newBuildLauncher(LaunchConfiguration runConfiguration, GradleProgressAttributes progressAttributes);
 
     /**
      * Creates a new Gradle test launcher. The method automatically opens a new Tooling API
@@ -54,7 +55,7 @@ public interface InternalGradleBuild extends GradleBuild {
      * @param progressAttributes the progress attributes for the launcher.
      * @return the test launcher
      */
-    TestLauncher newTestLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes);
+    TestLauncher newTestLauncher(TestLaunchConfiguration runConfiguration, GradleProgressAttributes progressAttributes);
 
     /**
      * Returns build config used for this build.

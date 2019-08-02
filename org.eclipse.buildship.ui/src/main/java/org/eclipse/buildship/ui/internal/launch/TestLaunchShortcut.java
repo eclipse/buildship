@@ -11,13 +11,9 @@
 
 package org.eclipse.buildship.ui.internal.launch;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -33,14 +29,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
-import org.eclipse.buildship.core.internal.launch.RunGradleJvmTestLaunchRequestJob;
+import org.eclipse.buildship.core.internal.launch.GradleTestLaunchConfigurationAttributes;
 import org.eclipse.buildship.core.internal.launch.TestLaunchRequestJob;
 import org.eclipse.buildship.core.internal.launch.TestMethod;
-import org.eclipse.buildship.core.internal.launch.TestTarget;
 import org.eclipse.buildship.core.internal.launch.TestType;
+import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 
 /**
  * Shortcut for Gradle test launches from the Java editor or from the current selection.
@@ -63,20 +56,39 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         List<IType> types = resolver.resolveTypes();
         List<IMethod> methods = resolver.resolveMethods();
         if (TestLaunchShortcutValidator.validateTypesAndMethods(types, methods)) {
-            ImmutableList.Builder<TestTarget> targets = ImmutableList.builder();
-            targets.addAll(convertTypesToTestTargets(types));
-            targets.addAll(convertMethodsToTestTargets(methods));
-
             IProject project = findProject(types, methods);
-            ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateTestRunConfiguration(project, types, methods);
+            GradleTestLaunchConfigurationAttributes attributes = createLaunchConfigAttributes(project, serializeTypes(types), serializeMethods(methods));
+            ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateTestRunConfiguration(attributes);
 
 
             new TestLaunchRequestJob(launchConfiguration, mode).schedule();
-            RunConfiguration runConfiguration = collectRunConfiguration(resolver.findFirstContainerProject().get());
-            new RunGradleJvmTestLaunchRequestJob(targets.build(), runConfiguration).schedule();
         } else {
             showNoTestsFoundDialog();
         }
+    }
+
+    private static GradleTestLaunchConfigurationAttributes createLaunchConfigAttributes(IProject project, List<String> testClasses, List<String> testMethods) {
+        return new GradleTestLaunchConfigurationAttributes(ExpressionUtils.encodeWorkspaceLocation(project),
+                                                    GradleDistribution.fromBuild().toString(),
+                                                    null,
+                                                    null,
+                                                    Collections.emptyList(),
+                                                    Collections.emptyList(),
+                                                    false,
+                                                    false,
+                                                    false,
+                                                    false,
+                                                    false,
+                                                    testClasses,
+                                                    testMethods);
+    }
+
+    private static List<String> serializeTypes(List<IType> types) {
+        return types.stream().map(t -> TestType.from(t).getQualifiedName()).collect(Collectors.<String>toList());
+    }
+
+    private static List<String> serializeMethods(List<IMethod> methods) {
+        return methods.stream().map(t -> TestMethod.from(t).getQualifiedName()).collect(Collectors.<String> toList());
     }
 
     private IProject findProject(List<IType> types, List<IMethod> methods) {
@@ -89,24 +101,6 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         }
 
         throw new GradlePluginsRuntimeException("Empty selection should not be valid for test launch shortcut");
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private RunConfiguration collectRunConfiguration(IProject project) {
-        ProjectConfiguration projectConfig = CorePlugin.configurationManager().loadProjectConfiguration(project);
-        BuildConfiguration buildConfig = projectConfig.getBuildConfiguration();
-        return CorePlugin.configurationManager().createRunConfiguration(buildConfig,
-                                                                        Collections.<String>emptyList(),
-                                                                        null,
-                                                                        Collections.<String>emptyList(),
-                                                                        Collections.<String>emptyList(),
-                                                                        true,
-                                                                        true,
-                                                                        false,
-                                                                        GradleDistribution.fromBuild(),
-                                                                        null,
-                                                                        false,
-                                                                        false);
     }
 
     private void showNoTestsFoundDialog() {
@@ -123,25 +117,4 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
             }
         });
     }
-
-    private static List<TestTarget> convertTypesToTestTargets(Collection<IType> types) {
-        return FluentIterable.from(types).transform(new Function<IType, TestTarget>() {
-
-            @Override
-            public TestTarget apply(IType type) {
-                return TestType.from(type);
-            }
-        }).toList();
-    }
-
-    private static List<TestTarget> convertMethodsToTestTargets(Collection<IMethod> methods) {
-        return FluentIterable.from(methods).transform(new Function<IMethod, TestTarget>() {
-
-            @Override
-            public TestTarget apply(IMethod method) {
-                return TestMethod.from(method);
-            }
-        }).toList();
-    }
-
 }

@@ -11,15 +11,9 @@
 
 package org.eclipse.buildship.core.internal.launch;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
@@ -27,13 +21,10 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
-import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 
 /**
  * Default implementation of the {@link GradleLaunchConfigurationManager} interface.
@@ -51,7 +42,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     }
 
     @Override
-    public Optional<ILaunchConfiguration> getRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
+    public Optional<ILaunchConfiguration> getRunConfiguration(GradleLaunchConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
         for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations(GradleRunConfigurationDelegate.ID)) {
             if (configurationAttributes.hasSameUniqueAttributes(launchConfiguration)) {
@@ -62,48 +53,30 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     }
 
     @Override
-    public ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
+    public ILaunchConfiguration getOrCreateRunConfiguration(GradleLaunchConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
         Optional<ILaunchConfiguration> launchConfiguration = getRunConfiguration(configurationAttributes);
         return launchConfiguration.isPresent() ? launchConfiguration.get() : createLaunchConfiguration(configurationAttributes);
     }
 
     @Override
-    public ILaunchConfiguration getOrCreateTestRunConfiguration(IProject project, List<IType> types, List<IMethod> methods) {
-        Optional<ILaunchConfiguration> launchConfiguration = getTestRunConfiguration(project, types, methods);
-        return launchConfiguration.isPresent() ? launchConfiguration.get() : createTestLaunchConfiguration(project, types, methods);
+    public ILaunchConfiguration getOrCreateTestRunConfiguration(GradleTestLaunchConfigurationAttributes configurationAttributes) {
+        Preconditions.checkNotNull(configurationAttributes);
+        Optional<ILaunchConfiguration> launchConfiguration = getTestLaunchConfiguration(configurationAttributes);
+        return launchConfiguration.isPresent() ? launchConfiguration.get() : createTestLaunchConfiguration(configurationAttributes);
     }
 
-    private Optional<ILaunchConfiguration> getTestRunConfiguration(IProject project, List<IType> types, List<IMethod> methods) {
-        try {
-            Collection<String> st = serializeTypes(types);
-            Collection<String> sm = serializeMethods(methods);
-
-            for (ILaunchConfiguration lc : getGradleLaunchConfigurations(GradleTestLaunchConfigurationDelegate.ID)) {
-                String workingDir = lc.getAttribute("working_dir", "");
-                List<String> testClasses = lc.getAttribute("test_classes", Collections.emptyList());
-                List<String> testMethods = lc.getAttribute("test_methods", Collections.emptyList());
-
-                if (project.getLocation() != null && project.getLocation().toPortableString().equals(ExpressionUtils.decode(workingDir)) && testClasses.equals(st) && testMethods.equals(sm)) {
-                        return Optional.of(lc);
-                }
+    private Optional<ILaunchConfiguration> getTestLaunchConfiguration(GradleTestLaunchConfigurationAttributes configurationAttributes) {
+        Preconditions.checkNotNull(configurationAttributes);
+        for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations(GradleTestLaunchConfigurationDelegate.ID)) {
+            if (configurationAttributes.hasSameUniqueAttributes(launchConfiguration)) {
+                return Optional.of(launchConfiguration);
             }
-        } catch (CoreException e) {
-            CorePlugin.logger().warn("Cannot look up existing test launch configurations", e);
         }
         return Optional.absent();
-
     }
 
-    private static Collection<String> serializeTypes(List<IType> types) {
-        return types.stream().map(t -> TestType.from(t).getQualifiedName()).collect(Collectors.<String>toList());
-    }
-
-    private static Collection<String> serializeMethods(List<IMethod> methods) {
-        return methods.stream().map(t -> TestMethod.from(t).getQualifiedName()).collect(Collectors.<String> toList());
-    }
-
-    private ILaunchConfiguration createLaunchConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
+    private ILaunchConfiguration createLaunchConfiguration(GradleLaunchConfigurationAttributes configurationAttributes) {
         // derive the name of the launch configuration from the configuration attributes
         // since the launch configuration name must not contain ':', we replace all ':' with '.'
         String taskNamesOrDefault = configurationAttributes.getTasks().isEmpty() ? "(default tasks)" : CollectionsUtils.joinWithSpace(configurationAttributes.getTasks());
@@ -125,8 +98,8 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         }
     }
 
-    private ILaunchConfiguration createTestLaunchConfiguration(IProject project, List<IType> types, List<IMethod> methods) {
-        String rawLaunchConfigurationName = String.format("Testing %s", project.getName());
+    private ILaunchConfiguration createTestLaunchConfiguration(GradleTestLaunchConfigurationAttributes configurationAttributes) {
+        String rawLaunchConfigurationName = String.format("Testing %s", configurationAttributes.getWorkingDir().getName());
         String launchConfigurationName = this.launchManager.generateLaunchConfigurationName(rawLaunchConfigurationName.replace(':', '.'));
         ILaunchConfigurationType launchConfigurationType = this.launchManager.getLaunchConfigurationType(GradleTestLaunchConfigurationDelegate.ID);
 
@@ -135,9 +108,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
             ILaunchConfigurationWorkingCopy launchConfiguration = launchConfigurationType.newInstance(null, launchConfigurationName);
 
             // configure the launch configuration
-            launchConfiguration.setAttribute("working_dir", ExpressionUtils.encodeWorkspaceLocation(project));
-            launchConfiguration.setAttribute("test_classes", serializeTypes(types));
-            launchConfiguration.setAttribute("test_methods", serializeMethods(methods));
+            configurationAttributes.apply(launchConfiguration);
 
             // try to persist the launch configuration and return it
             return persistConfiguration(launchConfiguration);

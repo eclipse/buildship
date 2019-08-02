@@ -45,7 +45,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
-import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
@@ -187,15 +187,15 @@ public final class ProjectTab extends AbstractLaunchConfigurationTab {
 
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
-        GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(configuration);
+        GradleLaunchConfigurationAttributes configurationAttributes = GradleLaunchConfigurationAttributes.from(configuration);
         this.tasksList.setEntries(configurationAttributes.getTasks());
         this.workingDirectoryText.setText(Strings.nullToEmpty(configurationAttributes.getWorkingDirExpression()));
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        GradleRunConfigurationAttributes.applyTasks(this.tasksList.getEntries(), configuration);
-        GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
+        GradleLaunchConfigurationAttributes.applyTasks(this.tasksList.getEntries(), configuration);
+        GradleLaunchConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
     }
 
     @SuppressWarnings("Contract")

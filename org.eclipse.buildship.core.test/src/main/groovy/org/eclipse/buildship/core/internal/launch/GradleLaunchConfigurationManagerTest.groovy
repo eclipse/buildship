@@ -26,7 +26,7 @@ import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.GradleDistribution
 
 class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {
-    GradleRunConfigurationAttributes validAttribute = createValidAttributes()
+    GradleLaunchConfigurationAttributes validAttribute = createValidAttributes()
     GradleLaunchConfigurationManager manager = new DefaultGradleLaunchConfigurationManager()
 
     def "Storing a new attribute produces a new launch configuration instance"() {
@@ -108,8 +108,8 @@ class GradleLaunchConfigurationManagerTest extends WorkspaceSpecification {
         1 * logger.warn(_, _)
     }
 
-    private GradleRunConfigurationAttributes createValidAttributes(List<String> tasks = ['clean']) {
-        new GradleRunConfigurationAttributes(tasks,
+    private GradleLaunchConfigurationAttributes createValidAttributes(List<String> tasks = ['clean']) {
+        new GradleLaunchConfigurationAttributes(tasks,
             '/home/user/workspace/project',
             GradleDistribution.forVersion('2.3').toString(),
             null,

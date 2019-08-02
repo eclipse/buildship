@@ -8,35 +8,16 @@
 
 package org.eclipse.buildship.core.internal.configuration;
 
-import java.io.File;
 import java.util.List;
-
-import org.eclipse.buildship.core.GradleDistribution;
 
 /**
  * Configuration to launch tasks and tests.
  *
  * @author Donat Csikos
  */
-public interface RunConfiguration {
+public interface LaunchConfiguration extends BaseLaunchConfiguration {
 
     ProjectConfiguration getProjectConfiguration();
 
     List<String> getTasks();
-
-    GradleDistribution getGradleDistribution();
-
-    File getGradleUserHome();
-
-    File getJavaHome();
-
-    List<String> getArguments();
-
-    List<String> getJvmArguments();
-
-    boolean isShowExecutionView();
-
-    boolean isShowConsoleView();
-
-    GradleArguments toGradleArguments();
 }

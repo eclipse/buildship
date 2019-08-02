@@ -48,14 +48,20 @@ public interface ConfigurationManager {
 
     void deleteProjectConfiguration(IProject project);
 
-    RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration);
+    LaunchConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration);
 
-    RunConfiguration createDefaultRunConfiguration(BuildConfiguration configuration);
+    TestLaunchConfiguration loadTestLaunchConfiguration(ILaunchConfiguration launchConfiguration);
 
-    RunConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks,
+    TestLaunchConfiguration loadTestLaunchConfiguration(BaseLaunchConfiguration runConfig);
+
+    LaunchConfiguration createDefaultRunConfiguration(BuildConfiguration configuration);
+
+    LaunchConfiguration createRunConfiguration(BuildConfiguration configuration, List<String> tasks,
                                             File javaHome, List<String> jvmArguments,
                                             List<String> arguments, boolean showConsoleView,
                                             boolean showExecutionsView, boolean overrideBuildSettings,
                                             GradleDistribution gradleDistribution, File gradleUserHome,
                                             boolean buildScansEnabled, boolean offlineMode);
+
+
 }

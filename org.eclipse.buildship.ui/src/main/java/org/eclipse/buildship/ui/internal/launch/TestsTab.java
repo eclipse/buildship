@@ -12,8 +12,6 @@
 package org.eclipse.buildship.ui.internal.launch;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -45,10 +43,10 @@ import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
-import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleTestLaunchConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
@@ -195,24 +193,17 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
 
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
-        try {
-            List<String> classes = configuration.getAttribute("test_classes", Collections.emptyList());
-            List<String> methods = configuration.getAttribute("test_methods", Collections.emptyList());
-            this.testClasses.setEntries(classes);
-            this.testMethods.setEntries(methods);
-        } catch (CoreException e) {
-            throw new GradlePluginsRuntimeException("Cannot read launch configuration", e);
-        }
-        GradleRunConfigurationAttributes configurationAttributes = GradleRunConfigurationAttributes.from(configuration); // TODO have a separate class for test launch configuration
-        this.workingDirectoryText.setText(Strings.nullToEmpty(configurationAttributes.getWorkingDirExpression()));
+        GradleTestLaunchConfigurationAttributes attributes = GradleTestLaunchConfigurationAttributes.from(configuration);
+        this.testClasses.setEntries(attributes.getTestClasses());
+        this.testMethods.setEntries(attributes.getTestMethods());
+        this.workingDirectoryText.setText(Strings.nullToEmpty(attributes.getWorkingDirExpression()));
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        configuration.setAttribute("test_classes", this.testClasses.getEntries());
-        configuration.setAttribute("test_methods", this.testMethods.getEntries());
-
-        GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
+        GradleTestLaunchConfigurationAttributes.applyTestClasses(this.testClasses.getEntries(), configuration);
+        GradleTestLaunchConfigurationAttributes.applyTestMethods(this.testMethods.getEntries(), configuration);
+        GradleLaunchConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
     }
 
     @SuppressWarnings("Contract")

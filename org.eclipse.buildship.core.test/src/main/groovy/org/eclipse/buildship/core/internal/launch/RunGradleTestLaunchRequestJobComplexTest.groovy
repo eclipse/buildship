@@ -11,7 +11,7 @@ import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration
+import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration
 import org.eclipse.buildship.core.internal.event.Event
 import org.eclipse.buildship.core.internal.event.EventListener
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification;
@@ -30,7 +30,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         collectTestDescriptorsInto(descriptors)
 
         // execute a test build to obtain test operation descriptors
-        GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
+        GradleLaunchConfigurationAttributes attributes = new GradleLaunchConfigurationAttributes(
             ['clean', 'test'],
             project.getLocation().toFile().absolutePath,
             GradleDistribution.fromBuild().toString(),
@@ -44,7 +44,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
             false,
             false)
         ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(attributes)
-        RunConfiguration runConfig = CorePlugin.configurationManager().loadRunConfiguration(launchConfiguration)
+        LaunchConfiguration runConfig = CorePlugin.configurationManager().loadRunConfiguration(launchConfiguration)
         executeCleanTestAndWait(runConfig)
 
         when:
@@ -98,8 +98,8 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         })
     }
 
-    private def executeCleanTestAndWait(RunConfiguration runConfig) {
-        GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
+    private def executeCleanTestAndWait(LaunchConfiguration runConfig) {
+        GradleLaunchConfigurationAttributes attributes = new GradleLaunchConfigurationAttributes(
             runConfig.tasks,
             runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory.absolutePath,
             runConfig.projectConfiguration.buildConfiguration.gradleDistribution.toString(),

@@ -25,7 +25,7 @@ import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils;
 /**
  * {@link EventListener} implementation showing/activating the Executions View when a new Gradle
  * build is executed and the
- * {@link org.eclipse.buildship.core.launch.GradleRunConfigurationAttributes#isShowExecutionView()}
+ * {@link org.eclipse.buildship.core.GradleLaunchConfigurationAttributes.GradleRunConfigurationAttributes#isShowExecutionView()}
  * setting is enabled.
  * <p/>
  * The listener implementation is necessary since opening a view is a UI-related task and the
@@ -46,7 +46,7 @@ public final class ExecutionShowingLaunchRequestListener implements EventListene
 
                 @Override
                 public void run() {
-                    Optional<ExecutionsView> view = event.getProcessDescription().getRunConfig().isShowExecutionView() ?
+                    Optional<ExecutionsView> view = event.getProcessDescription().getLaunchConfiguration().isShowExecutionView() ?
                         Optional.of(WorkbenchUtils.showView(ExecutionsView.ID, null, IWorkbenchPage.VIEW_ACTIVATE)) :
                         WorkbenchUtils.findView(ExecutionsView.ID);
                     if (view.isPresent()) {

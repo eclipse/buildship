@@ -14,11 +14,11 @@ import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
-import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
-class RunConfigurationTest extends ProjectSynchronizationSpecification {
+class LaunchConfigurationTest extends ProjectSynchronizationSpecification {
 
     def "create run configuration"(buildBuildScansEnabled, buildOfflineMode, runConfigOverride, runConfigBuildScansEnabled, runConfigOfflineMode, expectedRunConfigBuildScansEnabled, expectedRunConfigOfflineMode) {
         setup:
@@ -50,7 +50,7 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
             buildJvmArguments,
             buildShowConsoleView,
             buildShowExecutionView)
-        RunConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
+        LaunchConfiguration runConfig = configurationManager.createRunConfiguration(buildConfig,
                 tasks,
                 runJavaHome,
                 runJvmArguments,
@@ -102,11 +102,11 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         File tmpDir
         if (isDev) {
             tmpDir = dir("tmpDir")
-            launchConfig.setAttribute(GradleRunConfigurationAttributes.WORKING_DIR, tmpDir.absolutePath)
+            launchConfig.setAttribute(GradleLaunchConfigurationAttributes.WORKING_DIR, tmpDir.absolutePath)
             launchConfig.doSave()
         }
 
-        RunConfiguration runConfig = configurationManager.loadRunConfiguration(launchConfig)
+        LaunchConfiguration runConfig = configurationManager.loadRunConfiguration(launchConfig)
 
         expect:
         runConfig.tasks == []
@@ -141,20 +141,20 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         boolean offlineMode = true
 
         ILaunchConfiguration launchConfig = createGradleLaunchConfig()
-        GradleRunConfigurationAttributes.applyTasks(tasks, launchConfig)
-        GradleRunConfigurationAttributes.applyJavaHomeExpression(javaHome.absolutePath, launchConfig)
-        GradleRunConfigurationAttributes.applyArgumentExpressions(arguments, launchConfig)
-        GradleRunConfigurationAttributes.applyJvmArgumentExpressions(jvmArguments, launchConfig)
-        GradleRunConfigurationAttributes.applyShowConsoleView(showConsoleView, launchConfig)
-        GradleRunConfigurationAttributes.applyShowExecutionView(showExecutionView, launchConfig)
-        GradleRunConfigurationAttributes.applyWorkingDirExpression(rootDir.absolutePath, launchConfig)
-        GradleRunConfigurationAttributes.applyGradleDistribution(distribution, launchConfig)
-        GradleRunConfigurationAttributes.applyOverrideBuildSettings(overrideBuildSettings, launchConfig)
-        GradleRunConfigurationAttributes.applyBuildScansEnabled(buildScansEnabled, launchConfig)
-        GradleRunConfigurationAttributes.applyOfflineMode(offlineMode, launchConfig)
+        GradleLaunchConfigurationAttributes.applyTasks(tasks, launchConfig)
+        GradleLaunchConfigurationAttributes.applyJavaHomeExpression(javaHome.absolutePath, launchConfig)
+        GradleLaunchConfigurationAttributes.applyArgumentExpressions(arguments, launchConfig)
+        GradleLaunchConfigurationAttributes.applyJvmArgumentExpressions(jvmArguments, launchConfig)
+        GradleLaunchConfigurationAttributes.applyShowConsoleView(showConsoleView, launchConfig)
+        GradleLaunchConfigurationAttributes.applyShowExecutionView(showExecutionView, launchConfig)
+        GradleLaunchConfigurationAttributes.applyWorkingDirExpression(rootDir.absolutePath, launchConfig)
+        GradleLaunchConfigurationAttributes.applyGradleDistribution(distribution, launchConfig)
+        GradleLaunchConfigurationAttributes.applyOverrideBuildSettings(overrideBuildSettings, launchConfig)
+        GradleLaunchConfigurationAttributes.applyBuildScansEnabled(buildScansEnabled, launchConfig)
+        GradleLaunchConfigurationAttributes.applyOfflineMode(offlineMode, launchConfig)
 
         when:
-        RunConfiguration runConfig = configurationManager.loadRunConfiguration(launchConfig)
+        LaunchConfiguration runConfig = configurationManager.loadRunConfiguration(launchConfig)
 
         then:
         runConfig.tasks == tasks
@@ -190,15 +190,15 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         importAndWait(projectDir)
 
         ILaunchConfiguration launchConfig = emptyLaunchConfig()
-        GradleRunConfigurationAttributes.applyOverrideBuildSettings(true, launchConfig)
-        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
-        GradleRunConfigurationAttributes.applyGradleUserHomeExpression('/gradleUserHome/${buildship_test_var1}', launchConfig)
-        GradleRunConfigurationAttributes.applyJavaHomeExpression('/javaHome/${buildship_test_var2}', launchConfig)
-        GradleRunConfigurationAttributes.applyArgumentExpressions(['-PsampleProjectProperty=${buildship_test_var3}'], launchConfig)
-        GradleRunConfigurationAttributes.applyJvmArgumentExpressions(['-DsampleJvmProperty=${buildship_test_var4}'], launchConfig)
+        GradleLaunchConfigurationAttributes.applyOverrideBuildSettings(true, launchConfig)
+        GradleLaunchConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyGradleUserHomeExpression('/gradleUserHome/${buildship_test_var1}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyJavaHomeExpression('/javaHome/${buildship_test_var2}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyArgumentExpressions(['-PsampleProjectProperty=${buildship_test_var3}'], launchConfig)
+        GradleLaunchConfigurationAttributes.applyJvmArgumentExpressions(['-DsampleJvmProperty=${buildship_test_var4}'], launchConfig)
 
         when:
-        RunConfiguration runConfig = configurationManager.loadRunConfiguration(launchConfig)
+        LaunchConfiguration runConfig = configurationManager.loadRunConfiguration(launchConfig)
 
         then:
         runConfig.projectConfiguration.projectDir == projectDir
@@ -218,8 +218,8 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         importAndWait(projectDir)
 
         ILaunchConfiguration launchConfig = emptyLaunchConfig()
-        GradleRunConfigurationAttributes.applyOverrideBuildSettings(true, launchConfig)
-        GradleRunConfigurationAttributes.applyWorkingDirExpression('${nonexisting}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyOverrideBuildSettings(true, launchConfig)
+        GradleLaunchConfigurationAttributes.applyWorkingDirExpression('${nonexisting}', launchConfig)
 
         when:
         configurationManager.loadRunConfiguration(launchConfig)
@@ -229,8 +229,8 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         launchConfig = emptyLaunchConfig()
-        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
-        GradleRunConfigurationAttributes.applyGradleUserHomeExpression('${nonexisting}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyGradleUserHomeExpression('${nonexisting}', launchConfig)
         configurationManager.loadRunConfiguration(launchConfig)
 
         then:
@@ -238,8 +238,8 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         launchConfig = emptyLaunchConfig()
-        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
-        GradleRunConfigurationAttributes.applyJavaHomeExpression('${nonexisting}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyJavaHomeExpression('${nonexisting}', launchConfig)
         configurationManager.loadRunConfiguration(launchConfig)
 
         then:
@@ -247,8 +247,8 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         launchConfig = emptyLaunchConfig()
-        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
-        GradleRunConfigurationAttributes.applyArgumentExpressions(['${nonexisting}'], launchConfig)
+        GradleLaunchConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyArgumentExpressions(['${nonexisting}'], launchConfig)
         configurationManager.loadRunConfiguration(launchConfig)
 
         then:
@@ -256,8 +256,8 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
 
         when:
         launchConfig = emptyLaunchConfig()
-        GradleRunConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
-        GradleRunConfigurationAttributes.applyJvmArgumentExpressions(['${nonexisting}'], launchConfig)
+        GradleLaunchConfigurationAttributes.applyWorkingDirExpression('${workspace_loc:/sample-project}', launchConfig)
+        GradleLaunchConfigurationAttributes.applyJvmArgumentExpressions(['${nonexisting}'], launchConfig)
         configurationManager.loadRunConfiguration(launchConfig)
 
         then:

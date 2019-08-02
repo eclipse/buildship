@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 the original author or authors.
+ * Copyright (c) 2019 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,14 +16,14 @@ import com.google.common.base.Objects;
 import org.eclipse.buildship.core.GradleDistribution;
 
 /**
- * Default implementation for {@link LaunchConfiguration}.
+ * Default implementation for {@link TestLaunchConfiguration}.
  */
-class DefaultRunConfiguration implements LaunchConfiguration {
+class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
 
     private final ProjectConfiguration projectConfiguration;
-    private final LaunchConfigurationProperties properties;
+    private final TestLaunchConfigurationProperties properties;
 
-    public DefaultRunConfiguration(ProjectConfiguration projectConfiguration, LaunchConfigurationProperties properties) {
+    public DefaultTestLaunchConfiguration(ProjectConfiguration projectConfiguration, TestLaunchConfigurationProperties properties) {
         this.projectConfiguration = projectConfiguration;
         this.properties = properties;
     }
@@ -31,15 +31,6 @@ class DefaultRunConfiguration implements LaunchConfiguration {
     @Override
     public ProjectConfiguration getProjectConfiguration() {
         return this.projectConfiguration;
-    }
-
-    LaunchConfigurationProperties getProperties() {
-        return this.properties;
-    }
-
-    @Override
-    public List<String> getTasks() {
-        return this.properties.getTasks();
     }
 
     @Override
@@ -122,9 +113,19 @@ class DefaultRunConfiguration implements LaunchConfiguration {
     }
 
     @Override
+    public List<String> getTestClasses() {
+        return this.properties.getTestClasses();
+    }
+
+    @Override
+    public List<String> getTestMethods() {
+        return this.properties.getTestMethods();
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DefaultRunConfiguration) {
-            DefaultRunConfiguration other = (DefaultRunConfiguration) obj;
+        if (obj instanceof DefaultTestLaunchConfiguration) {
+            DefaultTestLaunchConfiguration other = (DefaultTestLaunchConfiguration) obj;
             return Objects.equal(this.projectConfiguration, other.projectConfiguration)
                     && Objects.equal(this.properties, other.properties);
         }

@@ -28,7 +28,8 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BaseLaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
@@ -41,7 +42,7 @@ import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<BuildLauncher> {
 
     private final ILaunch launch;
-    private final RunConfiguration runConfig;
+    private final LaunchConfiguration runConfig;
 
     public RunGradleBuildLaunchRequestJob(ILaunch launch) {
         super("Launching Gradle tasks");
@@ -52,11 +53,6 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     @Override
     protected String getJobTaskName() {
         return String.format("Launch Gradle tasks %s", this.runConfig.getTasks());
-    }
-
-    @Override
-    protected RunConfiguration getRunConfig() {
-        return this.runConfig;
     }
 
     @Override
@@ -71,8 +67,8 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected BuildLauncher createLaunch(InternalGradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
-        BuildLauncher launcher = gradleBuild.newBuildLauncher(runConfiguration, progressAttributes);
+    protected BuildLauncher createLaunch(InternalGradleBuild gradleBuild, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
+        BuildLauncher launcher = gradleBuild.newBuildLauncher(this.runConfig, progressAttributes);
         launcher.forTasks(RunGradleBuildLaunchRequestJob.this.runConfig.getTasks().toArray(new String[0]));
         return launcher;
     }
@@ -87,6 +83,11 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
         String taskNames = Strings.emptyToNull(CollectionsUtils.joinWithSpace(this.runConfig.getTasks()));
         taskNames = taskNames != null ? taskNames : CoreMessages.RunConfiguration_Value_RunDefaultTasks;
         progressAttributes.writeConfig(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, taskNames));
+    }
+
+    @Override
+    protected BaseLaunchConfiguration getLaunchConfiguration() {
+       return this.runConfig;
     }
 
     /**

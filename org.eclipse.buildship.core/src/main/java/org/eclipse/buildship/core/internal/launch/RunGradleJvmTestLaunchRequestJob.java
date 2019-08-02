@@ -25,7 +25,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BaseLaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.TestLaunchConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
@@ -37,22 +38,22 @@ import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
 
     private final ImmutableList<TestTarget> testTargets;
-    private final RunConfiguration runConfig;
+    private final TestLaunchConfiguration runConfig;
 
-    public RunGradleJvmTestLaunchRequestJob(List<TestTarget> testTargets, RunConfiguration runConfig) {
+    public RunGradleJvmTestLaunchRequestJob(List<TestTarget> testTargets, TestLaunchConfiguration runConfig) {
         super("Launching Gradle Tests");
         this.testTargets = ImmutableList.copyOf(testTargets);
         this.runConfig = Preconditions.checkNotNull(runConfig);
     }
 
     @Override
-    protected String getJobTaskName() {
-        return "Launch Gradle test classes";
+    protected BaseLaunchConfiguration getLaunchConfiguration() {
+        return this.runConfig;
     }
 
     @Override
-    protected RunConfiguration getRunConfig() {
-        return this.runConfig;
+    protected String getJobTaskName() {
+        return "Launch Gradle test classes";
     }
 
     @Override
@@ -68,9 +69,9 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     }
 
     @Override
-    protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes invocationAttributes,
+    protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, GradleProgressAttributes invocationAttributes,
             ProcessDescription processDescription) {
-        TestLauncher launcher = gradleBuild.newTestLauncher(runConfiguration, invocationAttributes);
+        TestLauncher launcher = gradleBuild.newTestLauncher(this.runConfig, invocationAttributes);
         for (TestTarget testTarget : RunGradleJvmTestLaunchRequestJob.this.testTargets) {
             testTarget.apply(launcher);
         }
