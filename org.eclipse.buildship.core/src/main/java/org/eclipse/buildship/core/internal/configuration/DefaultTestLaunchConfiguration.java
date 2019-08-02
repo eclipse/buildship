@@ -113,13 +113,8 @@ class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
     }
 
     @Override
-    public List<String> getTestClasses() {
-        return this.properties.getTestClasses();
-    }
-
-    @Override
-    public List<String> getTestMethods() {
-        return this.properties.getTestMethods();
+    public List<String> getTests() {
+        return this.properties.getTests();
     }
 
     @Override

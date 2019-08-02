@@ -22,21 +22,15 @@ import org.eclipse.buildship.core.GradleDistribution;
  */
 final class TestLaunchConfigurationProperties extends BaseLaunchConfigurationProperties {
 
-    private final List<String> testClasses;
-    private final List<String> testMethods;
+    private final List<String> tests;
 
-    public TestLaunchConfigurationProperties(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode, List<String> testClasses, List<String> testMethods) {
+    public TestLaunchConfigurationProperties(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode, List<String> tests) {
         super(gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, showConsoleView, showExecutionsView, overrideBuildSettings, buildScansEnabled, offlineMode);
-        this.testClasses = testClasses;
-        this.testMethods = testMethods;
+        this.tests = tests;
     }
 
-    public List<String> getTestClasses() {
-        return this.testClasses;
-    }
-
-    public List<String> getTestMethods() {
-        return this.testMethods;
+    public List<String> getTests() {
+        return this.tests;
     }
 
     @Override
@@ -44,14 +38,13 @@ final class TestLaunchConfigurationProperties extends BaseLaunchConfigurationPro
         if (obj instanceof TestLaunchConfigurationProperties) {
             TestLaunchConfigurationProperties other = (TestLaunchConfigurationProperties) obj;
             return super.equals(obj)
-                    && Objects.equal(this.testClasses, other.testClasses)
-                    && Objects.equal(this.testMethods, other.testMethods);
+                    && Objects.equal(this.tests, other.tests);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), this.testClasses, this.testMethods);
+        return Objects.hashCode(super.hashCode(), this.tests);
     }
 }

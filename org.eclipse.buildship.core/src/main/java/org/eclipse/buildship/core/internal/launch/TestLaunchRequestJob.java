@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -82,18 +81,12 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
 
     @Override
     protected String getJobTaskName() {
-        List<String> tests = new ArrayList<>();
-        tests.addAll(this.launchConfiguration.getTestClasses());
-        tests.addAll(this.launchConfiguration.getTestMethods());
-        return String.format("Launch Gradle tests %s", tests);
+        return String.format("Launch Gradle tests %s", this.launchConfiguration.getTests());
     }
 
     @Override
     protected ProcessDescription createProcessDescription() {
-        List<String> tests = new ArrayList<>();
-        tests.addAll(this.launchConfiguration.getTestClasses());
-        tests.addAll(this.launchConfiguration.getTestMethods());
-        String processName = createProcessName(tests, this.launchConfiguration.getProjectConfiguration().getProjectDir(), this.name);
+        String processName = createProcessName(this.launchConfiguration.getTests(), this.launchConfiguration.getProjectConfiguration().getProjectDir(), this.name);
         return new BuildLaunchProcessDescription(processName);
     }
 
@@ -105,13 +98,19 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
     @Override
     protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
         TestLauncher launcher = gradleBuild.newTestLauncher(this.launchConfiguration, progressAttributes);
-        launcher.withJvmTestClasses(this.launchConfiguration.getTestClasses());
-        this.launchConfiguration.getTestMethods().forEach((m) -> {
-            String[] parts = m.split("#");
-            if (parts.length == 2 && !parts[0].isEmpty() && !parts[1].isEmpty()) {
-                launcher.withJvmTestMethods(parts[0], parts[1]);
+        for(String signature : this.launchConfiguration.getTests()) {
+            if (signature.contains("#")) {
+                // test method
+                String[] parts = signature.split("#");
+                if (parts.length == 2 && !parts[0].isEmpty() && !parts[1].isEmpty()) {
+                    launcher.withJvmTestMethods(parts[0], parts[1]);
+                }
+            } else {
+                // test class
+                launcher.withJvmTestClasses(signature);
             }
-        });
+
+        }
         return launcher;
     }
 
@@ -186,8 +185,7 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
                 progressAttributes.writeConfig("[WARN] Cannot initate debugging as no accessible project present at " + this.launchConfiguration.getProjectConfiguration().getProjectDir());
             }
         } else {
-            progressAttributes.writeConfig(String.format("%s: %s", "Test classes", this.launchConfiguration.getTestClasses()));
-            progressAttributes.writeConfig(String.format("%s: %s", "Test methods", this.launchConfiguration.getTestMethods()));
+            progressAttributes.writeConfig(String.format("%s: %s", "Tests", this.launchConfiguration.getTests()));
         }
 
         progressAttributes.writeConfig("");

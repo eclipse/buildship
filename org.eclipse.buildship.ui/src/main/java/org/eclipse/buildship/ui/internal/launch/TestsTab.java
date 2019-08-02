@@ -64,8 +64,7 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
 
     private final Validator<File> workingDirValidator;
 
-    private StringListEditor testClasses;
-    private StringListEditor testMethods;
+    private StringListEditor tests;
     private Text workingDirectoryText;
 
     public TestsTab() {
@@ -90,10 +89,7 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
         setControl(parent);
 
         Group group = createGroup(parent, "Test classes" + ":"); // TODO externalize
-        this.testClasses = createTestsSelectionControl(group);
-
-        group = createGroup(parent, "Test methods" + ":"); // TODO externalize
-        this.testMethods = createTestsSelectionControl(group);
+        this.tests = createTestsSelectionControl(group);
 
         Group workingDirectoryGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_WorkingDirectory + ":"); //$NON-NLS-1$
         createWorkingDirectorySelectionControl(workingDirectoryGroup);
@@ -194,15 +190,13 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         GradleTestLaunchConfigurationAttributes attributes = GradleTestLaunchConfigurationAttributes.from(configuration);
-        this.testClasses.setEntries(attributes.getTestClasses());
-        this.testMethods.setEntries(attributes.getTestMethods());
+        this.tests.setEntries(attributes.getTests());
         this.workingDirectoryText.setText(Strings.nullToEmpty(attributes.getWorkingDirExpression()));
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        GradleTestLaunchConfigurationAttributes.applyTestClasses(this.testClasses.getEntries(), configuration);
-        GradleTestLaunchConfigurationAttributes.applyTestMethods(this.testMethods.getEntries(), configuration);
+        GradleTestLaunchConfigurationAttributes.applyTests(this.tests.getEntries(), configuration);
         GradleLaunchConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
     }
 

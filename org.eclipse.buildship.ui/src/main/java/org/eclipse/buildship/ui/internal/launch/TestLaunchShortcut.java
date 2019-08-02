@@ -54,7 +54,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         List<IMethod> methods = resolver.resolveMethods();
         if (TestLaunchShortcutValidator.validateTypesAndMethods(types, methods)) {
             IProject project = findProject(types, methods);
-            GradleTestLaunchConfigurationAttributes attributes = createLaunchConfigAttributes(project, resolver.resolveClassSignatures(), resolver.resolveMethodSignatures());
+            GradleTestLaunchConfigurationAttributes attributes = createLaunchConfigAttributes(project, resolver.resolveTests());
             ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateTestRunConfiguration(attributes);
 
 
@@ -64,7 +64,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         }
     }
 
-    private static GradleTestLaunchConfigurationAttributes createLaunchConfigAttributes(IProject project, List<String> testClasses, List<String> testMethods) {
+    private static GradleTestLaunchConfigurationAttributes createLaunchConfigAttributes(IProject project, List<String> tests) {
         return new GradleTestLaunchConfigurationAttributes(ExpressionUtils.encodeWorkspaceLocation(project),
                                                     GradleDistribution.fromBuild().toString(),
                                                     null,
@@ -76,8 +76,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
                                                     false,
                                                     false,
                                                     false,
-                                                    testClasses,
-                                                    testMethods);
+                                                    tests);
     }
 
     private IProject findProject(List<IType> types, List<IMethod> methods) {

@@ -31,12 +31,11 @@ import org.eclipse.jdt.core.ITypeRoot;
  */
 public abstract class JavaElementResolver {
 
-    public final List<String> resolveClassSignatures() {
-        return resolveTypes().stream().map(t -> t.getFullyQualifiedName()).collect(Collectors.toList());
-    }
-
-    public final List<String> resolveMethodSignatures() {
-        return resolveMethods().stream().map(m -> m.getDeclaringType().getFullyQualifiedName() + "#" + m.getElementName()).collect(Collectors.toList());
+    public final List<String> resolveTests() {
+        return ImmutableList.<String>builder()
+            .addAll(resolveTypes().stream().map(t -> t.getFullyQualifiedName()).collect(Collectors.toList()))
+            .addAll(resolveMethods().stream().map(m -> m.getDeclaringType().getFullyQualifiedName() + "#" + m.getElementName()).collect(Collectors.toList()))
+            .build();
     }
 
     /**

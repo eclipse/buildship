@@ -191,8 +191,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                   attributes.isOverrideBuildSettings(),
                   attributes.isBuildScansEnabled(),
                   attributes.isOffline(),
-                  attributes.getTestClasses(),
-                  attributes.getTestMethods());
+                  attributes.getTests());
         return new DefaultTestLaunchConfiguration(projectConfiguration, runConfigProperties);
     }
 
@@ -238,7 +237,6 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                    props.isOverrideBuildSettings(),
                    props.isBuildScansEnabled(),
                    props.isOfflineMode(),
-                   Collections.emptyList(),
                    Collections.emptyList());
            return new DefaultTestLaunchConfiguration(source.getProjectConfiguration(), properties);
         } else {

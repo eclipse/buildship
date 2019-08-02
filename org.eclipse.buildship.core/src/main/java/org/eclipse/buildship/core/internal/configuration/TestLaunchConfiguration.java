@@ -17,7 +17,5 @@ import java.util.List;
  */
 public interface TestLaunchConfiguration extends BaseLaunchConfiguration {
 
-    List<String> getTestClasses();
-
-    List<String> getTestMethods();
+    List<String> getTests();
 }
