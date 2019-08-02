@@ -226,14 +226,14 @@ abstract class WorkspaceSpecification extends Specification {
         createLaunchConfig(GradleRunConfigurationDelegate.ID, name)
     }
 
-    protected void waitFor(int timeout = 5000, Closure condition) {
+    protected void waitFor(int timeout = 5000, int waitTime = 50, Closure condition) {
         long start = System.currentTimeMillis()
         while (!condition.call()) {
             long elapsed = System.currentTimeMillis() - start
             if (elapsed > timeout) {
                 throw new RuntimeException('timeout')
             }
-            Thread.sleep(50)
+            Thread.sleep(waitTime)
         }
     }
 

@@ -43,7 +43,7 @@ class GradleBuildConnectionConcurrencyTest extends ProjectSynchronizationSpecifi
         file.setContents(new ByteArrayInputStream("public class Main { int i = 0; }".bytes),  IResource.FORCE, new NullProgressMonitor())
 
         then:
-        waitFor { job.out.toString().count("BUILD SUCCESSFUL") == 2 }
+        waitFor(10000, 500) { job.out.toString().count("BUILD SUCCESSFUL") == 2 }
 
         cleanup:
         job.cleanup()
