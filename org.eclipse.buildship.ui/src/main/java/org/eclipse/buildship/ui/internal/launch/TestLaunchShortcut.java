@@ -13,7 +13,6 @@ package org.eclipse.buildship.ui.internal.launch;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -31,8 +30,6 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.launch.GradleTestLaunchConfigurationAttributes;
 import org.eclipse.buildship.core.internal.launch.TestLaunchRequestJob;
-import org.eclipse.buildship.core.internal.launch.TestMethod;
-import org.eclipse.buildship.core.internal.launch.TestType;
 import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 
 /**
@@ -57,7 +54,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         List<IMethod> methods = resolver.resolveMethods();
         if (TestLaunchShortcutValidator.validateTypesAndMethods(types, methods)) {
             IProject project = findProject(types, methods);
-            GradleTestLaunchConfigurationAttributes attributes = createLaunchConfigAttributes(project, serializeTypes(types), serializeMethods(methods));
+            GradleTestLaunchConfigurationAttributes attributes = createLaunchConfigAttributes(project, resolver.resolveClassSignatures(), resolver.resolveMethodSignatures());
             ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateTestRunConfiguration(attributes);
 
 
@@ -81,14 +78,6 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
                                                     false,
                                                     testClasses,
                                                     testMethods);
-    }
-
-    private static List<String> serializeTypes(List<IType> types) {
-        return types.stream().map(t -> TestType.from(t).getQualifiedName()).collect(Collectors.<String>toList());
-    }
-
-    private static List<String> serializeMethods(List<IMethod> methods) {
-        return methods.stream().map(t -> TestMethod.from(t).getQualifiedName()).collect(Collectors.<String> toList());
     }
 
     private IProject findProject(List<IType> types, List<IMethod> methods) {
