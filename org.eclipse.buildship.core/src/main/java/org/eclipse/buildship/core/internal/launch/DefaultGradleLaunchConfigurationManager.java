@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.internal.launch;
 
+import java.util.List;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
@@ -99,7 +101,17 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     }
 
     private ILaunchConfiguration createTestLaunchConfiguration(GradleTestLaunchConfigurationAttributes configurationAttributes) {
-        String rawLaunchConfigurationName = String.format("Testing %s", configurationAttributes.getWorkingDir().getName());
+        List<String> tests = configurationAttributes.getTests();
+        String rawLaunchConfigurationName;
+        if (tests.isEmpty()) {
+            rawLaunchConfigurationName = configurationAttributes.getWorkingDir().getName();
+        } else {
+            String firstTest = tests.get(0);
+            int idxMethodSep = firstTest.indexOf('#') + 1;
+            int idxLastDotStep = firstTest.lastIndexOf('.') + 1;
+            rawLaunchConfigurationName = (idxMethodSep > 0 ? firstTest.substring(idxMethodSep) : firstTest.substring(idxLastDotStep)) + ( tests.size() > 1 ? " (and " + (tests.size() - 1) + " more)" : "");
+        }
+
         String launchConfigurationName = this.launchManager.generateLaunchConfigurationName(rawLaunchConfigurationName.replace(':', '.'));
         ILaunchConfigurationType launchConfigurationType = this.launchManager.getLaunchConfigurationType(GradleTestLaunchConfigurationDelegate.ID);
 
