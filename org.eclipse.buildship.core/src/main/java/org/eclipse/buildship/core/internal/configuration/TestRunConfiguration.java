@@ -17,5 +17,5 @@ import java.util.List;
  */
 public interface TestRunConfiguration extends BaseRunConfiguration {
 
-    List<Test> getTests(); // TODO introduce a new type here (like with GradleDistribution)
+    List<Test> getTests();
 }

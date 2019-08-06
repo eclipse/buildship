@@ -54,7 +54,6 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         List<IMethod> methods = resolver.resolveMethods();
         if (TestLaunchShortcutValidator.validateTypesAndMethods(types, methods)) {
             IProject project = findProject(types, methods);
-            // TODO we should create default run config attributes via ConfigurationManager.createDefaultTestRunConfiguration(BuildConfiguraion)
             GradleTestRunConfigurationAttributes attributes = createLaunchConfigAttributes(project, resolver.resolveTests());
             ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateTestRunConfiguration(attributes);
             new RunGradleJvmTestLaunchRequestJob(launchConfiguration, mode).schedule();

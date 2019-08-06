@@ -73,7 +73,7 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
 
     @Override
     public String getName() {
-        return "Gradle Tests"; // TODO externalize
+        return LaunchMessages.Tab_Name_GradleTests;
     }
 
     @Override
@@ -88,7 +88,7 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
         parent.setLayout(layout);
         setControl(parent);
 
-        Group group = createGroup(parent, "Test classes" + ":"); // TODO externalize
+        Group group = createGroup(parent, CoreMessages.RunConfiguration_Label_Tests + ":"); //$NON-NLS-1$
         this.tests = createTestsSelectionControl(group);
 
         Group workingDirectoryGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_WorkingDirectory + ":"); //$NON-NLS-1$
