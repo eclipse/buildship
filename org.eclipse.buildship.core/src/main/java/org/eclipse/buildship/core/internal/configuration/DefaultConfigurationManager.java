@@ -25,9 +25,9 @@ import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.launch.BaseLaunchConfigurationAttributes;
-import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes;
-import org.eclipse.buildship.core.internal.launch.GradleTestLaunchConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.BaseRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleTestRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
 
 /**
@@ -160,10 +160,10 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     @Override
-    public LaunchConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration) {
-        GradleLaunchConfigurationAttributes attributes = GradleLaunchConfigurationAttributes.from(launchConfiguration);
+    public RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration) {
+        GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.from(launchConfiguration);
         ProjectConfiguration projectConfiguration = loadProjectConfiguration(attributes);
-        LaunchConfigurationProperties runConfigProperties = new LaunchConfigurationProperties(attributes.getTasks(),
+        RunConfigurationProperties runConfigProperties = new RunConfigurationProperties(attributes.getTasks(),
                   attributes.getGradleDistribution(),
                   attributes.getGradleUserHome(),
                   attributes.getJavaHome(),
@@ -178,10 +178,10 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     @Override
-    public TestLaunchConfiguration loadTestLaunchConfiguration(ILaunchConfiguration launchConfiguration) {
-        GradleTestLaunchConfigurationAttributes attributes = GradleTestLaunchConfigurationAttributes.from(launchConfiguration);
+    public TestRunConfiguration loadTestRunConfiguration(ILaunchConfiguration launchConfiguration) {
+        GradleTestRunConfigurationAttributes attributes = GradleTestRunConfigurationAttributes.from(launchConfiguration);
         ProjectConfiguration projectConfiguration = loadProjectConfiguration(attributes);
-        TestLaunchConfigurationProperties runConfigProperties = new TestLaunchConfigurationProperties(attributes.getGradleDistribution(),
+        TestRunConfigurationProperties runConfigProperties = new TestRunConfigurationProperties(attributes.getGradleDistribution(),
                   attributes.getGradleUserHome(),
                   attributes.getJavaHome(),
                   attributes.getJvmArguments(),
@@ -192,10 +192,10 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                   attributes.isBuildScansEnabled(),
                   attributes.isOffline(),
                   attributes.getTests());
-        return new DefaultTestLaunchConfiguration(projectConfiguration, runConfigProperties);
+        return new DefaultTestRunConfiguration(projectConfiguration, runConfigProperties);
     }
 
-    private ProjectConfiguration loadProjectConfiguration(BaseLaunchConfigurationAttributes attributes) {
+    private ProjectConfiguration loadProjectConfiguration(BaseRunConfigurationAttributes attributes) {
         ProjectConfiguration projectConfiguration;
         try {
             projectConfiguration = loadProjectConfiguration(attributes.getWorkingDir());
@@ -221,13 +221,13 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     @Override
-    public TestLaunchConfiguration loadTestLaunchConfiguration(BaseLaunchConfiguration runConfig) {
-        if (runConfig instanceof TestLaunchConfiguration) {
-            return (TestLaunchConfiguration) runConfig;
+    public TestRunConfiguration loadTestRunConfiguration(BaseRunConfiguration runConfig) {
+        if (runConfig instanceof TestRunConfiguration) {
+            return (TestRunConfiguration) runConfig;
         } else if (runConfig instanceof DefaultRunConfiguration) {
            DefaultRunConfiguration source = (DefaultRunConfiguration) runConfig;
-           LaunchConfigurationProperties props = source.getProperties();
-           TestLaunchConfigurationProperties properties = new TestLaunchConfigurationProperties(props.getGradleDistribution(),
+           RunConfigurationProperties props = source.getProperties();
+           TestRunConfigurationProperties properties = new TestRunConfigurationProperties(props.getGradleDistribution(),
                    props.getGradleUserHome(),
                    props.getJavaHome(),
                    props.getJvmArguments(),
@@ -238,7 +238,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                    props.isBuildScansEnabled(),
                    props.isOfflineMode(),
                    Collections.emptyList());
-           return new DefaultTestLaunchConfiguration(source.getProjectConfiguration(), properties);
+           return new DefaultTestRunConfiguration(source.getProjectConfiguration(), properties);
         } else {
             throw new GradlePluginsRuntimeException("Unknown configuration type: " + runConfig.getClass().getSimpleName());
         }
@@ -246,37 +246,20 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     @Override
-    public LaunchConfiguration createDefaultRunConfiguration(BuildConfiguration configuration) {
-        return createRunConfiguration(configuration,
-                Collections.<String>emptyList(),
-                null,
-                Collections.<String>emptyList(),
-                Collections.<String>emptyList(),
-                false,
-                false,
-                false,
+    public RunConfiguration createDefaultRunConfiguration(BuildConfiguration configuration) {
+        Preconditions.checkArgument(configuration instanceof DefaultBuildConfiguration, "Unknow configuration type: ", configuration.getClass());
+        ProjectConfiguration projectConfiguration = new DefaultProjectConfiguration(configuration.getRootProjectDirectory(), configuration);
+        RunConfigurationProperties runConfig = new RunConfigurationProperties(Collections.<String>emptyList(),
                 GradleDistribution.fromBuild(),
                 null,
+                null,
+                Collections.<String>emptyList(),
+                Collections.<String>emptyList(),
+                false,
+                false,
+                false,
                 false,
                 false);
-    }
-
-    @Override
-    public LaunchConfiguration createRunConfiguration(BuildConfiguration buildConfiguration, List<String> tasks, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView,
-            boolean showExecutionsView, boolean overrideBuildSettings, GradleDistribution gradleDistribution, File gradleUserHome, boolean buildScansEnabled, boolean offlineMode) {
-        Preconditions.checkArgument(buildConfiguration instanceof DefaultBuildConfiguration, "Unknow configuration type: ", buildConfiguration.getClass());
-        ProjectConfiguration projectConfiguration = new DefaultProjectConfiguration(buildConfiguration.getRootProjectDirectory(), buildConfiguration);
-        LaunchConfigurationProperties runConfig = new LaunchConfigurationProperties(tasks,
-                gradleDistribution,
-                gradleUserHome,
-                javaHome,
-                jvmArguments,
-                arguments,
-                showConsoleView,
-                showExecutionsView,
-                overrideBuildSettings,
-                buildScansEnabled,
-                offlineMode);
         return new DefaultRunConfiguration(projectConfiguration, runConfig);
     }
 

@@ -17,7 +17,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 
 /**
  * Runs the currently selected Gradle tasks. The tasks are run through an
@@ -29,7 +29,7 @@ public final class RunTasksHandler extends BaseRunConfigurationHandler {
     @Override
     public Object execute(ExecutionEvent event) {
         // determine the set of attributes that uniquely identify a run configuration
-        GradleLaunchConfigurationAttributes configurationAttributes = getRunConfigurationAttributes(event);
+        GradleRunConfigurationAttributes configurationAttributes = getRunConfigurationAttributes(event);
 
         // create/reuse a launch configuration for the given attributes
         ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(configurationAttributes);

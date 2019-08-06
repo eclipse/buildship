@@ -19,7 +19,7 @@ import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
-class GradleLaunchConfigurationAttributesTest extends WorkspaceSpecification {
+class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
 
     @Shared def Attributes validAttributes = new Attributes (
         tasks : ['clean'],
@@ -41,7 +41,7 @@ class GradleLaunchConfigurationAttributesTest extends WorkspaceSpecification {
         ILaunchConfiguration eclipseConfig = createGradleLaunchConfig()
 
         when:
-        GradleLaunchConfigurationAttributes attributes = GradleLaunchConfigurationAttributes.from(eclipseConfig)
+        GradleRunConfigurationAttributes attributes = GradleRunConfigurationAttributes.from(eclipseConfig)
 
         then:
         attributes.tasks == []
@@ -207,7 +207,7 @@ class GradleLaunchConfigurationAttributesTest extends WorkspaceSpecification {
         when:
         def gradleConfig1 = attributes.toConfiguration()
         gradleConfig1.apply(eclipseConfig)
-        def gradleConfig2 = GradleLaunchConfigurationAttributes.from(eclipseConfig)
+        def gradleConfig2 = GradleRunConfigurationAttributes.from(eclipseConfig)
 
         then:
         gradleConfig1.getTasks() == gradleConfig2.getTasks()
@@ -255,8 +255,8 @@ class GradleLaunchConfigurationAttributesTest extends WorkspaceSpecification {
         def isOffline
         def buildScansEnabled
 
-        def GradleLaunchConfigurationAttributes toConfiguration() {
-            new GradleLaunchConfigurationAttributes(tasks, workingDir, gradleDistr, gradleUserHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
+        def GradleRunConfigurationAttributes toConfiguration() {
+            new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, gradleUserHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
         }
 
         def Attributes copy(@DelegatesTo(value = Attributes, strategy=Closure.DELEGATE_FIRST) Closure closure) {

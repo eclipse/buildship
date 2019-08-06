@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Donat Csikos
  */
-public interface TestLaunchConfiguration extends BaseLaunchConfiguration {
+public interface TestRunConfiguration extends BaseRunConfiguration {
 
-    List<String> getTests();
+    List<String> getTests(); // TODO introduce a new type here (like with GradleDistribution)
 }

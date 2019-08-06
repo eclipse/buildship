@@ -23,7 +23,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
@@ -53,7 +53,7 @@ public final class TaskNodeSelectionUtils {
      * @param selection the selection to map
      * @return the mapped run configuration, if possible
      */
-    public static Optional<GradleLaunchConfigurationAttributes> tryGetRunConfigurationAttributes(NodeSelection selection) {
+    public static Optional<GradleRunConfigurationAttributes> tryGetRunConfigurationAttributes(NodeSelection selection) {
         if (isValidRunConfiguration(selection)) {
             return Optional.of(getRunConfigurationAttributes(selection));
         } else {
@@ -68,7 +68,7 @@ public final class TaskNodeSelectionUtils {
      * @return the mapped run configuration
      */
     @SuppressWarnings("ConstantConditions")
-    public static GradleLaunchConfigurationAttributes getRunConfigurationAttributes(NodeSelection selection) {
+    public static GradleRunConfigurationAttributes getRunConfigurationAttributes(NodeSelection selection) {
         Preconditions.checkNotNull(selection);
         List<String> tasks = getTaskPathStrings(selection);
 
@@ -81,7 +81,7 @@ public final class TaskNodeSelectionUtils {
         }
     }
 
-    private static GradleLaunchConfigurationAttributes runConfigAttributesForTask(NodeSelection selection, List<String> tasks) {
+    private static GradleRunConfigurationAttributes runConfigAttributesForTask(NodeSelection selection, List<String> tasks) {
         TaskNode taskNode = selection.getFirstElement(TaskNode.class);
         File rootDir = HierarchicalElementUtils.getRoot(taskNode.getParentProjectNode().getEclipseProject()).getProjectDirectory();
         File workingDir = workingDirForTask(taskNode, rootDir);
@@ -98,15 +98,15 @@ public final class TaskNodeSelectionUtils {
         }
     }
 
-    private static GradleLaunchConfigurationAttributes runConfigAttributesForProject(NodeSelection selection, List<String> tasks) {
+    private static GradleRunConfigurationAttributes runConfigAttributesForProject(NodeSelection selection, List<String> tasks) {
         ProjectNode projectNode = selection.getFirstElement(ProjectNode.class);
         File rootDir = HierarchicalElementUtils.getRoot(projectNode.getEclipseProject()).getProjectDirectory();
         return createARunConfigAttributes(rootDir, rootDir, tasks);
     }
 
-    private static GradleLaunchConfigurationAttributes createARunConfigAttributes(File rootDir, File workingDir, List<String> tasks) {
+    private static GradleRunConfigurationAttributes createARunConfigAttributes(File rootDir, File workingDir, List<String> tasks) {
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadBuildConfiguration(rootDir);
-        return new GradleLaunchConfigurationAttributes(tasks,
+        return new GradleRunConfigurationAttributes(tasks,
                                                     projectDirectoryExpression(workingDir),
                                                     buildConfig.getGradleDistribution().toString(),
                                                     gradleUserHomeExpression(buildConfig.getGradleUserHome()),

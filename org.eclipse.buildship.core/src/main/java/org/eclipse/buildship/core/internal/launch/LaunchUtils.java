@@ -13,29 +13,27 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 
 /**
- * Execute Gradle tests.
+ * Utility class to launch Gradle tasks and tests.
  */
-public final class GradleTestLaunchConfigurationDelegate extends LaunchConfigurationDelegate {
+public final class LaunchUtils {
 
-    // configuration type id declared in the plugin.xml
-    public static final String ID = "org.eclipse.buildship.core.launch.test.runconfiguration";
+    private LaunchUtils() {
+    }
 
-    @Override
-    public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) {
-        monitor.beginTask("Launch Gradle Test ", IProgressMonitor.UNKNOWN);
+    static void launch(String name, ILaunchConfiguration configuration, String mode, ILaunch launch, Job job, IProgressMonitor monitor) {
+        monitor.beginTask(name, IProgressMonitor.UNKNOWN);
         try {
-            // schedule the test
+            // schedule the task
             final CountDownLatch latch = new CountDownLatch(1);
-            TestLaunchRequestJob job = new TestLaunchRequestJob(configuration, mode);
             job.addJobChangeListener(new JobChangeAdapter() {
 
                 @Override

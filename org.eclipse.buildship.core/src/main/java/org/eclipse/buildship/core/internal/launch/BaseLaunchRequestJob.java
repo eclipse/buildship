@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.BaseLaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BaseRunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.event.Event;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
@@ -52,8 +52,8 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         monitor.beginTask(getJobTaskName(), IProgressMonitor.UNKNOWN);
 
         ProcessDescription processDescription = createProcessDescription();
-        BaseLaunchConfiguration launchConfiguration = getLaunchConfiguration();
-        InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(launchConfiguration.getProjectConfiguration().getBuildConfiguration());
+        BaseRunConfiguration runConfig = getRunConfig();
+        InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(runConfig.getProjectConfiguration().getBuildConfiguration());
         GradleProgressAttributes attributes = GradleProgressAttributes.builder(tokenSource, monitor)
                 .forDedicatedProcess(processDescription)
                 .withFullProgress()
@@ -69,9 +69,9 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
     }
 
     /**
-     * The launch configuration associated with this job.
+     * The run configuration associated with this job.
      */
-    protected abstract BaseLaunchConfiguration getLaunchConfiguration();
+    protected abstract BaseRunConfiguration getRunConfig();
 
     /**
      * The name of the job to display in the progress view.
@@ -115,12 +115,12 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
 
         private final String name;
         private final Job job;
-        private final BaseLaunchConfiguration launchConfiguration;
+        private final BaseRunConfiguration runConfig;
 
-        protected BaseProcessDescription(String name, Job job, BaseLaunchConfiguration runConfig) {
+        protected BaseProcessDescription(String name, Job job, BaseRunConfiguration runConfig) {
             this.name = Preconditions.checkNotNull(name);
             this.job = Preconditions.checkNotNull(job);
-            this.launchConfiguration = Preconditions.checkNotNull(runConfig);
+            this.runConfig = Preconditions.checkNotNull(runConfig);
         }
 
         @Override
@@ -134,8 +134,8 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         }
 
         @Override
-        public BaseLaunchConfiguration getLaunchConfiguration() {
-            return this.launchConfiguration;
+        public BaseRunConfiguration getRunConfig() {
+            return this.runConfig;
         }
 
         @Override
@@ -144,14 +144,14 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
                 BaseProcessDescription that = (BaseProcessDescription) obj;
                 return Objects.equal(this.name, that.name)
                     && Objects.equal(this.job, that.job)
-                    && Objects.equal(this.launchConfiguration, that.launchConfiguration);
+                    && Objects.equal(this.runConfig, that.runConfig);
             }
             return false;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(this.name, this.job, this.launchConfiguration);
+            return Objects.hashCode(this.name, this.job, this.runConfig);
         }
 
     }

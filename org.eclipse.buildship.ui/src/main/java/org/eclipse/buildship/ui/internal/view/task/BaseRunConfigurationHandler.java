@@ -11,7 +11,7 @@
 
 package org.eclipse.buildship.ui.internal.view.task;
 
-import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
 import org.eclipse.core.commands.ExecutionEvent;
 
@@ -25,7 +25,7 @@ public abstract class BaseRunConfigurationHandler extends SelectionDependentHand
         return TaskNodeSelectionUtils.isValidRunConfiguration(selection);
     }
 
-    protected GradleLaunchConfigurationAttributes getRunConfigurationAttributes(ExecutionEvent event) {
+    protected GradleRunConfigurationAttributes getRunConfigurationAttributes(ExecutionEvent event) {
         NodeSelection selectionHistory = getSelectionHistory(event);
         return TaskNodeSelectionUtils.getRunConfigurationAttributes(selectionHistory);
     }

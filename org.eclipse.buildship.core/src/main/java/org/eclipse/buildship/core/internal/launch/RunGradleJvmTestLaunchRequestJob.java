@@ -34,8 +34,8 @@ import org.eclipse.debug.core.ILaunchManager;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.configuration.BaseLaunchConfiguration;
-import org.eclipse.buildship.core.internal.configuration.TestLaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BaseRunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.TestRunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
@@ -44,25 +44,25 @@ import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 /**
  * Executes Gradle tasks based on a given {@code ILaunch} and {@code ILaunchConfiguration} instance.
  */
-public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
+public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
 
-    private final TestLaunchConfiguration launchConfiguration;
+    private final TestRunConfiguration runConfig;
     private final String name;
     private final String mode;
     private final boolean supportsTestDebugging;
     private final IProject project;
 
-    public TestLaunchRequestJob(ILaunchConfiguration launch, String mode) {
-        this(CorePlugin.configurationManager().loadTestLaunchConfiguration(launch), launch.getName(), mode);
+    public RunGradleJvmTestLaunchRequestJob(ILaunchConfiguration launch, String mode) {
+        this(CorePlugin.configurationManager().loadTestRunConfiguration(launch), launch.getName(), mode);
     }
 
-    private TestLaunchRequestJob(TestLaunchConfiguration launch, String name, String mode) {
+    private RunGradleJvmTestLaunchRequestJob(TestRunConfiguration launch, String name, String mode) {
         super("Launching Gradle tests");
-        this.launchConfiguration = launch;
+        this.runConfig = launch;
         this.name = name;
         this.mode = mode;
 
-        File projectDir = this.launchConfiguration.getProjectConfiguration().getProjectDir();
+        File projectDir = this.runConfig.getProjectConfiguration().getProjectDir();
         IProject candidate = CorePlugin.workspaceOperations().findProjectByLocation(projectDir).orNull();
         this.project = (candidate != null && candidate.isAccessible()) ? candidate : null;
 
@@ -75,18 +75,18 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
     }
 
     @Override
-    protected BaseLaunchConfiguration getLaunchConfiguration() {
-        return this.launchConfiguration;
+    protected BaseRunConfiguration getRunConfig() {
+        return this.runConfig;
     }
 
     @Override
     protected String getJobTaskName() {
-        return String.format("Launch Gradle tests %s", this.launchConfiguration.getTests());
+        return String.format("Launch Gradle tests %s", this.runConfig.getTests());
     }
 
     @Override
     protected ProcessDescription createProcessDescription() {
-        String processName = createProcessName(this.launchConfiguration.getTests(), this.launchConfiguration.getProjectConfiguration().getProjectDir(), this.name);
+        String processName = createProcessName(this.runConfig.getTests(), this.runConfig.getProjectConfiguration().getProjectDir(), this.name);
         return new BuildLaunchProcessDescription(processName);
     }
 
@@ -97,8 +97,8 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
 
     @Override
     protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
-        TestLauncher launcher = gradleBuild.newTestLauncher(this.launchConfiguration, progressAttributes);
-        for(String signature : this.launchConfiguration.getTests()) {
+        TestLauncher launcher = gradleBuild.newTestLauncher(this.runConfig, progressAttributes);
+        for(String signature : this.runConfig.getTests()) {
             if (signature.contains("#")) {
                 // test method
                 String[] parts = signature.split("#");
@@ -157,17 +157,11 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
 
     private static boolean isAvailable(int port) {
         try {
-            ServerSocket ss = new ServerSocket(port);
-            try {
+            try(ServerSocket ss = new ServerSocket(port)) {
                 ss.setReuseAddress(true);
-            } finally {
-                ss.close();
             }
-            DatagramSocket ds = new DatagramSocket(port);
-            try {
+            try(DatagramSocket ds = new DatagramSocket(port)) {
                 ds.setReuseAddress(true);
-            } finally {
-                ds.close();
             }
             return true;
         } catch (IOException e) {
@@ -182,10 +176,10 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
                 progressAttributes.writeConfig("[WARN] Current Gradle distribution does not support test debugging. Upgrade to 5.6 to make use of this feature");
             }
             if (this.project == null) {
-                progressAttributes.writeConfig("[WARN] Cannot initate debugging as no accessible project present at " + this.launchConfiguration.getProjectConfiguration().getProjectDir());
+                progressAttributes.writeConfig("[WARN] Cannot initate debugging as no accessible project present at " + this.runConfig.getProjectConfiguration().getProjectDir());
             }
         } else {
-            progressAttributes.writeConfig(String.format("%s: %s", "Tests", Joiner.on(", ").join(this.launchConfiguration.getTests())));
+            progressAttributes.writeConfig(String.format("%s: %s", "Tests", Joiner.on(", ").join(this.runConfig.getTests())));
         }
 
         progressAttributes.writeConfig("");
@@ -201,7 +195,7 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
     private final class BuildLaunchProcessDescription extends BaseProcessDescription {
 
         public BuildLaunchProcessDescription(String processName) {
-            super(processName, TestLaunchRequestJob.this, TestLaunchRequestJob.this.launchConfiguration);
+            super(processName, RunGradleJvmTestLaunchRequestJob.this, RunGradleJvmTestLaunchRequestJob.this.runConfig);
         }
 
         @Override
@@ -211,7 +205,7 @@ public final class TestLaunchRequestJob extends BaseLaunchRequestJob<TestLaunche
 
         @Override
         public void rerun() {
-            TestLaunchRequestJob job = new TestLaunchRequestJob(TestLaunchRequestJob.this.launchConfiguration, TestLaunchRequestJob.this.name, TestLaunchRequestJob.this.mode);
+            RunGradleJvmTestLaunchRequestJob job = new RunGradleJvmTestLaunchRequestJob(RunGradleJvmTestLaunchRequestJob.this.runConfig, RunGradleJvmTestLaunchRequestJob.this.name, RunGradleJvmTestLaunchRequestJob.this.mode);
             job.schedule();
         }
     }

@@ -45,8 +45,8 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
-import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes;
-import org.eclipse.buildship.core.internal.launch.GradleTestLaunchConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleTestRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
@@ -189,15 +189,15 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
 
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
-        GradleTestLaunchConfigurationAttributes attributes = GradleTestLaunchConfigurationAttributes.from(configuration);
+        GradleTestRunConfigurationAttributes attributes = GradleTestRunConfigurationAttributes.from(configuration);
         this.tests.setEntries(attributes.getTests());
         this.workingDirectoryText.setText(Strings.nullToEmpty(attributes.getWorkingDirExpression()));
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        GradleTestLaunchConfigurationAttributes.applyTests(this.tests.getEntries(), configuration);
-        GradleLaunchConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
+        GradleTestRunConfigurationAttributes.applyTests(this.tests.getEntries(), configuration);
+        GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
     }
 
     @SuppressWarnings("Contract")

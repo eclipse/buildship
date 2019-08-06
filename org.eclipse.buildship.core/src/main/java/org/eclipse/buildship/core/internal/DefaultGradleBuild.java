@@ -41,8 +41,8 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import org.eclipse.buildship.core.SynchronizationResult;
 import org.eclipse.buildship.core.internal.configuration.GradleArguments;
-import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration;
-import org.eclipse.buildship.core.internal.configuration.TestLaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.TestRunConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 import org.eclipse.buildship.core.internal.marker.GradleMarkerManager;
@@ -135,13 +135,13 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
     }
 
     @Override
-    public BuildLauncher newBuildLauncher(LaunchConfiguration runConfiguration, GradleProgressAttributes progressAttributes) {
+    public BuildLauncher newBuildLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes) {
         return ConnectionAwareLauncherProxy.newBuildLauncher(runConfiguration.toGradleArguments(), progressAttributes);
     }
 
     @Override
-    public TestLauncher newTestLauncher(TestLaunchConfiguration launchConfiguration, GradleProgressAttributes progressAttributes) {
-        return ConnectionAwareLauncherProxy.newTestLauncher(launchConfiguration.toGradleArguments(), progressAttributes);
+    public TestLauncher newTestLauncher(TestRunConfiguration testRunConfiguration, GradleProgressAttributes progressAttributes) {
+        return ConnectionAwareLauncherProxy.newTestLauncher(testRunConfiguration.toGradleArguments(), progressAttributes);
     }
 
     @Override

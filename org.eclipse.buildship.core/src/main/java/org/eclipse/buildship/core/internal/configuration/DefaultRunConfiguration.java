@@ -8,32 +8,18 @@
 
 package org.eclipse.buildship.core.internal.configuration;
 
-import java.io.File;
 import java.util.List;
 
-import com.google.common.base.Objects;
-
-import org.eclipse.buildship.core.GradleDistribution;
-
 /**
- * Default implementation for {@link LaunchConfiguration}.
+ * Default implementation for {@link RunConfiguration}.
  */
-class DefaultRunConfiguration implements LaunchConfiguration {
+class DefaultRunConfiguration extends AbstractRunConfiguration<RunConfigurationProperties> implements RunConfiguration {
 
-    private final ProjectConfiguration projectConfiguration;
-    private final LaunchConfigurationProperties properties;
-
-    public DefaultRunConfiguration(ProjectConfiguration projectConfiguration, LaunchConfigurationProperties properties) {
-        this.projectConfiguration = projectConfiguration;
-        this.properties = properties;
+    public DefaultRunConfiguration(ProjectConfiguration projectConfiguration, RunConfigurationProperties properties) {
+        super(projectConfiguration, properties);
     }
 
-    @Override
-    public ProjectConfiguration getProjectConfiguration() {
-        return this.projectConfiguration;
-    }
-
-    LaunchConfigurationProperties getProperties() {
+    RunConfigurationProperties getProperties() {
         return this.properties;
     }
 
@@ -42,109 +28,12 @@ class DefaultRunConfiguration implements LaunchConfiguration {
         return this.properties.getTasks();
     }
 
-    @Override
-    public GradleDistribution getGradleDistribution() {
-        if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.getGradleDistribution();
-        } else {
-            return this.projectConfiguration.getBuildConfiguration().getGradleDistribution();
-        }
-    }
-
-    @Override
-    public File getGradleUserHome() {
-        if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.getGradleUserHome();
-        } else {
-            return this.projectConfiguration.getBuildConfiguration().getGradleUserHome();
-        }
-    }
-
-    @Override
-    public File getJavaHome() {
-        if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.getJavaHome();
-        } else {
-            return this.projectConfiguration.getBuildConfiguration().getJavaHome();
-        }
-    }
-
-    @Override
-    public List<String> getJvmArguments() {
-        if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.getJvmArguments();
-        } else {
-            return this.projectConfiguration.getBuildConfiguration().getJvmArguments();
-        }
-    }
-
-    @Override
-    public List<String> getArguments() {
-        if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.getArguments();
-        } else {
-            return this.projectConfiguration.getBuildConfiguration().getArguments();
-        }
-    }
-
-    private boolean isBuildScansEnabled() {
-        if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.isBuildScansEnabled();
-        } else {
-            return this.projectConfiguration.getBuildConfiguration().isBuildScansEnabled();
-        }
-    }
-
-    private boolean isOfflineMode() {
-        if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.isOfflineMode();
-        } else {
-            return this.projectConfiguration.getBuildConfiguration().isOfflineMode();
-        }
-    }
-
-    @Override
-    public boolean isShowExecutionView() {
-        if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.isShowExecutionView();
-        } else {
-            return this.projectConfiguration.getBuildConfiguration().isShowExecutionsView();
-        }
-    }
-
-    @Override
-    public boolean isShowConsoleView() {
-        if (this.properties.isOverrideBuildSettings()) {
-            return this.properties.isShowConsoleView();
-        } else {
-            return this.projectConfiguration.getBuildConfiguration().isShowConsoleView();
-        }
-    }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DefaultRunConfiguration) {
-            DefaultRunConfiguration other = (DefaultRunConfiguration) obj;
-            return Objects.equal(this.projectConfiguration, other.projectConfiguration)
-                    && Objects.equal(this.properties, other.properties);
+            return super.equals(obj);
         }
         return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.projectConfiguration, this.properties);
-    }
-
-    @Override
-    public GradleArguments toGradleArguments() {
-        return GradleArguments.from(getProjectConfiguration().getProjectDir(),
-            getGradleDistribution(),
-            getGradleUserHome(),
-            getJavaHome(),
-            isBuildScansEnabled(),
-            isOfflineMode(),
-            getArguments(),
-            getJvmArguments());
     }
 }

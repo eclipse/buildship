@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
-import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseProject;
 
@@ -103,7 +103,7 @@ public final class RunOnImportTasksOperation {
     }
 
     private void runTasks(final List<String> tasksToRun, IProgressMonitor monitor, CancellationTokenSource tokenSource) {
-        LaunchConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
+        RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
         GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
                 .forBackgroundProcess()
                 .withFilteredProgress()

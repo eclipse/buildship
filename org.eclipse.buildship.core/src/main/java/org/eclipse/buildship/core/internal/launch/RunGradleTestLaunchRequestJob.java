@@ -30,8 +30,8 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-import org.eclipse.buildship.core.internal.configuration.BaseLaunchConfiguration;
-import org.eclipse.buildship.core.internal.configuration.TestLaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BaseRunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.TestRunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
@@ -43,9 +43,9 @@ import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<TestLauncher> {
 
     private final ImmutableList<TestOperationDescriptor> testDescriptors;
-    private final TestLaunchConfiguration runConfiguration;
+    private final TestRunConfiguration runConfiguration;
 
-    public RunGradleTestLaunchRequestJob(List<TestOperationDescriptor> testDescriptors, TestLaunchConfiguration runConfig) {
+    public RunGradleTestLaunchRequestJob(List<TestOperationDescriptor> testDescriptors, TestRunConfiguration runConfig) {
         super("Launching Gradle tests");
         this.testDescriptors = ImmutableList.copyOf(testDescriptors);
         this.runConfiguration = Preconditions.checkNotNull(runConfig);
@@ -57,7 +57,7 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
     }
 
     @Override
-    protected BaseLaunchConfiguration getLaunchConfiguration() {
+    protected BaseRunConfiguration getRunConfig() {
         return this.runConfiguration;
     }
 

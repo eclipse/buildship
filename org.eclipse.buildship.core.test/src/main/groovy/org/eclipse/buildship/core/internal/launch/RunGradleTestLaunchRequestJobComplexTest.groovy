@@ -11,7 +11,7 @@ import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
 
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration
 import org.eclipse.buildship.core.internal.event.Event
 import org.eclipse.buildship.core.internal.event.EventListener
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification;
@@ -30,7 +30,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         collectTestDescriptorsInto(descriptors)
 
         // execute a test build to obtain test operation descriptors
-        GradleLaunchConfigurationAttributes attributes = new GradleLaunchConfigurationAttributes(
+        GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
             ['clean', 'test'],
             project.getLocation().toFile().absolutePath,
             GradleDistribution.fromBuild().toString(),
@@ -44,12 +44,12 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
             false,
             false)
         ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(attributes)
-        LaunchConfiguration runConfig = CorePlugin.configurationManager().loadRunConfiguration(launchConfiguration)
+        RunConfiguration runConfig = CorePlugin.configurationManager().loadRunConfiguration(launchConfiguration)
         executeCleanTestAndWait(runConfig)
 
         when:
         // execute only the tests containing the word 'test1'
-        def testJob = new RunGradleTestLaunchRequestJob(descriptors.findAll { it.name.contains('test1') }, CorePlugin.configurationManager().loadTestLaunchConfiguration(runConfig))
+        def testJob = new RunGradleTestLaunchRequestJob(descriptors.findAll { it.name.contains('test1') }, CorePlugin.configurationManager().loadTestRunConfiguration(runConfig))
         descriptors.clear()
         testJob.schedule()
         testJob.join()
@@ -98,8 +98,8 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
         })
     }
 
-    private def executeCleanTestAndWait(LaunchConfiguration runConfig) {
-        GradleLaunchConfigurationAttributes attributes = new GradleLaunchConfigurationAttributes(
+    private def executeCleanTestAndWait(RunConfiguration runConfig) {
+        GradleRunConfigurationAttributes attributes = new GradleRunConfigurationAttributes(
             runConfig.tasks,
             runConfig.projectConfiguration.buildConfiguration.rootProjectDirectory.absolutePath,
             runConfig.projectConfiguration.buildConfiguration.gradleDistribution.toString(),

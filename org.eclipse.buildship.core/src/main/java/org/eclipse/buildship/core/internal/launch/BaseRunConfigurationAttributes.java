@@ -27,9 +27,9 @@ import org.eclipse.buildship.core.internal.util.file.FileUtils;
 import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 
 /**
- * Contains launch attributes common to all Gradle launch configurations.
+ * Contains launch attributes common to all Gradle run configurations.
  */
-public abstract class BaseLaunchConfigurationAttributes {
+public abstract class BaseRunConfigurationAttributes {
     // keys used when setting/getting attributes from an ILaunchConfiguration instance
     protected static final String WORKING_DIR = "working_dir";
     protected static final String GRADLE_DISTRIBUTION = "gradle_distribution";
@@ -55,7 +55,7 @@ public abstract class BaseLaunchConfigurationAttributes {
     protected final boolean isOffline;
     protected final boolean isBuildScansEnabled;
 
-    protected BaseLaunchConfigurationAttributes(String workingDirExpression, String gradleDistribution, String gradleUserHomeExpression,
+    protected BaseRunConfigurationAttributes(String workingDirExpression, String gradleDistribution, String gradleUserHomeExpression,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions, boolean showExecutionView, boolean showConsoleView, boolean overrideWorkspaceSettings, boolean isOffline, boolean isBuildScansEnabled) {
         this.workingDirExpression = Preconditions.checkNotNull(workingDirExpression);
         this.gradleDistribution = gradleDistribution;
@@ -261,8 +261,8 @@ public abstract class BaseLaunchConfigurationAttributes {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof GradleLaunchConfigurationAttributes) {
-            BaseLaunchConfigurationAttributes other = (BaseLaunchConfigurationAttributes) obj;
+        if (obj instanceof GradleRunConfigurationAttributes) {
+            BaseRunConfigurationAttributes other = (BaseRunConfigurationAttributes) obj;
             return Objects.equal(this.workingDirExpression, other.workingDirExpression)
                     && Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.gradleUserHomeExpression, other.gradleUserHomeExpression)

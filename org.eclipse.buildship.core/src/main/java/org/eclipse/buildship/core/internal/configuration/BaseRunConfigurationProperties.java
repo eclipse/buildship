@@ -15,7 +15,7 @@ import com.google.common.base.Objects;
 
 import org.eclipse.buildship.core.GradleDistribution;
 
-abstract class BaseLaunchConfigurationProperties {
+abstract class BaseRunConfigurationProperties {
     protected final GradleDistribution gradleDistribution;
     protected final File gradleUserHome;
     protected final File javaHome;
@@ -27,7 +27,7 @@ abstract class BaseLaunchConfigurationProperties {
     protected final boolean buildScansEnabled;
     protected final boolean offlineMode;
 
-    protected BaseLaunchConfigurationProperties(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
+    protected BaseRunConfigurationProperties(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.javaHome = javaHome;
@@ -82,8 +82,8 @@ abstract class BaseLaunchConfigurationProperties {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BaseLaunchConfigurationProperties) {
-            BaseLaunchConfigurationProperties other = (BaseLaunchConfigurationProperties) obj;
+        if (obj instanceof BaseRunConfigurationProperties) {
+            BaseRunConfigurationProperties other = (BaseRunConfigurationProperties) obj;
             return Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.gradleUserHome, other.gradleUserHome)
                     && Objects.equal(this.javaHome, other.javaHome)

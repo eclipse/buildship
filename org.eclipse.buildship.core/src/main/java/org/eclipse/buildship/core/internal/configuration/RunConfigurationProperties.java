@@ -20,11 +20,11 @@ import org.eclipse.buildship.core.GradleDistribution;
  *
  * @author Donat Csikos
  */
-final class LaunchConfigurationProperties extends BaseLaunchConfigurationProperties {
+final class RunConfigurationProperties extends BaseRunConfigurationProperties {
 
     private final List<String> tasks;
 
-    public LaunchConfigurationProperties(List<String> tasks, GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
+    public RunConfigurationProperties(List<String> tasks, GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode) {
         super(gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, showConsoleView, showExecutionsView, overrideBuildSettings, buildScansEnabled, offlineMode);
         this.tasks = tasks;
     }
@@ -36,8 +36,8 @@ final class LaunchConfigurationProperties extends BaseLaunchConfigurationPropert
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof LaunchConfigurationProperties) {
-            LaunchConfigurationProperties other = (LaunchConfigurationProperties) obj;
+        if (obj instanceof RunConfigurationProperties) {
+            RunConfigurationProperties other = (RunConfigurationProperties) obj;
             return super.equals(obj) && Objects.equal(this.tasks, other.tasks);
         }
         return false;

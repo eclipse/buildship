@@ -20,11 +20,11 @@ import org.eclipse.buildship.core.GradleDistribution;
  *
  * @author Donat Csikos
  */
-final class TestLaunchConfigurationProperties extends BaseLaunchConfigurationProperties {
+final class TestRunConfigurationProperties extends BaseRunConfigurationProperties {
 
     private final List<String> tests;
 
-    public TestLaunchConfigurationProperties(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode, List<String> tests) {
+    public TestRunConfigurationProperties(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode, List<String> tests) {
         super(gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, showConsoleView, showExecutionsView, overrideBuildSettings, buildScansEnabled, offlineMode);
         this.tests = tests;
     }
@@ -35,8 +35,8 @@ final class TestLaunchConfigurationProperties extends BaseLaunchConfigurationPro
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TestLaunchConfigurationProperties) {
-            TestLaunchConfigurationProperties other = (TestLaunchConfigurationProperties) obj;
+        if (obj instanceof TestRunConfigurationProperties) {
+            TestRunConfigurationProperties other = (TestRunConfigurationProperties) obj;
             return super.equals(obj)
                     && Objects.equal(this.tests, other.tests);
         }

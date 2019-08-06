@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.ui.internal.UiPluginConstants;
 
 /**
@@ -31,7 +31,7 @@ public final class OpenRunConfigurationHandler extends BaseRunConfigurationHandl
     @Override
     public Object execute(ExecutionEvent event) {
         // determine the set of attributes that uniquely identify a run configuration
-        GradleLaunchConfigurationAttributes configurationAttributes = getRunConfigurationAttributes(event);
+        GradleRunConfigurationAttributes configurationAttributes = getRunConfigurationAttributes(event);
 
         // create/reuse a launch configuration for the given attributes
         ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateRunConfiguration(configurationAttributes);

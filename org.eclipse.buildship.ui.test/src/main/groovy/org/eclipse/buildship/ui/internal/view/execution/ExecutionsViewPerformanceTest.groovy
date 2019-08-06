@@ -17,7 +17,7 @@ import org.eclipse.ui.IWorkbenchPage
 import org.eclipse.ui.PlatformUI
 
 import org.eclipse.buildship.core.internal.console.ProcessDescription
-import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationAttributes
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils
@@ -55,7 +55,7 @@ class ExecutionsViewPerformanceTest extends ProjectSynchronizationSpecification 
     private ProcessDescription processDescription() {
         Stub(ProcessDescription) {
             getName() >> 'test-process-description-name'
-            getConfigurationAttributes() >> GradleLaunchConfigurationAttributes.from(createGradleLaunchConfig())
+            getConfigurationAttributes() >> GradleRunConfigurationAttributes.from(createGradleLaunchConfig())
             getJob() >> new EmptyJob()
             isRerunnable() >> false
         }

@@ -23,7 +23,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate;
 import org.eclipse.buildship.ui.internal.UiPlugin;
 import org.eclipse.buildship.ui.internal.UiPluginConstants;
@@ -31,7 +31,7 @@ import org.eclipse.buildship.ui.internal.util.workbench.WorkbenchUtils;
 
 /**
  * {@link ILaunchListener} implementation showing/activating the Console View when a new Gradle build has launched and the {@link
- * LaunchConfiguration#isShowConsoleView()} setting is enabled.
+ * RunConfiguration#isShowConsoleView()} setting is enabled.
  * <p/>
  * The listener implementation is necessary since opening a view is a UI-related task and the launching is performed in the core component.
  */
@@ -39,7 +39,7 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
 
     @Override
     public void launchAdded(ILaunch launch) {
-        final Optional<LaunchConfiguration> attributes = convertToGradleRunConfigurationAttributes(launch);
+        final Optional<RunConfiguration> attributes = convertToGradleRunConfigurationAttributes(launch);
         if (attributes.isPresent() && attributes.get().isShowConsoleView()) {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 
@@ -51,7 +51,7 @@ public final class ConsoleShowingLaunchListener implements ILaunchListener {
         }
     }
 
-    private Optional<LaunchConfiguration> convertToGradleRunConfigurationAttributes(ILaunch launch) {
+    private Optional<RunConfiguration> convertToGradleRunConfigurationAttributes(ILaunch launch) {
         ILaunchConfiguration launchConfiguration = launch.getLaunchConfiguration();
         if (launchConfiguration == null) {
             return Optional.absent();

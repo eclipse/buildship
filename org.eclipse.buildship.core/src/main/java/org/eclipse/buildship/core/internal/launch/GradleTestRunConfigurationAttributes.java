@@ -28,14 +28,14 @@ import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
  * Contains the attributes that describe a Gradle run configuration.
  */
 // TODO (donat) add test coverage for new attributes
-public class GradleTestLaunchConfigurationAttributes extends BaseLaunchConfigurationAttributes {
+public class GradleTestRunConfigurationAttributes extends BaseRunConfigurationAttributes {
 
     // keys used when setting/getting attributes from an ILaunchConfiguration instance
     private static final String TEST_ClASSES = "tests";
 
     private final List<String> tests;
 
-    public GradleTestLaunchConfigurationAttributes(String workingDirExpression, String gradleDistribution, String gradleUserHomeExpression,
+    public GradleTestRunConfigurationAttributes(String workingDirExpression, String gradleDistribution, String gradleUserHomeExpression,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions,
             boolean showExecutionView, boolean showConsoleView, boolean overrideWorkspaceSettings,
             boolean isOffline, boolean isBuildScansEnabled, List<String> tests) {
@@ -65,7 +65,7 @@ public class GradleTestLaunchConfigurationAttributes extends BaseLaunchConfigura
         launchConfiguration.setAttribute(TEST_ClASSES, tests);
     }
 
-    public static GradleTestLaunchConfigurationAttributes from(ILaunchConfiguration launchConfiguration) {
+    public static GradleTestRunConfigurationAttributes from(ILaunchConfiguration launchConfiguration) {
         Preconditions.checkNotNull(launchConfiguration);
         String workingDirExpression = getStringAttribute(WORKING_DIR, "", launchConfiguration);
 
@@ -80,14 +80,14 @@ public class GradleTestLaunchConfigurationAttributes extends BaseLaunchConfigura
         boolean isOffline = getBooleanAttribute(OFFLINE_MODE, false, launchConfiguration);
         boolean isBuildScansEnabled = getBooleanAttribute(BUILD_SCANS_ENABLED, false, launchConfiguration);
         List<String> tests = getListAttribute(TEST_ClASSES, launchConfiguration);
-        return new GradleTestLaunchConfigurationAttributes(workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
+        return new GradleTestRunConfigurationAttributes(workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
                 showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, isBuildScansEnabled, tests);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof GradleTestLaunchConfigurationAttributes) {
-            GradleTestLaunchConfigurationAttributes other = (GradleTestLaunchConfigurationAttributes) obj;
+        if (obj instanceof GradleTestRunConfigurationAttributes) {
+            GradleTestRunConfigurationAttributes other = (GradleTestRunConfigurationAttributes) obj;
             return super.equals(obj)
                     && Objects.equal(this.tests, other.tests);
         }

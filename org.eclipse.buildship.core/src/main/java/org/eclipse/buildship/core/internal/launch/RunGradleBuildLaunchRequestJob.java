@@ -28,8 +28,8 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.BaseLaunchConfiguration;
-import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration;
+import org.eclipse.buildship.core.internal.configuration.BaseRunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
@@ -42,7 +42,7 @@ import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<BuildLauncher> {
 
     private final ILaunch launch;
-    private final LaunchConfiguration runConfig;
+    private final RunConfiguration runConfig;
 
     public RunGradleBuildLaunchRequestJob(ILaunch launch) {
         super("Launching Gradle tasks");
@@ -86,7 +86,7 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected BaseLaunchConfiguration getLaunchConfiguration() {
+    protected BaseRunConfiguration getRunConfig() {
        return this.runConfig;
     }
 

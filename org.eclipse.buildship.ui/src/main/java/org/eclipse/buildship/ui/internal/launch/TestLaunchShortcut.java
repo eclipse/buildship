@@ -28,8 +28,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
-import org.eclipse.buildship.core.internal.launch.GradleTestLaunchConfigurationAttributes;
-import org.eclipse.buildship.core.internal.launch.TestLaunchRequestJob;
+import org.eclipse.buildship.core.internal.launch.GradleTestRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.RunGradleJvmTestLaunchRequestJob;
 import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
 
 /**
@@ -54,18 +54,17 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         List<IMethod> methods = resolver.resolveMethods();
         if (TestLaunchShortcutValidator.validateTypesAndMethods(types, methods)) {
             IProject project = findProject(types, methods);
-            GradleTestLaunchConfigurationAttributes attributes = createLaunchConfigAttributes(project, resolver.resolveTests());
+            // TODO we should create default run config attributes via ConfigurationManager.createDefaultTestRunConfiguration(BuildConfiguraion)
+            GradleTestRunConfigurationAttributes attributes = createLaunchConfigAttributes(project, resolver.resolveTests());
             ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateTestRunConfiguration(attributes);
-
-
-            new TestLaunchRequestJob(launchConfiguration, mode).schedule();
+            new RunGradleJvmTestLaunchRequestJob(launchConfiguration, mode).schedule();
         } else {
             showNoTestsFoundDialog();
         }
     }
 
-    private static GradleTestLaunchConfigurationAttributes createLaunchConfigAttributes(IProject project, List<String> tests) {
-        return new GradleTestLaunchConfigurationAttributes(ExpressionUtils.encodeWorkspaceLocation(project),
+    private static GradleTestRunConfigurationAttributes createLaunchConfigAttributes(IProject project, List<String> tests) {
+        return new GradleTestRunConfigurationAttributes(ExpressionUtils.encodeWorkspaceLocation(project),
                                                     GradleDistribution.fromBuild().toString(),
                                                     null,
                                                     null,

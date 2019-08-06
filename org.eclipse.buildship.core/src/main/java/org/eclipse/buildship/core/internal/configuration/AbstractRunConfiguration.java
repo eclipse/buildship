@@ -16,24 +16,26 @@ import com.google.common.base.Objects;
 import org.eclipse.buildship.core.GradleDistribution;
 
 /**
- * Default implementation for {@link TestLaunchConfiguration}.
+ * Common implementation for run and test run configurations.
  */
-class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
+public class AbstractRunConfiguration<T extends BaseRunConfigurationProperties> {
 
-    private final ProjectConfiguration projectConfiguration;
-    private final TestLaunchConfigurationProperties properties;
+    protected final ProjectConfiguration projectConfiguration;
+    protected final T properties;
 
-    public DefaultTestLaunchConfiguration(ProjectConfiguration projectConfiguration, TestLaunchConfigurationProperties properties) {
+    public AbstractRunConfiguration(ProjectConfiguration projectConfiguration, T properties) {
         this.projectConfiguration = projectConfiguration;
         this.properties = properties;
     }
 
-    @Override
     public ProjectConfiguration getProjectConfiguration() {
         return this.projectConfiguration;
     }
 
-    @Override
+    T getProperties() {
+        return this.properties;
+    }
+
     public GradleDistribution getGradleDistribution() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.getGradleDistribution();
@@ -42,7 +44,6 @@ class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
         }
     }
 
-    @Override
     public File getGradleUserHome() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.getGradleUserHome();
@@ -51,7 +52,6 @@ class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
         }
     }
 
-    @Override
     public File getJavaHome() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.getJavaHome();
@@ -60,7 +60,6 @@ class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
         }
     }
 
-    @Override
     public List<String> getJvmArguments() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.getJvmArguments();
@@ -69,7 +68,6 @@ class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
         }
     }
 
-    @Override
     public List<String> getArguments() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.getArguments();
@@ -94,7 +92,6 @@ class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
         }
     }
 
-    @Override
     public boolean isShowExecutionView() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.isShowExecutionView();
@@ -103,7 +100,6 @@ class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
         }
     }
 
-    @Override
     public boolean isShowConsoleView() {
         if (this.properties.isOverrideBuildSettings()) {
             return this.properties.isShowConsoleView();
@@ -113,14 +109,9 @@ class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
     }
 
     @Override
-    public List<String> getTests() {
-        return this.properties.getTests();
-    }
-
-    @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DefaultTestLaunchConfiguration) {
-            DefaultTestLaunchConfiguration other = (DefaultTestLaunchConfiguration) obj;
+        if (obj instanceof AbstractRunConfiguration<?>) {
+            AbstractRunConfiguration<?> other = (AbstractRunConfiguration<?>) obj;
             return Objects.equal(this.projectConfiguration, other.projectConfiguration)
                     && Objects.equal(this.properties, other.properties);
         }
@@ -132,7 +123,6 @@ class DefaultTestLaunchConfiguration implements TestLaunchConfiguration {
         return Objects.hashCode(this.projectConfiguration, this.properties);
     }
 
-    @Override
     public GradleArguments toGradleArguments() {
         return GradleArguments.from(getProjectConfiguration().getProjectDir(),
             getGradleDistribution(),

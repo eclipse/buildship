@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Donat Csikos
  */
-public interface LaunchConfiguration extends BaseLaunchConfiguration {
+public interface RunConfiguration extends BaseRunConfiguration {
 
     ProjectConfiguration getProjectConfiguration();
 

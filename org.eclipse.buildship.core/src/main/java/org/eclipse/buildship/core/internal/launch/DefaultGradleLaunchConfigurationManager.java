@@ -11,6 +11,7 @@
 
 package org.eclipse.buildship.core.internal.launch;
 
+import java.io.File;
 import java.util.List;
 
 import com.google.common.base.Optional;
@@ -44,7 +45,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     }
 
     @Override
-    public Optional<ILaunchConfiguration> getRunConfiguration(GradleLaunchConfigurationAttributes configurationAttributes) {
+    public Optional<ILaunchConfiguration> getRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
         for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations(GradleRunConfigurationDelegate.ID)) {
             if (configurationAttributes.hasSameUniqueAttributes(launchConfiguration)) {
@@ -55,22 +56,22 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     }
 
     @Override
-    public ILaunchConfiguration getOrCreateRunConfiguration(GradleLaunchConfigurationAttributes configurationAttributes) {
+    public ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
         Optional<ILaunchConfiguration> launchConfiguration = getRunConfiguration(configurationAttributes);
         return launchConfiguration.isPresent() ? launchConfiguration.get() : createLaunchConfiguration(configurationAttributes);
     }
 
     @Override
-    public ILaunchConfiguration getOrCreateTestRunConfiguration(GradleTestLaunchConfigurationAttributes configurationAttributes) {
+    public ILaunchConfiguration getOrCreateTestRunConfiguration(GradleTestRunConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
         Optional<ILaunchConfiguration> launchConfiguration = getTestLaunchConfiguration(configurationAttributes);
         return launchConfiguration.isPresent() ? launchConfiguration.get() : createTestLaunchConfiguration(configurationAttributes);
     }
 
-    private Optional<ILaunchConfiguration> getTestLaunchConfiguration(GradleTestLaunchConfigurationAttributes configurationAttributes) {
+    private Optional<ILaunchConfiguration> getTestLaunchConfiguration(GradleTestRunConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
-        for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations(GradleTestLaunchConfigurationDelegate.ID)) {
+        for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations(GradleTestRunConfigurationDelegate.ID)) {
             if (configurationAttributes.hasSameUniqueAttributes(launchConfiguration)) {
                 return Optional.of(launchConfiguration);
             }
@@ -78,7 +79,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         return Optional.absent();
     }
 
-    private ILaunchConfiguration createLaunchConfiguration(GradleLaunchConfigurationAttributes configurationAttributes) {
+    private ILaunchConfiguration createLaunchConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         // derive the name of the launch configuration from the configuration attributes
         // since the launch configuration name must not contain ':', we replace all ':' with '.'
         String taskNamesOrDefault = configurationAttributes.getTasks().isEmpty() ? "(default tasks)" : CollectionsUtils.joinWithSpace(configurationAttributes.getTasks());
@@ -100,20 +101,12 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         }
     }
 
-    private ILaunchConfiguration createTestLaunchConfiguration(GradleTestLaunchConfigurationAttributes configurationAttributes) {
+    private ILaunchConfiguration createTestLaunchConfiguration(GradleTestRunConfigurationAttributes configurationAttributes) {
         List<String> tests = configurationAttributes.getTests();
-        String rawLaunchConfigurationName;
-        if (tests.isEmpty()) {
-            rawLaunchConfigurationName = configurationAttributes.getWorkingDir().getName();
-        } else {
-            String firstTest = tests.get(0);
-            int idxMethodSep = firstTest.indexOf('#') + 1;
-            int idxLastDotStep = firstTest.lastIndexOf('.') + 1;
-            rawLaunchConfigurationName = (idxMethodSep > 0 ? firstTest.substring(idxMethodSep) : firstTest.substring(idxLastDotStep)) + ( tests.size() > 1 ? " (and " + (tests.size() - 1) + " more)" : "");
-        }
+        String rawLaunchConfigurationName = testRunConfigName(configurationAttributes.getWorkingDir(), tests);
 
         String launchConfigurationName = this.launchManager.generateLaunchConfigurationName(rawLaunchConfigurationName.replace(':', '.'));
-        ILaunchConfigurationType launchConfigurationType = this.launchManager.getLaunchConfigurationType(GradleTestLaunchConfigurationDelegate.ID);
+        ILaunchConfigurationType launchConfigurationType = this.launchManager.getLaunchConfigurationType(GradleTestRunConfigurationDelegate.ID);
 
         try {
             // create new launch configuration instance
@@ -127,6 +120,20 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot create Gradle launch configuration %s.", launchConfigurationName), e);
         }
+    }
+
+    private String testRunConfigName(File workingDir, List<String> tests) {
+        // TODO (donat) add test coverage
+        String rawLaunchConfigurationName;
+        if (tests.isEmpty()) {
+            rawLaunchConfigurationName = workingDir.getName();
+        } else {
+            String firstTest = tests.get(0);
+            int idxMethodSep = firstTest.indexOf('#') + 1;
+            int idxLastDotStep = firstTest.lastIndexOf('.') + 1;
+            rawLaunchConfigurationName = (idxMethodSep > 0 ? firstTest.substring(idxMethodSep) : firstTest.substring(idxLastDotStep)) + ( tests.size() > 1 ? " (and " + (tests.size() - 1) + " more)" : "");
+        }
+        return rawLaunchConfigurationName;
     }
 
     private ILaunchConfiguration persistConfiguration(ILaunchConfigurationWorkingCopy launchConfiguration) {

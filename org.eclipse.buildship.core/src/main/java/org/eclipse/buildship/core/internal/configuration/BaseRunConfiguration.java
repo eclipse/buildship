@@ -14,9 +14,9 @@ import java.util.List;
 import org.eclipse.buildship.core.GradleDistribution;
 
 /**
- * Contains properties all launch configurations share.
+ * Contains properties all run configurations share.
  */
-public interface BaseLaunchConfiguration {
+public interface BaseRunConfiguration {
 
     ProjectConfiguration getProjectConfiguration();
 

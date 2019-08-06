@@ -6,7 +6,7 @@ import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.jdt.core.IType
 
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.configuration.LaunchConfiguration
+import org.eclipse.buildship.core.internal.configuration.RunConfiguration
 
 class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
@@ -30,7 +30,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
     def "Job launches a Gradle test"() {
         setup:
-        def job = new TestLaunchRequestJob(createRunConfigurationMock(), "run")
+        def job = new RunGradleJvmTestLaunchRequestJob(createRunConfigurationMock(), "run")
 
         when:
         job.schedule()
@@ -44,7 +44,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
     def "Job prints its configuration"() {
         setup:
-        def job = new TestLaunchRequestJob(createRunConfigurationMock(), "run")
+        def job = new RunGradleJvmTestLaunchRequestJob(createRunConfigurationMock(), "run")
 
         when:
         job.schedule()
