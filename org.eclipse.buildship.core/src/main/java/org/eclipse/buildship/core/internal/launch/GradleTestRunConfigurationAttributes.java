@@ -23,6 +23,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.configuration.Test;
 
 /**
  * Contains the attributes that describe a Gradle run configuration.
@@ -33,24 +34,28 @@ public class GradleTestRunConfigurationAttributes extends BaseRunConfigurationAt
     // keys used when setting/getting attributes from an ILaunchConfiguration instance
     private static final String TEST_ClASSES = "tests";
 
-    private final List<String> tests;
+    private final List<String> testNames;
 
     public GradleTestRunConfigurationAttributes(String workingDirExpression, String gradleDistribution, String gradleUserHomeExpression,
             String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions,
             boolean showExecutionView, boolean showConsoleView, boolean overrideWorkspaceSettings,
-            boolean isOffline, boolean isBuildScansEnabled, List<String> tests) {
+            boolean isOffline, boolean isBuildScansEnabled, List<String> testNames) {
         super(workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions, showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, isBuildScansEnabled);
-        this.tests = tests;
+        this.testNames = testNames;
     }
 
-    public List<String> getTests() {
-        return this.tests;
+    public List<String> getTestNames() {
+        return this.testNames;
+    }
+
+    public List<Test> getTests() {
+        return Test.fromString(this.testNames);
     }
 
     public boolean hasSameUniqueAttributes(ILaunchConfiguration launchConfiguration) {
         try {
                 return this.workingDirExpression.equals(launchConfiguration.getAttribute(WORKING_DIR, ""))
-                        && this.tests.equals(launchConfiguration.getAttribute(TEST_ClASSES, Collections.<String>emptyList()));
+                        && this.testNames.equals(launchConfiguration.getAttribute(TEST_ClASSES, Collections.<String>emptyList()));
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot read Gradle launch configuration %s.", launchConfiguration), e);
         }
@@ -58,11 +63,11 @@ public class GradleTestRunConfigurationAttributes extends BaseRunConfigurationAt
 
     public void apply(ILaunchConfigurationWorkingCopy launchConfiguration) {
         super.apply(launchConfiguration);
-        applyTests(this.tests, launchConfiguration);
+        applyTestNames(this.testNames, launchConfiguration);
     }
 
-    public static void applyTests(List<String> tests, ILaunchConfigurationWorkingCopy launchConfiguration) {
-        launchConfiguration.setAttribute(TEST_ClASSES, tests);
+    public static void applyTestNames(List<String> testNames, ILaunchConfigurationWorkingCopy launchConfiguration) {
+        launchConfiguration.setAttribute(TEST_ClASSES, testNames);
     }
 
     public static GradleTestRunConfigurationAttributes from(ILaunchConfiguration launchConfiguration) {
@@ -79,9 +84,10 @@ public class GradleTestRunConfigurationAttributes extends BaseRunConfigurationAt
         boolean overrideWorkspaceSettings = getBooleanAttribute(OVERRIDE_BUILD_SETTINGS, false, launchConfiguration);
         boolean isOffline = getBooleanAttribute(OFFLINE_MODE, false, launchConfiguration);
         boolean isBuildScansEnabled = getBooleanAttribute(BUILD_SCANS_ENABLED, false, launchConfiguration);
-        List<String> tests = getListAttribute(TEST_ClASSES, launchConfiguration);
+        List<String> testNames = getListAttribute(TEST_ClASSES, launchConfiguration);
+
         return new GradleTestRunConfigurationAttributes(workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
-                showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, isBuildScansEnabled, tests);
+                showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, isBuildScansEnabled, testNames);
     }
 
     @Override
@@ -89,14 +95,14 @@ public class GradleTestRunConfigurationAttributes extends BaseRunConfigurationAt
         if (obj instanceof GradleTestRunConfigurationAttributes) {
             GradleTestRunConfigurationAttributes other = (GradleTestRunConfigurationAttributes) obj;
             return super.equals(obj)
-                    && Objects.equal(this.tests, other.tests);
+                    && Objects.equal(this.testNames, other.testNames);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), this.tests);
+        return Objects.hashCode(super.hashCode(), this.testNames);
     }
 
 }

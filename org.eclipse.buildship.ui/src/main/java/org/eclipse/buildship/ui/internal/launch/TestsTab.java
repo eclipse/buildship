@@ -190,13 +190,13 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         GradleTestRunConfigurationAttributes attributes = GradleTestRunConfigurationAttributes.from(configuration);
-        this.tests.setEntries(attributes.getTests());
+        this.tests.setEntries(attributes.getTestNames());
         this.workingDirectoryText.setText(Strings.nullToEmpty(attributes.getWorkingDirExpression()));
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        GradleTestRunConfigurationAttributes.applyTests(this.tests.getEntries(), configuration);
+        GradleTestRunConfigurationAttributes.applyTestNames(this.tests.getEntries(), configuration);
         GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
     }
 

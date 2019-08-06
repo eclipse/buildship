@@ -35,6 +35,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.BaseRunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.Test;
 import org.eclipse.buildship.core.internal.configuration.TestRunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
@@ -90,7 +91,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
         return new BuildLaunchProcessDescription(processName);
     }
 
-    private String createProcessName(List<String> tests, File workingDir, String launchConfigurationName) {
+    private String createProcessName(List<Test> tests, File workingDir, String launchConfigurationName) {
         return String.format("%s [Gradle Test] %s in %s (%s)", launchConfigurationName, Joiner.on(' ').join(tests), workingDir.getAbsolutePath(), DateFormat
                 .getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).format(new Date()));
     }
@@ -98,18 +99,8 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
     @Override
     protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
         TestLauncher launcher = gradleBuild.newTestLauncher(this.runConfig, progressAttributes);
-        for(String signature : this.runConfig.getTests()) {
-            if (signature.contains("#")) {
-                // test method
-                String[] parts = signature.split("#");
-                if (parts.length == 2 && !parts[0].isEmpty() && !parts[1].isEmpty()) {
-                    launcher.withJvmTestMethods(parts[0], parts[1]);
-                }
-            } else {
-                // test class
-                launcher.withJvmTestClasses(signature);
-            }
-
+        for(Test test : this.runConfig.getTests()) {
+           test.apply(launcher);
         }
         return launcher;
     }

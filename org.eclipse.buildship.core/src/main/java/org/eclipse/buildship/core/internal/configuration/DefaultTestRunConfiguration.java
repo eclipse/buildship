@@ -20,7 +20,7 @@ class DefaultTestRunConfiguration extends AbstractRunConfiguration<TestRunConfig
     }
 
     @Override
-    public List<String> getTests() {
+    public List<Test> getTests() {
         return this.properties.getTests();
     }
 

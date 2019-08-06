@@ -27,6 +27,7 @@ import org.eclipse.debug.core.ILaunchManager;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.configuration.Test;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 
 /**
@@ -102,7 +103,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     }
 
     private ILaunchConfiguration createTestLaunchConfiguration(GradleTestRunConfigurationAttributes configurationAttributes) {
-        List<String> tests = configurationAttributes.getTests();
+        List<Test> tests = configurationAttributes.getTests();
         String rawLaunchConfigurationName = testRunConfigName(configurationAttributes.getWorkingDir(), tests);
 
         String launchConfigurationName = this.launchManager.generateLaunchConfigurationName(rawLaunchConfigurationName.replace(':', '.'));
@@ -122,16 +123,13 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         }
     }
 
-    private String testRunConfigName(File workingDir, List<String> tests) {
+    private String testRunConfigName(File workingDir, List<Test> tests) {
         // TODO (donat) add test coverage
         String rawLaunchConfigurationName;
         if (tests.isEmpty()) {
             rawLaunchConfigurationName = workingDir.getName();
         } else {
-            String firstTest = tests.get(0);
-            int idxMethodSep = firstTest.indexOf('#') + 1;
-            int idxLastDotStep = firstTest.lastIndexOf('.') + 1;
-            rawLaunchConfigurationName = (idxMethodSep > 0 ? firstTest.substring(idxMethodSep) : firstTest.substring(idxLastDotStep)) + ( tests.size() > 1 ? " (and " + (tests.size() - 1) + " more)" : "");
+            rawLaunchConfigurationName = tests.get(0).getSimpleName() + ( tests.size() > 1 ? " (and " + (tests.size() - 1) + " more)" : "");
         }
         return rawLaunchConfigurationName;
     }

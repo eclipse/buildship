@@ -22,14 +22,14 @@ import org.eclipse.buildship.core.GradleDistribution;
  */
 final class TestRunConfigurationProperties extends BaseRunConfigurationProperties {
 
-    private final List<String> tests;
+    private final List<Test> tests;
 
-    public TestRunConfigurationProperties(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode, List<String> tests) {
+    public TestRunConfigurationProperties(GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, List<String> jvmArguments, List<String> arguments, boolean showConsoleView, boolean showExecutionsView, boolean overrideBuildSettings, boolean buildScansEnabled, boolean offlineMode, List<Test> tests) {
         super(gradleDistribution, gradleUserHome, javaHome, jvmArguments, arguments, showConsoleView, showExecutionsView, overrideBuildSettings, buildScansEnabled, offlineMode);
         this.tests = tests;
     }
 
-    public List<String> getTests() {
+    public List<Test> getTests() {
         return this.tests;
     }
 
