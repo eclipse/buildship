@@ -63,11 +63,11 @@ class GradleBuildConnectionConcurrencyTest extends ProjectSynchronizationSpecifi
         }
 
         protected IStatus run(IProgressMonitor monitor) {
-
             Function action = { ProjectConnection c -> c.newBuild().forTasks("jar").addArguments("--continuous").withCancellationToken(cancellation.token()).setStandardOutput(out).setStandardError(err).setStandardInput(mockedInput()).run() }
             gradleBuild.withConnection(action, monitor)
             Status.OK_STATUS
         }
+
         protected void canceling() {
             cancellation.cancel()
         }
