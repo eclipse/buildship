@@ -5,10 +5,11 @@ import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.internal.test.fixtures.TestProcessStreamProvider
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
-class BaseLaunchRequestJobTest extends WorkspaceSpecification {
+class BaseLaunchRequestJobTest extends ProjectSynchronizationSpecification {
 
     def setup() {
         environment.registerService(ProcessStreamsProvider, new TestProcessStreamProvider() {})

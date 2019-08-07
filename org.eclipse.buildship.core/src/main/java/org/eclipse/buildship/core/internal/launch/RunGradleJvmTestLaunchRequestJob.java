@@ -25,6 +25,7 @@ import com.google.common.base.Joiner;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -64,8 +65,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
         this.mode = mode;
 
         File projectDir = this.runConfig.getProjectConfiguration().getProjectDir();
-        IProject candidate = CorePlugin.workspaceOperations().findProjectByLocation(projectDir).orNull();
-        this.project = (candidate != null && candidate.isAccessible()) ? candidate : null;
+        this.project = CorePlugin.workspaceOperations().findProjectByLocation(projectDir).orNull();
 
         if (this.project != null) {
             PersistentModel model = CorePlugin.modelPersistence().loadModel(this.project);
@@ -107,17 +107,24 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
 
     @Override
     protected void executeLaunch(TestLauncher launcher) {
-         if (this.project != null && launchedInDebugMode() && this.supportsTestDebugging) {
-            try {
-                int port = findAvailablePort();
-                ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-                ILaunch debuggerSession = startDebuggerSession(launchManager, port);
-                launcher.debugTestsOn(port);
-                launcher.run();
-                debuggerSession.terminate();
-                launchManager.removeLaunch(debuggerSession);
+         if (this.project != null && this.project.isAccessible() && launchedInDebugMode() && this.supportsTestDebugging) {
+             ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+             ILaunch debuggerSession = null;
+             try {
+                 int port = findAvailablePort();
+                 debuggerSession = startDebuggerSession(launchManager, port);
+                 launcher.debugTestsOn(port);
+                 launcher.run();
             } catch (CoreException e) {
                 CorePlugin.logger().warn("Failed to launch debugger", e);
+            } finally {
+                if (debuggerSession != null) {
+                    try {
+                        debuggerSession.terminate();
+                    } catch (DebugException ignore) {
+                    }
+                    launchManager.removeLaunch(debuggerSession);
+                }
             }
         } else {
             launcher.run();
@@ -166,7 +173,7 @@ public final class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequestJob
             if (!this.supportsTestDebugging) {
                 progressAttributes.writeConfig("[WARN] Current Gradle distribution does not support test debugging. Upgrade to 5.6 to make use of this feature");
             }
-            if (this.project == null) {
+            if (this.project == null || !this.project.isAccessible()) {
                 progressAttributes.writeConfig("[WARN] Cannot initate debugging as no accessible project present at " + this.runConfig.getProjectConfiguration().getProjectDir());
             }
         } else {
