@@ -951,7 +951,7 @@ public class GradleImportTaskImpl extends SetupTaskImpl implements GradleImportT
         result.append(')');
         return result.toString();
     }
-    
+
     @Override
     public boolean isNeeded(SetupTaskContext arg0) throws Exception {
         throw new UnsupportedOperationException("This class needs to be subclassed.");

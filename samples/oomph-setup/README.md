@@ -13,7 +13,7 @@ supplying the eclipse installer with the following parameters (e.g. via eclipse-
 
 ```ini
 -Doomph.redirection.bs=https://raw.githubusercontent.com/eclipse/buildship/master/org.eclipse.buildship.oomph/model/GradleImport-1.0.ecore->file:/<path to builship checkout>/org.eclipse.buildship.oomph/model/GradleImport-1.0.ecore
--Doomph.redirection.p2.buildship=https://download.eclipse.org/buildship/updates/e411/releases->file:/<path to builship checkout>/org.eclipse.buildship.site/build/repository
+-Doomph.redirection.p2.buildship=https://download.eclipse.org/buildship/updates/latest->file:/<path to builship checkout>/org.eclipse.buildship.site/build/repository
 ```
 
 Replace `<path to builship checkout>` with the location of your buildship checkout.

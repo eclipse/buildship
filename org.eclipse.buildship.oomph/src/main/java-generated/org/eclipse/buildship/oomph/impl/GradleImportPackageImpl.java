@@ -466,10 +466,10 @@ public class GradleImportPackageImpl extends EPackageImpl implements GradleImpor
      */
     protected void createEnablementAnnotations() {
         String source = "http://www.eclipse.org/oomph/setup/Enablement";
-        addAnnotation(gradleImportTaskEClass, source, new String[] { "variableName", "setup.buildship.p2", "repository",
-                "https://download.eclipse.org/buildship/updates/e411/releases", "installableUnits", "org.eclipse.buildship.feature.group" });
+        addAnnotation(gradleImportTaskEClass, source, new String[] { "variableName", "setup.buildship.p2", "repository", "https://download.eclipse.org/buildship/updates/latest",
+                "installableUnits", "org.eclipse.buildship.feature.group" });
         addAnnotation(gradleImportTaskEClass, source, new String[] { "variableName", "setup.buildship.oomph.p2", "repository",
-                "https://download.eclipse.org/buildship/updates/e411/releases", "installableUnits", "org.eclipse.buildship.oomph.feature.group" });
+                "https://download.eclipse.org/buildship/updates/latest", "installableUnits", "org.eclipse.buildship.oomph.feature.group" });
     }
 
     /**

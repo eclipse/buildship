@@ -55,11 +55,11 @@ import org.eclipse.oomph.setup.SetupTask;
  * @model annotation="http://www.eclipse.org/oomph/setup/ValidTriggers triggers='STARTUP MANUAL'"
  *        annotation="http://www.eclipse.org/oomph/setup/Enablement
  *        variableName='setup.buildship.p2'
- *        repository='https://download.eclipse.org/buildship/updates/e411/releases'
+ *        repository='https://download.eclipse.org/buildship/updates/latest'
  *        installableUnits='org.eclipse.buildship.feature.group'"
  *        annotation="http://www.eclipse.org/oomph/setup/Enablement
  *        variableName='setup.buildship.oomph.p2'
- *        repository='https://download.eclipse.org/buildship/updates/e411/releases'
+ *        repository='https://download.eclipse.org/buildship/updates/latest'
  *        installableUnits='org.eclipse.buildship.oomph.feature.group'"
  * @generated
  */
