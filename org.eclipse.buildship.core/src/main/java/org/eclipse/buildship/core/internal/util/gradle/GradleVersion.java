@@ -257,6 +257,10 @@ public final class GradleVersion implements Comparable<GradleVersion> {
         return getBaseVersion().compareTo(GradleVersion.version("5.6")) >= 0;
     }
 
+    public boolean supportsTestDebugging() {
+        return getBaseVersion().compareTo(GradleVersion.version("5.6")) >= 0;
+    }
+
     /**
      * Utility class to compare snapshot/milesone/rc releases.
      */

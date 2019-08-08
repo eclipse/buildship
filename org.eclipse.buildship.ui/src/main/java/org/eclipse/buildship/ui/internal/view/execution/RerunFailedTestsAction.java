@@ -29,7 +29,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.Action;
 
-import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.TestRunConfiguration;
 import org.eclipse.buildship.core.internal.launch.RunGradleTestLaunchRequestJob;
 import org.eclipse.buildship.ui.internal.PluginImage.ImageState;
 import org.eclipse.buildship.ui.internal.PluginImages;
@@ -77,7 +78,7 @@ public final class RerunFailedTestsAction extends Action {
     public void run() {
         List<TestOperationDescriptor> failedTests = collectFailedTests();
         List<TestOperationDescriptor> filteredFailedTests = GradleUtils.filterChildren(failedTests);
-        RunConfiguration runConfig = this.page.getProcessDescription().getRunConfig();
+        TestRunConfiguration runConfig = CorePlugin.configurationManager().loadTestRunConfiguration(this.page.getProcessDescription().getRunConfig());
         RunGradleTestLaunchRequestJob job = new RunGradleTestLaunchRequestJob(filteredFailedTests, runConfig);
         job.schedule();
     }

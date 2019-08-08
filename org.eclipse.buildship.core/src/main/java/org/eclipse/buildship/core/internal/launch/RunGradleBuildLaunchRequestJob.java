@@ -28,6 +28,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.BaseRunConfiguration;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
@@ -55,11 +56,6 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected RunConfiguration getRunConfig() {
-        return this.runConfig;
-    }
-
-    @Override
     protected ProcessDescription createProcessDescription() {
         String processName = createProcessName(this.runConfig.getTasks(), this.runConfig.getProjectConfiguration().getProjectDir(), this.launch.getLaunchConfiguration().getName());
         return new BuildLaunchProcessDescription(processName);
@@ -71,8 +67,8 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected BuildLauncher createLaunch(InternalGradleBuild gradleBuild, RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
-        BuildLauncher launcher = gradleBuild.newBuildLauncher(runConfiguration, progressAttributes);
+    protected BuildLauncher createLaunch(InternalGradleBuild gradleBuild, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
+        BuildLauncher launcher = gradleBuild.newBuildLauncher(this.runConfig, progressAttributes);
         launcher.forTasks(RunGradleBuildLaunchRequestJob.this.runConfig.getTasks().toArray(new String[0]));
         return launcher;
     }
@@ -87,6 +83,11 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
         String taskNames = Strings.emptyToNull(CollectionsUtils.joinWithSpace(this.runConfig.getTasks()));
         taskNames = taskNames != null ? taskNames : CoreMessages.RunConfiguration_Value_RunDefaultTasks;
         progressAttributes.writeConfig(String.format("%s: %s%n", CoreMessages.RunConfiguration_Label_GradleTasks, taskNames));
+    }
+
+    @Override
+    protected BaseRunConfiguration getRunConfig() {
+       return this.runConfig;
     }
 
     /**

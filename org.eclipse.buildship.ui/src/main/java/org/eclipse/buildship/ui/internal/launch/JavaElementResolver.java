@@ -11,19 +11,32 @@
 
 package org.eclipse.buildship.ui.internal.launch;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.core.*;
-
-import java.util.Collection;
-import java.util.List;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 
 /**
  * Base class to resolve {@link IMethod} and {@link IType} instances.
  */
 public abstract class JavaElementResolver {
+
+    public final List<String> resolveTests() {
+        return ImmutableList.<String>builder()
+            .addAll(resolveTypes().stream().map(t -> t.getFullyQualifiedName()).collect(Collectors.toList()))
+            .addAll(resolveMethods().stream().map(m -> m.getDeclaringType().getFullyQualifiedName() + "#" + m.getElementName()).collect(Collectors.toList()))
+            .build();
+    }
 
     /**
      * Resolves the items returned by {@link #findJavaElements()} to {@link IMethod} instances.

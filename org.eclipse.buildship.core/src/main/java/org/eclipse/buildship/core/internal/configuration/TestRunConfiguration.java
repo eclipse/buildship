@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 the original author or authors.
+ * Copyright (c) 2019 the original author or authors.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,9 +15,7 @@ import java.util.List;
  *
  * @author Donat Csikos
  */
-public interface RunConfiguration extends BaseRunConfiguration {
+public interface TestRunConfiguration extends BaseRunConfiguration {
 
-    ProjectConfiguration getProjectConfiguration();
-
-    List<String> getTasks();
+    List<Test> getTests();
 }

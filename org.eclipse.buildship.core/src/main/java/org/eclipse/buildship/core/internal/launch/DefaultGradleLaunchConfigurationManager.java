@@ -11,6 +11,9 @@
 
 package org.eclipse.buildship.core.internal.launch;
 
+import java.io.File;
+import java.util.List;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
@@ -24,6 +27,7 @@ import org.eclipse.debug.core.ILaunchManager;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
+import org.eclipse.buildship.core.internal.configuration.Test;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 
 /**
@@ -44,7 +48,7 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
     @Override
     public Optional<ILaunchConfiguration> getRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         Preconditions.checkNotNull(configurationAttributes);
-        for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations()) {
+        for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations(GradleRunConfigurationDelegate.ID)) {
             if (configurationAttributes.hasSameUniqueAttributes(launchConfiguration)) {
                 return Optional.of(launchConfiguration);
             }
@@ -57,6 +61,23 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         Preconditions.checkNotNull(configurationAttributes);
         Optional<ILaunchConfiguration> launchConfiguration = getRunConfiguration(configurationAttributes);
         return launchConfiguration.isPresent() ? launchConfiguration.get() : createLaunchConfiguration(configurationAttributes);
+    }
+
+    @Override
+    public ILaunchConfiguration getOrCreateTestRunConfiguration(GradleTestRunConfigurationAttributes configurationAttributes) {
+        Preconditions.checkNotNull(configurationAttributes);
+        Optional<ILaunchConfiguration> launchConfiguration = getTestLaunchConfiguration(configurationAttributes);
+        return launchConfiguration.isPresent() ? launchConfiguration.get() : createTestLaunchConfiguration(configurationAttributes);
+    }
+
+    private Optional<ILaunchConfiguration> getTestLaunchConfiguration(GradleTestRunConfigurationAttributes configurationAttributes) {
+        Preconditions.checkNotNull(configurationAttributes);
+        for (ILaunchConfiguration launchConfiguration : getGradleLaunchConfigurations(GradleTestRunConfigurationDelegate.ID)) {
+            if (configurationAttributes.hasSameUniqueAttributes(launchConfiguration)) {
+                return Optional.of(launchConfiguration);
+            }
+        }
+        return Optional.absent();
     }
 
     private ILaunchConfiguration createLaunchConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
@@ -81,6 +102,38 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         }
     }
 
+    private ILaunchConfiguration createTestLaunchConfiguration(GradleTestRunConfigurationAttributes configurationAttributes) {
+        List<Test> tests = configurationAttributes.getTests();
+        String rawLaunchConfigurationName = testRunConfigName(configurationAttributes.getWorkingDir(), tests);
+
+        String launchConfigurationName = this.launchManager.generateLaunchConfigurationName(rawLaunchConfigurationName.replace(':', '.'));
+        ILaunchConfigurationType launchConfigurationType = this.launchManager.getLaunchConfigurationType(GradleTestRunConfigurationDelegate.ID);
+
+        try {
+            // create new launch configuration instance
+            ILaunchConfigurationWorkingCopy launchConfiguration = launchConfigurationType.newInstance(null, launchConfigurationName);
+
+            // configure the launch configuration
+            configurationAttributes.apply(launchConfiguration);
+
+            // try to persist the launch configuration and return it
+            return persistConfiguration(launchConfiguration);
+        } catch (CoreException e) {
+            throw new GradlePluginsRuntimeException(String.format("Cannot create Gradle launch configuration %s.", launchConfigurationName), e);
+        }
+    }
+
+    private String testRunConfigName(File workingDir, List<Test> tests) {
+        // TODO (donat) add test coverage
+        String rawLaunchConfigurationName;
+        if (tests.isEmpty()) {
+            rawLaunchConfigurationName = workingDir.getName();
+        } else {
+            rawLaunchConfigurationName = tests.get(0).getSimpleName() + ( tests.size() > 1 ? " (and " + (tests.size() - 1) + " more)" : "");
+        }
+        return rawLaunchConfigurationName;
+    }
+
     private ILaunchConfiguration persistConfiguration(ILaunchConfigurationWorkingCopy launchConfiguration) {
         try {
             return launchConfiguration.doSave();
@@ -90,8 +143,8 @@ public final class DefaultGradleLaunchConfigurationManager implements GradleLaun
         }
     }
 
-    private ILaunchConfiguration[] getGradleLaunchConfigurations() {
-        ILaunchConfigurationType launchConfigurationType = this.launchManager.getLaunchConfigurationType(GradleRunConfigurationDelegate.ID);
+    private ILaunchConfiguration[] getGradleLaunchConfigurations(String launchConfigID) {
+        ILaunchConfigurationType launchConfigurationType = this.launchManager.getLaunchConfigurationType(launchConfigID);
 
         try {
             return this.launchManager.getLaunchConfigurations(launchConfigurationType);

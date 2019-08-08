@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
+import org.eclipse.buildship.core.internal.configuration.TestRunConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 
 /**
@@ -54,7 +55,7 @@ public interface InternalGradleBuild extends GradleBuild {
      * @param progressAttributes the progress attributes for the launcher.
      * @return the test launcher
      */
-    TestLauncher newTestLauncher(RunConfiguration runConfiguration, GradleProgressAttributes progressAttributes);
+    TestLauncher newTestLauncher(TestRunConfiguration runConfiguration, GradleProgressAttributes progressAttributes);
 
     /**
      * Returns build config used for this build.

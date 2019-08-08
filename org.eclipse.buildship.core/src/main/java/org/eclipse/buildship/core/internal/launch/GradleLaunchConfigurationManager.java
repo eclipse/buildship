@@ -41,6 +41,16 @@ public interface GradleLaunchConfigurationManager {
     ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes);
 
     /**
+     * Returns either a new Gradle {@link ILaunchConfiguration} instance or an existing one,
+     * depending on whether there is already a Gradle test run configuration for the given set of
+     * attributes or not. The result is saved to the disk.
+     *
+     * @param configurationAttributes the launch configuration attributes, must not be not null
+     * @return the new or existing Gradle test launch configuration
+     */
+    ILaunchConfiguration getOrCreateTestRunConfiguration(GradleTestRunConfigurationAttributes configurationAttributes);
+
+    /**
      * Launches the given target configuration.
      *
      * @param configuration the launch configuration to launch

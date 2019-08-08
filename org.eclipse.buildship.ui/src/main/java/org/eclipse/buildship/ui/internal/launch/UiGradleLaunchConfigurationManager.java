@@ -17,8 +17,9 @@ import com.google.common.base.Preconditions;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.DebugUITools;
 
-import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.internal.launch.GradleTestRunConfigurationAttributes;
 
 /**
  * Decorates an original {@link GradleLaunchConfigurationManager} such that the
@@ -41,6 +42,12 @@ public final class UiGradleLaunchConfigurationManager implements GradleLaunchCon
     @Override
     public ILaunchConfiguration getOrCreateRunConfiguration(GradleRunConfigurationAttributes configurationAttributes) {
         return this.delegate.getOrCreateRunConfiguration(configurationAttributes);
+    }
+
+
+    @Override
+    public ILaunchConfiguration getOrCreateTestRunConfiguration(GradleTestRunConfigurationAttributes configurationAttributes) {
+        return this.delegate.getOrCreateTestRunConfiguration(configurationAttributes);
     }
 
     @Override
