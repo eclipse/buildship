@@ -52,7 +52,7 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
     private void launch(JavaElementResolver resolver, String mode) {
         List<IType> types = resolver.resolveTypes();
         List<IMethod> methods = resolver.resolveMethods();
-        if (TestLaunchShortcutValidator.validateTypesAndMethods(types, methods)) {
+        if (TestLaunchShortcutValidator.canExecuteTestOn(types, methods, mode)) {
             IProject project = findProject(types, methods);
             GradleTestRunConfigurationAttributes attributes = createLaunchConfigAttributes(project, resolver.resolveTests());
             ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateTestRunConfiguration(attributes);

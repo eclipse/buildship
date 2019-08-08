@@ -76,7 +76,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
     }
 
     private boolean testLaunchShortcutEnabledOn(Object... receiver) {
-        new PropertyTester().test(Arrays.asList(receiver), PropertyTester.PROPERTY_NAME_SELECTION_CAN_BE_LAUNCHED_AS_TEST, new Object[0], null)
+        new PropertyTester().test(Arrays.asList(receiver), PropertyTester.PROPERTY_NAME_SELECTION_CAN_EXECUTE_TEST_RUN, new Object[0], null)
     }
 
 }

@@ -27,8 +27,10 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
 
 /**
@@ -39,16 +41,25 @@ public final class TestLaunchShortcutValidator {
     private TestLaunchShortcutValidator() {
     }
 
-    /**
-     * Validates the target types and methods can be used to launch tests.
-     *
-     * @param types the target types
-     * @param methods the target methods
-     * @return {@code true} if the arguments can be used to launch tests
-     */
-    public static boolean validateTypesAndMethods(Collection<IType> types, Collection<IMethod> methods) {
+    public static boolean canExecuteTestOn(Collection<IType> types, Collection<IMethod> methods, String mode) {
+        switch (mode) {
+            case "run":
+                return canExecuteTestDebug(types, methods);
+            case "debug":
+                return canExecuteTestDebug(types, methods);
+            default:
+                return false;
+        }
+    }
+
+    private static boolean canExecuteTestRun(Collection<IType> types, Collection<IMethod> methods) {
         List<IJavaElement> allElements = ImmutableList.<IJavaElement>builder().addAll(types).addAll(methods).build();
         return validateJavaElements(allElements) && validateTypes(types) && validateMethods(methods);
+    }
+
+    private static boolean canExecuteTestDebug(Collection<IType> types, Collection<IMethod> methods) {
+        List<IJavaElement> allElements = ImmutableList.<IJavaElement>builder().addAll(types).addAll(methods).build();
+        return validateJavaElements(allElements) && supportsTestDebugging(allElements.get(0).getJavaProject().getProject()) && validateTypes(types) && validateMethods(methods);
     }
 
     private static boolean validateTypes(Collection<IType> types) {
@@ -75,6 +86,11 @@ public final class TestLaunchShortcutValidator {
             }
         }
         return true;
+    }
+
+    private static boolean supportsTestDebugging(IProject project) {
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(project);
+        return model.isPresent() ? model.getGradleVersion().supportsTestDebugging() : false;
     }
 
     private static boolean isInSourceFolder(IType type) {
@@ -165,20 +181,28 @@ public final class TestLaunchShortcutValidator {
      */
     public static final class PropertyTester extends org.eclipse.core.expressions.PropertyTester {
 
-        private static final String PROPERTY_NAME_SELECTION_CAN_BE_LAUNCHED_AS_TEST = "selectioncanbelaunchedastest";
+        private static final String PROPERTY_NAME_SELECTION_CAN_EXECUTE_TEST_RUN = "selectioncanbelaunchedastest";
+        private static final String PROPERTY_NAME_SELECTION_CAN_EXECUTE_TEST_DEBUG = "selectioncanbelaunchedastestdebug";
 
         @Override
         public boolean test(Object receiver, String propertyString, Object[] args, Object expectedValue) {
-            if (propertyString.equals(PROPERTY_NAME_SELECTION_CAN_BE_LAUNCHED_AS_TEST)) {
+            if (propertyString.equals(PROPERTY_NAME_SELECTION_CAN_EXECUTE_TEST_RUN)) {
                 return receiver instanceof Collection && selectionIsLaunchableAsTest((Collection<?>) receiver);
+            } else if (propertyString.equals(PROPERTY_NAME_SELECTION_CAN_EXECUTE_TEST_DEBUG)) {
+                return receiver instanceof Collection && selectionIsLaunchableAsTestDebug((Collection<?>) receiver);
             } else {
-                throw new GradlePluginsRuntimeException("Unrecognized property to test: " + propertyString);
+                throw new GradlePluginsRuntimeException("Unrecognized test property: " + propertyString);
             }
         }
 
         private boolean selectionIsLaunchableAsTest(Collection<?> elements) {
             JavaElementResolver elementResolver = SelectionJavaElementResolver.from(elements);
-            return validateTypesAndMethods(elementResolver.resolveTypes(), elementResolver.resolveMethods());
+            return canExecuteTestRun(elementResolver.resolveTypes(), elementResolver.resolveMethods());
+        }
+
+        private boolean selectionIsLaunchableAsTestDebug(Collection<?> elements) {
+            JavaElementResolver elementResolver = SelectionJavaElementResolver.from(elements);
+            return canExecuteTestDebug(elementResolver.resolveTypes(), elementResolver.resolveMethods());
         }
 
     }

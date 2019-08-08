@@ -328,7 +328,7 @@
         </launchConfigurationTabGroup>
     </extension>
 
-    <!-- "Gradle Test" entry in the "Run as... " context menu -->
+    <!-- "Gradle Test" entry in the "Run as... " and "Debug as... " context menu -->
     <extension
           point="org.eclipse.debug.ui.launchShortcuts">
        <shortcut
@@ -336,7 +336,7 @@
              icon="icons/full/obj16/launch_config.png"
              id="org.eclipse.buildship.ui.shortcut.test"
              label="Gradle Test"
-             modes="run,debug">
+             modes="run">
           <configurationType
                 id="org.eclipse.buildship.core.launch.runconfiguration">
           </configurationType>
@@ -357,6 +357,34 @@
           <description
                 description="Runs the selected test with Gradle"
                 mode="run">
+          </description>
+       </shortcut>
+       <shortcut
+             class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcut"
+             icon="icons/full/obj16/launch_config.png"
+             id="org.eclipse.buildship.ui.shortcut.test.debug"
+             label="Gradle Test"
+             modes="debug">
+          <configurationType
+                id="org.eclipse.buildship.core.launch.runconfiguration">
+          </configurationType>
+          <contextualLaunch>
+             <contextLabel
+                   label="Gradle Test"
+                   mode="debug">
+             </contextLabel>
+             <enablement>
+                <with variable="selection">
+                    <test
+                          property="org.eclipse.buildship.ui.properties.selectioncanbelaunchedastestdebug"
+                          forcePluginActivation="true">
+                    </test>
+                </with>
+             </enablement>
+          </contextualLaunch>
+          <description
+                description="Debug the selected test with Gradle"
+                mode="debug">
           </description>
        </shortcut>
     </extension>
@@ -487,7 +515,7 @@
              id="org.eclipse.buildship.ui.properties.testlaunchpropertytester"
              class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcutValidator$PropertyTester"
              namespace="org.eclipse.buildship.ui.properties"
-             properties="selectioncanbelaunchedastest"
+             properties="selectioncanbelaunchedastest,selectioncanbelaunchedastestdebug"
              type="java.lang.Object">
        </propertyTester>
     </extension>
