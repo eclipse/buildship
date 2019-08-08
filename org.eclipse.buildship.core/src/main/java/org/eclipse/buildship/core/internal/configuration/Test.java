@@ -27,10 +27,14 @@ public abstract class Test {
     }
 
     public static List<Test> fromString(List<String> testNames) {
-        return testNames.stream().map(t -> { int sep = t.indexOf('#') + 1; return sep > 0 ? new TestMethod(t.substring(0, sep - 1), t.substring(sep)) : new TestType(t); }).collect(Collectors.toList());
+        return testNames.stream().map(t -> {
+            int sep = t.indexOf('#') + 1;
+            return sep > 0 ? new TestMethod(t.substring(0, sep - 1), t.substring(sep)) : new TestType(t);
+        }).collect(Collectors.toList());
     }
 
     private static class TestType extends Test {
+
         private String className;
 
         public TestType(String className) {
