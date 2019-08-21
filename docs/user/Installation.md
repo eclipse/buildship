@@ -28,71 +28,71 @@ For manual installation use one of the update sites below.
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
-2019-03         | snapshot  | `https://download.eclipse.org//buildship/updates/e411/snapshots/3.x`
-2019-03         | milestone | `https://download.eclipse.org//buildship/updates/e411/milestones/3.x`
-2019-03         | release   | `https://download.eclipse.org//buildship/updates/e411/releases/3.x`
-2018-12         | snapshot  | `https://download.eclipse.org//buildship/updates/e410/snapshots/3.x`
-2018-12         | milestone | `https://download.eclipse.org//buildship/updates/e410/milestones/3.x`
-2018-12         | release   | `https://download.eclipse.org//buildship/updates/e410/releases/3.x`
-2018-09         | snapshot  | `https://download.eclipse.org//buildship/updates/e49/snapshots/3.x`
-2018-09         | milestone | `https://download.eclipse.org//buildship/updates/e49/milestones/3.x`
-2018-09         | release   | `https://download.eclipse.org//buildship/updates/e49/releases/3.x`
-Photon (4.8)    | snapshot  | `https://download.eclipse.org//buildship/updates/e48/snapshots/3.x`
-Photon (4.8)    | milestone | `https://download.eclipse.org//buildship/updates/e48/milestones/3.x`
-Photon (4.8)    | release   | `https://download.eclipse.org//buildship/updates/e48/releases/3.x`
-Oxygen (4.7)    | snapshot  | `https://download.eclipse.org//buildship/updates/e47/snapshots/3.x`
-Oxygen (4.7)    | milestone | `https://download.eclipse.org//buildship/updates/e47/milestones/3.x`
-Oxygen (4.7)    | release   | `https://download.eclipse.org//buildship/updates/e47/releases/3.x`
-Neon (4.6)      | snapshot  | `https://download.eclipse.org//buildship/updates/e46/snapshots/3.x`
-Neon (4.6)      | milestone | `https://download.eclipse.org//buildship/updates/e46/milestones/3.x`
-Neon (4.6)      | release   | `https://download.eclipse.org//buildship/updates/e46/releases/3.x`
-Mars (4.5)      | snapshot  | `https://download.eclipse.org//buildship/updates/e45/snapshots/3.x`
-Mars (4.5)      | milestone | `https://download.eclipse.org//buildship/updates/e45/milestones/3.x`
-Mars (4.5)      | release   | `https://download.eclipse.org//buildship/updates/e45/releases/3.x`
-Luna (4.4)      | snapshot  | `https://download.eclipse.org//buildship/updates/e44/snapshots/3.x`
-Luna (4.4)      | milestone | `https://download.eclipse.org//buildship/updates/e44/milestones/3.x`
-Luna (4.4)      | release   | `https://download.eclipse.org//buildship/updates/e44/releases/3.x`
-Kepler (4.3)    | snapshot  | `https://download.eclipse.org//buildship/updates/e43/snapshots/3.x`
-Kepler (4.3)    | milestone | `https://download.eclipse.org//buildship/updates/e43/milestones/3.x`
-Kepler (4.3)    | release   | `https://download.eclipse.org//buildship/updates/e43/releases/3.x`
+2019-03         | snapshot  | `https://download.eclipse.org/buildship/updates/e411/snapshots/3.x`
+2019-03         | milestone | `https://download.eclipse.org/buildship/updates/e411/milestones/3.x`
+2019-03         | release   | `https://download.eclipse.org/buildship/updates/e411/releases/3.x`
+2018-12         | snapshot  | `https://download.eclipse.org/buildship/updates/e410/snapshots/3.x`
+2018-12         | milestone | `https://download.eclipse.org/buildship/updates/e410/milestones/3.x`
+2018-12         | release   | `https://download.eclipse.org/buildship/updates/e410/releases/3.x`
+2018-09         | snapshot  | `https://download.eclipse.org/buildship/updates/e49/snapshots/3.x`
+2018-09         | milestone | `https://download.eclipse.org/buildship/updates/e49/milestones/3.x`
+2018-09         | release   | `https://download.eclipse.org/buildship/updates/e49/releases/3.x`
+Photon (4.8)    | snapshot  | `https://download.eclipse.org/buildship/updates/e48/snapshots/3.x`
+Photon (4.8)    | milestone | `https://download.eclipse.org/buildship/updates/e48/milestones/3.x`
+Photon (4.8)    | release   | `https://download.eclipse.org/buildship/updates/e48/releases/3.x`
+Oxygen (4.7)    | snapshot  | `https://download.eclipse.org/buildship/updates/e47/snapshots/3.x`
+Oxygen (4.7)    | milestone | `https://download.eclipse.org/buildship/updates/e47/milestones/3.x`
+Oxygen (4.7)    | release   | `https://download.eclipse.org/buildship/updates/e47/releases/3.x`
+Neon (4.6)      | snapshot  | `https://download.eclipse.org/buildship/updates/e46/snapshots/3.x`
+Neon (4.6)      | milestone | `https://download.eclipse.org/buildship/updates/e46/milestones/3.x`
+Neon (4.6)      | release   | `https://download.eclipse.org/buildship/updates/e46/releases/3.x`
+Mars (4.5)      | snapshot  | `https://download.eclipse.org/buildship/updates/e45/snapshots/3.x`
+Mars (4.5)      | milestone | `https://download.eclipse.org/buildship/updates/e45/milestones/3.x`
+Mars (4.5)      | release   | `https://download.eclipse.org/buildship/updates/e45/releases/3.x`
+Luna (4.4)      | snapshot  | `https://download.eclipse.org/buildship/updates/e44/snapshots/3.x`
+Luna (4.4)      | milestone | `https://download.eclipse.org/buildship/updates/e44/milestones/3.x`
+Luna (4.4)      | release   | `https://download.eclipse.org/buildship/updates/e44/releases/3.x`
+Kepler (4.3)    | snapshot  | `https://download.eclipse.org/buildship/updates/e43/snapshots/3.x`
+Kepler (4.3)    | milestone | `https://download.eclipse.org/buildship/updates/e43/milestones/3.x`
+Kepler (4.3)    | release   | `https://download.eclipse.org/buildship/updates/e43/releases/3.x`
 
 ### Update sites for Buildship 2.x
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
-Photon (4.8)    | release   | `https://download.eclipse.org//buildship/updates/e48/releases/2.x`
-Photon (4.8)    | milestone | `https://download.eclipse.org//buildship/updates/e48/milestones/2.x`
-Photon (4.8)    | snapshot  | `https://download.eclipse.org//buildship/updates/e48/snapshots/2.x`
-Oxygen (4.7)    | release   | `https://download.eclipse.org//buildship/updates/e47/releases/2.x`
-Oxygen (4.7)    | milestone | `https://download.eclipse.org//buildship/updates/e47/milestones/2.x`
-Oxygen (4.7)    | snapshot  | `https://download.eclipse.org//buildship/updates/e47/snapshots/2.x`
-Neon (4.6)      | release   | `https://download.eclipse.org//buildship/updates/e46/releases/2.x`
-Neon (4.6)      | milestone | `https://download.eclipse.org//buildship/updates/e46/milestones/2.x`
-Neon (4.6)      | snapshot  | `https://download.eclipse.org//buildship/updates/e46/snapshots/2.x`
-Mars (4.5)      | release   | `https://download.eclipse.org//buildship/updates/e45/releases/2.x`
-Mars (4.5)      | milestone | `https://download.eclipse.org//buildship/updates/e45/milestones/2.x`
-Mars (4.5)      | snapshot  | `https://download.eclipse.org//buildship/updates/e45/snapshots/2.x`
-Luna (4.4)      | release   | `https://download.eclipse.org//buildship/updates/e44/releases/2.x`
-Luna (4.4)      | milestone | `https://download.eclipse.org//buildship/updates/e44/milestones/2.x`
-Luna (4.4)      | snapshot  | `https://download.eclipse.org//buildship/updates/e44/snapshots/2.x`
-Kepler (4.3)    | release   | `https://download.eclipse.org//buildship/updates/e43/releases/2.x`
-Kepler (4.3)    | milestone | `https://download.eclipse.org//buildship/updates/e43/milestones/2.x`
-Kepler (4.3)    | snapshot  | `https://download.eclipse.org//buildship/updates/e43/snapshots/2.x`
-Juno (4.2)      | release   | `https://download.eclipse.org//buildship/updates/e42/releases/2.x`
-Juno (4.2)      | milestone | `https://download.eclipse.org//buildship/updates/e42/milestones/2.x`
-Juno (4.2)      | snapshot  | `https://download.eclipse.org//buildship/updates/e42/snapshots/2.x`
+Photon (4.8)    | release   | `https://download.eclipse.org/buildship/updates/e48/releases/2.x`
+Photon (4.8)    | milestone | `https://download.eclipse.org/buildship/updates/e48/milestones/2.x`
+Photon (4.8)    | snapshot  | `https://download.eclipse.org/buildship/updates/e48/snapshots/2.x`
+Oxygen (4.7)    | release   | `https://download.eclipse.org/buildship/updates/e47/releases/2.x`
+Oxygen (4.7)    | milestone | `https://download.eclipse.org/buildship/updates/e47/milestones/2.x`
+Oxygen (4.7)    | snapshot  | `https://download.eclipse.org/buildship/updates/e47/snapshots/2.x`
+Neon (4.6)      | release   | `https://download.eclipse.org/buildship/updates/e46/releases/2.x`
+Neon (4.6)      | milestone | `https://download.eclipse.org/buildship/updates/e46/milestones/2.x`
+Neon (4.6)      | snapshot  | `https://download.eclipse.org/buildship/updates/e46/snapshots/2.x`
+Mars (4.5)      | release   | `https://download.eclipse.org/buildship/updates/e45/releases/2.x`
+Mars (4.5)      | milestone | `https://download.eclipse.org/buildship/updates/e45/milestones/2.x`
+Mars (4.5)      | snapshot  | `https://download.eclipse.org/buildship/updates/e45/snapshots/2.x`
+Luna (4.4)      | release   | `https://download.eclipse.org/buildship/updates/e44/releases/2.x`
+Luna (4.4)      | milestone | `https://download.eclipse.org/buildship/updates/e44/milestones/2.x`
+Luna (4.4)      | snapshot  | `https://download.eclipse.org/buildship/updates/e44/snapshots/2.x`
+Kepler (4.3)    | release   | `https://download.eclipse.org/buildship/updates/e43/releases/2.x`
+Kepler (4.3)    | milestone | `https://download.eclipse.org/buildship/updates/e43/milestones/2.x`
+Kepler (4.3)    | snapshot  | `https://download.eclipse.org/buildship/updates/e43/snapshots/2.x`
+Juno (4.2)      | release   | `https://download.eclipse.org/buildship/updates/e42/releases/2.x`
+Juno (4.2)      | milestone | `https://download.eclipse.org/buildship/updates/e42/milestones/2.x`
+Juno (4.2)      | snapshot  | `https://download.eclipse.org/buildship/updates/e42/snapshots/2.x`
                 
 #### Update sites for Buildship 1.x
 
 Eclipse Version | Update Site
 --------------  |------------
-Neon (4.6)      | `https://download.eclipse.org//buildship/updates/e46/releases/1.0`
-Mars (4.5)      | `https://download.eclipse.org//buildship/updates/e45/releases/1.0`
-Luna (4.4)      | `https://download.eclipse.org//buildship/updates/e44/releases/1.0`
-Kepler (4.3)    | `https://download.eclipse.org//buildship/updates/e43/releases/1.0`
-Juno (4.2)      | `https://download.eclipse.org//buildship/updates/e42/releases/1.0`
-Indigo (3.7)    | `https://download.eclipse.org//buildship/updates/e37/releases/1.0`
-Helios (3.6)    | `https://download.eclipse.org//buildship/updates/e36/releases/1.0`
+Neon (4.6)      | `https://download.eclipse.org/buildship/updates/e46/releases/1.0`
+Mars (4.5)      | `https://download.eclipse.org/buildship/updates/e45/releases/1.0`
+Luna (4.4)      | `https://download.eclipse.org/buildship/updates/e44/releases/1.0`
+Kepler (4.3)    | `https://download.eclipse.org/buildship/updates/e43/releases/1.0`
+Juno (4.2)      | `https://download.eclipse.org/buildship/updates/e42/releases/1.0`
+Indigo (3.7)    | `https://download.eclipse.org/buildship/updates/e37/releases/1.0`
+Helios (3.6)    | `https://download.eclipse.org/buildship/updates/e36/releases/1.0`
 
 
 The continuous integration server generates nightly snapshot releases each day 23:00 CET which instantly become
