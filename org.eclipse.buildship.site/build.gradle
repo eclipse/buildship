@@ -81,11 +81,67 @@ task uploadUpdateSite(dependsOn : createP2Repository) {
 
                 // copy the update site from the build directory to the remote location
                 put from: files { file("$buildDir/repository").listFiles() }, into: repositoryFolder
-
-                // recreate the compositeArtifacts.jar and the compositeContent.jar files
-                compositeFolders.each { execute("""cd ${it}
-                      ${file('updateCompositeUpdateSite.sh').text.replace('LIST_COMMAND', directoriesInCompositeUpdateSite)}""") }
             }
+        }
+        
+        def repoName = "Buildship"
+        def timestamp = (int) (System.currentTimeMillis() / 1000)
+        
+        // update metadata for composite repositories 
+        compositeFolders.each { compositeFolder ->
+            
+            // Reference all subfolders in the repository xml files
+            // we have to rely on the output of the `ls` command as we only have access to a restricted shell 
+            // which allows as to only list/create/delete files and directories.
+            def remoteFileStructure = ssh.run {
+                session(remotes.eclipseDotOrg) {
+                    execute "ls -l $compositeFolder"
+                }
+            }
+            def remoteDirs = remoteFileStructure.readLines().findAll { it.startsWith('d') }.collect{ it.split(' +').last() }
+            def remoteDirsXml = remoteDirs.collect { "<child location='$it/'/>"  }.join(System.getProperty('line.separator'))
+            def compositeArtifactsFile = file("${buildDir.path}/composite-repository/compositeArtifacts.xml")
+            def compositeContentFile = file("${buildDir.path}/composite-repository/compositeContent.xml")
+            compositeArtifactsFile.parentFile.mkdirs()
+         
+            compositeArtifactsFile.text = """<?xml version='1.0' encoding='UTF-8'?>
+    <?compositeArtifactRepository version='1.0.0'?>
+    <repository name='$repoName' type='org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository' version='1.0.0'>
+       <properties size='3'>
+        <property name='p2.timestamp' value='$timestamp'/>
+        <property name='p2.compressed' value='true'/>
+        <property name='p2.atomic.composite.loading' value='true'/>
+      </properties>
+      <children size='${remoteDirs.size()}'>
+        $remoteDirsXml
+      </children>
+    </repository>
+    """
+            compositeContentFile.text = """<?xml version='1.0' encoding='UTF-8'?>
+    <?compositeMetadataRepository version='1.0.0'?>
+    <repository name='$repoName' type='org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository' version='1.0.0'>
+       <properties size='3'>
+        <property name='p2.timestamp' value='$timestamp'/>
+        <property name='p2.compressed' value='true'/>
+        <property name='p2.atomic.composite.loading' value='true'/>
+      </properties>
+      <children size='${remoteDirs.size()}'>
+        $remoteDirsXml
+      </children>
+    </repository>
+    """
+
+            ssh.run {
+                session(remotes.eclipseDotOrg) {
+                    // remove old metadata jars if any
+                    execute "rm -rf $compositeFolder/compositeArtifacts.jar"
+                    execute "rm -rf $compositeFolder/compositeContent.jar"
+                    
+                    // update composite repo metadate
+                    put from: compositeArtifactsFile, into: compositeFolder
+                    put from: compositeContentFile, into: compositeFolder
+                }
+            } 
         }
     }
 }
@@ -139,28 +195,27 @@ private void signByEclipseService(signedFolder, unsignedFolder) {
       def remoteFolder = "${ECLIPSE_ORG_TEMP_PATH}/${signedFolder.name}"
 
       // clean up the folder used for signing if the previous build failed
-      execute """rm -rf $remoteFolder
-                    mkdir -p $remoteFolder"""
+      execute "rm -rf $remoteFolder"
+      execute "mkdir -p $remoteFolder"
+      
 
-      // transfer the unsigned files to the remote host
-      put from: file(unsignedFolder).listFiles() as List, into: remoteFolder
+      // upload the jars to the EF build server, sign and download them to the signed folder        
+      file(unsignedFolder).eachFileRecurse(groovy.io.FileType.FILES) { File source ->
+          if(source.name.endsWith('.jar')) { 
+              String sourceRelativePath = source.path.replace(unsignedFolder.path + System.getProperty('file.separator'), '')
+              File target = new File(signedFolder, sourceRelativePath)
+              target.parentFile.mkdirs()
+              target.text = ''
+                            
+              put from: source, into: remoteFolder
+              execute "curl -o $remoteFolder/$source.name -F file=@$remoteFolder/$source.name http://build.eclipse.org:31338/sign"
+              println "$remoteFolder/$source.name"
+              get from: "$remoteFolder/$source.name", into: target.path
+                            
+          }
+      }
 
-      // perform the signing
-      execute """ cd $remoteFolder
-                    # iterate all jars in the subfolders
-                    for jar in \$(find `pwd` -name '*.jar');
-                    do
-                        # save the signed jar into a temporary file copy and write it's content to the unsigned jar
-                        curl -o signed.jar -F file=@\$jar http://build.eclipse.org:31338/sign
-                        cp signed.jar \$jar
-                        rm signed.jar
-                    done
-                    """
-
-      // retrieve the signed content from the remote host into the build/signed-bundles folder
-      get from: remoteFolder, into: signedFolder.parentFile
-
-      // clean up the remote folder
+      // clean up the temporary folder on the EF server
       execute "rm -rf $remoteFolder"
     }
   }
