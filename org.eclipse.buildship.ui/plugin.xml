@@ -513,7 +513,7 @@
           point="org.eclipse.core.expressions.propertyTesters">
        <propertyTester
              id="org.eclipse.buildship.ui.properties.testlaunchpropertytester"
-             class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcutValidator$PropertyTester"
+             class="org.eclipse.buildship.ui.internal.launch.SelectionPropertyTester"
              namespace="org.eclipse.buildship.ui.properties"
              properties="selectioncanbelaunchedastest,selectioncanbelaunchedastestdebug"
              type="java.lang.Object">

@@ -5,7 +5,6 @@ import org.eclipse.jdt.core.IType
 
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
-import org.eclipse.buildship.ui.internal.launch.TestLaunchShortcutValidator.PropertyTester
 import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecification {
@@ -24,6 +23,30 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
 
         where:
         gradleVersion << ['4.3', GradleVersion.current().version]
+    }
+
+    def "Launch debug shortcut enabled on test sources"() {
+        setup:
+        importAndWait(projectWithSources, GradleDistribution.fromBuild())
+
+        when:
+        IJavaProject project = findJavaProject('project-with-sources')
+        IType type = project.findType('LibrarySpec')
+
+        then:
+        testDebugLaunchShortcutEnabledOn(type)
+    }
+
+    def "Launch debug shortcut disabled for projects using Gradle < 5.6"() {
+        setup:
+        importAndWait(projectWithSources, GradleDistribution.forVersion('5.5.1'))
+
+        when:
+        IJavaProject project = findJavaProject('project-with-sources')
+        IType type = project.findType('LibrarySpec')
+
+        then:
+        !testDebugLaunchShortcutEnabledOn(type)
     }
 
     def "Launch shortcut disabled on production sources"(String gradleVersion) {
@@ -76,7 +99,14 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
     }
 
     private boolean testLaunchShortcutEnabledOn(Object... receiver) {
-        new PropertyTester().test(Arrays.asList(receiver), PropertyTester.PROPERTY_NAME_SELECTION_CAN_EXECUTE_TEST_RUN, new Object[0], null)
+        isSelectionPropertyEnabled(SelectionPropertyTester.PROPERTY_NAME_SELECTION_CAN_EXECUTE_TEST_RUN, receiver)
     }
 
+    private boolean testDebugLaunchShortcutEnabledOn(Object... receiver) {
+        isSelectionPropertyEnabled(SelectionPropertyTester.PROPERTY_NAME_SELECTION_CAN_EXECUTE_TEST_DEBUG, receiver)
+    }
+
+    private boolean isSelectionPropertyEnabled(String property, Object... receiver) {
+        new SelectionPropertyTester().test(Arrays.asList(receiver), property, new Object[0], null)
+    }
 }

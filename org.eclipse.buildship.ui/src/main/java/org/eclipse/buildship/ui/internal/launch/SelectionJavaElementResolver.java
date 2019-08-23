@@ -21,13 +21,15 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 
+import org.eclipse.buildship.core.internal.launch.JavaElementSelection;
+
 import java.util.Collection;
 import java.util.Collections;
 
 /**
  * Resolves elements from the current selection.
  */
-public final class SelectionJavaElementResolver extends JavaElementResolver {
+public final class SelectionJavaElementResolver extends JavaElementSelection {
 
     private final Collection<?> adaptables;
 

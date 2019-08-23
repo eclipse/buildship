@@ -52,11 +52,6 @@ public final class RunGradleTestLaunchRequestJob extends BaseLaunchRequestJob<Te
     }
 
     @Override
-    protected String getJobTaskName() {
-        return "Launch Gradle tests";
-    }
-
-    @Override
     protected BaseRunConfiguration getRunConfig() {
         return this.runConfiguration;
     }

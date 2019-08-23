@@ -9,7 +9,7 @@
  *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
  */
 
-package org.eclipse.buildship.ui.internal.launch;
+package org.eclipse.buildship.core.internal.launch;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,25 +27,25 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 
 /**
- * Base class to resolve {@link IMethod} and {@link IType} instances.
+ * Base class to collect selected {@link IMethod} and {@link IType} instances.
  */
-public abstract class JavaElementResolver {
+public abstract class JavaElementSelection {
 
     public final List<String> resolveTests() {
         return ImmutableList.<String>builder()
-            .addAll(resolveTypes().stream().map(t -> t.getFullyQualifiedName()).collect(Collectors.toList()))
-            .addAll(resolveMethods().stream().map(m -> m.getDeclaringType().getFullyQualifiedName() + "#" + m.getElementName()).collect(Collectors.toList()))
+            .addAll(getSelectedTypes().stream().map(t -> t.getFullyQualifiedName()).collect(Collectors.toList()))
+            .addAll(getSelectedMethods().stream().map(m -> m.getDeclaringType().getFullyQualifiedName() + "#" + m.getElementName()).collect(Collectors.toList()))
             .build();
     }
 
     /**
-     * Resolves the items returned by {@link #findJavaElements()} to {@link IMethod} instances.
-     * <p/>
+     * Returns the selected methods.
+     * <p>
      * If an item can't be resolved then it is skipped from from the result list.
      *
-     * @return the resolved {@link IMethod} instances
+     * @return the selected {@link IMethod} instances
      */
-    public final List<IMethod> resolveMethods() {
+    public final List<IMethod> getSelectedMethods() {
         ImmutableList.Builder<IMethod> result = ImmutableList.builder();
         for (IJavaElement javaElement : findJavaElements()) {
             Optional<IMethod> method = resolveMethod(javaElement);
@@ -71,7 +71,7 @@ public abstract class JavaElementResolver {
     }
 
     /**
-     * Resolves the items returned by {@link #findJavaElements()} to {@link IType} instances.
+     * Returns the selected types.
      * <p/>
      * For each {@link IMethod} or {@link IField}, the enclosing {@link IType} is returned. If
      * the exact type can't be determined then the top-level type is returned.
@@ -80,7 +80,7 @@ public abstract class JavaElementResolver {
      *
      * @return the resolved {@link IType} instances
      */
-    public final List<IType> resolveTypes() {
+    public final List<IType> getSelectedTypes() {
         ImmutableList.Builder<IType> result = ImmutableList.builder();
         for (IJavaElement javaElement : findJavaElements()) {
             Optional<IType> type = resolveType(javaElement);

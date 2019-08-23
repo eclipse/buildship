@@ -23,6 +23,6 @@ public final class GradleTestRunConfigurationDelegate extends LaunchConfiguratio
 
     @Override
     public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) {
-        LaunchUtils.launch("Launch Gradle Test", configuration, mode, launch, new RunGradleJvmTestLaunchRequestJob(configuration, mode), monitor);
+        LaunchUtils.launch("Launch Gradle Test", configuration, mode, launch, RunGradleJvmTestLaunchRequestJob.createJob(configuration, mode), monitor);
     }
 }

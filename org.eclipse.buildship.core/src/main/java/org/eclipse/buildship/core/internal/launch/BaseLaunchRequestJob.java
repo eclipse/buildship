@@ -49,7 +49,7 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
         // todo (etst) close streams when done
 
         BuildExecutionParticipants.activateParticipantPlugins();
-        monitor.beginTask(getJobTaskName(), IProgressMonitor.UNKNOWN);
+        monitor.beginTask(getName(), IProgressMonitor.UNKNOWN);
 
         ProcessDescription processDescription = createProcessDescription();
         BaseRunConfiguration runConfig = getRunConfig();
@@ -72,13 +72,6 @@ public abstract class BaseLaunchRequestJob<T extends LongRunningOperation> exten
      * The run configuration associated with this job.
      */
     protected abstract BaseRunConfiguration getRunConfig();
-
-    /**
-     * The name of the job to display in the progress view.
-     *
-     * @return the name of the job
-     */
-    protected abstract String getJobTaskName();
 
     /**
      * The process description.
