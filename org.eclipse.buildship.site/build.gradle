@@ -83,15 +83,15 @@ task uploadUpdateSite(dependsOn : createP2Repository) {
                 put from: files { file("$buildDir/repository").listFiles() }, into: repositoryFolder
             }
         }
-        
+
         def repoName = "Buildship"
         def timestamp = (int) (System.currentTimeMillis() / 1000)
-        
+
         // update metadata for composite repositories 
         compositeFolders.each { compositeFolder ->
-            
+
             // Reference all subfolders in the repository xml files
-            // we have to rely on the output of the `ls` command as we only have access to a restricted shell 
+            // we have to rely on the output of the `ls` command as we only have access to a restricted shell
             // which allows as to only list/create/delete files and directories.
             def remoteFileStructure = ssh.run {
                 session(remotes.eclipseDotOrg) {
@@ -104,7 +104,7 @@ task uploadUpdateSite(dependsOn : createP2Repository) {
             def compositeContentFile = file("${buildDir.path}/composite-repository/compositeContent.xml")
             def p2indexFile = file("${buildDir.path}/composite-repository/p2.index")
             compositeArtifactsFile.parentFile.mkdirs()
-         
+
             compositeArtifactsFile.text = """<?xml version='1.0' encoding='UTF-8'?>
 <?compositeArtifactRepository version='1.0.0'?>
 <repository name='$repoName' type='org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository' version='1.0.0'>
@@ -118,6 +118,7 @@ $remoteDirsXml
   </children>
 </repository>
 """
+
             compositeContentFile.text = """<?xml version='1.0' encoding='UTF-8'?>
 <?compositeMetadataRepository version='1.0.0'?>
 <repository name='$repoName' type='org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository' version='1.0.0'>
@@ -133,8 +134,8 @@ $remoteDirsXml
 """
 
             p2indexFile.text = """version=1
-metadata.repository.factory.order=compositeContent.xml,\!
-artifact.repository.factory.order=compositeArtifacts.xml,\!
+metadata.repository.factory.order=compositeContent.xml,\\!
+artifact.repository.factory.order=compositeArtifacts.xml,\\!
 """
             project.exec {
                 workingDir "$buildDir/composite-repository"
