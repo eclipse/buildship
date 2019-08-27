@@ -199,7 +199,7 @@ abstract class WorkspaceSpecification extends Specification {
         configurationManager.createBuildConfiguration(projectDir, true, distribution, gradleUserHome, javaHome, buildScansEnabled, offlineMode, autoSync, [], [], true, true)
     }
 
-    protected void waitFor(int timeout = 5000, Closure condition) {
+    protected void waitFor(int timeout = 20000, Closure condition) {
         long start = System.currentTimeMillis()
         while (!condition.call()) {
             long elapsed = System.currentTimeMillis() - start
