@@ -122,4 +122,10 @@
             runsAfter="org.eclipse.buildship.configurators.base">
       </configurator>
    </extension>
+   <extension
+         point="org.eclipse.buildship.core.invocationcustomizers">
+      <customizer
+            class="org.eclipse.buildship.core.internal.invocation.BuiltInInvocationCustomizer">
+      </customizer>
+   </extension>
 </plugin>
