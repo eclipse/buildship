@@ -8,7 +8,11 @@ include ':org.eclipse.buildship.core.test'
 include ':org.eclipse.buildship.ui.test'
 include ':org.eclipse.buildship.stsmigration'
 include ':org.eclipse.buildship.stsmigration.test'
-include ':org.eclipse.buildship.oomph'
-include ':org.eclipse.buildship.oomph.edit'
-include ':org.eclipse.buildship.oomph.feature'
-include ':org.eclipse.buildship.oomph.test'
+
+// Oomph is only bundled with eclipse mars (45) and up. Allow for disabling it on older targets.
+if (properties['enable.oomph.plugin'] == "true") {
+    include ':org.eclipse.buildship.oomph'
+    include ':org.eclipse.buildship.oomph.edit'
+    include ':org.eclipse.buildship.oomph.feature'
+    include ':org.eclipse.buildship.oomph.test'
+}

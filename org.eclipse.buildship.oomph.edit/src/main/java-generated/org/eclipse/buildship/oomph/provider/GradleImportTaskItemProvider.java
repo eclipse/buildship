@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  */
 package org.eclipse.buildship.oomph.provider;
 
@@ -85,7 +85,7 @@ public class GradleImportTaskItemProvider extends SetupTaskItemProvider {
     /**
      * This adds a property descriptor for the Override Workspace Settings feature. <!--
      * begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
      * @generated
      */
     protected void addOverrideWorkspaceSettingsPropertyDescriptor(Object object) {
@@ -107,7 +107,7 @@ public class GradleImportTaskItemProvider extends SetupTaskItemProvider {
     /**
      * This adds a property descriptor for the Local Installation Directory feature. <!--
      * begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
      * @generated
      */
     protected void addLocalInstallationDirectoryPropertyDescriptor(Object object) {
@@ -118,7 +118,7 @@ public class GradleImportTaskItemProvider extends SetupTaskItemProvider {
     /**
      * This adds a property descriptor for the Remote Distribution Location feature. <!--
      * begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
      * @generated
      */
     protected void addRemoteDistributionLocationPropertyDescriptor(Object object) {
@@ -206,7 +206,7 @@ public class GradleImportTaskItemProvider extends SetupTaskItemProvider {
     /**
      * This adds a property descriptor for the Automatic Project Synchronization feature. <!--
      * begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
      * @generated
      */
     protected void addAutomaticProjectSynchronizationPropertyDescriptor(Object object) {
@@ -242,7 +242,7 @@ public class GradleImportTaskItemProvider extends SetupTaskItemProvider {
      * {@link org.eclipse.emf.edit.command.RemoveCommand} or
      * {@link org.eclipse.emf.edit.command.MoveCommand} in {@link #createCommand}. <!--
      * begin-user-doc --> <!-- end-user-doc -->
-     * 
+     *
      * @generated
      */
     @Override
@@ -268,13 +268,13 @@ public class GradleImportTaskItemProvider extends SetupTaskItemProvider {
     }
 
     /**
-     * This returns GradleImportTask.gif. <!-- begin-user-doc --> <!-- end-user-doc -->
-     * 
-     * @generated
+     * This returns gradle_file.png.
+     *
+     * @generated NOT
      */
     @Override
     public Object getImage(Object object) {
-        return overlayImage(object, getResourceLocator().getImage("full/obj16/GradleImportTask"));
+        return overlayImage(object, getResourceLocator().getImage("full/obj16/gradle_file.png"));
     }
 
     /**
@@ -290,7 +290,7 @@ public class GradleImportTaskItemProvider extends SetupTaskItemProvider {
     /**
      * This returns the label text for the adapted class. <!-- begin-user-doc --> <!-- end-user-doc
      * -->
-     * 
+     *
      * @generated
      */
     @Override

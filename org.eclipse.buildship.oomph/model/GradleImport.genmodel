@@ -18,7 +18,7 @@
       <genEnumLiterals ecoreEnumLiteral="GradleImport.ecore#//DistributionType/REMOTE_DISTRIBUTION"/>
       <genEnumLiterals ecoreEnumLiteral="GradleImport.ecore#//DistributionType/SPECIFIC_GRADLE_VERSION"/>
     </genEnums>
-    <genClasses ecoreClass="GradleImport.ecore#//GradleImportTask">
+    <genClasses image="false" ecoreClass="GradleImport.ecore#//GradleImportTask">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference GradleImport.ecore#//GradleImportTask/sourceLocators"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/overrideWorkspaceSettings"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/distributionType"/>

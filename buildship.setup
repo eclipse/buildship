@@ -256,6 +256,18 @@
         <operand
             xsi:type="predicates:NamePredicate"
             pattern="org\.gradle\.toolingapi"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.oomph"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.oomph\.edit"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.oomph\.feature"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.oomph\.test"/>
       </predicate>
     </sourceLocator>
   </setupTask>

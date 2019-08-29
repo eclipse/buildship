@@ -37,7 +37,7 @@ dependencies {
     localPlugin project(':org.eclipse.buildship.branding')
     localPlugin project(':org.eclipse.buildship.stsmigration')
     localFeature project(':org.eclipse.buildship.feature')
-    if (isOomphSupported()) {
+    if (findProperty('enable.oomph.plugin') == "true") {
         localPlugin project(':org.eclipse.buildship.oomph')
         localPlugin project(':org.eclipse.buildship.oomph.edit')
         localFeature project(':org.eclipse.buildship.oomph.feature')
@@ -191,10 +191,6 @@ private void replaceGuavaDependencyRangeInManifest(File jar, String newVersionRa
 }
 
 // utility methods
-def isOomphSupported() {
-    !['43', '44'].contains(eclipsebuild.Config.on(project).targetPlatform.eclipseVersion)
-}
-
 def releaseTypeFolder(Project project) {
     def config = eclipsebuild.BuildshipConfig.on(project)
     if(config.isRelease()) {

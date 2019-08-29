@@ -540,14 +540,7 @@ subprojects {
             name = 'gradle-remote'
             url gradleRemoteRepositoryUrl
         }
-    }
-    // disable oomph projects on targets without oomph
-    if (['43', '44'].contains(eclipsebuild.Config.on(project).targetPlatform.eclipseVersion) && name.startsWith("org.eclipse.buildship.oomph")) {
-        afterEvaluate {
-            task build(overwrite: true) { }
-        }
-    }
-    
+    }    
 }
 
 gradle.buildFinished {
