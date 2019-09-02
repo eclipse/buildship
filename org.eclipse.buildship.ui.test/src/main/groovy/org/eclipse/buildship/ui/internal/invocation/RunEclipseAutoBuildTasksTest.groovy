@@ -61,11 +61,15 @@ class RunEclipseAutoBuildTasksTest extends SwtBotSpecification {
          !syncConsoleOutput.contains("> Task :foo")
 
          when:
+         bot.sleep(500)
          bot.activeEditor().toTextEditor().insertText("public class A {}")
-         bot.activeEditor().saveAndClose()
+         bot.activeEditor().save()
 
          then:
          waitFor { syncConsoleOutput.contains("> Task :foo") }
+
+         cleanup:
+         bot.activeEditor().close()
     }
 
     private void openInEditor(IFile file) {
