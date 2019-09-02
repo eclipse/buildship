@@ -51,11 +51,6 @@ public final class RunGradleBuildLaunchRequestJob extends BaseLaunchRequestJob<B
     }
 
     @Override
-    protected String getJobTaskName() {
-        return String.format("Launch Gradle tasks %s", this.runConfig.getTasks());
-    }
-
-    @Override
     protected ProcessDescription createProcessDescription() {
         String processName = createProcessName(this.runConfig.getTasks(), this.runConfig.getProjectConfiguration().getProjectDir(), this.launch.getLaunchConfiguration().getName());
         return new BuildLaunchProcessDescription(processName);

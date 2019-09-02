@@ -11,6 +11,8 @@
 
 package org.eclipse.buildship.core.internal.launch;
 
+import java.util.Optional;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -29,6 +31,6 @@ public final class GradleRunConfigurationDelegate extends LaunchConfigurationDel
 
     @Override
     public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) {
-        LaunchUtils.launch("Launch Gradle tasks", configuration, mode, launch, new RunGradleBuildLaunchRequestJob(launch), monitor);
+        LaunchUtils.launch("Launch Gradle tasks", configuration, mode, launch, Optional.of(new RunGradleBuildLaunchRequestJob(launch)), monitor);
     }
 }

@@ -1,12 +1,16 @@
 package org.eclipse.buildship.core.internal.launch
 
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
-import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
+import org.eclipse.debug.core.ILaunchConfigurationType
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy
 import org.eclipse.debug.core.ILaunchListener
+import org.eclipse.debug.core.ILaunchManager
 
 import org.eclipse.buildship.core.GradleDistribution
 
@@ -63,10 +67,9 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
 
     def "Job launches a Gradle test"() {
         when:
-        IStatus result = scheduleTestLaunchAndWait('MyTest1')
+        scheduleTestLaunchAndWait('MyTest1')
 
         then:
-        result.isOK()
         buildOutput.contains ':test'
         buildOutput.contains 'BUILD SUCCESSFUL'
     }
@@ -160,13 +163,13 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         assertTestNotExecuted('MyTest3#test3_3')
     }
 
-    def "Cannnot do test debugging with old Gradle version"() {
+    def "Cannot do test debugging with old Gradle version"() {
         setup:
         importAndWait(projectDir, GradleDistribution.forVersion('5.5'))
         scheduleTestDebugAndWait('MyTest1')
 
         expect:
-        buildConfig.contains('[WARN] Current Gradle distribution does not support test debugging. Upgrade to 5.6 to make use of this feature')
+        platformLogErrors.find { it.message == "Gradle 5.5 used by project sub does not support test debugging; use Gradle 5.6 or later version" }
     }
 
     def "Can debug tests"() {
@@ -193,8 +196,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         scheduleTestDebugAndWait('MyTest1')
 
         then:
-        buildConfig.contains("[WARN] Cannot initate debugging as no accessible project present at $subDir.canonicalPath")
-        debugListener.debugLaunches == 0
+        platformLogErrors.find { it.message == "Project sub is closed" }
     }
 
     private void assertTestExecuted(String test) {
@@ -210,27 +212,32 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         return buildOutput.contains(parts.length > 1 ? "${parts[1]}(${parts[0]}):" : "(${parts[0]}):")
     }
 
-    private IStatus scheduleTestLaunchAndWait(String... tests) {
-        ILaunchConfiguration configuration = testRunConfiguration(tests)
-        def job = new RunGradleJvmTestLaunchRequestJob(configuration, "run")
-        job.schedule()
-        job.join()
-        job.result
+    private void scheduleTestLaunchAndWait(String... tests) {
+        scheduleTestAndWait('run', tests)
     }
 
-    private IStatus scheduleTestDebugAndWait(String... tests) {
+    private void scheduleTestDebugAndWait(String... tests) {
+        scheduleTestAndWait('debug', tests)
+      }
+
+    private void scheduleTestAndWait(String mode, String... tests) {
         ILaunchConfiguration configuration = testRunConfiguration(tests)
-        def job = new RunGradleJvmTestLaunchRequestJob(configuration, "debug")
-        job.schedule()
-        job.join()
-        job.result
+        CountDownLatch latch = new CountDownLatch(1)
+        def finishListener = new LaunchFinishListener(latch)
+        DebugPlugin.default.launchManager.addLaunchListener(finishListener)
+        configuration.launch(mode, new NullProgressMonitor())
+        latch.await(15, TimeUnit.SECONDS)
+        DebugPlugin.default.launchManager.removeLaunchListener(finishListener)
     }
 
     def testRunConfiguration(String... tests = ['MyTest']) {
-        ILaunchConfiguration configuration = createLaunchConfiguration(subDir)
-        configuration.getAttribute('tests', _) >> tests
-
-        configuration
+        ILaunchManager launchManager = DebugPlugin.default.launchManager
+        ILaunchConfigurationType type = launchManager.getLaunchConfigurationType('org.eclipse.buildship.core.launch.test.runconfiguration')
+        ILaunchConfigurationWorkingCopy launchConfig = type.newInstance(null, tests.join(', '))
+        launchConfig.setAttribute('working_dir', subDir.absolutePath)
+        launchConfig.setAttribute('gradle_distribution', GradleDistribution.fromBuild().toString())
+        launchConfig.setAttribute('tests', tests.toList())
+        launchConfig
     }
 
     class DebugListener implements ILaunchListener {
@@ -242,5 +249,13 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         }
         void launchChanged(ILaunch launch) {}
         void launchRemoved(ILaunch launch) {}
+    }
+
+    class LaunchFinishListener implements ILaunchListener {
+        def CountDownLatch latch
+        LaunchFinishListener(CountDownLatch latch) { this.latch = latch }
+        void launchAdded(ILaunch launch) {}
+        void launchChanged(ILaunch launch) {}
+        void launchRemoved(ILaunch launch) { latch.countDown() }
     }
 }

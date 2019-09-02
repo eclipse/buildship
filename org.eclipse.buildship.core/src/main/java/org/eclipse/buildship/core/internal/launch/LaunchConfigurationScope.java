@@ -10,7 +10,7 @@ package org.eclipse.buildship.core.internal.launch;
 
 import java.util.Set;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import com.google.common.collect.Sets;
 
 import org.eclipse.core.runtime.CoreException;

@@ -8,6 +8,7 @@
 
 package org.eclipse.buildship.core.internal.launch;
 
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,9 +30,14 @@ public final class LaunchUtils {
     private LaunchUtils() {
     }
 
-    static void launch(String name, ILaunchConfiguration configuration, String mode, ILaunch launch, Job job, IProgressMonitor monitor) {
+    static void launch(String name, ILaunchConfiguration configuration, String mode, ILaunch launch, Optional<? extends Job> jobOrNull, IProgressMonitor monitor) {
         monitor.beginTask(name, IProgressMonitor.UNKNOWN);
         try {
+            if (!jobOrNull.isPresent()) {
+                return;
+            }
+            Job job = jobOrNull.get();
+
             // schedule the task
             final CountDownLatch latch = new CountDownLatch(1);
             job.addJobChangeListener(new JobChangeAdapter() {

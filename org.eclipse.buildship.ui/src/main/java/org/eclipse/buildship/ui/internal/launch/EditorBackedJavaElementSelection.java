@@ -13,6 +13,8 @@ package org.eclipse.buildship.ui.internal.launch;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+
+import org.eclipse.buildship.core.internal.launch.JavaElementSelection;
 import org.eclipse.buildship.ui.internal.UiPlugin;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ITypeRoot;
@@ -32,11 +34,11 @@ import java.util.Collection;
  * Resolves elements from the Java source editor.
  */
 @SuppressWarnings("restriction")
-public final class EditorJavaElementResolver extends JavaElementResolver {
+public final class EditorBackedJavaElementSelection extends JavaElementSelection {
 
     private final IEditorPart editorPart;
 
-    private EditorJavaElementResolver(IEditorPart editorPart) {
+    private EditorBackedJavaElementSelection(IEditorPart editorPart) {
         this.editorPart = Preconditions.checkNotNull(editorPart);
     }
 
@@ -73,8 +75,8 @@ public final class EditorJavaElementResolver extends JavaElementResolver {
      * @param editorPart the target editor reference to resolve the Java elements from
      * @return the new instance
      */
-    public static EditorJavaElementResolver from(IEditorPart editorPart) {
-        return new EditorJavaElementResolver(editorPart);
+    public static EditorBackedJavaElementSelection from(IEditorPart editorPart) {
+        return new EditorBackedJavaElementSelection(editorPart);
     }
 
 }

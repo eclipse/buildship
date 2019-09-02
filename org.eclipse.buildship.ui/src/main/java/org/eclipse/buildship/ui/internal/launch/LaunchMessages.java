@@ -26,10 +26,6 @@ public final class LaunchMessages extends NLS {
     public static String Tab_Name_Arguments;
     public static String Tab_Name_GradleTests;
 
-    public static String Test_Not_Found_Dialog_Details;
-    public static String Test_Not_Found_Dialog_Message;
-    public static String Test_Not_Found_Dialog_Title;
-
     public static String Title_BrowseFileSystemDialog;
     public static String Title_BrowseWorkspaceDialog;
 

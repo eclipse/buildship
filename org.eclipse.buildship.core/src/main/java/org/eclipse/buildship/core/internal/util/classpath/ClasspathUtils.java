@@ -9,13 +9,13 @@
 package org.eclipse.buildship.core.internal.util.classpath;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.gradle.tooling.model.eclipse.AccessRule;
 import org.gradle.tooling.model.eclipse.ClasspathAttribute;
 import org.gradle.tooling.model.eclipse.EclipseClasspathEntry;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -81,7 +81,7 @@ public final class ClasspathUtils {
                 return Optional.<Set<String>>of(Sets.newHashSet(attribute.getValue().split(",")));
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     /**
@@ -98,7 +98,7 @@ public final class ClasspathUtils {
                 return Optional.<Set<String>>of(Sets.newHashSet(attribute.getValue().split(",")));
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
 }
