@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright (c) 2019 the original author or authors.&#xA;All rights reserved. This program and the accompanying materials&#xA;are made available under the terms of the Eclipse Public License v1.0&#xA;which accompanies this distribution, and is available at&#xA;http://www.eclipse.org/legal/epl-v10.html&#xA;"
+    modelDirectory="/org.eclipse.buildship.oomph/src/main/java-generated" creationIcons="false"
+    editDirectory="/org.eclipse.buildship.oomph.edit/src/main/java-generated" editorDirectory=""
+    modelPluginID="org.eclipse.buildship.oomph" modelName="GradleImport" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    codeFormatting="true" commentFormatting="true" testsDirectory="" importerID="org.eclipse.emf.importer.ecore"
+    complianceLevel="8.0" optimizedHasChildren="true" usedGenPackages="../../org.eclipse.oomph.base/model/Base.genmodel#//base ../../org.eclipse.oomph.predicates/model/Predicates.genmodel#//predicates ../../org.eclipse.oomph.resources/model/Resources.genmodel#//resources ../../org.eclipse.oomph.setup/model/Setup.genmodel#//setup"
+    importOrganizing="true" cleanup="true">
+  <foreignModel>GradleImport.ecore</foreignModel>
+  <genPackages prefix="GradleImport" basePackage="org.eclipse.buildship" disposableProviderFactory="true"
+      multipleEditorPages="false" generateModelWizard="false" extensibleProviderFactory="true"
+      childCreationExtenders="true" fileExtensions="setup" ecorePackage="GradleImport.ecore#/"
+      publicationLocation="/org.eclipse.buildship.oomph/model/GradleImport-1.0.ecore">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="GradleImport.ecore#//DistributionType">
+      <genEnumLiterals ecoreEnumLiteral="GradleImport.ecore#//DistributionType/GRADLE_WRAPPER"/>
+      <genEnumLiterals ecoreEnumLiteral="GradleImport.ecore#//DistributionType/LOCAL_INSTALLATION"/>
+      <genEnumLiterals ecoreEnumLiteral="GradleImport.ecore#//DistributionType/REMOTE_DISTRIBUTION"/>
+      <genEnumLiterals ecoreEnumLiteral="GradleImport.ecore#//DistributionType/SPECIFIC_GRADLE_VERSION"/>
+    </genEnums>
+    <genClasses image="false" ecoreClass="GradleImport.ecore#//GradleImportTask">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference GradleImport.ecore#//GradleImportTask/sourceLocators"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/overrideWorkspaceSettings"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/distributionType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/localInstallationDirectory"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/remoteDistributionLocation"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/specificGradleVersion"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/programArguments"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/jvmArguments"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/gradleUserHome"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/javaHome"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/offlineMode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/buildScans"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/automaticProjectSynchronization"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/showConsoleView"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute GradleImport.ecore#//GradleImportTask/showExecutionsView"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

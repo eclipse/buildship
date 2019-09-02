@@ -37,6 +37,11 @@ dependencies {
     localPlugin project(':org.eclipse.buildship.branding')
     localPlugin project(':org.eclipse.buildship.stsmigration')
     localFeature project(':org.eclipse.buildship.feature')
+    if (findProperty('enable.oomph.plugin') == "true") {
+        localPlugin project(':org.eclipse.buildship.oomph')
+        localPlugin project(':org.eclipse.buildship.oomph.edit')
+        localFeature project(':org.eclipse.buildship.oomph.feature')
+    }
 
    if (findProperty('include.experimental.features') == 'true') {
         localPlugin project(':org.eclipse.buildship.kotlin')

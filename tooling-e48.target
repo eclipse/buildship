@@ -4,6 +4,7 @@
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.9.0.20180131-0104"/>
             <unit id="org.eclipse.sdk.ide" version="4.8.0.I20180308-0630"/>
+            <unit id="org.eclipse.oomph.setup.feature.group" version="1.9.0.v20180529-1103"/>
             <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-photon/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">

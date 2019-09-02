@@ -4,6 +4,7 @@
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.6.2.20150902-0002"/>
             <unit id="org.eclipse.sdk.ide" version="4.5.0.I20150603-2000"/>
+            <unit id="org.eclipse.oomph.setup.feature.group" version="1.3.0.v20160213-0953"/>
             <repository location="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-mars/"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">

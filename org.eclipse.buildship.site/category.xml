@@ -6,6 +6,10 @@
    <feature url="features/org.eclipse.buildship.kotlin_0.0.0.jar" id="org.eclipse.buildship.kotlin" version="0.0.0">
       <category name="BuildshipExtras"/>
    </feature>
+   <feature url="features/org.eclipse.buildship.oomph_0.0.0.jar" id="org.eclipse.buildship.oomph" version="0.0.0">
+      <category name="Oomph"/>
+   </feature>
    <category-def name="Buildship" label="Buildship: Eclipse Plug-ins for Gradle"/>
    <category-def name="BuildshipExtras" label="Buildship Extras"/>
+   <category-def name="Oomph" label="Buildship project import support for Oomph"/>
 </site>

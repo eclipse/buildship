@@ -21,6 +21,10 @@
         name="org.codehaus.groovy.eclipse.feature.feature.group"/>
     <requirement
         name="org.codehaus.groovy24.feature.feature.group"/>
+    <requirement
+        name="org.eclipse.oomph.setup.sdk.feature.group"/>
+    <requirement
+        name="org.eclipse.emf.ecoretools.design.feature.group"/>
     <repository
         url="https://dist.springsource.org/release/GRECLIPSE/3.4.0/e4.12"/>
     <description>Installs the required plugins to the IDE.</description>
@@ -252,6 +256,18 @@
         <operand
             xsi:type="predicates:NamePredicate"
             pattern="org\.gradle\.toolingapi"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.oomph"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.oomph\.edit"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.oomph\.feature"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.oomph\.test"/>
       </predicate>
     </sourceLocator>
   </setupTask>
@@ -272,6 +288,8 @@
       <requirement
           name="org.slf4j.api"
           versionRange="1.7.2"/>
+      <requirement
+          name="org.eclipse.oomph.setup.feature.group"/>
       <repositoryList
           name="${eclipse.target.platform}">
         <repository
@@ -289,6 +307,10 @@
       <requirement
           name="org.eclipse.swtbot.eclipse.feature.group"
           versionRange="2.2.1"/>
+      <requirement
+          name="org.eclipse.oomph.setup.feature.group"/>
+      <requirement
+          name="org.eclipse.oomph.version.feature.group"/>
       <repositoryList
           name="${eclipse.target.platform}">
         <repository
