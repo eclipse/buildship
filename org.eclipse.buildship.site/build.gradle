@@ -163,7 +163,19 @@ artifact.repository.factory.order=compositeArtifacts.xml,\\!
                     put from: new File(compositeContentFile.parentFile, 'compositeContent.jar'), into: compositeFolder
                     put from: p2indexFile, into: compositeFolder
                 }
-            } 
+            }           
+        }
+        
+        if (config.isRelease() && isLatestRelease()) {
+            ssh.run {
+                session(remotes.eclipseDotOrg) {
+                    def latestFolder = "${ECLIPSE_ORG_FTP_UPDATE_SITES_PATH}/latest"
+                    // wipe the previous release and replace it with the new one
+                    execute "rm -rf $latestFolder"
+                    execute "mkdir -p $latestFolder"
+                    put from: files { file("$buildDir/repository").listFiles() }, into: latestFolder
+                }
+            }
         }
     }
 }
@@ -306,4 +318,15 @@ def calculateP2MirrorsUrl(Project project) {
 
 def calculateStatsUrl(Project project) {
     "http://download.eclipse.org/stats/buildship/e${eclipsebuild.Config.on(project).targetPlatform.eclipseVersion}/${releaseTypeFolder(project)}/${baseVersion}"
+}
+
+def isLatestRelease() {
+    def x = project.rootProject.eclipseBuild.targetPlatforms.keySet().collect {
+        if (!it.startsWith('4')) {
+            throw new RuntimeException("Build script only prepared for 4.x versions. Update the pattern matching below!")
+        }
+        def group = it =~ /4(\d+)/
+        group[0][1] as Integer
+    }.max()
+    "4${x}" == eclipsebuild.Config.on(project).targetPlatform.eclipseVersion
 }
