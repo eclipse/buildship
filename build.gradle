@@ -274,14 +274,14 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.15.0',
             'org.eclipse.emf.edit'                  : '2.14.0',
-            'org.eclipse.oomph.resources'           : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.10.0',
             'org.eclipse.oomph.resources.edit'      : '1.10.0',
             'org.eclipse.oomph.predicates'          : '1.10.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.10.0',
             'org.eclipse.oomph.setup.edit'          : '1.10.0',
-            'org.eclipse.oomph.base'                : '1.11.0',
-            'org.eclipse.oomph.base.edit'           : '1.11.0'
+            'org.eclipse.oomph.base'                : '1.10.0',
+            'org.eclipse.oomph.base.edit'           : '1.10.0'
         ] + eclipseVersionAgnosticDependencies
     }
 
@@ -316,14 +316,14 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.16.0',
             'org.eclipse.emf.edit'                  : '2.14.0',
-            'org.eclipse.oomph.resources'           : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.10.0',
             'org.eclipse.oomph.resources.edit'      : '1.10.0',
             'org.eclipse.oomph.predicates'          : '1.10.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.10.0',
             'org.eclipse.oomph.setup.edit'          : '1.10.0',
-            'org.eclipse.oomph.base'                : '1.11.0',
-            'org.eclipse.oomph.base.edit'           : '1.11.0'
+            'org.eclipse.oomph.base'                : '1.10.0',
+            'org.eclipse.oomph.base.edit'           : '1.10.0'
         ] + eclipseVersionAgnosticDependencies
     }
 
@@ -358,14 +358,14 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.17.0',
             'org.eclipse.emf.edit'                  : '2.14.0',
-            'org.eclipse.oomph.resources'           : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.10.0',
             'org.eclipse.oomph.resources.edit'      : '1.10.0',
             'org.eclipse.oomph.predicates'          : '1.10.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.12.0',
             'org.eclipse.oomph.setup.edit'          : '1.12.0',
-            'org.eclipse.oomph.base'                : '1.11.0',
-            'org.eclipse.oomph.base.edit'           : '1.11.0'
+            'org.eclipse.oomph.base'                : '1.10.0',
+            'org.eclipse.oomph.base.edit'           : '1.10.0'
         ] + eclipseVersionAgnosticDependencies
     }
     
