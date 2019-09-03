@@ -23,11 +23,24 @@ Buildship is also available through one of the provided composite update sites l
 
 For manual installation use one of the update sites below.
 
+### Update site with the latest release
+
+There's a separate update site that contains the latest Buildship release.
+
+    https://download.eclipse.org/buildship/updates/latest/
+
+This update site is built against the Eclipse version that was current at the time of the release.
 
 ### Update sites for Buildship 3.x
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
+2019-09         | snapshot  | `https://download.eclipse.org/buildship/updates/e413/snapshots/3.x`
+2019-09         | milestone | `https://download.eclipse.org/buildship/updates/e413/milestones/3.x`
+2019-09         | release   | `https://download.eclipse.org/buildship/updates/e413/releases/3.x`
+2019-06         | snapshot  | `https://download.eclipse.org/buildship/updates/e412/snapshots/3.x`
+2019-06         | milestone | `https://download.eclipse.org/buildship/updates/e412/milestones/3.x`
+2019-06         | release   | `https://download.eclipse.org/buildship/updates/e412/releases/3.x`
 2019-03         | snapshot  | `https://download.eclipse.org/buildship/updates/e411/snapshots/3.x`
 2019-03         | milestone | `https://download.eclipse.org/buildship/updates/e411/milestones/3.x`
 2019-03         | release   | `https://download.eclipse.org/buildship/updates/e411/releases/3.x`
