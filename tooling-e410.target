@@ -2,7 +2,7 @@
 <?pde version="3.8"?><target name="Buildship Eclipse 2018-12 Target Platform" sequenceNumber="1">
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-            <unit id="org.eclipse.m2e.feature.feature.group" version="1.9.1.20180912-1601"/>
+            <unit id="org.eclipse.m2e.feature.feature.group" version="1.10.0.20181127-2120"/>
             <unit id="org.eclipse.sdk.ide" version="4.10.0.I20181206-0815"/>
             <unit id="org.eclipse.oomph.setup.feature.group" version="1.11.0.v20181203-0741"/>
             <!-- TODO use internal mirror when available -->
