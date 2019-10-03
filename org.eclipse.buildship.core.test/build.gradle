@@ -16,3 +16,6 @@ eclipseTest {
     // testEclipseJavaHome = javaHome
 }
 
+tasks['eclipseTest'].options {
+    outputDirectory = file('/tmp')
+}

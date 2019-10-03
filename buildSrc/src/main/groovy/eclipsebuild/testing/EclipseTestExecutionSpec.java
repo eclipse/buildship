@@ -16,8 +16,8 @@ public class EclipseTestExecutionSpec extends JvmTestExecutionSpec {
 
     private final Test testTask;
 
-    public EclipseTestExecutionSpec(JvmTestExecutionSpec spec, Test testTask) {
-        super(spec.getTestFramework(), spec.getClasspath(), spec.getCandidateClassFiles(), spec.isScanForTestClasses(), spec.getTestClassesDirs(), spec.getPath(), spec.getIdentityPath(), spec.getForkEvery(), spec.getJavaForkOptions(), spec.getMaxParallelForks(), spec.getPreviousFailedTestClasses());
+    public EclipseTestExecutionSpec(JvmTestExecutionSpec spec, TestFramework framework, Test testTask) {
+        super(framework, spec.getClasspath(), spec.getCandidateClassFiles(), spec.isScanForTestClasses(), spec.getTestClassesDirs(), spec.getPath(), spec.getIdentityPath(), spec.getForkEvery(), spec.getJavaForkOptions(), spec.getMaxParallelForks(), spec.getPreviousFailedTestClasses());
         this.testTask = testTask;
     }
 

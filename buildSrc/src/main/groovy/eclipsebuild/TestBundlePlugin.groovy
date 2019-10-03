@@ -120,7 +120,7 @@ class TestBundlePlugin implements Plugin<Project> {
             description = taskDescription
 
             // configure the test runner to execute all classes from the project
-            testExecuter = new EclipseTestExecuter(project, config, services.get(BuildOperationExecutor.class))
+            //testExecuter = new EclipseTestExecuter(project, config, services.get(BuildOperationExecutor.class))
             testClassesDirs =  project.sourceSets.main.output.classesDirs
             classpath = project.sourceSets.main.output + project.sourceSets.test.output
             reports.html.destination = new File("${project.reporting.baseDir}/eclipseTest")
@@ -145,6 +145,9 @@ class TestBundlePlugin implements Plugin<Project> {
                     if(taskHandler != null) inputs.files taskHandler.outputs.files
                 }
             }
+
+            maxParallelForks = 1
+            forkEvery = 0
 
             doFirst { beforeEclipseTest(project, config, testDistributionDir, additionalPluginsDir) }
         }
