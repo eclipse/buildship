@@ -56,22 +56,6 @@ public final class EclipseTestAdapter implements ITestRunListener2 {
     }
 
     @Override
-    public synchronized void testRunStarted(int testCount) {
-    }
-
-    @Override
-    public synchronized void testRunEnded(long elapsedTime) {
-    }
-
-    @Override
-    public synchronized void testRunStopped(long elapsedTime) {
-    }
-
-    @Override
-    public synchronized void testRunTerminated() {
-    }
-
-    @Override
     public synchronized void testStarted(String testId, String testName) {
         TestDescriptorInternal descriptor = nullSafeDescriptor(idGenerator.generateId(), testName);
         synchronized (lock) {
@@ -121,6 +105,22 @@ public final class EclipseTestAdapter implements ITestRunListener2 {
         if (needEndEvent) {
             resultProcessor.completed(testInternal.getId(), new TestCompleteEvent(clock.getCurrentTime()));
         }
+    }
+
+    @Override
+    public synchronized void testRunStarted(int testCount) {
+    }
+
+    @Override
+    public synchronized void testRunEnded(long elapsedTime) {
+    }
+
+    @Override
+    public synchronized void testRunStopped(long elapsedTime) {
+    }
+
+    @Override
+    public synchronized void testRunTerminated() {
     }
 
     @Override
