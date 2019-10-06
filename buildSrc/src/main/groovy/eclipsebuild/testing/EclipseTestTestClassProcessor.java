@@ -31,6 +31,9 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
     private Actor resultProcessorActor;
     private TestResultProcessor resultProcessor;
 
+    // TODO (donat) handle cancellation
+    // TODO (donat) handle ignoring tests
+
     public EclipseTestTestClassProcessor(File testReportDir, EclipseTestSpec options, IdGenerator<?> idGenerator, Clock clock, ActorFactory actorFactory) {
         this.testReportDir = testReportDir;
         this.options = options;
