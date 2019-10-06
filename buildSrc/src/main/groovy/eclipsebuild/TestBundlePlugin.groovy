@@ -11,19 +11,13 @@
 
 package eclipsebuild
 
-import org.gradle.api.Task
-import eclipsebuild.testing.EclipseTestTask
-
-import javax.inject.Inject
-
-import eclipsebuild.testing.EclipseTestExecuter
 import eclipsebuild.testing.EclipseTestExtension
+import eclipsebuild.testing.EclipseTestTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.artifacts.ProjectDependency
-import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.tasks.testing.Test
-import org.gradle.internal.operations.BuildOperationExecutor
 
 /**
  * Gradle plug-in to build Eclipse test bundles and launch tests.
@@ -61,13 +55,6 @@ class TestBundlePlugin implements Plugin<Project> {
     static final TASK_NAME_ECLIPSE_TEST = 'eclipseTest'
 
     static final TASK_NAME_CROSS_VERSION_ECLIPSE_TEST = 'crossVersionEclipseTest'
-
-    public final FileResolver fileResolver
-
-    @Inject
-    public TestBundlePlugin(FileResolver fileResolver) {
-        this.fileResolver = fileResolver
-    }
 
     @Override
     public void apply(Project project) {
@@ -120,7 +107,6 @@ class TestBundlePlugin implements Plugin<Project> {
             description = taskDescription
 
             // configure the test runner to execute all classes from the project
-            //testExecuter = new EclipseTestExecuter(project, config, services.get(BuildOperationExecutor.class))
             testClassesDirs =  project.sourceSets.main.output.classesDirs
             classpath = project.sourceSets.main.output + project.sourceSets.test.output
             reports.html.destination = new File("${project.reporting.baseDir}/eclipseTest")

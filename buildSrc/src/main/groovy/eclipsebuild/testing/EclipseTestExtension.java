@@ -15,6 +15,8 @@ import java.io.File;
 
 public class EclipseTestExtension {
 
+    // TODO move the configuration under test.options { }
+
     private String fragmentHost;
 
     /**

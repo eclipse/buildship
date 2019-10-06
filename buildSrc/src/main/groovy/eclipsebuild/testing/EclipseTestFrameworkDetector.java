@@ -3,14 +3,14 @@ package eclipsebuild.testing;
 import org.gradle.api.internal.tasks.testing.detection.AbstractTestFrameworkDetector;
 import org.gradle.api.internal.tasks.testing.detection.ClassFileExtractionManager;
 
-class EclipseTestDetector extends AbstractTestFrameworkDetector<EclipseTestTestClassDetector> {
-    EclipseTestDetector(ClassFileExtractionManager classFileExtractionManager) {
+class EclipseTestFrameworkDetector extends AbstractTestFrameworkDetector<EclipseTestClassDetector> {
+    EclipseTestFrameworkDetector(ClassFileExtractionManager classFileExtractionManager) {
         super(classFileExtractionManager);
     }
 
     @Override
-    protected EclipseTestTestClassDetector createClassVisitor() {
-        return new EclipseTestTestClassDetector(this);
+    protected EclipseTestClassDetector createClassVisitor() {
+        return new EclipseTestClassDetector(this);
     }
 
     @Override
@@ -18,4 +18,3 @@ class EclipseTestDetector extends AbstractTestFrameworkDetector<EclipseTestTestC
         return "spock/lang/Specification".equals(testCaseClassName);
     }
 }
-

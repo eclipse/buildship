@@ -10,14 +10,12 @@ import org.gradle.api.internal.tasks.testing.TestResultProcessor;
 import org.gradle.internal.actor.Actor;
 import org.gradle.internal.actor.ActorFactory;
 import org.gradle.internal.id.IdGenerator;
-import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.os.OperatingSystem;
 import org.gradle.internal.time.Clock;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +69,7 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
 
     private void runTests() {
 
-        final int pdeTestPort = new PDETestPortLocator().locatePDETestPortNumber();
+        final int pdeTestPort = locatePDETestPortNumber();
         if (pdeTestPort == -1) {
             throw new GradleException("Cannot allocate port for PDE test run");
         }
@@ -157,6 +155,57 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         // TODO
         command.add("org.eclipse.buildship.core");
 
+
+
+//        if (fragmentHost != null) {
+//            programArgs.add(fragmentHost);
+//        } else {
+//            programArgs.add(this.project.getName());
+//        }
+//
+//        javaExecHandleBuilder.setArgs(programArgs);
+//        javaExecHandleBuilder.setSystemProperties(testTask.getSystemProperties());
+//        javaExecHandleBuilder.setEnvironment(testTask.getEnvironment());
+//
+//        // TODO this should be specified when creating the task (to allow override in build script)
+//        List<String> jvmArgs = new ArrayList<String>();
+//        jvmArgs.add("-XX:MaxPermSize=256m");
+//        jvmArgs.add("-Xms40m");
+//        jvmArgs.add("-Xmx1024m");
+//
+//        // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
+//        // TODO we should remove this option when it is not required by Eclipse
+//        if (JavaVersion.current().isJava9Compatible()) {
+//            jvmArgs.add("--add-modules=ALL-SYSTEM");
+//        }
+//        // uncomment to debug spawned Eclipse instance
+//        // jvmArgs.add("-Xdebug");
+//        // jvmArgs.add("-Xrunjdwp:transport=dt_socket,address=8998,server=y");
+//
+//        if (Constants.getOs().equals("macosx")) {
+//            jvmArgs.add("-XstartOnFirstThread");
+//        }
+//
+//        // declare mirror urls if exists
+//        Map<String, String> mirrorUrls = new HashMap<>();
+//        if (project.hasProperty("mirrors")) {
+//            String mirrorsString = (String) project.property("mirrors");
+//            String[] mirrors = mirrorsString.split(",");
+//            for (String mirror : mirrors) {
+//                if (!"".equals(mirror)) {
+//                    String[] nameAndUrl = mirror.split(":", 2);
+//                    mirrorUrls.put(nameAndUrl[0], nameAndUrl[1]);
+//                }
+//            }
+//        }
+//
+//        for (Map.Entry<String, String> mirrorUrl : mirrorUrls.entrySet()) {
+//            jvmArgs.add("-Dorg.eclipse.buildship.eclipsetest.mirrors." + mirrorUrl.getKey() + "=" + mirrorUrl.getValue());
+//        }
+//
+//        javaExecHandleBuilder.setJvmArgs(jvmArgs);
+//        javaExecHandleBuilder.setWorkingDir(this.project.getBuildDir());
+
 //        String fragmentHost = getExtension(testTask).getFragmentHost();
 //        if (fragmentHost != null) {
 //            command.add(fragmentHost);
@@ -188,6 +237,25 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static int locatePDETestPortNumber() {
+        ServerSocket socket = null;
+        try {
+            socket = new ServerSocket(0);
+            return socket.getLocalPort();
+        } catch (IOException e) {
+            // ignore
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
+        return -1;
     }
 
     private File getEquinoxLauncherFile(File testEclipseDir) {

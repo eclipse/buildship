@@ -12,14 +12,11 @@ import org.gradle.api.internal.tasks.testing.TestFramework;
 import org.gradle.api.internal.tasks.testing.WorkerTestClassProcessorFactory;
 import org.gradle.api.internal.tasks.testing.detection.ClassFileExtractionManager;
 import org.gradle.api.internal.tasks.testing.filter.DefaultTestFilter;
-import org.gradle.api.logging.LogLevel;
 import org.gradle.api.reporting.DirectoryReport;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestFrameworkOptions;
-import org.gradle.api.tasks.testing.testng.TestNGOptions;
 import org.gradle.internal.actor.ActorFactory;
 import org.gradle.internal.id.IdGenerator;
-import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.internal.time.Clock;
@@ -36,7 +33,7 @@ import java.util.concurrent.Callable;
 
 public class EclipseTestFramework implements TestFramework {
     private final EclipseTestOptions options;
-    private final EclipseTestDetector detector;
+    private final EclipseTestFrameworkDetector detector;
     private final Test testTask;
     private final DefaultTestFilter filter;
     private final TestClassLoaderFactory classLoaderFactory;
@@ -47,7 +44,7 @@ public class EclipseTestFramework implements TestFramework {
 
         options = instantiator.newInstance(EclipseTestOptions.class, testTask.getProject().getProjectDir(), new File(testTask.getProject().getBuildDir(), "build-output"), testTask.getPath());
         conventionMapOutputDirectory(options, testTask.getReports().getHtml());
-        detector = new EclipseTestDetector(new ClassFileExtractionManager(testTask.getTemporaryDirFactory()));
+        detector = new EclipseTestFrameworkDetector(new ClassFileExtractionManager(testTask.getTemporaryDirFactory()));
         classLoaderFactory = new TestClassLoaderFactory(classLoaderCache, testTask);
     }
 
@@ -124,7 +121,7 @@ public class EclipseTestFramework implements TestFramework {
     }
 
     @Override
-    public EclipseTestDetector getDetector() {
+    public EclipseTestFrameworkDetector getDetector() {
         System.err.println("getDetector");
         return detector;
     }
