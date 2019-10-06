@@ -71,17 +71,12 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
             throw new GradleException("Cannot allocate port for PDE test run");
         }
 
-        final File runDir = new File("/Development/git/eclipse/buildship/org.eclipse.buildship.core.test/build/eclipseTest");
-        final File testEclipseDir = new File("/Development/git/eclipse/buildship/org.eclipse.buildship.core.test/build/eclipseTest/eclipse");
-        final File configIniFile = new File(testEclipseDir, "configuration/config.ini");
-
-        File runPluginsDir = new File(testEclipseDir, "plugins");
-        final File equinoxLauncherFile = getEquinoxLauncherFile(testEclipseDir);
+        File eclipseRuntime = options.getEclipseRuntime();
 
         List<String> command = new ArrayList<>();
         command.add(System.getProperty("java.home") + "/bin/java");
         command.add("-cp");
-        command.add(equinoxLauncherFile.getAbsolutePath());
+        command.add(getEquinoxLauncherFile(eclipseRuntime).getAbsolutePath());
 
         command.add("-XX:MaxPermSize=256m");
         command.add("-Xms40m");
@@ -166,9 +161,9 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         command.add("-product org.eclipse.platform.ide");
         // alternatively can use URI for -data and -configuration (file:///path/to/dir/)
         command.add("-data");
-        command.add(runDir.getAbsolutePath() + File.separator + "workspace");
+        command.add(options.getWorkspace().getAbsolutePath());
         command.add("-configuration");
-        command.add(configIniFile.getParentFile().getAbsolutePath());
+        command.add(new File(eclipseRuntime, "configuration").getAbsolutePath());
 
         command.add("-testpluginname");
         String fragmentHost = options.getFragmentHost();

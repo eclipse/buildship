@@ -85,5 +85,17 @@ public class EclipseTestOptions extends TestFrameworkOptions {
     String getProjectName() {
         return test.getProject().getName();
     }
+
+    String getTestTaskName() {
+        return test.getName();
+    }
+
+    public File getWorkspace() {
+        return new File(test.getProject().getBuildDir().getAbsolutePath(), test.getName() + File.separator + "workspace");
+    }
+
+    public File getEclipseRuntime() {
+        return new File(test.getProject().getBuildDir(), test.getName() + File.separator + "eclipse");
+    }
 }
 
