@@ -34,15 +34,13 @@ import java.util.concurrent.Callable;
 public class EclipseTestFramework implements TestFramework {
     private final EclipseTestOptions options;
     private final EclipseTestFrameworkDetector detector;
-    private final Test testTask;
     private final DefaultTestFilter filter;
     private final TestClassLoaderFactory classLoaderFactory;
 
     public EclipseTestFramework(final Test testTask, DefaultTestFilter filter, Instantiator instantiator, ClassLoaderCache classLoaderCache) {
-        this.testTask = testTask;
         this.filter = filter;
 
-        options = instantiator.newInstance(EclipseTestOptions.class, testTask.getProject().getProjectDir(), new File(testTask.getProject().getBuildDir(), "build-output"), testTask.getPath());
+        options = instantiator.newInstance(EclipseTestOptions.class, testTask.getProject().getProjectDir(), new File(testTask.getProject().getBuildDir(), "build-output"), testTask.getPath(), testTask);
         conventionMapOutputDirectory(options, testTask.getReports().getHtml());
         detector = new EclipseTestFrameworkDetector(new ClassFileExtractionManager(testTask.getTemporaryDirFactory()));
         classLoaderFactory = new TestClassLoaderFactory(classLoaderCache, testTask);
@@ -116,13 +114,11 @@ public class EclipseTestFramework implements TestFramework {
 
     @Override
     public TestFrameworkOptions getOptions() {
-        System.err.println("getOptions");
         return options;
     }
 
     @Override
     public EclipseTestFrameworkDetector getDetector() {
-        System.err.println("getDetector");
         return detector;
     }
 

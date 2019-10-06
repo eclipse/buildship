@@ -8,14 +8,9 @@ dependencies {
 def javaHome = hasProperty('eclipse.test.java.home') ? getProperty('eclipse.test.java.home') : System.getProperty('java.home')
 javaHome = javaHome.replace('\"', '').replace('\'', '')
 
-eclipseTest {
+tasks['eclipseTest'].options {
+    outputDirectory file('/tmp')
     fragmentHost 'org.eclipse.buildship.core'
     applicationName 'org.eclipse.pde.junit.runtime.coretestapplication'
     optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
-    // TODO (donat) re-enable custom java home when we change the execution environment to Java 7 for the entire project and adjust CI builds
-    // testEclipseJavaHome = javaHome
-}
-
-tasks['eclipseTest'].options {
-    outputDirectory = file('/tmp')
 }

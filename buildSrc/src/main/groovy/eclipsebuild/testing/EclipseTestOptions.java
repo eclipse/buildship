@@ -1,36 +1,89 @@
 package eclipsebuild.testing;
 
+import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestFrameworkOptions;
 
+import javax.annotation.Nullable;
 import java.io.File;
 
+/**
+ * Configuration entry for the {@code test.options} block.
+ */
 public class EclipseTestOptions extends TestFrameworkOptions {
 
     private final File projectDir;
-    private final String taskPath;
-    private File outputDirectory;
+    private final Test test;
 
-    public EclipseTestOptions(File projectDir, File outputDirectory, String taskPath) {
+    private File outputDirectory = null;
+    private String fragmentHost = null;
+    private String applicationName = "org.eclipse.pde.junit.runtime.uitestapplication";
+    private File optionsFile = null;
+    private boolean consoleLog = false;
+
+    public EclipseTestOptions(File projectDir, File outputDirectory, String taskPath, Test test) {
         this.projectDir = projectDir;
         this.outputDirectory = outputDirectory;
-        this.taskPath = taskPath;
-
+        this.test = test;
     }
 
-    public File getProjectDir() {
+    File getProjectDir() {
         return projectDir;
+    }
+
+    String getTaskPath() {
+        return test.getPath();
     }
 
     public File getOutputDirectory() {
         return outputDirectory;
     }
 
-    public void setOutputDirectory(File outputDirectory) {
+    public void outputDirectory(@Nullable File outputDirectory) {
         this.outputDirectory = outputDirectory;
     }
 
-    public String getTaskPath() {
-        return taskPath;
+    String getFragmentHost() {
+        return fragmentHost;
+    }
+
+    public void fragmentHost(String fragmentHost) {
+        this.fragmentHost = fragmentHost;
+    }
+
+    String getApplicationName() {
+        return applicationName;
+    }
+
+    public void applicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    File getOptionsFile() {
+        return optionsFile;
+    }
+
+    public void optionsFile(@Nullable File optionsFile) {
+        this.optionsFile = optionsFile;
+    }
+
+    boolean isConsoleLog() {
+        return consoleLog;
+    }
+
+    public void consoleLog(boolean consoleLog) {
+        this.consoleLog = consoleLog;
+    }
+
+    boolean isDebug() {
+        return test.getDebug();
+    }
+
+    @Nullable String getMirrors() {
+        return (String) test.getProject().findProperty("mirrors");
+    }
+
+    String getProjectName() {
+        return test.getProject().getName();
     }
 }
 

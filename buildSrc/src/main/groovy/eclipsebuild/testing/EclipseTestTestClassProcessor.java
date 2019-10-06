@@ -17,17 +17,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EclipseTestTestClassProcessor implements TestClassProcessor {
-    private final List<Class<?>> testClasses = new ArrayList<Class<?>>();
     private final List<String> testClassNames = new ArrayList<String>();
     private final File testReportDir;
     private final EclipseTestSpec options;
     private final IdGenerator<?> idGenerator;
     private final Clock clock;
     private final ActorFactory actorFactory;
-    private ClassLoader applicationClassLoader;
     private Actor resultProcessorActor;
     private TestResultProcessor resultProcessor;
 
@@ -44,8 +44,6 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         // Wrap the processor in an actor, to make it thread-safe
         resultProcessorActor = actorFactory.createBlockingActor(resultProcessor);
         this.resultProcessor = resultProcessorActor.getProxy(TestResultProcessor.class);
-       // this.executer = resultProcessorActor.getProxy(BuildOperationExecutor.class);
-        applicationClassLoader = Thread.currentThread().getContextClassLoader();
     }
 
     @Override
@@ -68,7 +66,6 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
     }
 
     private void runTests() {
-
         final int pdeTestPort = locatePDETestPortNumber();
         if (pdeTestPort == -1) {
             throw new GradleException("Cannot allocate port for PDE test run");
@@ -77,21 +74,15 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         final File runDir = new File("/Development/git/eclipse/buildship/org.eclipse.buildship.core.test/build/eclipseTest");
         final File testEclipseDir = new File("/Development/git/eclipse/buildship/org.eclipse.buildship.core.test/build/eclipseTest/eclipse");
         final File configIniFile = new File(testEclipseDir, "configuration/config.ini");
-        final File output = new File(testEclipseDir, "output");
-        final File error = new File(testEclipseDir, "error");
-
 
         File runPluginsDir = new File(testEclipseDir, "plugins");
         final File equinoxLauncherFile = getEquinoxLauncherFile(testEclipseDir);
-
-
 
         List<String> command = new ArrayList<>();
         command.add(System.getProperty("java.home") + "/bin/java");
         command.add("-cp");
         command.add(equinoxLauncherFile.getAbsolutePath());
 
-        // TODO this should be specified when creating the task (to allow override in build script)
         command.add("-XX:MaxPermSize=256m");
         command.add("-Xms40m");
         command.add("-Xmx1024m");
@@ -109,6 +100,35 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
             command.add("-XstartOnFirstThread");
         }
 
+        // declare mirror urls if exists
+        Map<String, String> mirrorUrls = new HashMap<>();
+        if (options.getMirrors() != null) {
+            String mirrorsString = options.getMirrors();
+            String[] mirrors = mirrorsString.split(",");
+            for (String mirror : mirrors) {
+                if (!"".equals(mirror)) {
+                    String[] nameAndUrl = mirror.split(":", 2);
+                    mirrorUrls.put(nameAndUrl[0], nameAndUrl[1]);
+                }
+            }
+        }
+
+        for (Map.Entry<String, String> mirrorUrl : mirrorUrls.entrySet()) {
+            command.add("-Dorg.eclipse.buildship.eclipsetest.mirrors." + mirrorUrl.getKey() + "=" + mirrorUrl.getValue());
+        }
+
+        // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
+        // TODO we should remove this option when it is not required by Eclipse
+        if (JavaVersion.current().isJava9Compatible()) {
+            command.add("--add-modules=ALL-SYSTEM");
+        }
+        // uncomment to debug spawned Eclipse instance
+        // jvmArgs.add("-Xdebug");
+        // jvmArgs.add("-Xrunjdwp:transport=dt_socket,address=8998,server=y");
+
+        if (getOs().equals("macosx")) {
+            command.add("-XstartOnFirstThread");
+        }
 
         command.add("org.eclipse.equinox.launcher.Main");
 
@@ -119,14 +139,14 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         command.add("-arch");
         command.add(getArch());
 
-        //if (getExtension(testTask).isConsoleLog()) {
+        if (options.isConsoleLog()) {
             command.add("-consoleLog");
-        //}
-//        File optionsFile = getExtension(testTask).getOptionsFile();
-//        if (optionsFile != null) {
-//            command.add("-debug");
-//            command.add(optionsFile.getAbsolutePath());
-//        }
+        }
+        File optionsFile = options.getOptionsFile();
+        if (optionsFile != null) {
+            command.add("-debug");
+            command.add(optionsFile.getAbsolutePath());
+        }
 
         command.add("-version");
         command.add("4");
@@ -141,8 +161,7 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         command.addAll(testClassNames);
 
         command.add("-application");
-        //command.add(getExtension(testTask).getApplicationName());
-        command.add("org.eclipse.pde.junit.runtime.coretestapplication"); // TODO configure in options
+        command.add(options.getApplicationName());
 
         command.add("-product org.eclipse.platform.ide");
         // alternatively can use URI for -data and -configuration (file:///path/to/dir/)
@@ -152,80 +171,18 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         command.add(configIniFile.getParentFile().getAbsolutePath());
 
         command.add("-testpluginname");
-        // TODO
-        command.add("org.eclipse.buildship.core");
-
-
-
-//        if (fragmentHost != null) {
-//            programArgs.add(fragmentHost);
-//        } else {
-//            programArgs.add(this.project.getName());
-//        }
-//
-//        javaExecHandleBuilder.setArgs(programArgs);
-//        javaExecHandleBuilder.setSystemProperties(testTask.getSystemProperties());
-//        javaExecHandleBuilder.setEnvironment(testTask.getEnvironment());
-//
-//        // TODO this should be specified when creating the task (to allow override in build script)
-//        List<String> jvmArgs = new ArrayList<String>();
-//        jvmArgs.add("-XX:MaxPermSize=256m");
-//        jvmArgs.add("-Xms40m");
-//        jvmArgs.add("-Xmx1024m");
-//
-//        // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
-//        // TODO we should remove this option when it is not required by Eclipse
-//        if (JavaVersion.current().isJava9Compatible()) {
-//            jvmArgs.add("--add-modules=ALL-SYSTEM");
-//        }
-//        // uncomment to debug spawned Eclipse instance
-//        // jvmArgs.add("-Xdebug");
-//        // jvmArgs.add("-Xrunjdwp:transport=dt_socket,address=8998,server=y");
-//
-//        if (Constants.getOs().equals("macosx")) {
-//            jvmArgs.add("-XstartOnFirstThread");
-//        }
-//
-//        // declare mirror urls if exists
-//        Map<String, String> mirrorUrls = new HashMap<>();
-//        if (project.hasProperty("mirrors")) {
-//            String mirrorsString = (String) project.property("mirrors");
-//            String[] mirrors = mirrorsString.split(",");
-//            for (String mirror : mirrors) {
-//                if (!"".equals(mirror)) {
-//                    String[] nameAndUrl = mirror.split(":", 2);
-//                    mirrorUrls.put(nameAndUrl[0], nameAndUrl[1]);
-//                }
-//            }
-//        }
-//
-//        for (Map.Entry<String, String> mirrorUrl : mirrorUrls.entrySet()) {
-//            jvmArgs.add("-Dorg.eclipse.buildship.eclipsetest.mirrors." + mirrorUrl.getKey() + "=" + mirrorUrl.getValue());
-//        }
-//
-//        javaExecHandleBuilder.setJvmArgs(jvmArgs);
-//        javaExecHandleBuilder.setWorkingDir(this.project.getBuildDir());
-
-//        String fragmentHost = getExtension(testTask).getFragmentHost();
-//        if (fragmentHost != null) {
-//            command.add(fragmentHost);
-//        } else {
-//            command.add(this.project.getName());
-//        }
-
-//        javaExecHandleBuilder.setArgs(command);
-//        javaExecHandleBuilder.setSystemProperties(testTask.getSystemProperties());
-//        javaExecHandleBuilder.setEnvironment(testTask.getEnvironment());
+        String fragmentHost = options.getFragmentHost();
+        if (fragmentHost != null) {
+            command.add(fragmentHost);
+        } else {
+            command.add(options.getProjectName());
+        }
 
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(options.getProjectDir());
-
         pb.inheritIO();
-
         try {
             Process start = pb.start();
-
-            //final Object testTaskOperationId = this.executer.getCurrentOperation().getParentId();
             final Object rootTestSuiteId = options.getTaskPath();
             EclipseTestAdapter testAdapter = new EclipseTestAdapter(resultProcessor, rootTestSuiteId, clock, idGenerator);
             RemoteTestRunnerClient client = new RemoteTestRunnerClient();

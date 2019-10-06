@@ -5,10 +5,9 @@ dependencies {
     compile project(':org.eclipse.buildship.stsmigration')
 }
 
-eclipseTest {
+tasks['eclipseTest'].options {
     fragmentHost 'org.eclipse.buildship.stsmigration'
     applicationName 'org.eclipse.swtbot.eclipse.core.swtbottestapplication'
     optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
-    consoleLog = true
+    consoleLog true
 }
-
