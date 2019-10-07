@@ -193,6 +193,8 @@ public abstract class AbstractWizardPage extends WizardPage {
         contextInformationText.setBackground(contextInformationText.getParent().getBackground());
         contextInformationText.setEnabled(false);
         contextInformationText.setEditable(false);
+        contextInformationText.setForeground(contextInformationText.getParent().getForeground());
+        contextInformationText.setBackground(contextInformationText.getParent().getBackground());
         GridData contextInformationTextLayoutData = new GridData(SWT.CENTER, SWT.CENTER, true, false, 1, 1);
         contextInformationTextLayoutData.widthHint = 400;
         contextInformationText.setLayoutData(contextInformationTextLayoutData);

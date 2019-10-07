@@ -68,9 +68,10 @@ public final class GradleWelcomeWizardPage extends AbstractWizardPage {
         GridData welcomeTextLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
         welcomeTextLayoutData.widthHint = 500;
         welcomeText.setLayoutData(welcomeTextLayoutData);
-        welcomeText.setBackground(welcomeText.getParent().getBackground());
         welcomeText.setEnabled(false);
         welcomeText.setEditable(false);
+        welcomeText.setForeground(welcomeText.getParent().getForeground());
+        welcomeText.setBackground(welcomeText.getParent().getBackground());
         fillWelcomeText(welcomeText);
 
         final Button showWelcomePageCheckbox = new Button(container, SWT.CHECK);
