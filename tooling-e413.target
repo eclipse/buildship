@@ -3,8 +3,8 @@
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.13.0.20190716-1624"/>
-            <unit id="org.eclipse.sdk.ide" version="4.13.0.I20190821-1800"/>
-            <unit id="org.eclipse.oomph.setup.feature.group" version="1.14.0.v20190827-1424"/>
+            <unit id="org.eclipse.sdk.ide" version="4.13.0.I20190916-1045"/>
+            <unit id="org.eclipse.oomph.setup.feature.group" version="1.14.0.v20190903-1612"/>
             <!-- TODO use internal mirror when available -->
             <repository location="http://download.eclipse.org/releases/2019-09"/>
         </location>
