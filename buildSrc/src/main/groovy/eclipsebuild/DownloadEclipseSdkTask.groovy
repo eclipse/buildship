@@ -4,6 +4,7 @@ import com.google.common.hash.Hashing
 import com.google.common.hash.HashingOutputStream
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -11,6 +12,7 @@ import org.gradle.internal.os.OperatingSystem
 
 import java.nio.file.Files
 
+@CacheableTask
 class DownloadEclipseSdkTask extends DefaultTask {
 
     @Input
@@ -37,47 +39,48 @@ class DownloadEclipseSdkTask extends DefaultTask {
 
     private void downloadEclipseSdkUnprotected(Project project) {
         // download the archive
-        File sdkArchive = eclipseSdkArchive()
-        project.logger.info("Download Eclipse SDK from '${downloadUrl}' to '${sdkArchive.absolutePath}'")
-        project.ant.get(src: new URL(downloadUrl), dest: sdkArchive)
-        verifySdk256Sum(sdkArchive)
+        File destination = new File(targetDir, 'eclipse-sdk.archive')
+        project.logger.info("Download Eclipse SDK from '${downloadUrl}' to '$destination.absolutePath'")
+        project.ant.get(src: new URL(downloadUrl), dest: destination)
+        verifySdk256Sum(destination)
 
         // extract it to the same location where it was extracted
-        project.logger.info("Extract '$sdkArchive' to '$sdkArchive.parentFile.absolutePath'")
+        project.logger.info("Extract 'archive to '$targetDir.absolutePath'")
         if (OperatingSystem.current().isWindows()) {
-            project.ant.unzip(src: sdkArchive, dest: sdkArchive.parentFile, overwrite: true)
+            project.ant.unzip(src: destination, dest: targetDir, overwrite: true)
         } else {
-            project.ant.untar(src: sdkArchive, dest: sdkArchive.parentFile, compression: "gzip", overwrite: true)
+            project.ant.untar(src: destination, dest: targetDir, compression: "gzip", overwrite: true)
         }
 
         // make it executable
         File exe = eclipseSdkExe()
         project.logger.info("Set '${exe}' executable")
         exe.setExecutable(true)
+
+        // delete archive
+        if (!destination.delete()) {
+            throw new RuntimeException("Cannot remove $destination.absolutePath.")
+        }
     }
 
-    private File eclipseSdkArchive() {
-        new File(targetDir, OperatingSystem.current().isWindows() ? 'eclipse-sdk.zip' : 'eclipse-sdk.tar.gz')
+    private void verifySdk256Sum(File destination) {
+        def actualSha256Sum = calculateSdk256Sum(destination)
+        if (actualSha256Sum != expectedSha256Sum) {
+            throw new RuntimeException("Eclipse SDK SHA-126 sum does not match. Expected: $expectedSha256Sum, actual: $actualSha256Sum.")
+        }
     }
 
     private File eclipseSdkExe() {
         new File(targetDir, Constants.eclipseExePath)
     }
 
-    private void verifySdk256Sum(File sdkArchive) {
-        def actualSha256Sum = calculateSdk256Sum(sdkArchive)
-        if (actualSha256Sum != expectedSha256Sum) {
-            throw new RuntimeException("Eclipse SDK SHA-126 sum does not match. Expected: $expectedSha256Sum, actual: $actualSha256Sum.")
-        }
-    }
-
-    private String calculateSdk256Sum(File file) {
+    private static String calculateSdk256Sum(File destination) {
         def hashingStream = new HashingOutputStream(Hashing.sha256(), new NullOutputStream())
-        Files.copy(file.toPath(), hashingStream)
+        Files.copy(destination.toPath(), hashingStream)
         return hashingStream.hash().toString()
     }
 
-    private class NullOutputStream extends OutputStream {
+    private static class NullOutputStream extends OutputStream {
         void write(int b) { }
         void write(byte[] b) { }
         void write(byte[] b, int off, int len) { }
