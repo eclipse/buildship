@@ -19,8 +19,8 @@ if (properties['enable.oomph.plugin'] == "true") {
 
 // Use local build cache on developer machine and remote cache on CI
 String cacheUrl = System.getProperty('gradle.cache.remote.url', '')
-String cacheUser = System.getProperty('gradle.cache.remote.url', '')
-String cachePassword = System.getProperty('gradle.cache.remote.url', '')
+String cacheUser = System.getProperty('gradle.cache.remote.username', '')
+String cachePassword = System.getProperty('gradle.cache.remote.password', '')
 boolean remoteCacheAvailable = cacheUrl != '' && cacheUrl != '' && cachePassword != ''
 
 buildCache {
