@@ -16,3 +16,26 @@ if (properties['enable.oomph.plugin'] == "true") {
     include ':org.eclipse.buildship.oomph.feature'
     include ':org.eclipse.buildship.oomph.test'
 }
+
+// Use local build cache on developer machine and remote cache on CI
+String cacheUrl = System.getProperty('gradle.cache.remote.url', '')
+String cacheUser = System.getProperty('gradle.cache.remote.url', '')
+String cachePassword = System.getProperty('gradle.cache.remote.url', '')
+boolean remoteCacheAvailable = cacheUrl != '' && cacheUrl != '' && cachePassword != ''
+
+buildCache {
+    local {
+        enabled = !remoteCacheAvailable
+    }
+
+    if (remoteCacheAvailable) {
+        remote(HttpBuildCache) {
+            url = cacheUrl
+            credentials {
+                username = cacheUser
+                password = cachePassword
+                push = true
+            }
+        }
+    }
+}
