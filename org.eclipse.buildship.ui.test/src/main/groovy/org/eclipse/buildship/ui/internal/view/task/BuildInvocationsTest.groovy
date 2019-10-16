@@ -161,7 +161,7 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
     }
 
     private static Set<String> getImplicitTasks() {
-        ["init", "wrapper", "help", "projects", "tasks", "properties", "components", "dependencies", "dependencyInsight", "setupBuild", "model", "buildEnvironment", "dependentComponents", "nothing", "prepareKotlinBuildScriptModel", "cleanEclipse", "cleanEclipseProject", "eclipse", "eclipseProject"]
+        ["init", "wrapper", "help", "projects", "tasks", "properties", "components", "dependencies", "dependencyInsight", "setupBuild", "model", "buildEnvironment", "dependentComponents", "nothing", "prepareKotlinBuildScriptModel", "cleanEclipse", "cleanEclipseProject", "eclipse", "eclipseProject", "outgoingVariants"]
     }
 
     private static Set<String> collectNamesOfNonImplicitProjectTasks(List<ProjectTask> tasks) {
