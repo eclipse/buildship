@@ -18,6 +18,7 @@ import org.gradle.tooling.events.task.TaskFinishEvent;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
 import org.gradle.tooling.events.task.TaskSuccessResult;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
+import org.gradle.tooling.events.test.TestOutputDescriptor;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -75,7 +76,7 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
     }
 
     public static String renderCompact(OperationItem operationItem) {
-        OperationDescriptor descriptor = operationItem.getStartEvent().getDescriptor();
+        OperationDescriptor descriptor = operationItem.getDescriptor();
         FinishEvent finishEvent = operationItem.getFinishEvent();
         return render(descriptor, finishEvent, false);
     }
@@ -85,6 +86,8 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
             return renderTask(finishEvent, ((TaskOperationDescriptor) descriptor), verbose);
         } else if (descriptor instanceof TestOperationDescriptor) {
             return renderTest(descriptor, verbose);
+        } else if (descriptor instanceof TestOutputDescriptor) {
+            return renderTestOutput((TestOutputDescriptor) descriptor);
         } else {
             return renderOther(descriptor);
         }
@@ -118,6 +121,10 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
         } else {
             return descriptor.getName();
         }
+    }
+
+    private static String renderTestOutput(TestOutputDescriptor descriptor) {
+        return String.format("%s: %s", descriptor.getDestination().toString(), descriptor.getMessage());
     }
 
     private static String renderOther(OperationDescriptor descriptor) {

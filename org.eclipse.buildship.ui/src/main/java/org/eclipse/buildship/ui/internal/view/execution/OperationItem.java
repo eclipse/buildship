@@ -15,9 +15,9 @@ import java.util.List;
 
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationDescriptor;
+import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.StartEvent;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
@@ -47,6 +47,7 @@ import org.eclipse.buildship.ui.internal.view.ObservableItem;
 public final class OperationItem extends ObservableItem implements IAdaptable {
 
     private final StartEvent startEvent;
+    private final OperationDescriptor descriptor;
     private FinishEvent finishEvent;
     private String name;
     private OperationItem parent;
@@ -54,20 +55,26 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
 
     public OperationItem() {
         this.startEvent = null;
+        this.descriptor = null;
         this.finishEvent = null;
         this.name = null;
         this.children = Lists.newArrayList();
     }
 
-    public OperationItem(StartEvent startEvent) {
-        this.startEvent = Preconditions.checkNotNull(startEvent);
+    public OperationItem(ProgressEvent event) {
+        this.startEvent = event instanceof StartEvent ? (StartEvent)event : null;
+        this.descriptor = event.getDescriptor();
         this.finishEvent = null;
-        this.name = startEvent.getDescriptor().getDisplayName();
+        this.name = event.getDescriptor().getDisplayName();
         this.children = Lists.newArrayList();
     }
 
     public StartEvent getStartEvent() {
         return this.startEvent;
+    }
+
+    public OperationDescriptor getDescriptor() {
+        return this.descriptor;
     }
 
     public FinishEvent getFinishEvent() {
@@ -117,7 +124,7 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
     @Override
     public Object getAdapter(Class adapter) {
         if (OperationDescriptor.class.equals(adapter)) {
-            return this.startEvent.getDescriptor();
+            return this.getDescriptor();
         } else {
             return Platform.getAdapterManager().getAdapter(this, adapter);
         }
