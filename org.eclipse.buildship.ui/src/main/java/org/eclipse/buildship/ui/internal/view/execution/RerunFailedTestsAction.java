@@ -19,10 +19,10 @@ import org.gradle.tooling.events.test.TestFailureResult;
 import org.gradle.tooling.events.test.TestFinishEvent;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.graph.Traverser;
 
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
@@ -84,17 +84,18 @@ public final class RerunFailedTestsAction extends Action {
     }
 
     private ImmutableList<TestOperationDescriptor> collectFailedTests() {
-        return this.page.filterTreeNodes(new Predicate<OperationItem>() {
-            @Override
-            public boolean apply(OperationItem operationItem) {
-                return isFailedJvmTest(operationItem);
+        OperationItem root = (OperationItem) this.page.getPageControl().getViewer().getInput();
+        if (root == null) {
+            return ImmutableList.of();
+        }
+
+        Builder<TestOperationDescriptor> result = ImmutableList.builder();
+        for (OperationItem item : Traverser.forTree(OperationItem::getChildren).breadthFirst(root)) {
+            if (isFailedJvmTest(item)) {
+                result.add((JvmTestOperationDescriptor) item.getFinishEvent().getDescriptor());
             }
-        }).transform(new Function<OperationItem, TestOperationDescriptor>() {
-            @Override
-            public TestOperationDescriptor apply(OperationItem operationItem) {
-                return (JvmTestOperationDescriptor) operationItem.getFinishEvent().getDescriptor();
-            }
-        }).toList();
+        }
+        return result.build();
     }
 
     private boolean isFailedJvmTest(OperationItem operationItem) {
