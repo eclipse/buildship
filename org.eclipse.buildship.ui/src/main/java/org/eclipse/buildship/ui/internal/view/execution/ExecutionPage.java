@@ -27,12 +27,10 @@ import org.gradle.tooling.events.task.TaskOperationDescriptor;
 import org.gradle.tooling.events.test.JvmTestKind;
 import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.collect.TreeTraverser;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
@@ -358,21 +356,6 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
                 }
             }
         });
-    }
-
-    public FluentIterable<OperationItem> filterTreeNodes(Predicate<OperationItem> predicate) {
-        OperationItem root = (OperationItem) getPageControl().getViewer().getInput();
-        if (root == null) {
-            return FluentIterable.from(ImmutableList.<OperationItem>of());
-        }
-
-        return new TreeTraverser<OperationItem>() {
-
-            @Override
-            public Iterable<OperationItem> children(OperationItem operationItem) {
-                return operationItem.getChildren();
-            }
-        }.breadthFirstTraversal(root).filter(predicate);
     }
 
     @Override
