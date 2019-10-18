@@ -14,13 +14,13 @@ public class EclipseTestOptions extends TestFrameworkOptions {
     private final File projectDir;
     private final Test test;
 
-    private File outputDirectory = null;
+    private File outputDirectory;
     private String fragmentHost = null;
     private String applicationName = "org.eclipse.pde.junit.runtime.uitestapplication";
     private File optionsFile = null;
     private boolean consoleLog = false;
 
-    public EclipseTestOptions(File projectDir, File outputDirectory, String taskPath, Test test) {
+    public EclipseTestOptions(File projectDir, File outputDirectory, Test test) {
         this.projectDir = projectDir;
         this.outputDirectory = outputDirectory;
         this.test = test;

@@ -19,6 +19,7 @@ public class EclipseTestSpec implements Serializable {
     private final String projectName;
     private final File workspace;
     private final File eclipseRuntime;
+    private final boolean debug;
 
     public EclipseTestSpec(EclipseTestOptions options, DefaultTestFilter filter) {
         // TODO make use of the test filtering
@@ -33,6 +34,7 @@ public class EclipseTestSpec implements Serializable {
         this.projectName = options.getProjectName();
         this.workspace = options.getWorkspace();
         this.eclipseRuntime = options.getEclipseRuntime();
+        this.debug = options.isDebug();
     }
 
     public File getProjectDir() {
@@ -77,6 +79,10 @@ public class EclipseTestSpec implements Serializable {
 
     public File getEclipseRuntime() {
         return eclipseRuntime;
+    }
+
+    public boolean isDebug() {
+        return debug;
     }
 }
 

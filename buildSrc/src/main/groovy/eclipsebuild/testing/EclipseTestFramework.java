@@ -40,7 +40,7 @@ public class EclipseTestFramework implements TestFramework {
     public EclipseTestFramework(final Test testTask, DefaultTestFilter filter, Instantiator instantiator, ClassLoaderCache classLoaderCache) {
         this.filter = filter;
 
-        options = instantiator.newInstance(EclipseTestOptions.class, testTask.getProject().getProjectDir(), new File(testTask.getProject().getBuildDir(), "build-output"), testTask.getPath(), testTask);
+        options = instantiator.newInstance(EclipseTestOptions.class, testTask.getProject().getProjectDir(), new File(testTask.getProject().getBuildDir(), "eclipseTest-build-output"), testTask);
         conventionMapOutputDirectory(options, testTask.getReports().getHtml());
         detector = new EclipseTestFrameworkDetector(new ClassFileExtractionManager(testTask.getTemporaryDirFactory()));
         classLoaderFactory = new TestClassLoaderFactory(classLoaderCache, testTask);
@@ -57,31 +57,9 @@ public class EclipseTestFramework implements TestFramework {
     @Override
     public TestClassProcessorFactoryImpl getProcessorFactory() {
         System.err.println("getProcessorFactory");
-//        verifyConfigFailurePolicy();
-//        verifyPreserveOrder();
-//        verifyGroupByInstances();
         EclipseTestSpec spec = new EclipseTestSpec(options, filter);
         return new TestClassProcessorFactoryImpl(this.options.getOutputDirectory(), spec);
     }
-
-//    private void verifyConfigFailurePolicy() {
-//        if (!options.getConfigFailurePolicy().equals(TestNGOptions.DEFAULT_CONFIG_FAILURE_POLICY)) {
-//            verifyMethodExists("setConfigFailurePolicy", String.class,
-//                    String.format("The version of TestNG used does not support setting config failure policy to '%s'.", options.getConfigFailurePolicy()));
-//        }
-//    }
-//
-//    private void verifyPreserveOrder() {
-//        if (options.getPreserveOrder()) {
-//            verifyMethodExists("setPreserveOrder", boolean.class, "Preserving the order of tests is not supported by this version of TestNG.");
-//        }
-//    }
-//
-//    private void verifyGroupByInstances() {
-//        if (options.getGroupByInstances()) {
-//            verifyMethodExists("setGroupByInstances", boolean.class, "Grouping tests by instances is not supported by this version of TestNG.");
-//        }
-//    }
 
     private void verifyMethodExists(String methodName, Class<?> parameterType, String failureMessage) {
         try {
@@ -133,7 +111,7 @@ public class EclipseTestFramework implements TestFramework {
 
         @Override
         public TestClassProcessor create(ServiceRegistry serviceRegistry) {
-            return new EclipseTestTestClassProcessor(testReportDir, options, serviceRegistry.get(IdGenerator.class), serviceRegistry.get(Clock.class), serviceRegistry.get(ActorFactory.class));
+            return new EclipseTestTestClassProcessor(options, serviceRegistry.get(IdGenerator.class), serviceRegistry.get(Clock.class), serviceRegistry.get(ActorFactory.class));
         }
     }
 }

@@ -41,16 +41,14 @@ import java.util.regex.Pattern;
 public final class EclipseTestAdapter implements ITestRunListener2 {
 
     private final TestResultProcessor resultProcessor;
-    private final Object rootTestSuiteId;
     private final Clock clock;
     private final IdGenerator<?> idGenerator;
     private final Object lock = new Object();
     private final Map<String, TestDescriptorInternal> executing = new HashMap<String, TestDescriptorInternal>();
 
 
-    public EclipseTestAdapter(TestResultProcessor resultProcessor, Object rootTestSuiteId, Clock clock, IdGenerator<?> idGenerator) {
+    public EclipseTestAdapter(TestResultProcessor resultProcessor, Clock clock, IdGenerator<?> idGenerator) {
         this.resultProcessor = resultProcessor;
-        this.rootTestSuiteId = rootTestSuiteId;
         this.clock = clock;
         this.idGenerator = idGenerator;
     }

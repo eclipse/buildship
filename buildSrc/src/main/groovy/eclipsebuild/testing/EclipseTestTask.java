@@ -9,6 +9,7 @@ import org.gradle.api.tasks.testing.Test;
 public class EclipseTestTask extends Test {
 
     TestFramework framework = new EclipseTestFramework(this, (DefaultTestFilter) getFilter(), getInstantiator(), getClassLoaderCache());
+    private boolean debug;
 
     @Override
     protected JvmTestExecutionSpec createTestExecutionSpec() {
@@ -24,5 +25,15 @@ public class EclipseTestTask extends Test {
     @Override
     public TestFramework testFramework(Closure testFrameworkConfigure) {
         return framework;
+    }
+
+    @Override
+    public void setDebug(boolean debug) {
+        this.debug  = debug;
+    }
+
+    @Override
+    public boolean getDebug() {
+        return debug;
     }
 }

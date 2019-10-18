@@ -23,7 +23,6 @@ import java.util.Map;
 
 public class EclipseTestTestClassProcessor implements TestClassProcessor {
     private final List<String> testClassNames = new ArrayList<String>();
-    private final File testReportDir;
     private final EclipseTestSpec options;
     private final IdGenerator<?> idGenerator;
     private final Clock clock;
@@ -31,11 +30,10 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
     private Actor resultProcessorActor;
     private TestResultProcessor resultProcessor;
 
-    // TODO (donat) handle cancellation
-    // TODO (donat) handle ignoring tests
+    private Process eclipseUnderTestProcess;
+    private RemoteTestRunnerClient testRunner;
 
-    public EclipseTestTestClassProcessor(File testReportDir, EclipseTestSpec options, IdGenerator<?> idGenerator, Clock clock, ActorFactory actorFactory) {
-        this.testReportDir = testReportDir;
+    public EclipseTestTestClassProcessor(EclipseTestSpec options, IdGenerator<?> idGenerator, Clock clock, ActorFactory actorFactory) {
         this.options = options;
         this.idGenerator = idGenerator;
         this.clock = clock;
@@ -65,7 +63,13 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
 
     @Override
     public void stopNow() {
-        throw new UnsupportedOperationException("stopNow() should not be invoked on remote worker TestClassProcessor");
+        try {
+            testRunner.stopWaiting();
+            testRunner.stopTest();
+            eclipseUnderTestProcess.destroyForcibly();
+        } finally {
+            resultProcessorActor.stop();
+        }
     }
 
     private void runTests() {
@@ -90,9 +94,12 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         if (JavaVersion.current().isJava9Compatible()) {
             command.add("--add-modules=ALL-SYSTEM");
         }
-        // uncomment to debug spawned Eclipse instance
-        // jvmArgs.add("-Xdebug");
-        // jvmArgs.add("-Xrunjdwp:transport=dt_socket,address=8998,server=y");
+
+        // run the eclipseTest task with `--debug-jvm` parameter to enable debugging
+        if (options.isDebug()) {
+             command.add("-Xdebug");
+             command.add("-Xrunjdwp:transport=dt_socket,address=5005,server=y");
+        }
 
         if (getOs().equals("macosx")) {
             command.add("-XstartOnFirstThread");
@@ -120,9 +127,6 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         if (JavaVersion.current().isJava9Compatible()) {
             command.add("--add-modules=ALL-SYSTEM");
         }
-        // uncomment to debug spawned Eclipse instance
-        // jvmArgs.add("-Xdebug");
-        // jvmArgs.add("-Xrunjdwp:transport=dt_socket,address=8998,server=y");
 
         if (getOs().equals("macosx")) {
             command.add("-XstartOnFirstThread");
@@ -180,13 +184,11 @@ public class EclipseTestTestClassProcessor implements TestClassProcessor {
         pb.directory(options.getProjectDir());
         pb.inheritIO();
         try {
-            Process start = pb.start();
-            final Object rootTestSuiteId = options.getTaskPath();
-            EclipseTestAdapter testAdapter = new EclipseTestAdapter(resultProcessor, rootTestSuiteId, clock, idGenerator);
-            RemoteTestRunnerClient client = new RemoteTestRunnerClient();
-            client.startListening(new ITestRunListener2[] { testAdapter }, pdeTestPort);
-            start.waitFor();
-            client.stopWaiting();
+            eclipseUnderTestProcess = pb.start();
+            testRunner = new RemoteTestRunnerClient();
+            testRunner.startListening(new ITestRunListener2[] { new EclipseTestAdapter(resultProcessor, clock, idGenerator) }, pdeTestPort);
+            eclipseUnderTestProcess.waitFor();
+            testRunner.stopWaiting();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
