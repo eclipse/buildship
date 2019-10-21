@@ -30,7 +30,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkedresources.size() == 1
         linkedresources[0].name == 'another'
         linkedresources[0].exists()
-        linkedresources[0].location.toFile().equals(externalDir)
+        linkedresources[0].location.toFile().canonicalPath.equals(externalDir.canonicalPath)
     }
 
     def "Can define a linked resource even if the resource does not exist"() {
@@ -48,7 +48,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
             linkedResources.size() == 1
             linkedResources[0].name == 'another'
             linkedResources[0].exists()
-            linkedResources[0].location.toFile().equals(externalDir)
+            linkedResources[0].location.toFile().canonicalPath.equals(externalDir.canonicalPath)
     }
 
     def "Defining a linked resource is idempotent"() {
@@ -137,7 +137,7 @@ class LinkedResourcesUpdaterTest extends WorkspaceSpecification {
         linkedResources.size() == 1
         linkedResources[0].name == 'another2'
         linkedResources[0].exists()
-        linkedResources[0].location.toFile().equals(externalDirB)
+        linkedResources[0].location.toFile().canonicalPath.equals(externalDirB.canonicalPath)
 
         where:
         linkName << ['another', 'a/b/c']
