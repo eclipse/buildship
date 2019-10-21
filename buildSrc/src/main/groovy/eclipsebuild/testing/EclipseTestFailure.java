@@ -11,6 +11,10 @@ package eclipsebuild.testing;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
+/**
+ * The PDE test runner returns the String representation of the test failures. To forward it to the Gradle test
+ * framework, we have to convert it back a Throwable.
+ */
 public final class EclipseTestFailure extends Throwable {
 
     // TODO (donat) build scans use StacktaceElement to parse a build failed exception

@@ -11,19 +11,13 @@
 
 package eclipsebuild
 
-import org.gradle.api.Task
+
 import eclipsebuild.testing.EclipseTestTask
-
-import javax.inject.Inject
-
-import eclipsebuild.testing.EclipseTestExecuter
-import eclipsebuild.testing.EclipseTestExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.artifacts.ProjectDependency
-import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.tasks.testing.Test
-import org.gradle.internal.operations.BuildOperationExecutor
 
 /**
  * Gradle plug-in to build Eclipse test bundles and launch tests.
@@ -54,30 +48,18 @@ import org.gradle.internal.operations.BuildOperationExecutor
  */
 class TestBundlePlugin implements Plugin<Project> {
 
-    // name of the root node in the DSL
-    static String DSL_EXTENSION_NAME = "eclipseTest"
-
     // task names
     static final TASK_NAME_ECLIPSE_TEST = 'eclipseTest'
 
     static final TASK_NAME_CROSS_VERSION_ECLIPSE_TEST = 'crossVersionEclipseTest'
 
-    public final FileResolver fileResolver
-
-    @Inject
-    public TestBundlePlugin(FileResolver fileResolver) {
-        this.fileResolver = fileResolver
-    }
-
     @Override
     public void apply(Project project) {
         configureProject(project)
-        validateDslBeforeBuildStarts(project)
         addTaskCreateEclipseTest(project)
     }
 
     static void configureProject(Project project) {
-        project.extensions.create(DSL_EXTENSION_NAME, EclipseTestExtension)
         project.getPlugins().apply(eclipsebuild.BundlePlugin)
 
         // append the sources of each first-level dependency and its transitive dependencies of
@@ -94,13 +76,6 @@ class TestBundlePlugin implements Plugin<Project> {
             bundledSource group: dep.moduleGroup, name: dep.moduleName, version: dep.moduleVersion, classifier: 'sources'
         }
         dep.children.each { childDep -> addSourcesRecursively(project, childDep) }
-    }
-
-    static void validateDslBeforeBuildStarts(Project project) {
-        project.gradle.taskGraph.whenReady {
-            // the eclipse application must be defined
-            assert project.eclipseTest.applicationName != null
-        }
     }
 
     static void addTaskCreateEclipseTest(Project project) {
@@ -120,7 +95,6 @@ class TestBundlePlugin implements Plugin<Project> {
             description = taskDescription
 
             // configure the test runner to execute all classes from the project
-            testExecuter = new EclipseTestExecuter(project, config, services.get(BuildOperationExecutor.class))
             testClassesDirs =  project.sourceSets.main.output.classesDirs
             classpath = project.sourceSets.main.output + project.sourceSets.test.output
             reports.html.destination = new File("${project.reporting.baseDir}/eclipseTest")
@@ -145,6 +119,9 @@ class TestBundlePlugin implements Plugin<Project> {
                     if(taskHandler != null) inputs.files taskHandler.outputs.files
                 }
             }
+
+            maxParallelForks = 1
+            forkEvery = 0
 
             doFirst { beforeEclipseTest(project, config, testDistributionDir, additionalPluginsDir) }
         }

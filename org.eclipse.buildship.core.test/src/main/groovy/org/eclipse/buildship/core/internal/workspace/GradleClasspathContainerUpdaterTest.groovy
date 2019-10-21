@@ -62,7 +62,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
-        resolvedClasspath[0].path.toFile() == dir("foo")
+        resolvedClasspath[0].path.toFile().canonicalPath.equals(dir("foo").canonicalPath)
     }
 
     def "Linked files can be added to the classpath"(String path) {
