@@ -9,7 +9,6 @@ def javaHome = hasProperty('eclipse.test.java.home') ? getProperty('eclipse.test
 javaHome = javaHome.replace('\"', '').replace('\'', '')
 
 tasks['eclipseTest'].options {
-    outputDirectory file('/tmp')
     fragmentHost 'org.eclipse.buildship.core'
     applicationName 'org.eclipse.pde.junit.runtime.coretestapplication'
     optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
