@@ -9,7 +9,7 @@ buildscript {
 }
 
 updateSite {
-    extraResources = files('epl-v10.html', 'notice.html', 'p2.index')
+    extraResources = files('epl-v20.html', 'notice.html', 'p2.index')
     signing { File unsignedFolder, File signedFolder ->
         if (gradle.taskGraph.hasTask(uploadUpdateSite)) {
             signByEclipseService(signedFolder, unsignedFolder)
