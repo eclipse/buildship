@@ -1,14 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others. All rights reserved. This program and
- * the accompanying materials are made available under the terms of the Eclipse Public License
- * v1.0 which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2019 Gradle Inc.
  *
- * Contributors: IBM Corporation - initial API and implementation
- *               Etienne Studer & Donát Csikós (Gradle Inc.) - support List of IResource in selectAndReveal
- *               Etienne Studer & Donát Csikós (Gradle Inc.) - expose belongsToViewPart
- *******************************************************************************/
-
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 package org.eclipse.buildship.ui.internal.util.selection;
 
 import java.util.List;
