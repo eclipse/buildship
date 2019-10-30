@@ -10,7 +10,6 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
-import org.eclipse.buildship.core.internal.util.gradle.GradleVersionTest
 
 class DefaultModelPersistenceTest extends WorkspaceSpecification {
 
@@ -141,5 +140,21 @@ class DefaultModelPersistenceTest extends WorkspaceSpecification {
 
         then:
         notThrown RuntimeException
+    }
+
+    @Issue('https://github.com/eclipse/buildship/issues/936')
+    def "Absent model has up-to-date project reference after project rename"() {
+        setup:
+        PersistentModel model = CorePlugin.modelPersistence().loadModel(project)
+
+        expect:
+        model.getProject() == project
+
+        when:
+        project = CorePlugin.workspaceOperations().renameProject(project, 'new-project-name', new NullProgressMonitor())
+        model = CorePlugin.modelPersistence().loadModel(project)
+
+        then:
+        model.getProject() == project
     }
 }
