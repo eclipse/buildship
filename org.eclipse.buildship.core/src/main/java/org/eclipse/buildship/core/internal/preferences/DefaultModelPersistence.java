@@ -98,7 +98,11 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
         for (IProject cached : this.modelCache.asMap().keySet()) {
             if (cached.getName().equals(previousName)) {
                 PersistentModel model = this.modelCache.getUnchecked(cached);
-                this.modelCache.put(event.getProject(), model);
+                // Don't copy absent model as it references the old project
+                // https://github.com/eclipse/buildship/issues/936
+                if (model.isPresent()) {
+                    this.modelCache.put(event.getProject(), model);
+                }
                 this.modelCache.invalidate(cached);
             }
         }
