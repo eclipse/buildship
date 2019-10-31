@@ -293,9 +293,9 @@
       <repositoryList
           name="${eclipse.target.platform}">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/releases-rolling"/>
+            url="https://builds.gradle.org:8001/eclipse/update-site/mirror/releases-rolling"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
+            url="https://builds.gradle.org:8001/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
     </targlet>
     <targlet
@@ -314,9 +314,9 @@
       <repositoryList
           name="${eclipse.target.platform}">
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/swtbot/release"/>
+            url="https://builds.gradle.org:8001/eclipse/update-site/mirror/swtbot/release"/>
         <repository
-            url="http://builds.gradle.org:8000/eclipse/update-site/mirror/orbit-rolling"/>
+            url="https://builds.gradle.org:8001/eclipse/update-site/mirror/orbit-rolling"/>
       </repositoryList>
     </targlet>
     <targlet
