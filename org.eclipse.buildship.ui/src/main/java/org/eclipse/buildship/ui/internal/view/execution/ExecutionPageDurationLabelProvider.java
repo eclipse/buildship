@@ -24,7 +24,13 @@ import org.eclipse.osgi.util.NLS;
  */
 public final class ExecutionPageDurationLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
-    private final DecimalFormat durationFormat = new DecimalFormat("#0.000");
+    private final DecimalFormat durationFormat;
+    private final String zeroDuration;
+
+    public ExecutionPageDurationLabelProvider() {
+        this.durationFormat = new DecimalFormat("#0.000");
+        this.zeroDuration =  NLS.bind(ExecutionViewMessages.Tree_Item_Operation_Finished_In_0_Sec_Text, this.durationFormat.format(0));
+    }
 
     @Override
     public StyledString getStyledText(Object element) {
@@ -40,7 +46,7 @@ public final class ExecutionPageDurationLabelProvider extends LabelProvider impl
             String duration = formatDuration(operationItem.getStartEvent().getEventTime(), System.currentTimeMillis());
             return NLS.bind(ExecutionViewMessages.Tree_Item_Operation_Running_For_0_Sec_Text, duration);
         } else {
-            return "";
+            return this.zeroDuration;
         }
     }
 

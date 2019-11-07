@@ -70,7 +70,7 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
 
             @Override
             public TestOperationDescriptor apply(OperationItem operationItem) {
-                return (TestOperationDescriptor) operationItem.getStartEvent().getDescriptor();
+                return (TestOperationDescriptor) operationItem.getDescriptor();
             }
         }).toList();
     }
@@ -82,9 +82,8 @@ public final class RunTestAction extends Action implements SelectionSpecificActi
 
         @Override
         public boolean apply(OperationItem operationItem) {
-            return operationItem.getStartEvent().getDescriptor() instanceof TestOperationDescriptor;
+            return operationItem.getDescriptor() instanceof TestOperationDescriptor;
         }
-
     }
 
 }

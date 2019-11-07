@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.execution;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +17,6 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.events.FailureResult;
 import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationDescriptor;
-import org.gradle.tooling.events.OperationType;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.StartEvent;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
@@ -172,13 +170,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         this.allItems.put(null, root);
 
         this.progressListener = new ExecutionProgressListener(this, this.processDescription.getJob());
-        // TODO (donat) include TEST_OUTPUT
-        this.operation.addProgressListener(this.progressListener, EnumSet.of(OperationType.TEST,
-                OperationType.TASK,
-                OperationType.GENERIC,
-                OperationType.WORK_ITEM,
-                OperationType.PROJECT_CONFIGURATION,
-                OperationType.TRANSFORM));
+        this.operation.addProgressListener(this.progressListener);
 
         // return the tree as the outermost page control
         return this.filteredTree;
@@ -191,9 +183,11 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         }
         OperationItem operationItem = this.allItems.get(descriptor);
         if (null == operationItem) {
-            operationItem = new OperationItem((StartEvent) progressEvent);
+            operationItem = new OperationItem(progressEvent);
             this.allItems.put(descriptor, operationItem);
-            this.activeItems.add(operationItem);
+            if (progressEvent instanceof StartEvent) {
+                this.activeItems.add(operationItem);
+            }
         } else {
             operationItem.setFinishEvent((FinishEvent) progressEvent);
             this.removedItems.add(operationItem);
@@ -260,7 +254,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     }
 
     private boolean isTaskOperation(OperationItem item) {
-        return item.getStartEvent().getDescriptor() instanceof TaskOperationDescriptor;
+        return item.getDescriptor() instanceof TaskOperationDescriptor;
     }
 
     private boolean isFailedOperation(OperationItem item) {
