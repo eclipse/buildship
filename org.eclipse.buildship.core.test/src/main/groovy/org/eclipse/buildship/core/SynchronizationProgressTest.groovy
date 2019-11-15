@@ -44,6 +44,6 @@ class SynchronizationProgressTest extends ProjectSynchronizationSpecification {
        gradleBuild.synchronize(monitor)
 
        then:
-       (10.._) * monitor.internalWorked(_)
+       (10.._) * monitor./(internalW|w)orked/(_)
    }
 }

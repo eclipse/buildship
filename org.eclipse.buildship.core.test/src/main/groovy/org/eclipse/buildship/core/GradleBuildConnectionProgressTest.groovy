@@ -44,6 +44,6 @@ class GradleBuildConnectionProgressTest extends ProjectSynchronizationSpecificat
         GradleProject model = gradleBuild.withConnection(query, monitor)
 
         then:
-        (10.._) * monitor.internalWorked(_)
+        (10.._) * monitor./(internalW|w)orked/(_)
     }
 }
