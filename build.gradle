@@ -32,7 +32,7 @@ def eclipseVersionAgnosticDependencies = [
 // the default version is 48 which can be overridden through -Peclipse.version=<version>
 // also the target platforms contain 1) the Eclipse SDK 2) the latest junit 3) SWTBot 2.2.1
 eclipseBuild {
-    defaultEclipseVersion = '412'
+    defaultEclipseVersion = '414'
 
     final def swtPluginId = "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}"
 
@@ -451,6 +451,12 @@ eclipseBuild {
             'org.eclipse.oomph.base'                : '1.12.0',
             'org.eclipse.oomph.base.edit'           : '1.12.0'
         ] + eclipseVersionAgnosticDependencies
+    }
+    
+    targetPlatform {
+        eclipseVersion = '414'
+        targetDefinition = file('tooling-e414.target')
+        versionMapping = eclipseVersionAgnosticDependencies // TODO (donat) add verson mapping
     }
 
     scmRepo = "https://github.com/eclipse/buildship.git"
