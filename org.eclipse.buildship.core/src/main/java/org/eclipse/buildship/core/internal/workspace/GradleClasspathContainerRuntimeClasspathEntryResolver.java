@@ -10,8 +10,11 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -78,11 +81,15 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         }
 
         // Eclipse 4.3 (Kepler) doesn't support test attributes, so for that case we fall back to custom scope attributes
+        IRuntimeClasspathEntry[] result;
         if (model.getGradleVersion().supportsTestAttributes() && PlatformUtils.supportsTestAttributes()) {
-            return runtimeClasspathWithTestSources(project, excludeTestCode);
+            result = runtimeClasspathWithTestSources(project, excludeTestCode);
         } else {
-            return runtimeClasspathWithGradleScopes(project, configurationScopes, excludeTestCode);
+            result = runtimeClasspathWithGradleScopes(project, configurationScopes, excludeTestCode);
         }
+
+        Set<IRuntimeClasspathEntry> deduplicated = new LinkedHashSet<>(Arrays.asList(result));
+        return deduplicated.toArray(new IRuntimeClasspathEntry[deduplicated.size()]);
     }
 
     private IRuntimeClasspathEntry[] runtimeClasspathWithGradleScopes(IJavaProject project, LaunchConfigurationScope configurationScopes, boolean excludeTestCode)
