@@ -1,16 +1,6 @@
 package org.eclipse.buildship.core.internal.workspace
 
-import org.gradle.api.JavaVersion
-import org.gradle.tooling.model.eclipse.EclipseClasspathContainer
-import org.gradle.tooling.model.eclipse.EclipseJavaSourceSettings
-import org.gradle.tooling.model.eclipse.EclipseProject
-import org.gradle.tooling.model.java.InstalledJdk
-
-import org.eclipse.core.runtime.IPath
-import org.eclipse.core.runtime.NullProgressMonitor
-import org.eclipse.core.runtime.Path
 import org.eclipse.debug.core.ILaunchConfiguration
-import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.launching.IRuntimeClasspathEntry
 import org.eclipse.jdt.launching.JavaRuntime
@@ -18,10 +8,8 @@ import org.eclipse.jdt.launching.JavaRuntime
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.launch.SupportedLaunchConfigType
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.internal.util.gradle.CompatEclipseProject
-import org.eclipse.buildship.core.internal.util.gradle.ModelUtils
 
-class ClasspathDeduplicationTest extends ProjectSynchronizationSpecification {
+class DuplicateRuntimeClasspathEntryTest extends ProjectSynchronizationSpecification {
 
 
     File sampleDir
@@ -31,10 +19,10 @@ class ClasspathDeduplicationTest extends ProjectSynchronizationSpecification {
 
     def setup() {
         createSampleProject()
-        importAndWait(sampleDir, GradleDistribution.forVersion("4.4.1"))
+        importAndWait(sampleDir, GradleDistribution.forVersion("5.5.1"))
     }
 
-    def "Exported classpath entries are deduplicated"() {
+    def "Duplicate runtime classpath entries are removed"() {
         setup:
         ILaunchConfiguration launchConfig = createLaunchConfig(SupportedLaunchConfigType.JDT_JAVA_APPLICATION.id)
 

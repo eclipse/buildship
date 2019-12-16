@@ -12,9 +12,7 @@ package org.eclipse.buildship.core.internal.workspace;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -88,8 +86,7 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
             result = runtimeClasspathWithGradleScopes(project, configurationScopes, excludeTestCode);
         }
 
-        Set<IRuntimeClasspathEntry> deduplicated = new LinkedHashSet<>(Arrays.asList(result));
-        return deduplicated.toArray(new IRuntimeClasspathEntry[deduplicated.size()]);
+        return Arrays.stream(result).distinct().toArray(IRuntimeClasspathEntry[]::new);
     }
 
     private IRuntimeClasspathEntry[] runtimeClasspathWithGradleScopes(IJavaProject project, LaunchConfigurationScope configurationScopes, boolean excludeTestCode)
