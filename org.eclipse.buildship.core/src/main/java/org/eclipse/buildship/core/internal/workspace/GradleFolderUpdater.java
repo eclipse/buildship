@@ -20,6 +20,7 @@ import org.gradle.tooling.model.eclipse.EclipseLinkedResource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -81,7 +82,7 @@ final class GradleFolderUpdater {
         List<IPath> nestedBuildDirPaths = Lists.newArrayList();
 
 
-        for (EclipseProject project : HierarchicalElementUtils.getAll(this.modelProject)) {
+        for (EclipseProject project : HierarchicalElementUtils.getAll(ImmutableList.of(this.modelProject))) {
             GradleProject gradleProject = project.getGradleProject();
             IPath projectPath = Path.fromOSString(project.getProjectDirectory().getPath());
             if (currentProjectPath.isPrefixOf(projectPath)) {

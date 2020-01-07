@@ -21,7 +21,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -91,11 +90,7 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
 
     private Set<EclipseProject> fetchEclipseGradleProjects(ModelProvider modelProvider, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
-        LinkedHashSet<EclipseProject> projects = Sets.newLinkedHashSet();
-        for (EclipseProject model : models) {
-            projects.addAll(HierarchicalElementUtils.getAll(model));
-        }
-        return projects;
+        return new LinkedHashSet<>(HierarchicalElementUtils.getAll(models));
     }
 
     private void refreshTaskView(final TaskViewContent content) {

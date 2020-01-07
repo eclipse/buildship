@@ -64,9 +64,8 @@ public class WtpConfigurator implements ProjectConfigurator {
         GradleBuild gradleBuild = context.getGradleBuild();
         try {
             Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> EclipseModelUtils.queryModels(connection), monitor);
-            this.locationToProject = rootModels.stream()
-                .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
-                .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+            this.locationToProject = HierarchicalElementUtils.getAll(rootModels).stream()
+                    .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
         } catch (Exception e) {
             context.error("Cannot Query Eclipse model", e);
         }

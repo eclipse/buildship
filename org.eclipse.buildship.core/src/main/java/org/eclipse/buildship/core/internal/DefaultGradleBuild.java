@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.internal;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,7 +29,6 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableSet;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -260,11 +260,7 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
     }
 
     private static Set<EclipseProject> collectAll(Collection<EclipseProject> models) {
-        ImmutableSet.Builder<EclipseProject> result = ImmutableSet.builder();
-        for (EclipseProject model : models) {
-            result.addAll(HierarchicalElementUtils.getAll(model));
-        }
-        return result.build();
+        return new LinkedHashSet<>(HierarchicalElementUtils.getAll(models));
     }
 
     private static class DefaultSynchronizationResult implements SynchronizationResult {

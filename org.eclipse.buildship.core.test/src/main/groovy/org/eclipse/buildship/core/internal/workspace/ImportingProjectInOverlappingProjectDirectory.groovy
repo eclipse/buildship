@@ -9,17 +9,18 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
-import org.eclipse.core.runtime.IStatus
+import org.eclipse.core.resources.IMarker
 
 import org.eclipse.buildship.core.SynchronizationResult
-import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
+import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.internal.test.fixtures.TestEnvironment.*
 
 class ImportingProjectInOverlappingProjectDirectory extends ProjectSynchronizationSpecification {
 
-    def "Disallow importing projects with overlapping project directory"() {
+    def "Importing projects with overlapping project directory gives warning"() {
         setup:
+        Logger logger = Mock(Logger)
+        registerService(Logger, logger)
         File rootProject = fileTree(dir('overlapping-project-dir')) {
             file 'settings.gradle', """
                 include('sub1')
@@ -35,7 +36,8 @@ class ImportingProjectInOverlappingProjectDirectory extends ProjectSynchronizati
         SynchronizationResult result = tryImportAndWait(rootProject)
 
         then:
-        result.status.severity == IStatus.WARNING
-        result.status.exception instanceof UnsupportedConfigurationException
+        result.status.isOK()
+        getGradleErrorMarkers(findProject('sub1')).size() == 1
+        getGradleErrorMarkers(findProject('sub1'))[0].getAttribute(IMarker.MESSAGE) == "The Gradle build declares more than one sub-projects at this location"
     }
 }

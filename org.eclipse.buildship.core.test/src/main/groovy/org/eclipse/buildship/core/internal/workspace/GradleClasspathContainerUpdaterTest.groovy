@@ -47,7 +47,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
-        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        Collection allProjects = collectAllProjects(gradleProject)
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
@@ -63,7 +63,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
-        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        Collection allProjects = collectAllProjects(gradleProject)
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
@@ -79,7 +79,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
-        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        Collection allProjects = collectAllProjects(gradleProject)
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
@@ -98,7 +98,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
 
         when:
-        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        Collection allProjects = collectAllProjects(gradleProject)
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
@@ -122,7 +122,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         initialContainer
 
         when:
-        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        Collection allProjects = collectAllProjects(gradleProject)
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
@@ -131,7 +131,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         persistentModel = persistentModelBuilder(persistentModel.build())
-        allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        allProjects = collectAllProjects(gradleProject)
         GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
@@ -202,5 +202,9 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     GradleClasspathContainer getGradleClasspathContainer() {
         JavaCore.getClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, project)
+    }
+
+    List collectAllProjects(EclipseProject project) {
+        HierarchicalElementUtils.getAll([project])
     }
 }

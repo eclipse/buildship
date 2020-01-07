@@ -9,9 +9,12 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.util.gradle;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 import org.gradle.tooling.model.HierarchicalElement;
@@ -39,22 +42,40 @@ public class HierarchicalElementUtils {
         return root;
     }
 
-    public static List<EclipseProject> getAll(EclipseProject model) {
-        return getAll(model, EclipseProjectComparator.INSTANCE);
+    public static List<EclipseProject> getAll(Collection<? extends EclipseProject> models) {
+       return getAll(models, false);
     }
 
-    static <T extends HierarchicalElement> List<T> getAll(T model, Comparator<? super T> comparator) {
-        ArrayList<T> all = Lists.newArrayList();
-        addRecursively(model, all);
-        Collections.sort(all, comparator);
+    public static List<EclipseProject> getAllWithDuplicates(Collection<? extends EclipseProject> models) {
+        return getAll(models, true);
+    }
+
+    private static List<EclipseProject> getAll(Collection<? extends EclipseProject> models, boolean keepDuplicates) {
+        ArrayList<EclipseProject> all = Lists.newArrayList();
+        HashSet<File> projectDirs = new HashSet<>();
+        for (EclipseProject model : models) {
+            addRecursively(model, all, projectDirs, keepDuplicates);
+        }
+        Collections.sort(all, EclipseProjectComparator.INSTANCE);
         return ImmutableList.copyOf(all);
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T extends HierarchicalElement> void addRecursively(T node, List<T> nodes) {
+
+    private static void addRecursively(EclipseProject node, List<EclipseProject> nodes, HashSet<File> projectDirs, boolean keepDuplicates) {
+        // If a composite build includes the same build multiple times then the retrieved EclipseProject list will have
+        // duplicate entries with the same project directory. This is fine for the 'eclipse' Gradle plugin (it simply
+        // writes the same .project and .classpath files multiple times) but causes multiple problems in Eclipse:
+        // validation failures, duplicated project notes in the Tasks view, etc. To provide a consistent user experience,
+        // those duplicates are eliminated here.
+        // Related issue: https://github.com/eclipse/buildship/issues/908
+        if (!keepDuplicates && projectDirs.contains(node.getProjectDirectory())) {
+            return;
+        }
+
+        projectDirs.add(node.getProjectDirectory());
         nodes.add(node);
-        for (HierarchicalElement child : node.getChildren()) {
-            addRecursively((T) child, nodes);
+        for (EclipseProject child : node.getChildren()) {
+            addRecursively(child, nodes, projectDirs, keepDuplicates);
         }
     }
 
@@ -71,6 +92,5 @@ public class HierarchicalElementUtils {
             Path p2 = Path.from(o2.getGradleProject().getPath());
             return p1.compareTo(p2);
         }
-
     }
 }

@@ -12,6 +12,8 @@ package org.eclipse.buildship.core.internal.workspace;
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.gradle.tooling.model.build.BuildEnvironment;
@@ -35,12 +37,15 @@ import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 public class BaseConfigurator implements ProjectConfigurator {
 
+    Set<File> duplicateLocations;
     private Map<File, EclipseProject> locationToProject;
     private GradleVersion gradleVersion;
+    private GradleBuild gradleBuild;
 
     @Override
     public void init(InitializationContext context, IProgressMonitor monitor) {
@@ -51,12 +56,24 @@ public class BaseConfigurator implements ProjectConfigurator {
                 this.gradleVersion = GradleVersion.version(connection.getModel(BuildEnvironment.class).getGradle().getGradleVersion());
                 return EclipseModelUtils.queryModels(connection);
             }, monitor);
-            this.locationToProject = rootModels.stream()
-                .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
+            this.duplicateLocations = calculateDuplicateLocations(rootModels);
+            this.locationToProject = HierarchicalElementUtils.getAll(rootModels).stream()
                 .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+            this.gradleBuild = context.getGradleBuild();
         } catch (Exception e) {
             context.error("Cannot Query Eclipse model", e);
         }
+    }
+
+
+    private Set<File> calculateDuplicateLocations(Collection<EclipseProject> rootModels) {
+         return HierarchicalElementUtils.getAllWithDuplicates(rootModels).stream()
+             .map(EclipseProject::getProjectDirectory)
+             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+             .entrySet().stream()
+             .filter(e -> e.getValue() > 1L)
+             .map(e -> e.getKey())
+             .collect(Collectors.toSet());
     }
 
     @Override
@@ -93,8 +110,21 @@ public class BaseConfigurator implements ProjectConfigurator {
             persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
         }
 
+        markProjectIfDuplicate(project);
+
         CorePlugin.modelPersistence().saveModel(persistentModel.build());
         CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(project); // classpath provider depends on persistent model
+    }
+
+    private void markProjectIfDuplicate(IProject project) {
+        IPath location = project.getLocation();
+        if (location == null) {
+            return;
+        }
+        if (this.duplicateLocations.contains(location.toFile())) {
+            String message = "The Gradle build declares more than one sub-projects at this location";
+            GradleErrorMarker.createWarning(project, (InternalGradleBuild) this.gradleBuild, message, null, -1);
+        }
     }
 
     private void synchronizeJavaProject(final ProjectContext context, final EclipseProject model, final IProject project, final PersistentModelBuilder persistentModel, SubMonitor progress) throws CoreException {
