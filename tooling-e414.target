@@ -2,7 +2,7 @@
 <target name="Buildship Eclipse 2019-12 Target Platform" sequenceNumber="1">
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-            <unit id="org.eclipse.m2e.feature.feature.group" version="1.14.0.20191209-1925'"/>
+            <unit id="org.eclipse.m2e.feature.feature.group" version="1.14.0.20191209-1925"/>
             <unit id="org.eclipse.sdk.ide" version="4.14.0.I20191210-0610"/>
             <unit id="org.eclipse.oomph.setup.feature.group" version="1.15.0.v20191209-1132"/>
             <!-- TODO use internal mirror when available -->
