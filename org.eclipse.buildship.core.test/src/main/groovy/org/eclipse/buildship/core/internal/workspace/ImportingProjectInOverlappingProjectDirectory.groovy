@@ -12,15 +12,12 @@ package org.eclipse.buildship.core.internal.workspace
 import org.eclipse.core.resources.IMarker
 
 import org.eclipse.buildship.core.SynchronizationResult
-import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class ImportingProjectInOverlappingProjectDirectory extends ProjectSynchronizationSpecification {
 
     def "Importing projects with overlapping project directory gives warning"() {
         setup:
-        Logger logger = Mock(Logger)
-        registerService(Logger, logger)
         File rootProject = fileTree(dir('overlapping-project-dir')) {
             file 'settings.gradle', """
                 include('sub1')
