@@ -20,14 +20,23 @@ class DependencyUtils {
         // for the argument it returns eclipse:pluginName:versionNumber
         // otherwise it returns eclipse:pluginName:+
         def mappedVersion = mappedVersion(project, pluginName)
-        def version = mappedVersion == null ? "${minimumVersion}+" : mappedVersion
+        def version = mappedVersion == null ? minVersion(pluginName, minimumVersion) : mappedVersion
         project.logger.debug("Plugin $pluginName mapped to version $version")
         "${Constants.mavenizedEclipsePluginGroupName}:${pluginName}:${version}"
+    }
+
+    static String minVersion(pluginName, version) {
+        //  substitute Guava [27.0.0;28.0.0) OSGi dependency with version 27.1
+        if (pluginName == 'com.google.guava' && version == "27.0.0") {
+            "27.+"
+        } else {
+            "${version}+"
+        }
     }
 
     static String mappedVersion(Project project, String pluginName) {
         Config config = Config.on(project)
         config.targetPlatform.versionMapping[pluginName]
     }
-
+    }
 }
