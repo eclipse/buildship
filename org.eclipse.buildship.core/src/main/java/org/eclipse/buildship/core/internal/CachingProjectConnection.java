@@ -9,6 +9,9 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal;
 
+import java.nio.file.Path;
+import java.util.List;
+
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildActionExecuter.Builder;
@@ -69,5 +72,10 @@ final class CachingProjectConnection implements ProjectConnection {
     @Override
     public void close() {
         this.delegate.close();
+    }
+
+    @Override
+    public void notifyDaemonsAboutChangedPaths(List<Path> changedPaths) {
+        this.delegate.notifyDaemonsAboutChangedPaths(changedPaths);
     }
 }

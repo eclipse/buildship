@@ -9,6 +9,9 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.util.gradle;
 
+import java.nio.file.Path;
+import java.util.List;
+
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
 import org.gradle.tooling.BuildActionExecuter.Builder;
@@ -86,6 +89,11 @@ public final class IdeAttachedProjectConnection implements ProjectConnection {
     @Override
     public <T> void getModel(Class<T> modelType, ResultHandler<? super T> handler) throws IllegalStateException {
         model(modelType).get(handler);
+    }
+
+    @Override
+    public void notifyDaemonsAboutChangedPaths(List<Path> changedPaths) {
+        this.delegate.notifyDaemonsAboutChangedPaths(changedPaths);
     }
 
     public static ProjectConnection newInstance(CancellationTokenSource tokenSource, GradleArguments gradleArguments, IProgressMonitor monitor) {

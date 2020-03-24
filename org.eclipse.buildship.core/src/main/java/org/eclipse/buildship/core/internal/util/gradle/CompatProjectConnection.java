@@ -12,7 +12,9 @@ package org.eclipse.buildship.core.internal.util.gradle;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -84,6 +86,11 @@ public class CompatProjectConnection implements ProjectConnection {
     @Override
     public void close() {
         this.delegate.close();
+    }
+
+    @Override
+    public void notifyDaemonsAboutChangedPaths(List<Path> changedPaths) {
+        this.delegate.notifyDaemonsAboutChangedPaths(changedPaths);
     }
 
     @SuppressWarnings("unchecked")
