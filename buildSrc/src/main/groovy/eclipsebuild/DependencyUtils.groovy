@@ -38,5 +38,4 @@ class DependencyUtils {
         Config config = Config.on(project)
         config.targetPlatform.versionMapping[pluginName]
     }
-    }
 }
