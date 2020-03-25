@@ -16,6 +16,7 @@ object Promotion30Template : Template({
     // TODO We should separate the update site generation and the artifact upload into two separate steps.
     requirements {
         contains("teamcity.agent.jvm.os.name", "Linux")
+        contains("teamcity.agent.name", "dev")
     }
 
     vcs {
