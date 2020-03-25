@@ -5,8 +5,7 @@
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.15.0.20200310-1832"/>
             <unit id="org.eclipse.sdk.ide" version="4.15.0.I20200305-0155"/>
             <unit id="org.eclipse.oomph.setup.feature.group" version="1.16.0.v20200309-0628"/>
-            <!-- TODO use internal mirror when available -->
-            <repository location="http://download.eclipse.org/releases/2020-03"/>
+            <repository location="https://builds.gradle.org:8001/eclipse/update-site/mirror/releases-rolling"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="com.google.gson" version="2.7.0.v20170129-0911"/>
