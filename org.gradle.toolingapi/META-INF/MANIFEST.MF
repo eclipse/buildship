@@ -26,4 +26,4 @@ Export-Package: org.gradle.api;version="6.3.0",
  org.gradle.tooling.model.idea;version="6.3.0",
  org.gradle.tooling.model.java;version="6.3.0",
  org.gradle.tooling.model.kotlin.dsl;version="6.3.0"
-Bundle-Version: 6.3.0.qualifier
+Bundle-Version: 3.1.5.qualifier
