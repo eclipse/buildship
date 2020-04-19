@@ -1,6 +1,8 @@
-apply plugin: 'groovy'
-apply plugin: 'idea'
-apply plugin: 'eclipse'
+plugins {
+    id 'java-library'
+    id 'java-gradle-plugin'
+    id 'groovy'
+}
 
 repositories {
     maven {
@@ -16,5 +18,29 @@ dependencies {
     compile 'org.apache.maven:maven-ant-tasks:2.1.3'
     compile 'bcel:bcel:5.1'
     compile 'com.google.guava:guava:27.1-jre'
+    testCompile('org.junit.jupiter:junit-jupiter:5.6.2')
+    testCompile gradleTestKit()
+}
+
+
+gradlePlugin {
+    plugins {
+        builddefinition {
+            id = 'eclipsebuild.build-definition'
+            implementationClass = 'eclipsebuild.BuildDefinitionPlugin'
+        }
+
+        testbundle {
+            id = 'eclipsebuild.test-bundle'
+            implementationClass = 'eclipsebuild.TestBundlePlugin'
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
