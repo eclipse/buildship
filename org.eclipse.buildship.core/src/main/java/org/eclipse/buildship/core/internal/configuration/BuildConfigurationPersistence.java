@@ -58,6 +58,12 @@ final class BuildConfigurationPersistence {
         return readPreferences(preferences, projectDir);
     }
 
+    public DefaultBuildConfigurationProperties readCompositeBuildProperties(File compositeDir) {
+        Preconditions.checkNotNull(compositeDir);
+        PreferenceStore preferences = PreferenceStore.forPreferenceFile(compositeDir);
+        return readPreferences(preferences, compositeDir);
+    }
+
     public void saveBuildConfiguration(IProject project, BuildConfigurationProperties properties) {
         Preconditions.checkNotNull(project);
         Preconditions.checkNotNull(properties);

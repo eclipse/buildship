@@ -20,7 +20,11 @@ import com.google.common.collect.FluentIterable;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.IWorkingSetManager;
+import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 
 /**
@@ -135,6 +139,41 @@ public final class Validators {
                         return projectName.equals(project.getName());
                     }
                 });
+            }
+        };
+    }
+
+    public static Validator<String> uniqueWorkspaceCompositeNameValidator(final String prefix) {
+        return new Validator<String>() {
+
+            @Override
+            public Optional<String> validate(String compositeName) {
+                if (Strings.isNullOrEmpty(compositeName)) {
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_MustBeSpecified, prefix));
+                } else if (compositeName.equals(compositeName.trim()) == false) {
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_IsNotValid, prefix));
+                } else if (compositePropertiesFileDoesNotExist(compositeName) && compositeNameAlreadyExistsinWorkspace(compositeName)){
+                    return Optional.of(NLS.bind(CoreMessages.ErrorMessage_0_AlreadyExists, prefix));
+                } else {
+                    return Optional.absent();
+                }
+            }
+
+            private boolean compositePropertiesFileDoesNotExist(String compositeName) {
+                return CorePlugin.getInstance().getStateLocation()
+                        .append("workspace-composites").append(compositeName).toFile().exists();
+            }
+
+            private boolean compositeNameAlreadyExistsinWorkspace(String compositeName) {
+
+                IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
+                IWorkingSet[] workingSets = workingSetManager.getAllWorkingSets();
+                for (IWorkingSet workingSet : workingSets) {
+                    if (workingSet.getName().equals(compositeName)) {
+                        return true;
+                    }
+                }
+                return false;
             }
         };
     }
