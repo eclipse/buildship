@@ -14,18 +14,21 @@ import java.io.File;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.CompositeConfiguration;
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
+import org.eclipse.buildship.core.internal.configuration.DefaultCompositeConfiguration;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.widget.AdvancedOptionsGroup;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.IWorkbenchPropertyPage;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.dialogs.PropertyPage;
 
@@ -34,7 +37,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
  *
  * @author Sebastian Kuzniarz
  */
-public final class GradleCompositeImportOptionsPreferencePage extends PropertyPage {
+public final class GradleCompositeImportOptionsPreferencePage extends PropertyPage implements IWorkbenchPropertyPage{
 
     public static final String PAGE_ID = "org.eclipse.buildship.ui.compositeImportOptionsProperties";
 
@@ -62,8 +65,10 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
     }
 
     private void initValues() {
-        IProject project = getTargetProject();
-        BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
+    	IWorkingSet composite = getTargetComposite();
+    	
+        BuildConfiguration buildConfig = CorePlugin.configurationManager().loadCompositeConfiguration(composite).getBuildConfiguration();
+        
         boolean overrideWorkspaceSettings = buildConfig.isOverrideWorkspaceSettings();
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(buildConfig.getGradleDistribution()));
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setGradleUserHome(buildConfig.getGradleUserHome());
@@ -77,6 +82,7 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
         this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(buildConfig.isShowConsoleView());
         this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(buildConfig.isShowExecutionsView());
         this.gradleProjectSettingsComposite.updateEnablement();
+        
     }
 
     private void addListeners() {
@@ -89,28 +95,30 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
 
     @Override
     public boolean performOk() {
-       IProject project = getTargetProject();
-       ConfigurationManager manager = CorePlugin.configurationManager();
-       BuildConfiguration currentConfig = manager.loadProjectConfiguration(project).getBuildConfiguration();
-       BuildConfiguration updatedConfig = manager.createBuildConfiguration(currentConfig.getRootProjectDirectory(),
-           this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(),
-           this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution(),
-           this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHome(),
-           this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHome(),
-           this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(),
-           this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(),
-           this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection(),
-           this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments(),
-           this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments(),
-           this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection(),
-           this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection());
-       manager.saveBuildConfiguration(updatedConfig);
-       return true;
+    	IWorkingSet composite = getTargetComposite();
+    	ConfigurationManager manager = CorePlugin.configurationManager();
+    	CompositeConfiguration currentConfig = manager.loadCompositeConfiguration(composite);
+    	
+    	BuildConfiguration updatedConfig = manager.createBuildConfiguration(currentConfig.getBuildConfiguration().getRootProjectDirectory(),
+    			this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(),
+    			this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution(),
+    			this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHome(),
+    			this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHome(),
+    			this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(),
+    			this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(),
+    			this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection(),
+    			this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments(),
+    			this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments(),
+    			this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection(),
+    			this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection());
+    	CompositeConfiguration compConf = new DefaultCompositeConfiguration(currentConfig.getCompositeDir(), composite.getElements(), updatedConfig, currentConfig.projectAsCompositeRoot() ,currentConfig.getRootProject());
+    	manager.saveCompositeConfiguration(compConf); 
+    	return true;
     }
 
     @SuppressWarnings("cast")
-    private IProject getTargetProject() {
-        return (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
+    private IWorkingSet getTargetComposite() {
+        return (IWorkingSet) Platform.getAdapterManager().getAdapter(getElement(), IWorkingSet.class);
     }
 
     /**

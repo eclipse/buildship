@@ -22,7 +22,7 @@ import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.Dis
  *
  * @author Donat Csikos
  */
-final class GradleDistributionValidatingListener implements DistributionChangedListener {
+public final class GradleDistributionValidatingListener implements DistributionChangedListener {
 
     private final PreferencePage preferencePage;
     private final Validator<GradleDistributionViewModel> distributionValidator;

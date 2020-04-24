@@ -110,7 +110,7 @@ public final class GradleProjectPreferencePage extends PropertyPage {
        return true;
     }
 
-    @SuppressWarnings({"cast", "RedundantCast"})
+    @SuppressWarnings({"cast"})
     private IProject getTargetProject() {
         return (IProject) Platform.getAdapterManager().getAdapter(getElement(), IProject.class);
     }

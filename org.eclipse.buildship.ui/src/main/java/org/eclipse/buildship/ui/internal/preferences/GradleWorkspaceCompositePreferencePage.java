@@ -58,7 +58,7 @@ public final class GradleWorkspaceCompositePreferencePage extends PropertyPage {
         this.workspaceCompositeNameText = new Text(workspaceCompositeNameComposite, SWT.BORDER);
         this.workspaceCompositeNameText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-        this.gradleProjectCheckboxtreeComposite = new GradleProjectGroup(this.gradleWorkspaceCompositeSettingsComposite);
+        this.gradleProjectCheckboxtreeComposite = new GradleProjectGroup(this.gradleWorkspaceCompositeSettingsComposite, false); // TODO (donat) was this properly merged?
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(3, SWT.DEFAULT).applyTo(this.gradleProjectCheckboxtreeComposite);
 
         return this.gradleWorkspaceCompositeSettingsComposite;
