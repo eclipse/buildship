@@ -211,7 +211,8 @@ public class CompositeImportWizardController {
     		workingSet.setId(IGradleCompositeIDs.NATURE);
     		workingSetManager.addWorkingSet(workingSet);
     		
-    		
+    		compositePreferenceFile.getParentFile().mkdir();
+    		compositePreferenceFile.createNewFile();
 			FileOutputStream out = new FileOutputStream(compositePreferenceFile.getAbsoluteFile());
 			Properties prop = getConfiguration().toCompositeProperties().toProperties();
 			prop.store(out, " ");
