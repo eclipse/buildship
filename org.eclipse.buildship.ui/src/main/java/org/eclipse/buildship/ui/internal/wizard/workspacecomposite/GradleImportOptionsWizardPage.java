@@ -43,10 +43,10 @@ public final class GradleImportOptionsWizardPage extends AbstractCompositeWizard
     }
 
     public GradleImportOptionsWizardPage(CompositeConfiguration configuration, String title, String defaultMessage, String pageContextInformation) {
-    	super("GradleImportOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getDistribution(), configuration.getGradleUserHome(), configuration.getJavaHome()));
+        super("GradleImportOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getDistribution(), configuration.getGradleUserHome(), configuration.getJavaHome()));
         this.pageContextInformation = pageContextInformation;
 
-	}
+    }
 
     @Override
     protected void createWidgets(Composite root) {
@@ -63,12 +63,12 @@ public final class GradleImportOptionsWizardPage extends AbstractCompositeWizard
         addListeners();
     }
 
-	@Override
-	public IWizardPage getNextPage() {
-		IWizardPage page = new GradleRootProjectWizardPage(getConfiguration(), new CompositeRootProjectConfiguration());
+    @Override
+    public IWizardPage getNextPage() {
+        IWizardPage page = new GradleRootProjectWizardPage(getConfiguration(), new CompositeRootProjectConfiguration());
         page.setWizard(getWizard());
-		return page;
-	}
+        return page;
+    }
 
     private void initValues() {
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(getConfiguration().getOverrideWorkspaceConfiguration().getValue());

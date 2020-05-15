@@ -68,20 +68,20 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
     }
 
     public GradleCompositeRootProjectPreferencePage() {
-    	this.rootProjectValidator = Validators.optionalDirectoryValidator("Root project");
+        this.rootProjectValidator = Validators.optionalDirectoryValidator("Root project");
     }
 
     @Override
     protected Control createContents(Composite parent) {
-    	this.rootProjectSettingsComposite = buildRootProjectSettingsComposite(parent);
+        this.rootProjectSettingsComposite = buildRootProjectSettingsComposite(parent);
         addListeners();
         initValues();
         return this.rootProjectSettingsComposite;
     }
 
-	private Composite buildRootProjectSettingsComposite(Composite parent) {
-		Composite rootProjectComposite = new Composite(parent, SWT.WRAP);
-		rootProjectComposite.setLayout(createLayout());
+    private Composite buildRootProjectSettingsComposite(Composite parent) {
+        Composite rootProjectComposite = new Composite(parent, SWT.WRAP);
+        rootProjectComposite.setLayout(createLayout());
 
         this.projectAsCompositeRootCheckbox = new Button(rootProjectComposite, SWT.CHECK);
         this.projectAsCompositeRootCheckbox.setText("Use project as composite root");
@@ -112,17 +112,17 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
         this.selectRootProject.setText(WorkspaceCompositeWizardMessages.Button_Select_RootProject);
         this.selectRootProject.setEnabled(false);
         return rootProjectComposite;
-	}
+    }
 
     private void initValues() {
-    	IWorkingSet composite = getTargetComposite();
+        IWorkingSet composite = getTargetComposite();
 
         this.compositeConfig = CorePlugin.configurationManager().loadCompositeConfiguration(composite);
         boolean useProjectAsCompositeRoot = this.compositeConfig.projectAsCompositeRoot();
 
         this.projectAsCompositeRootCheckbox.setSelection(useProjectAsCompositeRoot);
-    	this.workspaceCompositeRootProjectLabel.setText(this.compositeConfig.getRootProject().toString());
-    	updateEnablement();
+        this.workspaceCompositeRootProjectLabel.setText(this.compositeConfig.getRootProject().toString());
+        updateEnablement();
     }
 
     private void addListeners() {
@@ -143,8 +143,8 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
             File rootProjectDir = this.workspaceCompositeRootProjectLabel.getText().isEmpty() ? null: new File(this.workspaceCompositeRootProjectLabel.getText());
             this.workspaceCompositeRootProjectLabel.addModifyListener(new ValidatingListener<>(this, () -> rootProjectDir, this.rootProjectValidator));
 
-    		this.selectRootProject.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.workspaceCompositeRootProjectLabel, "Root project"));
-    	}
+            this.selectRootProject.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.workspaceCompositeRootProjectLabel, "Root project"));
+        }
     }
 
     public void updateEnablement() {
@@ -168,16 +168,16 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
 
     @Override
     public boolean performOk() {
-    	IWorkingSet composite = getTargetComposite();
-    	ConfigurationManager manager = CorePlugin.configurationManager();
-    	CompositeConfiguration currentConfig = manager.loadCompositeConfiguration(composite);
+        IWorkingSet composite = getTargetComposite();
+        ConfigurationManager manager = CorePlugin.configurationManager();
+        CompositeConfiguration currentConfig = manager.loadCompositeConfiguration(composite);
 
-    	CompositeConfiguration compConf = new DefaultCompositeConfiguration(currentConfig.getCompositeDir(),
-    																		composite.getElements(),
-    																		currentConfig.getBuildConfiguration(),
-    																		this.projectAsCompositeRootCheckbox.getSelection(),
-    																		new File(this.workspaceCompositeRootProjectLabel.getText()));
-    	manager.saveCompositeConfiguration(compConf);
-    	return true;
+        CompositeConfiguration compConf = new DefaultCompositeConfiguration(currentConfig.getCompositeDir(),
+                                                                            composite.getElements(),
+                                                                            currentConfig.getBuildConfiguration(),
+                                                                            this.projectAsCompositeRootCheckbox.getSelection(),
+                                                                            new File(this.workspaceCompositeRootProjectLabel.getText()));
+        manager.saveCompositeConfiguration(compConf);
+        return true;
     }
 }

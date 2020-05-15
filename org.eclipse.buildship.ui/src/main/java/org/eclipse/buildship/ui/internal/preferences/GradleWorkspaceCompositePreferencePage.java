@@ -66,6 +66,6 @@ public final class GradleWorkspaceCompositePreferencePage extends PropertyPage {
 
     @Override
     public boolean performOk() {
-       return true;
+        return true;
     }
 }

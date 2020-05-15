@@ -1,14 +1,12 @@
-/*
- * Copyright (c) 2015 the original author or authors.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/*******************************************************************************
+ * Copyright (c) 2020 Gradle Inc.
  *
- * Contributors:
- *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
- *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - refactored HelpContextIdProvider
- */
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 
 package org.eclipse.buildship.ui.internal.preferences;
 
@@ -32,8 +30,8 @@ import org.eclipse.ui.PlatformUI;
  */
 public abstract class AbstractPropertiesPage extends WizardPage {
 
-	private final CompositeConfiguration configuration;
-	
+    private final CompositeConfiguration configuration;
+
     /**
      * Constructor setting up the main messages and the validation facility for this wizard page.
      *
@@ -51,10 +49,10 @@ public abstract class AbstractPropertiesPage extends WizardPage {
 
         // set the basic message and the attached image
         setTitle(title);
-		setDescription(defaultMessage);
+        setDescription(defaultMessage);
         setImageDescriptor(ImageDescriptor.createFromFile(GradleCreateWorkspaceCompositeWizardPage.class, "/icons/full/wizban/wizard.png")); //$NON-NLS-1$
     }
-    
+
     protected CompositeConfiguration getConfiguration() {
         return this.configuration;
     }
