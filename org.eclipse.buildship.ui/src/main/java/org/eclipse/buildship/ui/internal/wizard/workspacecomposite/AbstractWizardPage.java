@@ -1,14 +1,12 @@
-/*
- * Copyright (c) 2015 the original author or authors.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/*******************************************************************************
+ * Copyright (c) 2019 Gradle Inc.
  *
- * Contributors:
- *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
- *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - refactored HelpContextIdProvider
- */
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 
 package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
@@ -36,10 +34,10 @@ import com.google.common.base.Strings;
  */
 public abstract class AbstractWizardPage extends WizardPage {
 
-	@SuppressWarnings("unused")
-	private final String defaultMessage;
-	private final Font defaultFont;
-	private final UiBuilder.UiBuilderFactory builderFactory;
+    @SuppressWarnings("unused")
+    private final String defaultMessage;
+    private final Font defaultFont;
+    private final UiBuilder.UiBuilderFactory builderFactory;
 
     /**
      * Constructor setting up the main messages and the validation facility for this wizard page.

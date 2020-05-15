@@ -1,26 +1,23 @@
-/*
- * Copyright (c) 2015 the original author or authors.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/*******************************************************************************
+ * Copyright (c) 2019 Gradle Inc.
  *
- * Contributors:
- *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
- *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - adaptation and customization for workspace composite wizard 
- */
-
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
-import org.eclipse.buildship.ui.internal.preferences.GradleWorkbenchPreferencePage;
-import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
-import org.eclipse.buildship.ui.internal.wizard.project.ProjectImportWizard;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.PreferencesUtil;
+
+import org.eclipse.buildship.ui.internal.preferences.GradleWorkbenchPreferencePage;
+import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 
 /**
  * Page on the {@link WorkspaceCompositeCreationWizard} declaring the used Gradle distribution and other advanced options for the composite projects.
@@ -37,11 +34,11 @@ public final class GradleImportOptionsWizardPage extends AbstractWizardPage {
     }
 
     public GradleImportOptionsWizardPage(String title, String defaultMessage, String pageContextInformation) {
-    	super("GradleImportOptions", title, defaultMessage);
+        super("GradleImportOptions", title, defaultMessage);
         this.pageContextInformation = pageContextInformation;
-	}
+    }
 
-	@Override
+    @Override
     protected void createWidgets(Composite root) {
         GridLayoutFactory.swtDefaults().applyTo(root);
         this.gradleProjectSettingsComposite = GradleProjectSettingsComposite.builder(root)
