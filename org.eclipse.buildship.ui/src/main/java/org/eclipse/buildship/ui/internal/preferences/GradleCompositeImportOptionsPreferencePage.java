@@ -65,8 +65,8 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
     }
 
     private void initValues() {
-    	IWorkingSet composite = getTargetComposite();
-    	
+        IWorkingSet composite = getTargetComposite();
+        
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadCompositeConfiguration(composite).getBuildConfiguration();
         
         boolean overrideWorkspaceSettings = buildConfig.isOverrideWorkspaceSettings();
@@ -95,25 +95,25 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
 
     @Override
     public boolean performOk() {
-    	IWorkingSet composite = getTargetComposite();
-    	ConfigurationManager manager = CorePlugin.configurationManager();
-    	CompositeConfiguration currentConfig = manager.loadCompositeConfiguration(composite);
-    	
-    	BuildConfiguration updatedConfig = manager.createBuildConfiguration(currentConfig.getBuildConfiguration().getRootProjectDirectory(),
-    			this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(),
-    			this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution(),
-    			this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHome(),
-    			this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHome(),
-    			this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(),
-    			this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(),
-    			this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection(),
-    			this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments(),
-    			this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments(),
-    			this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection(),
-    			this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection());
-    	CompositeConfiguration compConf = new DefaultCompositeConfiguration(currentConfig.getCompositeDir(), composite.getElements(), updatedConfig, currentConfig.projectAsCompositeRoot() ,currentConfig.getRootProject());
-    	manager.saveCompositeConfiguration(compConf); 
-    	return true;
+        IWorkingSet composite = getTargetComposite();
+        ConfigurationManager manager = CorePlugin.configurationManager();
+        CompositeConfiguration currentConfig = manager.loadCompositeConfiguration(composite);
+        
+        BuildConfiguration updatedConfig = manager.createBuildConfiguration(currentConfig.getBuildConfiguration().getRootProjectDirectory(),
+                this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().getSelection(),
+                this.gradleProjectSettingsComposite.getGradleDistributionGroup().getDistribution().toGradleDistribution(),
+                this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getGradleUserHome(),
+                this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHome(),
+                this.gradleProjectSettingsComposite.getBuildScansCheckbox().getSelection(),
+                this.gradleProjectSettingsComposite.getOfflineModeCheckbox().getSelection(),
+                this.gradleProjectSettingsComposite.getAutoSyncCheckbox().getSelection(),
+                this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getArguments(),
+                this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments(),
+                this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection(),
+                this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection());
+        CompositeConfiguration compConf = new DefaultCompositeConfiguration(currentConfig.getCompositeDir(), composite.getElements(), updatedConfig, currentConfig.projectAsCompositeRoot() ,currentConfig.getRootProject());
+        manager.saveCompositeConfiguration(compConf); 
+        return true;
     }
 
     @SuppressWarnings("cast")

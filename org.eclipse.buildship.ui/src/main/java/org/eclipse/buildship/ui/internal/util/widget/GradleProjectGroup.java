@@ -74,7 +74,9 @@ public class GradleProjectGroup extends Group {
         fillCheckboxTreeWithProjects();
         if (this.editMode) {
             configureTree();
-        }this.gradleProjectTree.setUseHashlookup(true);
+        }
+
+        this.gradleProjectTree.setUseHashlookup(true);
 
         this.buttonComposite = new Composite(this, SWT.NONE);
         this.buttonComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true, 1, 1));
@@ -93,13 +95,14 @@ public class GradleProjectGroup extends Group {
 
     private void addListener() {
         this.newGradleProject.addSelectionListener(new SelectionAdapter() {
+
             @Override
             public void widgetSelected(SelectionEvent e) {
                 WizardDialog wizard = new WizardDialog(getShell(), new ProjectCreationWizard());
                 if (wizard.open() == WizardDialog.OK) {
                     fillCheckboxTreeWithProjects();
                     configureTree();
-                };
+                }
             }
         });
         this.externalProjectListener = new ExternalProjectDialogSelectionListener(getShell(), this.gradleProjectTree, "");
@@ -130,34 +133,33 @@ public class GradleProjectGroup extends Group {
     private ArrayList<String> getInitialTreeSelection() {
         ArrayList<String> projectNames = new ArrayList<>();
         BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+
             @Override
             public void run() {
                 IStructuredSelection projectSelection = null;
-                    IWorkbenchPage page= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                    if (page == null) {
-                        return;
+                IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                if (page == null) {
+                    return;
+                }
+
+                IWorkbenchPart part = page.getActivePart();
+                if (part == null) {
+                    return;
+                }
+
+                try {
+                    ISelectionProvider provider = part.getSite().getSelectionProvider();
+                    if (provider != null) {
+                        ISelection selection = provider.getSelection();
+                        projectSelection = selection instanceof IStructuredSelection ? (IStructuredSelection) selection : StructuredSelection.EMPTY;
                     }
+                } catch (Exception e) {
+                    return;
+                }
 
-                    IWorkbenchPart part= page.getActivePart();
-                    if (part == null) {
-                        return;
-                    }
+                Object[] elements = projectSelection.toArray();
 
-                    try {
-                        ISelectionProvider provider= part.getSite().getSelectionProvider();
-                        if (provider != null) {
-                            ISelection selection = provider.getSelection();
-                            projectSelection = selection instanceof IStructuredSelection ? (IStructuredSelection) selection : StructuredSelection.EMPTY;
-                        }
-                    } catch (Exception e) {
-                        return;
-                    }
-
-
-                Object[] elements= projectSelection.toArray();
-
-
-                for (int i=0; i < elements.length; i++) {
+                for (int i = 0; i < elements.length; i++) {
                     if (elements[i] instanceof IWorkingSet) {
                         IWorkingSet ge = ((IWorkingSet) elements[i]);
                         if (ge != null && ge.getId().equals(IGradleCompositeIDs.NATURE)) {
@@ -173,24 +175,23 @@ public class GradleProjectGroup extends Group {
         });
 
         return projectNames;
-}
+    }
 
     private void fillCheckboxTreeWithProjects() {
         this.gradleProjectTree.getTree().removeAll();
-          try {
-              IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-              IProject[] projects = workspaceRoot.getProjects();
-              for(int i = 0; i < projects.length; i++) {
-                 IProject project = projects[i];
-                 if(project.hasNature(GradleProjectNature.ID)) {
+        try {
+            IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+            IProject[] projects = workspaceRoot.getProjects();
+            for (int i = 0; i < projects.length; i++) {
+                IProject project = projects[i];
+                if (project.hasNature(GradleProjectNature.ID)) {
                     TreeItem jItem = new TreeItem(this.gradleProjectTree.getTree(), 0);
                     jItem.setText(project.getName());
-                 }
-              }
-           }
-           catch(CoreException ce) {
-              ce.printStackTrace();
-     }
+                }
+            }
+        } catch (CoreException ce) {
+            ce.printStackTrace();
+        }
     }
 
     public Tree getCheckboxTree() {
@@ -206,7 +207,7 @@ public class GradleProjectGroup extends Group {
     }
 
     @Override
-        protected void checkSubclass() {
+    protected void checkSubclass() {
         // Disable the check that prevents subclassing of SWT components
     }
 }

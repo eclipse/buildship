@@ -78,11 +78,11 @@ public final class CompositeConfiguration {
     }
 
     public Property<IAdaptable[]> getProjectList() {
-    	return this.projectList;
+        return this.projectList;
     }
 
     public void setProjectList(IAdaptable[] projectList) {
-    	this.projectList.setValue(projectList);
+        this.projectList.setValue(projectList);
     }
 
     public Property<Boolean> getOverrideWorkspaceConfiguration() {
@@ -206,22 +206,22 @@ public final class CompositeConfiguration {
     }
 
     public CompositeProperties toCompositeProperties() {
-    	return CompositeProperties.forRootProjectDirectory(getCompositePreferencesDir().getValue())
-    			.projectList(getProjectList().getValue())
-    			.overrideWorkspaceConfiguration(getOverrideWorkspaceConfiguration().getValue())
-    			.gradleDistribution(getDistribution().getValue().toGradleDistribution())
-    			.gradleUserHome(getGradleUserHome().getValue())
-    			.javaHome(getJavaHome().getValue())
-    			.buildScansEnabled(getBuildScansEnabled().getValue())
-    			.offlineMode(getOfflineMode().getValue())
-    			.autoSync(getAutoSync().getValue())
+        return CompositeProperties.forRootProjectDirectory(getCompositePreferencesDir().getValue())
+                .projectList(getProjectList().getValue())
+                .overrideWorkspaceConfiguration(getOverrideWorkspaceConfiguration().getValue())
+                .gradleDistribution(getDistribution().getValue().toGradleDistribution())
+                .gradleUserHome(getGradleUserHome().getValue())
+                .javaHome(getJavaHome().getValue())
+                .buildScansEnabled(getBuildScansEnabled().getValue())
+                .offlineMode(getOfflineMode().getValue())
+                .autoSync(getAutoSync().getValue())
                 .arguments(getArguments().getValue())
                 .jvmArguments(getJvmArguments().getValue())
                 .showConsoleView(getShowConsoleView().getValue())
                 .showExecutionsView(getShowExecutionsView().getValue())
                 .projectAsCompositeRoot(getProjectAsCompositeRoot().getValue())
                 .rootProject(getRootProject().getValue())
-    			.build();
+                .build();
     }
 
 }

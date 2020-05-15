@@ -32,8 +32,8 @@ public final class WorkspaceCompositeWizardMessages extends NLS {
     
     public static String WarningMessage_GradleWorkspaceComposite_NameWhitespaces;
     public static String WarningMessage_GradleWorkspaceComposite_NameEmpty;
-	public static String WarningMessage_GradleWorkspaceComposite_CompositeNameExists;
-	public static String WarningMessage_GradleWorkspaceComposite_CompositeEmpty;
+    public static String WarningMessage_GradleWorkspaceComposite_CompositeNameExists;
+    public static String WarningMessage_GradleWorkspaceComposite_CompositeEmpty;
 
     public static String InfoMessage_NewGradleWorkspaceCompositeWizardPageDefault;
     public static String InfoMessage_NewGradleWorkspaceCompositeOptionsWizardPageDefault;

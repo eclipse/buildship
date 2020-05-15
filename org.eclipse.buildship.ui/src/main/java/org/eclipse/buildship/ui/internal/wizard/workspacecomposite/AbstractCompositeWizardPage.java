@@ -1,14 +1,12 @@
-/*
- * Copyright (c) 2015 the original author or authors.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/*******************************************************************************
+ * Copyright (c) 2020 Gradle Inc.
  *
- * Contributors:
- *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
- *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - refactored HelpContextIdProvider
- */
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 
 package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
@@ -39,9 +37,9 @@ import org.eclipse.buildship.ui.internal.wizard.HelpContextIdProvider;
  */
 public abstract class AbstractCompositeWizardPage extends WizardPage {
 
-	private final CompositeConfiguration configuration;
+    private final CompositeConfiguration configuration;
     private final List<Property<?>> observedProperties;
-	private final String defaultMessage;
+    private final String defaultMessage;
 
     /**
      * Constructor setting up the main messages and the validation facility for this wizard page.
@@ -70,7 +68,7 @@ public abstract class AbstractCompositeWizardPage extends WizardPage {
         ValidationListener listener = new ValidationListener() {
             @Override
             public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
-            	validateInput(source, validationErrorMessage);
+                validateInput(source, validationErrorMessage);
                 // we set the page to completed if all its properties are valid
                 setPageComplete(isPageComplete());
             }
@@ -82,7 +80,7 @@ public abstract class AbstractCompositeWizardPage extends WizardPage {
         }
     }
     /**
-     * This method is overided by the main composite creation page due to a  different validation machanism
+     * This method is overided by the main composite creation page due to a  different validation machanism.
      * @param source
      * @param validationErrorMessage
      */
@@ -117,7 +115,7 @@ public abstract class AbstractCompositeWizardPage extends WizardPage {
     }
 
     protected List<Property<?>> getObservedProperties() {
-    	return this.observedProperties;
+        return this.observedProperties;
     }
 
     @Override

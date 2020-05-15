@@ -1,14 +1,12 @@
-/*
- * Copyright (c) 2015 the original author or authors.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/*******************************************************************************
+ * Copyright (c) 2020 Gradle Inc.
  *
- * Contributors:
- *     Etienne Studer & Donát Csikós (Gradle Inc.) - initial API and implementation and initial documentation
- *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - refactored WizardHelper
- */
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 
 package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
@@ -45,10 +43,10 @@ import com.google.common.collect.ImmutableList;
  * the wizard has to perform.
  */
 public class CompositeImportWizardController {
-	
-	private static String PROJECT_CREATION_DIALOG_SETTINGS = "org.eclipse.buildship.ui.wizard.composite.creation";
 
-	private IWorkingSet workingSet;
+    private static String PROJECT_CREATION_DIALOG_SETTINGS = "org.eclipse.buildship.ui.wizard.composite.creation";
+
+    private IWorkingSet workingSet;
 
     // keys to load/store project properties in the dialog setting
     private static final String SETTINGS_KEY_COMPOSITE_DIR = "composite_location"; //$NON-NLS-1$
@@ -86,14 +84,14 @@ public class CompositeImportWizardController {
 
         // initialize values from the persisted dialog settings
         IDialogSettings dialogSettings;
-      	
+
         if (compositeImportWizard != null) {
-        	 dialogSettings = compositeImportWizard.getDialogSettings();
+             dialogSettings = compositeImportWizard.getDialogSettings();
         } else {
 
-        	 dialogSettings = getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings());
+             dialogSettings = getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings());
         }
-        
+
         Optional<File> projectDir = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_COMPOSITE_DIR));
         String gradleDistributionString = dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION);
         Optional<File> gradleUserHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_GRADLE_USER_HOME));
@@ -199,30 +197,30 @@ public class CompositeImportWizardController {
     public CompositeConfiguration getConfiguration() {
         return this.configuration;
     }
-    
+
     public boolean performCreateComposite(IWizardContainer container, IWorkingSetManager workingSetManager) {
-    	try {
-    		File compositePreferenceFile = this.configuration.getCompositePreferencesDir().getValue();
-    		List<IProject> projects = new ArrayList<IProject>();
+        try {
+            File compositePreferenceFile = this.configuration.getCompositePreferencesDir().getValue();
+            List<IProject> projects = new ArrayList<>();
             for (IAdaptable project : getConfiguration().getProjectList().getValue()) {
-    			projects.add((IProject) project);
-    		}
-    		workingSet = workingSetManager.createWorkingSet(compositePreferenceFile.getName(), projects.toArray(new IProject[projects.size()]));
-    		workingSet.setId(IGradleCompositeIDs.NATURE);
-    		workingSetManager.addWorkingSet(workingSet);
-    		
-    		compositePreferenceFile.getParentFile().mkdir();
-    		compositePreferenceFile.createNewFile();
-			FileOutputStream out = new FileOutputStream(compositePreferenceFile.getAbsoluteFile());
-			Properties prop = getConfiguration().toCompositeProperties().toProperties();
-			prop.store(out, " ");
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return true;
+                projects.add((IProject) project);
+            }
+            this.workingSet = workingSetManager.createWorkingSet(compositePreferenceFile.getName(), projects.toArray(new IProject[projects.size()]));
+            this.workingSet.setId(IGradleCompositeIDs.NATURE);
+            workingSetManager.addWorkingSet(this.workingSet);
+
+            compositePreferenceFile.getParentFile().mkdir();
+            compositePreferenceFile.createNewFile();
+            FileOutputStream out = new FileOutputStream(compositePreferenceFile.getAbsoluteFile());
+            Properties prop = getConfiguration().toCompositeProperties().toProperties();
+            prop.store(out, " ");
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
-    
+
     private static IDialogSettings getOrCreateDialogSection(IDialogSettings dialogSettings) {
         IDialogSettings section = dialogSettings.getSection(PROJECT_CREATION_DIALOG_SETTINGS);
         if (section == null) {
@@ -230,8 +228,8 @@ public class CompositeImportWizardController {
         }
         return section;
     }
-    
+
     public IWorkingSet getWorkingSet() {
-    	return workingSet;
+        return this.workingSet;
     }
 }

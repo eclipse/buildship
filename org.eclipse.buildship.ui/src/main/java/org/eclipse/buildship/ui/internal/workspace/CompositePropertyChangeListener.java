@@ -1,13 +1,12 @@
-/*
- * Copyright (c) 2015 the original author or authors.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+/*******************************************************************************
+ * Copyright (c) 2020 Gradle Inc.
  *
- * Contributors:
- *     Sebastian Kuzniarz (Diebold Nixdorf Inc.) - initial implemenation
- */
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 
 package org.eclipse.buildship.ui.internal.workspace;
 
@@ -30,73 +29,73 @@ import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * Listener class for {@link org.eclipse.ui.internal.dialogs.WorkingSetSelectionDialog}. Contains file composite properties file 
+ * Listener class for {@link org.eclipse.ui.internal.dialogs.WorkingSetSelectionDialog}. Contains file composite properties file
  * deletion algorithm with backup to ensure cancel function for WorkingSetSelectionDialog.
  * @author kuzniarz
  */
 public class CompositePropertyChangeListener implements IPropertyChangeListener {
-	
-	private final Map<String, Properties> compositePropertiesBackup = new HashMap<String, Properties>();
-	IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
 
-	@Override
-	public void propertyChange(PropertyChangeEvent event) {
-		  if (compositeRemovalCausedEvent(event)) {
-		        try {
-		        	IWorkingSet removed = (IWorkingSet)event.getOldValue();
-		        	if (isNotAggregate(removed) && removed.getId().equals(IGradleCompositeIDs.NATURE)) {
-				        File compositePropertiesFile = CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(removed.getName()).toFile();
-				        backupCompositeProperties(removed, compositePropertiesFile);
-						Files.deleteIfExists(compositePropertiesFile.toPath());
-		        	}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		  } else if (compositeAddingCausedEvent(event)) {
-			  try {
-				  IWorkingSet added = (IWorkingSet)event.getNewValue();
-				  if (isNotAggregate(added) && added.getId().equals(IGradleCompositeIDs.NATURE)) {
-					  restoreCompositeProperties(added.getName());
-				  }
-			  } catch (IOException e) {
-				  e.printStackTrace();
-			  }
-		  }
-	}
+    private final Map<String, Properties> compositePropertiesBackup = new HashMap<>();
+    IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
 
-	private boolean isNotAggregate(IWorkingSet removed) {
-		return !removed.getName().contains(":");
-	}
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+          if (compositeRemovalCausedEvent(event)) {
+                try {
+                    IWorkingSet removed = (IWorkingSet)event.getOldValue();
+                    if (isNotAggregate(removed) && removed.getId().equals(IGradleCompositeIDs.NATURE)) {
+                        File compositePropertiesFile = CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(removed.getName()).toFile();
+                        backupCompositeProperties(removed, compositePropertiesFile);
+                        Files.deleteIfExists(compositePropertiesFile.toPath());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+          } else if (compositeAddingCausedEvent(event)) {
+              try {
+                  IWorkingSet added = (IWorkingSet)event.getNewValue();
+                  if (isNotAggregate(added) && added.getId().equals(IGradleCompositeIDs.NATURE)) {
+                      restoreCompositeProperties(added.getName());
+                  }
+              } catch (IOException e) {
+                  e.printStackTrace();
+              }
+          }
+    }
 
-	private void restoreCompositeProperties(String compositeName) throws FileNotFoundException, IOException {
-		if (compositePropertiesBackup.containsKey(compositeName)) {
-		        File compositePropertiesFile = CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(compositeName).toFile();
-				FileOutputStream out = new FileOutputStream(compositePropertiesFile.getAbsoluteFile());
-				compositePropertiesBackup.get(compositeName).store(out, " ");
-				compositePropertiesBackup.remove(compositeName);
-				out.close();
-		  } else {
-			  //New Composite is being created!
-		  }
-	}
+    private boolean isNotAggregate(IWorkingSet removed) {
+        return !removed.getName().contains(":");
+    }
 
-	private void backupCompositeProperties(IWorkingSet removed, File compositePropertiesFile)
-			throws FileNotFoundException, IOException {
-		Properties compositeProperties = new Properties();
-		FileInputStream input = new FileInputStream(compositePropertiesFile);
-		compositeProperties.load(input);
-		input.close();
-		compositePropertiesBackup.put(removed.getName(), compositeProperties);
-	}
+    private void restoreCompositeProperties(String compositeName) throws FileNotFoundException, IOException {
+        if (this.compositePropertiesBackup.containsKey(compositeName)) {
+                File compositePropertiesFile = CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(compositeName).toFile();
+                FileOutputStream out = new FileOutputStream(compositePropertiesFile.getAbsoluteFile());
+                this.compositePropertiesBackup.get(compositeName).store(out, " ");
+                this.compositePropertiesBackup.remove(compositeName);
+                out.close();
+          } else {
+              //New Composite is being created!
+          }
+    }
 
-	private boolean compositeAddingCausedEvent(PropertyChangeEvent event) {
-		return 	event.getProperty().equals(IWorkingSetManager.CHANGE_WORKING_SET_ADD) && 
-				event.getNewValue() != null;
-	}
+    private void backupCompositeProperties(IWorkingSet removed, File compositePropertiesFile)
+            throws FileNotFoundException, IOException {
+        Properties compositeProperties = new Properties();
+        FileInputStream input = new FileInputStream(compositePropertiesFile);
+        compositeProperties.load(input);
+        input.close();
+        this.compositePropertiesBackup.put(removed.getName(), compositeProperties);
+    }
 
-	private boolean compositeRemovalCausedEvent(PropertyChangeEvent event) {
-		return 	event.getProperty().equals(IWorkingSetManager.CHANGE_WORKING_SET_REMOVE) && 
-				event.getOldValue() != null;
-	}
+    private boolean compositeAddingCausedEvent(PropertyChangeEvent event) {
+        return     event.getProperty().equals(IWorkingSetManager.CHANGE_WORKING_SET_ADD) &&
+                event.getNewValue() != null;
+    }
+
+    private boolean compositeRemovalCausedEvent(PropertyChangeEvent event) {
+        return     event.getProperty().equals(IWorkingSetManager.CHANGE_WORKING_SET_REMOVE) &&
+                event.getOldValue() != null;
+    }
 
 }

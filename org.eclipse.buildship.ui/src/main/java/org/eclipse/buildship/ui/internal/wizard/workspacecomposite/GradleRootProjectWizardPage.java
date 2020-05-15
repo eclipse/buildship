@@ -12,10 +12,8 @@ package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
 import java.io.File;
 
-import org.eclipse.buildship.core.internal.util.binding.Property;
-import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.CompositeConfiguration;
+import com.google.common.collect.ImmutableList;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -31,7 +29,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Text;
 
-import com.google.common.collect.ImmutableList;
+import org.eclipse.buildship.core.internal.util.binding.Property;
+import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
 
 /**
  * Page in the {@link WorkspaceCompositeCreationWizard} for setting a project as composite root.
@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableList;
 @SuppressWarnings("unused")
 public final class GradleRootProjectWizardPage extends AbstractCompositeWizardPage {
 
-	private final CompositeRootProjectConfiguration rootProjectConfiguration;
+    private final CompositeRootProjectConfiguration rootProjectConfiguration;
 
     private Text workspaceCompositeRootProjectText;
     private Text overrideRootProjectCheckboxLabel;
@@ -68,8 +68,8 @@ public final class GradleRootProjectWizardPage extends AbstractCompositeWizardPa
     }
 
     private void initValues() {
-    	this.overrideRootProjectCheckbox.setSelection(this.rootProjectConfiguration.getUseCompositeRoot().getValue());
-    	this.workspaceCompositeRootProjectText.setText(this.rootProjectConfiguration.getRootProject().getValue().getAbsolutePath());
+        this.overrideRootProjectCheckbox.setSelection(this.rootProjectConfiguration.getUseCompositeRoot().getValue());
+        this.workspaceCompositeRootProjectText.setText(this.rootProjectConfiguration.getRootProject().getValue().getAbsolutePath());
     }
 
     private Layout createLayout() {
@@ -119,42 +119,42 @@ public final class GradleRootProjectWizardPage extends AbstractCompositeWizardPa
     }
 
     private void addListeners() {
-    	if (this.overrideRootProjectCheckbox != null) {
-    		this.overrideRootProjectCheckbox.addSelectionListener(new SelectionListener() {
+        if (this.overrideRootProjectCheckbox != null) {
+            this.overrideRootProjectCheckbox.addSelectionListener(new SelectionListener() {
 
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					getConfiguration().getProjectAsCompositeRoot().setValue(GradleRootProjectWizardPage.this.overrideRootProjectCheckbox.getSelection());
-					updateEnablement();
-				}
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    getConfiguration().getProjectAsCompositeRoot().setValue(GradleRootProjectWizardPage.this.overrideRootProjectCheckbox.getSelection());
+                    updateEnablement();
+                }
 
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					getConfiguration().getProjectAsCompositeRoot().setValue(GradleRootProjectWizardPage.this.overrideRootProjectCheckbox.getSelection());
-					updateEnablement();
-				}
-			});
+                @Override
+                public void widgetDefaultSelected(SelectionEvent e) {
+                    getConfiguration().getProjectAsCompositeRoot().setValue(GradleRootProjectWizardPage.this.overrideRootProjectCheckbox.getSelection());
+                    updateEnablement();
+                }
+            });
 
-    		this.workspaceCompositeRootProjectText.addModifyListener(new ModifyListener() {
+            this.workspaceCompositeRootProjectText.addModifyListener(new ModifyListener() {
 
-				@Override
-				public void modifyText(ModifyEvent e) {
-					getConfiguration().getRootProject().setValue(GradleRootProjectWizardPage.this.getRootProject());
+                @Override
+                public void modifyText(ModifyEvent e) {
+                    getConfiguration().getRootProject().setValue(GradleRootProjectWizardPage.this.getRootProject());
 
-				}
-			});
+                }
+            });
 
-    		this.selectRootProject.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.workspaceCompositeRootProjectText, "Root project"));
-    	}
+            this.selectRootProject.addSelectionListener(new DirectoryDialogSelectionListener(this.getShell(), this.workspaceCompositeRootProjectText, "Root project"));
+        }
     }
 
     public void updateEnablement() {
-    	if (this.overrideRootProjectCheckbox != null) {
-    		boolean enabled = this.overrideRootProjectCheckbox.getSelection();
+        if (this.overrideRootProjectCheckbox != null) {
+            boolean enabled = this.overrideRootProjectCheckbox.getSelection();
             this.rootProjectLabel.setEnabled(enabled);
-    		this.workspaceCompositeRootProjectText.setEnabled(enabled);
-    		this.selectRootProject.setEnabled(enabled);
-    	}
+            this.workspaceCompositeRootProjectText.setEnabled(enabled);
+            this.selectRootProject.setEnabled(enabled);
+        }
     }
 
     @Override
