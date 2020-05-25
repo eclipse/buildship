@@ -37,6 +37,7 @@ import org.eclipse.buildship.core.internal.event.DefaultListenerRegistry;
 import org.eclipse.buildship.core.internal.event.ListenerRegistry;
 import org.eclipse.buildship.core.internal.extension.DefaultExtensionManager;
 import org.eclipse.buildship.core.internal.extension.ExtensionManager;
+import org.eclipse.buildship.core.internal.gradle.GradleConnectorFactory;
 import org.eclipse.buildship.core.internal.invocation.InvocationCustomizerCollector;
 import org.eclipse.buildship.core.internal.launch.DefaultExternalLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.launch.DefaultGradleLaunchConfigurationManager;
@@ -110,6 +111,7 @@ public final class CorePlugin extends Plugin {
     private DefaultExternalLaunchConfigurationManager externalLaunchConfigurationManager;
     private ToolingApiOperationManager operationManager;
     private ExtensionManager extensionManager;
+    private GradleConnectorFactory connectorFactory;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -165,6 +167,7 @@ public final class CorePlugin extends Plugin {
         this.externalLaunchConfigurationManager = DefaultExternalLaunchConfigurationManager.createAndRegister();
         this.operationManager = new DefaultToolingApiOperationManager();
         this.extensionManager = new DefaultExtensionManager();
+        this.connectorFactory = new GradleConnectorFactory();
     }
 
     private ServiceTracker createServiceTracker(BundleContext context, Class<?> clazz) {
@@ -252,6 +255,7 @@ public final class CorePlugin extends Plugin {
         this.workspaceOperationsServiceTracker.close();
         this.publishedGradleVersionsServiceTracker.close();
         this.loggerServiceTracker.close();
+        this.connectorFactory.close();
     }
 
     public static CorePlugin getInstance() {
@@ -308,5 +312,9 @@ public final class CorePlugin extends Plugin {
 
     public static ExtensionManager extensionManager() {
         return getInstance().extensionManager;
+    }
+
+    public static GradleConnectorFactory connectorFactory() {
+        return getInstance().connectorFactory;
     }
 }

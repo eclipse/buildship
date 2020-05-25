@@ -65,7 +65,7 @@ public final class ConnectionAwareLauncherProxy implements InvocationHandler {
     }
 
     private static ProjectConnection openConnection(GradleArguments gradleArguments) {
-        GradleConnector connector = GradleConnector.newConnector();
+        GradleConnector connector = CorePlugin.connectorFactory().createGradleConnector();
         gradleArguments.applyTo(connector);
         return connector.connect();
     }

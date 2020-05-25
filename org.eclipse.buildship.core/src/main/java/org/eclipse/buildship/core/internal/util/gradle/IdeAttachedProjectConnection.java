@@ -29,6 +29,7 @@ import org.gradle.tooling.model.build.BuildEnvironment;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.GradleArguments;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 
@@ -97,7 +98,7 @@ public final class IdeAttachedProjectConnection implements ProjectConnection {
     }
 
     public static ProjectConnection newInstance(CancellationTokenSource tokenSource, GradleArguments gradleArguments, IProgressMonitor monitor) {
-        GradleConnector connector = GradleConnector.newConnector();
+        GradleConnector connector = CorePlugin.connectorFactory().createGradleConnector();
         gradleArguments.applyTo(connector);
         ProjectConnection connection = new CompatProjectConnection(connector.connect());
 
