@@ -32,7 +32,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
+import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.Logger;
@@ -45,7 +45,7 @@ import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
  * Updates the classpath container of the target project.
  * <p/>
  * The update is triggered via
- * {@link #updateFromModel(IJavaProject, EclipseProject, Set, IProgressMonitor)}. The method
+ * {@link #updateFromModel(IJavaProject, EclipseProject, Set, IProgressMonitor, ProjectContext)}. The method
  * executes synchronously and unprotected, without thread synchronization or job scheduling.
  * <p/>
  * The update logic composes a new classpath container containing all project and external
@@ -61,9 +61,11 @@ final class GradleClasspathContainerUpdater {
     private final IJavaProject eclipseProject;
     private final EclipseProject gradleProject;
     private final Map<File, EclipseProject> projectDirToProject;
+    private final ProjectContext projectContext;
 
-    private GradleClasspathContainerUpdater(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects) {
-        this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
+    private GradleClasspathContainerUpdater(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects, ProjectContext projectContext) {
+        this.projectContext = projectContext;
+		this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.projectDirToProject = Maps.newHashMap();
 
@@ -101,6 +103,12 @@ final class GradleClasspathContainerUpdater {
             File dependencyFile = dependency.getFile();
             boolean linkedResourceCreated = tryCreatingLinkedResource(dependencyFile, result);
             if (!linkedResourceCreated) {
+                //Taken from UnresolvedIdeDependencyHandler.java on the gradle resolver subproject
+                String[] unresolvedDependency = dependencyFile.getPath().split("unresolved dependency - ");
+                if(unresolvedDependency.length>1) {
+                	projectContext.warning("The dependency "+unresolvedDependency[1].replaceFirst(" ", ":").replaceFirst(" ", ":")+" could not be resolved.", null);
+                	continue;
+                }
                 String dependencyName = dependencyFile.getName();
                 // Eclipse only accepts folders and archives as external dependencies (but not, for
                 // example, a DLL)
@@ -147,14 +155,14 @@ final class GradleClasspathContainerUpdater {
      * restarted.
      */
     public static void updateFromModel(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects, PersistentModelBuilder persistentModel,
-            IProgressMonitor monitor) throws JavaModelException {
-        GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects);
+            IProgressMonitor monitor, ProjectContext context) throws JavaModelException {
+        GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects, context);
         updater.updateClasspathContainer(persistentModel, monitor);
     }
 
     /**
      * Updates the classpath container from the state stored by the last call to
-     * {@link #updateFromModel(IJavaProject, EclipseProject, IProgressMonitor)}.
+     * {@link #updateFromModel(IJavaProject, EclipseProject, IProgressMonitor, ProjectContext)}.
      */
     public static boolean updateFromStorage(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
         PersistentModel model = CorePlugin.modelPersistence().loadModel(eclipseProject.getProject());
