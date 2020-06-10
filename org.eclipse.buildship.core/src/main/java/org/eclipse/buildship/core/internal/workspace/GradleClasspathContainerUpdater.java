@@ -10,9 +10,11 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipFile;
 
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -104,7 +106,7 @@ final class GradleClasspathContainerUpdater {
                 String dependencyName = dependencyFile.getName();
                 // Eclipse only accepts folders and archives as external dependencies (but not, for
                 // example, a DLL)
-                if (dependencyFile.isDirectory() || dependencyName.endsWith(".jar") || dependencyName.endsWith(".zip")) {
+                if (dependencyFile.isDirectory() || isZipArchiveSuffix(dependencyName)|| isZipArchive(dependencyFile)) {
                     IPath path = org.eclipse.core.runtime.Path.fromOSString(dependencyFile.getAbsolutePath());
                     File dependencySource = dependency.getSource();
                     IPath sourcePath = dependencySource != null ? org.eclipse.core.runtime.Path.fromOSString(dependencySource.getAbsolutePath()) : null;
@@ -115,6 +117,21 @@ final class GradleClasspathContainerUpdater {
             }
         }
         return result.build();
+    }
+
+    private boolean isZipArchiveSuffix(String dependencyName) {
+       String dependencyNameLwc = dependencyName.toLowerCase();
+        return dependencyNameLwc.endsWith(".jar") || dependencyNameLwc.endsWith(".rar") || dependencyNameLwc.endsWith(".zip");
+    }
+
+    private boolean isZipArchive(File dependencyFile) {
+        try (ZipFile zipFile = new ZipFile(dependencyFile)) {
+            zipFile.size();
+            return true;
+        } catch (IOException e) {
+            // if not able to read we suppose it is not a ZIP file
+        }
+        return false;
     }
 
     private boolean tryCreatingLinkedResource(File dependencyFile, Builder<IClasspathEntry> result) {
