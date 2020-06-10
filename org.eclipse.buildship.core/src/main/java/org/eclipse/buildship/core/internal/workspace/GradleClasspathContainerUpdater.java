@@ -45,8 +45,9 @@ import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
  * Updates the classpath container of the target project.
  * <p/>
  * The update is triggered via
- * {@link #updateFromModel(IJavaProject, EclipseProject, Set, IProgressMonitor, ProjectContext)}. The method
- * executes synchronously and unprotected, without thread synchronization or job scheduling.
+ * {@link #updateFromModel(IJavaProject, EclipseProject, Set, IProgressMonitor, ProjectContext)}.
+ * The method executes synchronously and unprotected, without thread synchronization or job
+ * scheduling.
  * <p/>
  * The update logic composes a new classpath container containing all project and external
  * dependencies defined in the Gradle model. At the end of the execution the old classpath container
@@ -65,7 +66,7 @@ final class GradleClasspathContainerUpdater {
 
     private GradleClasspathContainerUpdater(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects, ProjectContext projectContext) {
         this.projectContext = projectContext;
-		this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
+        this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.projectDirToProject = Maps.newHashMap();
 
@@ -103,11 +104,11 @@ final class GradleClasspathContainerUpdater {
             File dependencyFile = dependency.getFile();
             boolean linkedResourceCreated = tryCreatingLinkedResource(dependencyFile, result);
             if (!linkedResourceCreated) {
-                //Taken from UnresolvedIdeDependencyHandler.java on the gradle resolver subproject
+                // Taken from UnresolvedIdeDependencyHandler.java on the gradle resolver subproject
                 String[] unresolvedDependency = dependencyFile.getPath().split("unresolved dependency - ");
-                if(unresolvedDependency.length>1) {
-                	projectContext.warning("The dependency "+unresolvedDependency[1].replaceFirst(" ", ":").replaceFirst(" ", ":")+" could not be resolved.", null);
-                	continue;
+                if (unresolvedDependency.length > 1) {
+                    this.projectContext.warning("The dependency " + unresolvedDependency[1].replaceFirst(" ", ":").replaceFirst(" ", ":") + " could not be resolved.", null);
+                    continue;
                 }
                 String dependencyName = dependencyFile.getName();
                 // Eclipse only accepts folders and archives as external dependencies (but not, for
@@ -154,8 +155,8 @@ final class GradleClasspathContainerUpdater {
      * container will be persisted so it does not have to be reloaded after the workbench is
      * restarted.
      */
-    public static void updateFromModel(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects, PersistentModelBuilder persistentModel,
-            IProgressMonitor monitor, ProjectContext context) throws JavaModelException {
+    public static void updateFromModel(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects,
+            PersistentModelBuilder persistentModel, IProgressMonitor monitor, ProjectContext context) throws JavaModelException {
         GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects, context);
         updater.updateClasspathContainer(persistentModel, monitor);
     }
