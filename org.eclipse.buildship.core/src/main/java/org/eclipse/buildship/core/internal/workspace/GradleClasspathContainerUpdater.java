@@ -106,7 +106,7 @@ final class GradleClasspathContainerUpdater {
             if (!linkedResourceCreated) {
                 // Taken from UnresolvedIdeDependencyHandler.java on the gradle resolver subproject
                 String[] unresolvedDependency = dependencyFile.getPath().split("unresolved dependency - ");
-                if (unresolvedDependency.length > 1) {
+                if (unresolvedDependency.length > 1 && this.projectContext != null) {
                     this.projectContext.warning("The dependency " + unresolvedDependency[1].replaceFirst(" ", ":").replaceFirst(" ", ":") + " could not be resolved.", null);
                     continue;
                 }
