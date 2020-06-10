@@ -13,6 +13,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -59,6 +61,10 @@ import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
  */
 final class GradleClasspathContainerUpdater {
 
+    // Pattern from https://github.com/gradle/gradle/blob/2546d790db1a8b263d34c36669ae39a4537c922c/subprojects/ide/src/main/java/org/gradle/plugins/ide/internal/resolver/UnresolvedIdeDependencyHandler.java#L42
+    private static final String UNRESOLVED_DEPENDENCY_NAME_PREFIX  = "unresolved dependency - ";
+    private static final Pattern UNRESOLVED_DEPENDENCY_NAME_PATTERN  = Pattern.compile("^([^ ]+) ([^ ]+) ([^ ]+)$");
+
     private final IJavaProject eclipseProject;
     private final EclipseProject gradleProject;
     private final Map<File, EclipseProject> projectDirToProject;
@@ -104,10 +110,18 @@ final class GradleClasspathContainerUpdater {
             File dependencyFile = dependency.getFile();
             boolean linkedResourceCreated = tryCreatingLinkedResource(dependencyFile, result);
             if (!linkedResourceCreated) {
-                // Taken from UnresolvedIdeDependencyHandler.java on the gradle resolver subproject
-                String[] unresolvedDependency = dependencyFile.getPath().split("unresolved dependency - ");
-                if (unresolvedDependency.length > 1 && this.projectContext != null) {
-                    this.projectContext.warning("The dependency " + unresolvedDependency[1].replaceFirst(" ", ":").replaceFirst(" ", ":") + " could not be resolved.", null);
+                // Add error marker for unresolved dependencies
+                if (this.projectContext != null && dependencyFile.getName().startsWith(UNRESOLVED_DEPENDENCY_NAME_PREFIX)) {
+                    String coordinates = dependencyFile.getName().substring(UNRESOLVED_DEPENDENCY_NAME_PREFIX.length());
+                    Matcher m = UNRESOLVED_DEPENDENCY_NAME_PATTERN.matcher(coordinates);
+                    if (m.matches()) {
+                        String groupId = m.group(1);
+                        String artifactId = m.group(2);
+                        String version = m.group(3);
+                        this.projectContext.warning("Unresolved dependency: " + groupId + ":" + artifactId + ":" + version, null);
+                    } else {
+                        this.projectContext.warning("Unresolved dependency: " + coordinates, null);
+                    }
                     continue;
                 }
                 String dependencyName = dependencyFile.getName();
