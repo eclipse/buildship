@@ -10,12 +10,20 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.gradle.tooling.GradleConnector;
+import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency;
@@ -65,6 +73,9 @@ final class GradleClasspathContainerUpdater {
     private static final String UNRESOLVED_DEPENDENCY_NAME_PREFIX  = "unresolved dependency - ";
     private static final Pattern UNRESOLVED_DEPENDENCY_NAME_PATTERN  = Pattern.compile("^([^ ]+) ([^ ]+) ([^ ]+)$");
 
+    private static final Pattern JUNIT_PLATFORM_ENGINE_DEPENDENCY_PATTERN = Pattern.compile("junit-platform-engine-([0-9\\.]+)\\.jar");
+    private static final Pattern JUNIT_PLATFORM_LAUNCHER_DEPENDENCY_PATTERN = Pattern.compile("junit-platform-launcher-[0-9\\.]+\\.jar");
+
     private final IJavaProject eclipseProject;
     private final EclipseProject gradleProject;
     private final Map<File, EclipseProject> projectDirToProject;
@@ -88,7 +99,7 @@ final class GradleClasspathContainerUpdater {
     }
 
     private ImmutableList<IClasspathEntry> collectClasspathContainerEntries() {
-        List<IClasspathEntry> externalDependencies = collectExternalDependencies();
+        List<IClasspathEntry> externalDependencies = addJunit5Support(collectExternalDependencies(this.projectContext, this.eclipseProject, this.gradleProject.getClasspath()));
         List<IClasspathEntry> projectDependencies = collectProjectDependencies();
 
         boolean hasExportedEntry = externalDependencies.stream().anyMatch(IClasspathEntry::isExported);
@@ -104,23 +115,85 @@ final class GradleClasspathContainerUpdater {
         }
     }
 
-    private List<IClasspathEntry> collectExternalDependencies() {
-        Builder<IClasspathEntry> result = ImmutableList.builder();
-        for (EclipseExternalDependency dependency : this.gradleProject.getClasspath()) {
+    private List<IClasspathEntry> addJunit5Support(List<IClasspathEntry> externalDependencies) {
+        try {
+            String junitEngineVersion = null;
+            boolean junitLauncherPresent = false;
+            for (IClasspathEntry cpe : externalDependencies) {
+                if (cpe.getPath().segmentCount() > 0) {
+                    String jarName = cpe.getPath().lastSegment();
+                    Matcher matcher = JUNIT_PLATFORM_ENGINE_DEPENDENCY_PATTERN.matcher(jarName);
+                    if (matcher.matches()) {
+                        junitEngineVersion = matcher.group(1);
+                    }
+                    matcher = JUNIT_PLATFORM_LAUNCHER_DEPENDENCY_PATTERN.matcher(jarName);
+                    if (matcher.matches()) {
+                        junitLauncherPresent = true;
+                    }
+                }
+            }
+
+            if (junitEngineVersion != null && !junitLauncherPresent) {
+                externalDependencies.addAll(junitLauncher(this.eclipseProject, junitEngineVersion));
+            }
+        } catch (JavaModelException e) {
+            CorePlugin.logger().warn("JUnit 5 support failed", e);
+        }
+        return externalDependencies;
+    }
+
+    private Collection<? extends IClasspathEntry> junitLauncher(IJavaProject javaProject, String version) throws JavaModelException {
+        File projectDir = CorePlugin.getInstance().getStateLocation().append("junit5").toFile();
+        if (!projectDir.exists()) {
+            if (!projectDir.mkdirs()) {
+                throw new RuntimeException("Cannot create directory " + projectDir.getAbsolutePath());
+            }
+        }
+
+        File buildFile = new File(projectDir, "build.gradle");
+        String buildScript = ""
+                + "plugins {\n"
+                + "  id 'java-library'\n"
+                + "}\n"
+                + "\n"
+                + "repositories {\n"
+                + "  jcenter()\n"
+                + "}\n"
+                + "\n"
+                + "dependencies {\n"
+                + "  testImplementation 'org.junit.platform:junit-platform-launcher:" + version + "'\n"
+                + "}\n";
+        try {
+            buildFile.createNewFile();
+            Files.write(buildFile.toPath(), buildScript.getBytes(), StandardOpenOption.WRITE);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        GradleConnector connector = GradleConnector.newConnector();
+        try (ProjectConnection connection = connector.forProjectDirectory(projectDir).connect()) {
+            EclipseProject eclipseProject = connection.getModel(EclipseProject.class);
+            return collectExternalDependencies(this.projectContext, javaProject, eclipseProject.getClasspath());
+        }
+    }
+
+    private static List<IClasspathEntry> collectExternalDependencies(ProjectContext projectContext, IJavaProject project, Collection<? extends EclipseExternalDependency> dependencies) {
+        List<IClasspathEntry> result = new ArrayList<>(dependencies.size());
+        for (EclipseExternalDependency dependency : dependencies) {
             File dependencyFile = dependency.getFile();
-            boolean linkedResourceCreated = tryCreatingLinkedResource(dependencyFile, result);
+            boolean linkedResourceCreated = tryCreatingLinkedResource(project, dependencyFile, result);
             if (!linkedResourceCreated) {
                 // Add error marker for unresolved dependencies
-                if (this.projectContext != null && dependencyFile.getName().startsWith(UNRESOLVED_DEPENDENCY_NAME_PREFIX)) {
+                if (projectContext != null && dependencyFile.getName().startsWith(UNRESOLVED_DEPENDENCY_NAME_PREFIX)) {
                     String coordinates = dependencyFile.getName().substring(UNRESOLVED_DEPENDENCY_NAME_PREFIX.length());
                     Matcher m = UNRESOLVED_DEPENDENCY_NAME_PATTERN.matcher(coordinates);
                     if (m.matches()) {
                         String groupId = m.group(1);
                         String artifactId = m.group(2);
                         String version = m.group(3);
-                        this.projectContext.error("Unresolved dependency: " + groupId + ":" + artifactId + ":" + version, null);
+                        projectContext.error("Unresolved dependency: " + groupId + ":" + artifactId + ":" + version, null);
                     } else {
-                        this.projectContext.error("Unresolved dependency: " + coordinates, null);
+                        projectContext.error("Unresolved dependency: " + coordinates, null);
                     }
                     continue;
                 }
@@ -137,18 +210,18 @@ final class GradleClasspathContainerUpdater {
                 }
             }
         }
-        return result.build();
+        return result;
     }
 
-    private boolean hasAcceptedSuffix(String dependencyName) {
+    private static boolean hasAcceptedSuffix(String dependencyName) {
        String name = dependencyName.toLowerCase();
        return name.endsWith(".jar") || name.endsWith(".rar") || name.endsWith(".zip");
     }
 
-    private boolean tryCreatingLinkedResource(File dependencyFile, Builder<IClasspathEntry> result) {
+    private static boolean tryCreatingLinkedResource(IJavaProject project, File dependencyFile, List<IClasspathEntry> result) {
         if (!dependencyFile.exists()) {
             IPath path = new Path("/" + dependencyFile.getPath());
-            IResource member = this.eclipseProject.getProject().findMember(path);
+            IResource member = project.getProject().findMember(path);
             if (member != null) {
                 IClasspathEntry entry = JavaCore.newLibraryEntry(member.getFullPath(), null, null);
                 result.add(entry);
