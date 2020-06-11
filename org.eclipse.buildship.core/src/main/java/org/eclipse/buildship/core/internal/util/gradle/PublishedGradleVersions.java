@@ -29,6 +29,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Closeables;
@@ -38,7 +39,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * Provides information about the Gradle versions available from services.gradle.org. The version information can optionally be cached on the local file system.
+ * Provides information about the Gradle versions available from services.gradle.org. The version
+ * information can optionally be cached on the local file system.
  *
  * @author Etienne Studer
  */
@@ -72,18 +74,19 @@ public final class PublishedGradleVersions {
      */
     public List<GradleVersion> getVersions() {
         return FluentIterable.from(this.versions).filter(new Predicate<Map<String, String>>() {
+
             @Override
             public boolean apply(Map<String, String> input) {
-                return (Boolean.valueOf(input.get(ACTIVE_RC)) || input.get(RC_FOR).equals("")) &&
-                        !Boolean.valueOf(input.get(BROKEN)) &&
-                        !Boolean.valueOf(input.get(SNAPSHOT));
+                return (Boolean.valueOf(input.get(ACTIVE_RC)) || input.get(RC_FOR).equals("")) && !Boolean.valueOf(input.get(BROKEN)) && !Boolean.valueOf(input.get(SNAPSHOT));
             }
         }).transform(new Function<Map<String, String>, GradleVersion>() {
+
             @Override
             public GradleVersion apply(Map<String, String> input) {
                 return GradleVersion.version(input.get(VERSION));
             }
         }).filter(new Predicate<GradleVersion>() {
+
             @Override
             public boolean apply(GradleVersion input) {
                 return input.compareTo(GradleVersion.version(MINIMUM_SUPPORTED_GRADLE_VERSION)) >= 0;
@@ -104,6 +107,10 @@ public final class PublishedGradleVersions {
             return create(json);
         }
         File cacheFile = getCacheFile();
+
+        if (lookupStratgy == LookupStrategy.CACHED_ONLY) {
+            return tryToReadVersionFile(cacheFile);
+        }
         if (!cacheFile.isFile() || !cacheFile.exists()) {
             LOG.info("Gradle version information cache is not available. Remote download required.");
             return tryToDownloadAndCacheVersions(cacheFile, lookupStratgy);
@@ -115,6 +122,14 @@ public final class PublishedGradleVersions {
         } else {
             LOG.info("Gradle version information cache is out-of-date. Trying to update.");
             return tryToUpdateOutdatedVersionsFile(cacheFile, lookupStratgy);
+        }
+    }
+
+    private static PublishedGradleVersions tryToReadVersionFile(File cacheFile) {
+        try {
+            return create(Files.asCharSource(cacheFile, Charsets.UTF_8).read());
+        } catch (IOException ignore) {
+            return new PublishedGradleVersions(ImmutableList.of(ImmutableMap.of("version", GradleVersion.current().getVersion(), "activeRc", "false", "rcFor", "")));
         }
     }
 
@@ -163,7 +178,8 @@ public final class PublishedGradleVersions {
             return CharStreams.toString(reader);
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot download published Gradle versions.", e);
-            // throw an exception if version information cannot be downloaded since we need this information
+            // throw an exception if version information cannot be downloaded since we need this
+            // information
         } finally {
             try {
                 Closeables.close(reader, false);
@@ -177,23 +193,25 @@ public final class PublishedGradleVersions {
     }
 
     private static void storeCacheVersionsFile(String json, File cacheFile) {
-        //noinspection ResultOfMethodCallIgnored
+        // noinspection ResultOfMethodCallIgnored
         cacheFile.getParentFile().mkdirs();
 
         try {
             CharSource.wrap(json).copyTo(Files.asCharSink(cacheFile, Charsets.UTF_8));
         } catch (IOException e) {
             LOG.error("Cannot write Gradle version information cache file.", e);
-            // do not throw an exception if cache file cannot be written to be more robust against file system problems
+            // do not throw an exception if cache file cannot be written to be more robust against
+            // file system problems
         }
     }
 
     private static Optional<String> readCacheVersionsFile(File cacheFile) {
         try {
-            return Optional.of(Files.toString(cacheFile, Charsets.UTF_8));
+            return Optional.of(Files.asCharSource(cacheFile, Charsets.UTF_8).read());
         } catch (IOException e) {
             LOG.error("Cannot read found Gradle version information cache file.", e);
-            // do not throw an exception if cache file cannot be read to be more robust against file system problems
+            // do not throw an exception if cache file cannot be read to be more robust against file
+            // system problems
             return Optional.absent();
         }
     }
@@ -232,14 +250,12 @@ public final class PublishedGradleVersions {
          */
         CACHED_ONLY,
         /**
-         * Look in the local cache file first. Try a remote call if it cannot be read.
-         * If the remote call succeeds, store the result in the cache.
-         * Fail if the remote call fails.
+         * Look in the local cache file first. Try a remote call if it cannot be read. If the remote
+         * call succeeds, store the result in the cache. Fail if the remote call fails.
          */
         REMOTE_IF_NOT_CACHED,
         /**
-         * Disable caching, execute a remote call directly.
-         * Fail if the remote call fails.
+         * Disable caching, execute a remote call directly. Fail if the remote call fails.
          */
         REMOTE
     }

@@ -62,11 +62,20 @@ class PublishedGradleVersionsTest extends Specification {
         assert lastModifiedAfterCacheHit == lastModified
     }
 
-    def "No remote download is attempted if CACHE_ONLY is specified"() {
+    def "Current Gradle version returned if nothing is cached and CACHE_ONLY is specified"() {
         when:
         PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(LookupStrategy.CACHED_ONLY)
         then:
-        thrown IllegalStateException
+        publishedVersions.versions.size() == 1
+        publishedVersions.versions[0].version == GradleVersion.current().getVersion()
+    }
+
+    def "Returns cached results when cache file is present and CACHE_ONLY is specified"() {
+        when:
+        PublishedGradleVersions.create(LookupStrategy.REMOTE_IF_NOT_CACHED)
+        PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(LookupStrategy.CACHED_ONLY)
+        then:
+        publishedVersions.versions.size() >= 18
     }
 
     private String getPublishedGradleVersionJson() {
