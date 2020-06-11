@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersions.LookupStrategy;
@@ -34,7 +35,7 @@ public final class PublishedGradleVersionsWrapper {
     private final AtomicReference<PublishedGradleVersions> publishedGradleVersions;
 
     public PublishedGradleVersionsWrapper() {
-        this.publishedGradleVersions = new AtomicReference<PublishedGradleVersions>();
+        this.publishedGradleVersions = new AtomicReference<>();
         new LoadVersionsJob().schedule();
     }
 
@@ -57,7 +58,7 @@ public final class PublishedGradleVersionsWrapper {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             try {
-                PublishedGradleVersions versions = PublishedGradleVersions.create(LookupStrategy.REMOTE_IF_NOT_CACHED);
+                PublishedGradleVersions versions = PublishedGradleVersions.create(getLookupStrategy());
                 PublishedGradleVersionsWrapper.this.publishedGradleVersions.set(versions);
             } catch (RuntimeException e) {
                 CorePlugin.logger().warn("Could not load Gradle version information", e);
@@ -68,6 +69,16 @@ public final class PublishedGradleVersionsWrapper {
         @Override
         protected void canceling() {
             Thread.currentThread().interrupt();
+        }
+
+        private LookupStrategy getLookupStrategy() {
+            String strategyName = InstanceScope.INSTANCE.getNode(CorePlugin.PLUGIN_ID).get("publishedgradleversions.lookupstrategy", LookupStrategy.REMOTE_IF_NOT_CACHED.name());
+            try {
+                return LookupStrategy.valueOf(strategyName);
+            } catch (IllegalArgumentException e) {
+                CorePlugin.logger().warn("Illegal published Gradle version lookup strategy: " + strategyName);
+                return LookupStrategy.REMOTE_IF_NOT_CACHED;
+            }
         }
 
     }
