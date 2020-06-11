@@ -118,9 +118,9 @@ final class GradleClasspathContainerUpdater {
                         String groupId = m.group(1);
                         String artifactId = m.group(2);
                         String version = m.group(3);
-                        this.projectContext.warning("Unresolved dependency: " + groupId + ":" + artifactId + ":" + version, null);
+                        this.projectContext.error("Unresolved dependency: " + groupId + ":" + artifactId + ":" + version, null);
                     } else {
-                        this.projectContext.warning("Unresolved dependency: " + coordinates, null);
+                        this.projectContext.error("Unresolved dependency: " + coordinates, null);
                     }
                     continue;
                 }
