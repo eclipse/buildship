@@ -165,30 +165,9 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         path << ['test.Zip', 'test.ZIP', 'test.rar', 'test.RAR']
     }
 
-    def "Existing ZIP archives with unkown extensions should taken into account"(String path) {
-        given:
-        def file = zipFile(path)
-
-        def gradleProject = gradleProjectWithClasspath(
-            externalDependency(file)
-        )
-        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
-
-        when:
-        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
-
-        then:
-        resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
-        resolvedClasspath[0].path.toFile() == file.absoluteFile
-
-        where:
-        path << ['test.zipx', 'test.special']
-    }
-
     def "Non ZIP files should be ignored"() {
         given:
-        def file = binaryFile("test.dll")
+        def file = new File("test.dll")
 
         def gradleProject = gradleProjectWithClasspath(
             externalDependency(file)
@@ -201,27 +180,6 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         then:
         resolvedClasspath.length == 0
-    }
-
-    private File zipFile(String path) {
-        def file = new File(path)
-        def zout = new ZipOutputStream(new FileOutputStream(file))
-        try {
-            zout.finish()
-        } catch (IOException e) {
-            // ignored
-        } finally {
-            zout.close()
-        }
-        file
-    }
-
-    private File binaryFile(String path) {
-        def file = new File(path)
-        file.withWriter('utf-8') {
-            writer -> writer.writeLine 'some file content'
-        }
-        file
     }
 
     EclipseProject gradleProjectWithClasspath(Object... dependencies) {
