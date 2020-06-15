@@ -62,7 +62,7 @@ class PublishedGradleVersionsTest extends Specification {
         assert lastModifiedAfterCacheHit == lastModified
     }
 
-    def "Current Gradle version returned if nothing is cached and CACHE_ONLY is specified"() {
+    def "Current Gradle version returned if nothing is cached and CACHED_ONLY is specified"() {
         when:
         PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(LookupStrategy.CACHED_ONLY)
         then:
@@ -70,7 +70,7 @@ class PublishedGradleVersionsTest extends Specification {
         publishedVersions.versions[0].version == GradleVersion.current().getVersion()
     }
 
-    def "Returns cached results when cache file is present and CACHE_ONLY is specified"() {
+    def "Returns cached results when cache file is present and CACHED_ONLY is specified"() {
         when:
         PublishedGradleVersions.create(LookupStrategy.REMOTE_IF_NOT_CACHED)
         PublishedGradleVersions publishedVersions = PublishedGradleVersions.create(LookupStrategy.CACHED_ONLY)
