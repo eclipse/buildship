@@ -117,7 +117,7 @@ public class BaseConfigurator implements ProjectConfigurator {
         LibraryFilter.update(javaProject, model, progress.newChild(1));
         ClasspathContainerUpdater.update(javaProject, model, progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, model, progress.newChild(1));
-        GradleClasspathContainerUpdater.updateFromModel(javaProject, model, this.locationToProject.values(), persistentModel, progress.newChild(1));
+        GradleClasspathContainerUpdater.updateFromModel(javaProject, model, this.locationToProject.values(), persistentModel, progress.newChild(1), context);
         persistentModel.hasAutoBuildTasks(model.hasAutoBuildTasks());
     }
 

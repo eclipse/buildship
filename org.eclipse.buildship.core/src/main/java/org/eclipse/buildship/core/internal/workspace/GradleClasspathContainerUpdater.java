@@ -13,6 +13,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -32,7 +34,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
+import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.Logger;
@@ -45,8 +47,9 @@ import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
  * Updates the classpath container of the target project.
  * <p/>
  * The update is triggered via
- * {@link #updateFromModel(IJavaProject, EclipseProject, Set, IProgressMonitor)}. The method
- * executes synchronously and unprotected, without thread synchronization or job scheduling.
+ * {@link #updateFromModel(IJavaProject, EclipseProject, Set, IProgressMonitor, ProjectContext)}.
+ * The method executes synchronously and unprotected, without thread synchronization or job
+ * scheduling.
  * <p/>
  * The update logic composes a new classpath container containing all project and external
  * dependencies defined in the Gradle model. At the end of the execution the old classpath container
@@ -58,11 +61,17 @@ import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
  */
 final class GradleClasspathContainerUpdater {
 
+    // Pattern from https://github.com/gradle/gradle/blob/2546d790db1a8b263d34c36669ae39a4537c922c/subprojects/ide/src/main/java/org/gradle/plugins/ide/internal/resolver/UnresolvedIdeDependencyHandler.java#L42
+    private static final String UNRESOLVED_DEPENDENCY_NAME_PREFIX  = "unresolved dependency - ";
+    private static final Pattern UNRESOLVED_DEPENDENCY_NAME_PATTERN  = Pattern.compile("^([^ ]+) ([^ ]+) ([^ ]+)$");
+
     private final IJavaProject eclipseProject;
     private final EclipseProject gradleProject;
     private final Map<File, EclipseProject> projectDirToProject;
+    private final ProjectContext projectContext;
 
-    private GradleClasspathContainerUpdater(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects) {
+    private GradleClasspathContainerUpdater(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects, ProjectContext projectContext) {
+        this.projectContext = projectContext;
         this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
         this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.projectDirToProject = Maps.newHashMap();
@@ -101,6 +110,20 @@ final class GradleClasspathContainerUpdater {
             File dependencyFile = dependency.getFile();
             boolean linkedResourceCreated = tryCreatingLinkedResource(dependencyFile, result);
             if (!linkedResourceCreated) {
+                // Add error marker for unresolved dependencies
+                if (this.projectContext != null && dependencyFile.getName().startsWith(UNRESOLVED_DEPENDENCY_NAME_PREFIX)) {
+                    String coordinates = dependencyFile.getName().substring(UNRESOLVED_DEPENDENCY_NAME_PREFIX.length());
+                    Matcher m = UNRESOLVED_DEPENDENCY_NAME_PATTERN.matcher(coordinates);
+                    if (m.matches()) {
+                        String groupId = m.group(1);
+                        String artifactId = m.group(2);
+                        String version = m.group(3);
+                        this.projectContext.error("Unresolved dependency: " + groupId + ":" + artifactId + ":" + version, null);
+                    } else {
+                        this.projectContext.error("Unresolved dependency: " + coordinates, null);
+                    }
+                    continue;
+                }
                 String dependencyName = dependencyFile.getName();
                 // Eclipse only accepts folders and archives as external dependencies (but not, for
                 // example, a DLL)
@@ -151,15 +174,15 @@ final class GradleClasspathContainerUpdater {
      * container will be persisted so it does not have to be reloaded after the workbench is
      * restarted.
      */
-    public static void updateFromModel(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects, PersistentModelBuilder persistentModel,
-            IProgressMonitor monitor) throws JavaModelException {
-        GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects);
+    public static void updateFromModel(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects,
+            PersistentModelBuilder persistentModel, IProgressMonitor monitor, ProjectContext context) throws JavaModelException {
+        GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects, context);
         updater.updateClasspathContainer(persistentModel, monitor);
     }
 
     /**
      * Updates the classpath container from the state stored by the last call to
-     * {@link #updateFromModel(IJavaProject, EclipseProject, IProgressMonitor)}.
+     * {@link #updateFromModel(IJavaProject, EclipseProject, IProgressMonitor, ProjectContext)}.
      */
     public static boolean updateFromStorage(IJavaProject eclipseProject, IProgressMonitor monitor) throws JavaModelException {
         PersistentModel model = CorePlugin.modelPersistence().loadModel(eclipseProject.getProject());

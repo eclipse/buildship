@@ -48,7 +48,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -64,7 +64,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -80,7 +80,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -99,7 +99,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -123,7 +123,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         def modifiedContainer = gradleClasspathContainer
@@ -132,7 +132,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         when:
         persistentModel = persistentModelBuilder(persistentModel.build())
         allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         modifiedContainer.is(gradleClasspathContainer)

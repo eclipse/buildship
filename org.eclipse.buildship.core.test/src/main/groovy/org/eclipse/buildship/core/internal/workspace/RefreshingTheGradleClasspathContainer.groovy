@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
-import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
 class RefreshingTheGradleClasspathContainer extends ProjectSynchronizationSpecification {
 
@@ -29,6 +28,19 @@ class RefreshingTheGradleClasspathContainer extends ProjectSynchronizationSpecif
 
         then:
         hasLocalGroovyDependencyDefinedInClasspathContainer(project)
+    }
+
+    def "Update with unresolved dependencies creates error markers"(){
+        setup:
+        File location = importNewSimpleProject('simpleproject')
+        IJavaProject project = findJavaProject('simpleproject')
+        defineLocalGroovyAndSomeUnresolvedDependencies(new File(location, 'build.gradle'))
+
+        when:
+        synchronizeAndWait(project.project)
+
+        then:
+        gradleErrorMarkers.size() == 2
     }
 
     def "Update changes the classpath of all related projects"() {
@@ -117,7 +129,21 @@ class RefreshingTheGradleClasspathContainer extends ProjectSynchronizationSpecif
     }
 
     private static def defineLocalGroovyDependency(File buildScript) {
-        buildScript << '\ndependencies { compile localGroovy() }'
+        buildScript << '''
+            dependencies {
+                implementation localGroovy()
+            }
+        '''
+    }
+
+    private static def defineLocalGroovyAndSomeUnresolvedDependencies(File buildScript) {
+        buildScript << '''
+            dependencies {
+                implementation localGroovy()
+                implementation 'this:isalso:unresolved'
+                implementation 'this:again:unresolved'
+            }
+        '''
     }
 
     private static def hasLocalGroovyDependencyDefinedInClasspathContainer(IJavaProject javaProject) {
