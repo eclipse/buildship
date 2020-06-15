@@ -104,7 +104,7 @@ final class GradleClasspathContainerUpdater {
                 String dependencyName = dependencyFile.getName();
                 // Eclipse only accepts folders and archives as external dependencies (but not, for
                 // example, a DLL)
-                if (dependencyFile.isDirectory() || dependencyName.endsWith(".jar") || dependencyName.endsWith(".zip")) {
+                if (dependencyFile.isDirectory() || hasAcceptedSuffix(dependencyName)) {
                     IPath path = org.eclipse.core.runtime.Path.fromOSString(dependencyFile.getAbsolutePath());
                     File dependencySource = dependency.getSource();
                     IPath sourcePath = dependencySource != null ? org.eclipse.core.runtime.Path.fromOSString(dependencySource.getAbsolutePath()) : null;
@@ -115,6 +115,11 @@ final class GradleClasspathContainerUpdater {
             }
         }
         return result.build();
+    }
+
+    private boolean hasAcceptedSuffix(String dependencyName) {
+       String name = dependencyName.toLowerCase();
+       return name.endsWith(".jar") || name.endsWith(".rar") || name.endsWith(".zip");
     }
 
     private boolean tryCreatingLinkedResource(File dependencyFile, Builder<IClasspathEntry> result) {

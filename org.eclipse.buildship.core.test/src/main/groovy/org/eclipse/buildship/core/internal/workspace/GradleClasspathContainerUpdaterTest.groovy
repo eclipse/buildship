@@ -23,9 +23,6 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils
 import org.eclipse.buildship.core.internal.util.gradle.ModelUtils
-import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainerUpdater
-import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 
 class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
@@ -139,6 +136,44 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         then:
         modifiedContainer.is(gradleClasspathContainer)
+    }
+
+    def "Non-lowercase extensions should be taken into account"(String path) {
+        given:
+        def file = new File(path)
+
+        def gradleProject = gradleProjectWithClasspath(
+            externalDependency(file)
+        )
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
+
+        when:
+        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+
+        then:
+        resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
+        resolvedClasspath[0].path.toFile() == file.absoluteFile
+
+        where:
+        path << ['test.Zip', 'test.ZIP', 'test.rar', 'test.RAR']
+    }
+
+    def "Non-zip files should be ignored"() {
+        given:
+        def file = new File("test.dll")
+
+        def gradleProject = gradleProjectWithClasspath(
+            externalDependency(file)
+        )
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
+
+        when:
+        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+
+        then:
+        resolvedClasspath.length == 0
     }
 
     EclipseProject gradleProjectWithClasspath(Object... dependencies) {
