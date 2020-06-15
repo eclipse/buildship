@@ -9,9 +9,6 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
-import java.io.FileInputStream
-import java.util.zip.ZipOutputStream
-
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency
@@ -26,9 +23,6 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils
 import org.eclipse.buildship.core.internal.util.gradle.ModelUtils
-import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainerUpdater
-import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 
 class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
@@ -144,7 +138,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         modifiedContainer.is(gradleClasspathContainer)
     }
 
-    def "Non lower case extensions should taken into account"(String path) {
+    def "Non-lowercase extensions should be taken into account"(String path) {
         given:
         def file = new File(path)
 
@@ -165,7 +159,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         path << ['test.Zip', 'test.ZIP', 'test.rar', 'test.RAR']
     }
 
-    def "Non ZIP files should be ignored"() {
+    def "Non-zip files should be ignored"() {
         given:
         def file = new File("test.dll")
 
