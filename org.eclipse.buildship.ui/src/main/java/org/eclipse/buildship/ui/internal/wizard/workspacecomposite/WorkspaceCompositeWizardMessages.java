@@ -25,6 +25,8 @@ public final class WorkspaceCompositeWizardMessages extends NLS {
     public static String Title_NewGradleWorkspaceCompositeWizardPage;
     public static String Title_NewGradleImportOptionsWizardPage;
     public static String Title_NewGradleCompositeRootWizardPage;
+    
+    public static String Title_ConfigureGradleWorkspaceCompositeDialog;
 
     public static String Label_CompositeName;
 

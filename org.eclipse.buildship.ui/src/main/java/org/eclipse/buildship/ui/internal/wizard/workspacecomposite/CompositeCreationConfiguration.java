@@ -10,19 +10,19 @@
 
 package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.buildship.core.internal.util.binding.Property;
-import org.eclipse.core.runtime.IAdaptable;
 
 import com.google.common.base.Preconditions;
 
 public class CompositeCreationConfiguration {
 
     private final Property<String> compositeName;
-    private final Property<List<IAdaptable>> compositeProjects;
+    private final Property<List<File>> compositeProjects;
 
-    public CompositeCreationConfiguration(Property<String> compositeName, Property<List<IAdaptable>> compositeProjects) {
+    public CompositeCreationConfiguration(Property<String> compositeName, Property<List<File>> compositeProjects) {
         this.compositeName = Preconditions.checkNotNull(compositeName);
         this.compositeProjects = Preconditions.checkNotNull(compositeProjects);
     }
@@ -35,11 +35,11 @@ public class CompositeCreationConfiguration {
         this.compositeName.setValue(compositeName);
     }
 
-    public Property<List<IAdaptable>> getCompositeProjects() {
+    public Property<List<File>> getCompositeProjects() {
         return this.compositeProjects;
     }
 
-    public void setCompositeProjects(List<IAdaptable> compositeProjects) {
+    public void setCompositeProjects(List<File> compositeProjects) {
         this.compositeProjects.setValue(compositeProjects);
     }
 

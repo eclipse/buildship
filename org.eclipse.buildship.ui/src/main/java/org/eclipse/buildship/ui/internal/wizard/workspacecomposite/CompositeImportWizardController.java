@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.core.internal.util.binding.ValidationListener;
@@ -28,7 +29,7 @@ import org.eclipse.buildship.core.internal.util.file.FileUtils;
 import org.eclipse.buildship.ui.internal.UiPlugin;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardContainer;
@@ -48,8 +49,8 @@ public class CompositeImportWizardController {
 
     private IWorkingSet workingSet;
 
-    // keys to load/store project properties in the dialog setting
-    private static final String SETTINGS_KEY_COMPOSITE_DIR = "composite_location"; //$NON-NLS-1$
+    // keys to load/store composite properties in the dialog setting
+    private static final String SETTINGS_KEY_COMPOSITE_NAME = "composite_location"; //$NON-NLS-1$
     //private static final String SETTINGS_KEY_GRADLE_PROJECT_LIST = "gradle_project_list"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_GRADLE_DISTRIBUTION = "gradle_distribution"; //$NON-NLS-1$
     private static final String SETTINGS_KEY_APPLY_WORKING_SETS = "apply_working_sets"; //$NON-NLS-1$
@@ -70,9 +71,7 @@ public class CompositeImportWizardController {
 
     public CompositeImportWizardController(IWizard compositeImportWizard) {
         // assemble configuration object that serves as the data model of the wizard
-        Validator<File> compositePreferenceDirValidator = Validators.and(
-                Validators.requiredDirectoryValidator(WorkspaceCompositeWizardMessages.Label_CompositeName),
-                Validators.nonWorkspaceFolderValidator(WorkspaceCompositeWizardMessages.Label_CompositeName));
+        Validator<String> compositePreferenceDirValidator = Validators.nullValidator();
         Validator<GradleDistributionViewModel> gradleDistributionValidator = GradleDistributionViewModel.validator();
         Validator<Boolean> applyWorkingSetsValidator = Validators.nullValidator();
         Validator<List<String>> workingSetsValidator = Validators.nullValidator();
@@ -92,7 +91,7 @@ public class CompositeImportWizardController {
              dialogSettings = getOrCreateDialogSection(UiPlugin.getInstance().getDialogSettings());
         }
 
-        Optional<File> projectDir = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_COMPOSITE_DIR));
+        String compositeName = dialogSettings.get(SETTINGS_KEY_COMPOSITE_NAME);
         String gradleDistributionString = dialogSettings.get(SETTINGS_KEY_GRADLE_DISTRIBUTION);
         Optional<File> gradleUserHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_GRADLE_USER_HOME));
         Optional<File> javaHome = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_JAVA_HOME));
@@ -108,7 +107,7 @@ public class CompositeImportWizardController {
         boolean projectAsCompositeRoot = dialogSettings.getBoolean(SETTINGS_KEY_PROJECT_AS_COMPOSITE_ROOT);
         Optional<File> rootProject = FileUtils.getAbsoluteFile(dialogSettings.get(SETTINGS_KEY_ROOT_PROJECT));
 
-        this.configuration.setCompositePreferencesDir(projectDir.orNull());
+        this.configuration.setCompositeName(compositeName);
         this.configuration.setOverwriteWorkspaceSettings(false);
         GradleDistribution distribution;
         try {
@@ -132,7 +131,7 @@ public class CompositeImportWizardController {
         this.configuration.setRootProject(rootProject.orNull());
 
         // store the values every time they change
-        saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_COMPOSITE_DIR, this.configuration.getCompositePreferencesDir());
+        saveStringPropertyWhenChanged(dialogSettings, SETTINGS_KEY_COMPOSITE_NAME, this.configuration.getCompositeName());
         saveDistributionPropertyWhenChanged(dialogSettings, this.configuration.getDistribution());
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_GRADLE_USER_HOME, this.configuration.getGradleUserHome());
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_JAVA_HOME, this.configuration.getJavaHome());
@@ -149,7 +148,16 @@ public class CompositeImportWizardController {
         saveFilePropertyWhenChanged(dialogSettings, SETTINGS_KEY_ROOT_PROJECT, this.configuration.getRootProject());
     }
 
-    private void saveBooleanPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<Boolean> target) {
+    private void saveStringPropertyWhenChanged(IDialogSettings settings, String settingsKey, Property<String> target) {
+    	target.addValidationListener(new ValidationListener() {
+		        @Override
+		        public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
+		            settings.put(settingsKey, target.getValue());
+		        }
+			});
+	}
+
+	private void saveBooleanPropertyWhenChanged(final IDialogSettings settings, final String settingsKey, final Property<Boolean> target) {
         target.addValidationListener(new ValidationListener() {
 
             @Override
@@ -200,10 +208,12 @@ public class CompositeImportWizardController {
 
     public boolean performCreateComposite(IWizardContainer container, IWorkingSetManager workingSetManager) {
         try {
-            File compositePreferenceFile = this.configuration.getCompositePreferencesDir().getValue();
+            File compositePreferenceFile = CorePlugin.getInstance().getStateLocation()
+                    .append("workspace-composites").append(this.configuration.getCompositeName().getValue()).toFile();
             List<IProject> projects = new ArrayList<>();
-            for (IAdaptable project : getConfiguration().getProjectList().getValue()) {
-                projects.add((IProject) project);
+            for (File includedBuild : getConfiguration().getIncludedBuildsList().getValue()) {
+            	//TODO (kuzniarz) check if this can cause problems bc (FolderName != GradleProjectName)? 
+                projects.add(ResourcesPlugin.getWorkspace().getRoot().getProject(includedBuild.getName()));
             }
             this.workingSet = workingSetManager.createWorkingSet(compositePreferenceFile.getName(), projects.toArray(new IProject[projects.size()]));
             this.workingSet.setId(IGradleCompositeIDs.NATURE);

@@ -11,7 +11,22 @@
 package org.eclipse.buildship.ui.internal.preferences;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.CompositeConfiguration;
+import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
+import org.eclipse.buildship.core.internal.configuration.DefaultCompositeConfiguration;
+import org.eclipse.buildship.core.internal.util.binding.Validator;
+import org.eclipse.buildship.core.internal.util.binding.Validators;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
+import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeWizardMessages;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -29,16 +44,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.PropertyPage;
-
-import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.CompositeConfiguration;
-import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
-import org.eclipse.buildship.core.internal.configuration.DefaultCompositeConfiguration;
-import org.eclipse.buildship.core.internal.util.binding.Validator;
-import org.eclipse.buildship.core.internal.util.binding.Validators;
-import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeWizardMessages;
 
 /**
  * Preference page for composite root project.
@@ -117,11 +122,11 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
     private void initValues() {
         IWorkingSet composite = getTargetComposite();
 
-        this.compositeConfig = CorePlugin.configurationManager().loadCompositeConfiguration(composite);
+        this.compositeConfig = CorePlugin.configurationManager().loadCompositeConfiguration(composite.getName());
         boolean useProjectAsCompositeRoot = this.compositeConfig.projectAsCompositeRoot();
 
         this.projectAsCompositeRootCheckbox.setSelection(useProjectAsCompositeRoot);
-        this.workspaceCompositeRootProjectLabel.setText(this.compositeConfig.getRootProject().toString());
+        this.workspaceCompositeRootProjectLabel.setText(this.compositeConfig.getBuildConfiguration().getRootProjectDirectory().toString());
         updateEnablement();
     }
 
@@ -170,14 +175,33 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
     public boolean performOk() {
         IWorkingSet composite = getTargetComposite();
         ConfigurationManager manager = CorePlugin.configurationManager();
-        CompositeConfiguration currentConfig = manager.loadCompositeConfiguration(composite);
-
-        CompositeConfiguration compConf = new DefaultCompositeConfiguration(currentConfig.getCompositeDir(),
-                                                                            composite.getElements(),
-                                                                            currentConfig.getBuildConfiguration(),
-                                                                            this.projectAsCompositeRootCheckbox.getSelection(),
-                                                                            new File(this.workspaceCompositeRootProjectLabel.getText()));
+        CompositeConfiguration currentConfig = manager.loadCompositeConfiguration(composite.getName());
+        BuildConfiguration updatedConfig = manager.createBuildConfiguration(new File(this.workspaceCompositeRootProjectLabel.getText()),
+        		currentConfig.getBuildConfiguration().isOverrideWorkspaceSettings(),
+        		currentConfig.getBuildConfiguration().getGradleDistribution(),
+        		currentConfig.getBuildConfiguration().getGradleUserHome(),
+        		currentConfig.getBuildConfiguration().getJavaHome(),
+        		currentConfig.getBuildConfiguration().isBuildScansEnabled(),
+        		currentConfig.getBuildConfiguration().isOfflineMode(),
+        		currentConfig.getBuildConfiguration().isAutoSync(),
+        		currentConfig.getBuildConfiguration().getArguments(),
+        		currentConfig.getBuildConfiguration().getJvmArguments(),
+        		currentConfig.getBuildConfiguration().isShowConsoleView(),
+        		currentConfig.getBuildConfiguration().isShowExecutionsView());
+        CompositeConfiguration compConf = new DefaultCompositeConfiguration(currentConfig.getCompositeName(),
+        																	getIncludedBuildsList(composite),
+        																	updatedConfig,
+                                                                            this.projectAsCompositeRootCheckbox.getSelection());
         manager.saveCompositeConfiguration(compConf);
         return true;
     }
+    
+    private List<File> getIncludedBuildsList(IWorkingSet composite) {
+    	List<File> includedBuildsList = new ArrayList<File>();
+		for (IAdaptable element : composite.getElements()) {
+			InternalGradleBuild gradleBuild = (InternalGradleBuild) CorePlugin.internalGradleWorkspace().getBuild(((IProject) element)).get();
+			includedBuildsList.add(gradleBuild.getBuildConfig().getRootProjectDirectory());
+		}
+		return includedBuildsList;
+	}
 }

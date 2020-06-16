@@ -11,8 +11,7 @@
 package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
-
-import org.eclipse.core.runtime.IAdaptable;
+import java.util.List;
 
 /**
  * Configuration for a workspace composite in a Gradle build.
@@ -21,13 +20,11 @@ import org.eclipse.core.runtime.IAdaptable;
  */
 public interface CompositeConfiguration {
 
-    File getCompositeDir();
+    String getCompositeName();
 
-    IAdaptable[] getProjectList();
+    List<File> getIncludedBuilds();
 
     BuildConfiguration getBuildConfiguration();
 
     Boolean projectAsCompositeRoot();
-
-    File getRootProject();
 }

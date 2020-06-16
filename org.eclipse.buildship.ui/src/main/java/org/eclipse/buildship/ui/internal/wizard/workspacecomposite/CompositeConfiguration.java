@@ -18,15 +18,14 @@ import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
-import org.eclipse.core.runtime.IAdaptable;
 
 /**
  * Serves as the data model of the composite import wizard.
  */
 public final class CompositeConfiguration {
 
-    private final Property<File> compositePreferencesDir;
-    private final Property<IAdaptable[]> projectList;
+    private final Property<String> compositeName;
+    private final Property<List<File>> includedBuildsList;
     private final Property<Boolean> overwriteWorkspaceSettings;
     private final Property<GradleDistributionViewModel> distribution;
     private final Property<File> gradleUserHome;
@@ -44,13 +43,13 @@ public final class CompositeConfiguration {
     private final Property<File> rootProject;
 
     public CompositeConfiguration() {
-        this(Validators.<File>noOp(), Validators.<GradleDistributionViewModel>noOp(), Validators.<File>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp(), Validators.<File>noOp());
+        this(Validators.<String>noOp(), Validators.<GradleDistributionViewModel>noOp(), Validators.<File>noOp(), Validators.<File>noOp(), Validators.<Boolean>noOp(), Validators.<List<String>>noOp(), Validators.<File>noOp());
     }
 
-    public CompositeConfiguration(Validator<File> compositePreferencesDirValidator, Validator<GradleDistributionViewModel> distributionValidator,
+    public CompositeConfiguration(Validator<String> compositeNameValidator, Validator<GradleDistributionViewModel> distributionValidator,
             Validator<File> gradleUserHomeValidator, Validator<File> javaHomeValidator, Validator<Boolean> applyWorkingSetsValidator, Validator<List<String>> workingSetsValidators, Validator<File> rootProjectValidator) {
-        this.compositePreferencesDir = Property.create(compositePreferencesDirValidator);
-        this.projectList = Property.<IAdaptable[]>create(Validators.<IAdaptable[]>noOp());
+        this.compositeName = Property.create(compositeNameValidator);
+        this.includedBuildsList = Property.<List<File>>create(Validators.<List<File>>noOp());
         this.overwriteWorkspaceSettings = Property.<Boolean>create(Validators.<Boolean>noOp());
         this.distribution = Property.create(distributionValidator);
         this.gradleUserHome = Property.create(gradleUserHomeValidator);
@@ -69,20 +68,20 @@ public final class CompositeConfiguration {
 
     }
 
-    public Property<File> getCompositePreferencesDir() {
-        return this.compositePreferencesDir;
+    public Property<String> getCompositeName() {
+        return this.compositeName;
     }
 
-    public void setCompositePreferencesDir(File compositePreferencesDir) {
-        this.compositePreferencesDir.setValue(compositePreferencesDir);
+    public void setCompositeName(String compositeName) {
+        this.compositeName.setValue(compositeName);
     }
 
-    public Property<IAdaptable[]> getProjectList() {
-        return this.projectList;
+    public Property<List<File>> getIncludedBuildsList() {
+        return this.includedBuildsList;
     }
 
-    public void setProjectList(IAdaptable[] projectList) {
-        this.projectList.setValue(projectList);
+    public void setProjectList(List<File> includedBuildsList) {
+        this.includedBuildsList.setValue(includedBuildsList);
     }
 
     public Property<Boolean> getOverrideWorkspaceConfiguration() {
@@ -206,8 +205,8 @@ public final class CompositeConfiguration {
     }
 
     public CompositeProperties toCompositeProperties() {
-        return CompositeProperties.forRootProjectDirectory(getCompositePreferencesDir().getValue())
-                .projectList(getProjectList().getValue())
+        return CompositeProperties.create()
+                .projectList(getIncludedBuildsList().getValue())
                 .overrideWorkspaceConfiguration(getOverrideWorkspaceConfiguration().getValue())
                 .gradleDistribution(getDistribution().getValue().toGradleDistribution())
                 .gradleUserHome(getGradleUserHome().getValue())
