@@ -10,14 +10,17 @@
 
 package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.IWizard;
 
@@ -33,22 +36,22 @@ public class CompositeCreationWizardController {
     public CompositeCreationWizardController(IWizard compositeCreationWizard) {
         // assemble configuration object that serves as the data model of the wizard
         Property<String> compositeNameProperty = Property.create(Validators.uniqueWorkspaceCompositeNameValidator(WorkspaceCompositeWizardMessages.Label_CompositeName));
-        Property<List<IAdaptable>> compositeProjectsProperty = Property.create(Validators.<List<IAdaptable>>nullValidator());
+        Property<List<File>> compositeProjectsProperty = Property.create(Validators.<List<File>>nullValidator());
 
         this.configuration = new CompositeCreationConfiguration(compositeNameProperty, compositeProjectsProperty);
 
         IDialogSettings dialogSettings = compositeCreationWizard.getDialogSettings();
         String compositeName = dialogSettings.get(SETTINGS_KEY_COMPOSITE_NAME);
-        List<IAdaptable> compositeProjects = ImmutableList.copyOf(getProjects(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_COMPOSITE_PROJECTS))));
+        List<File> compositeProjects = ImmutableList.copyOf(getIncludedBuildsList(CollectionsUtils.nullToEmpty(dialogSettings.getArray(SETTINGS_KEY_COMPOSITE_PROJECTS))));
 
         this.configuration.setCompositeName(compositeName);
         this.configuration.setCompositeProjects(compositeProjects);
     }
 
-    public CompositeCreationWizardController(String compositeName, List<IAdaptable> compositeProjects) {
+    public CompositeCreationWizardController(String compositeName, List<File> compositeProjects) {
         // assemble configuration object that serves as the data model of the wizard
         Property<String> compositeNameProperty = Property.create(Validators.uniqueWorkspaceCompositeNameValidator(WorkspaceCompositeWizardMessages.Label_CompositeName));
-        Property<List<IAdaptable>> compositeProjectsProperty = Property.create(Validators.<List<IAdaptable>>nullValidator());
+        Property<List<File>> compositeProjectsProperty = Property.create(Validators.<List<File>>nullValidator());
 
         this.configuration = new CompositeCreationConfiguration(compositeNameProperty, compositeProjectsProperty);
 
@@ -56,14 +59,18 @@ public class CompositeCreationWizardController {
         this.configuration.setCompositeProjects(compositeProjects);
     }
 
-    private List<IAdaptable> getProjects(String[] projectArray) {
-        List<IAdaptable> projects = new ArrayList<>();
+    private List<File> getIncludedBuildsList(String[] projectArray) {
+        List<File> includedBuilds = new ArrayList<>();
         for (String projectName : projectArray) {
-            projects.add(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName));
+        	includedBuilds.add(getGradleRootFor(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName)));
         }
-        return projects;
+        return includedBuilds;
     }
 
+    protected File getGradleRootFor(IProject project) {
+		InternalGradleBuild gradleBuild = (InternalGradleBuild) CorePlugin.internalGradleWorkspace().getBuild(project).get();
+		return gradleBuild.getBuildConfig().getRootProjectDirectory();
+    }
 
     public CompositeCreationConfiguration getConfiguration() {
         return this.configuration;

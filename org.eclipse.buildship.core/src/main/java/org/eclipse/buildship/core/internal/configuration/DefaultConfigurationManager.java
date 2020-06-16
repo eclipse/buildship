@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -28,11 +29,9 @@ import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttribut
 import org.eclipse.buildship.core.internal.launch.GradleTestRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.ui.IWorkingSet;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -193,20 +192,24 @@ public class DefaultConfigurationManager implements ConfigurationManager {
             this.buildConfigurationPersistence.deletePathToRoot(project.getLocation().toFile());
         }
     }
-
-    @Override
-    public CompositeConfiguration loadCompositeConfiguration(IWorkingSet workingSet) {
-        File compositePropertiesFile = CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(workingSet.getName()).toFile();
-        BuildConfiguration buildConfig = loadBuildConfigurationForComposite(compositePropertiesFile);
-        IAdaptable[] projectList = loadCompositeProjects(workingSet);
-        CompositePropertiesReader compositeReader = CompositeProperties.getCompositeReaderForFile(compositePropertiesFile);
-        boolean projectAsCompositeRoot = compositeReader.getProjectAsCompositeRoot();
-        File rootProject = compositeReader.getRootProject();
-        return new DefaultCompositeConfiguration(canonicalize(compositePropertiesFile), projectList, buildConfig, projectAsCompositeRoot, rootProject);
+    
+    private File getCompositePropertiesFile(String compositeName) {
+    	return CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(compositeName).toFile();
     }
 
-    private IAdaptable[] loadCompositeProjects(IWorkingSet workingSet) {
-        IAdaptable[] projects = workingSet.getElements();
+    @Override
+    public CompositeConfiguration loadCompositeConfiguration(String workingSetName) {
+        File compositePropertiesFile = getCompositePropertiesFile(workingSetName);
+        BuildConfiguration buildConfig = loadBuildConfigurationForComposite(compositePropertiesFile);
+        List<File> projectList = loadCompositeProjects(compositePropertiesFile);
+        CompositePropertiesReader compositeReader = CompositeProperties.getCompositeReaderForFile(workingSetName);
+        boolean projectAsCompositeRoot = compositeReader.getProjectAsCompositeRoot();
+        return new DefaultCompositeConfiguration(workingSetName, projectList, buildConfig, projectAsCompositeRoot);
+    }
+
+    private List<File> loadCompositeProjects(File compositePropertiesFile) {
+        List<File> projects = new ArrayList<File>();
+        //TODO (kuzniarz) add File read loop for project list creation
         //TODO (kuzniarz) implement load mechanism that reads external gradle projects from properties file. Needs a save mechanism first...
         return projects;
     }
@@ -214,7 +217,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public void saveCompositeConfiguration(CompositeConfiguration compConf) {
         try {
-            FileOutputStream out = new FileOutputStream(compConf.getCompositeDir());
+            FileOutputStream out = new FileOutputStream(getCompositePropertiesFile(compConf.getCompositeName()));
             Properties prop = CompositeProperties.forCompositeConfiguration(compConf).build().toProperties();
             prop.store(out, "");
         } catch (FileNotFoundException e) {

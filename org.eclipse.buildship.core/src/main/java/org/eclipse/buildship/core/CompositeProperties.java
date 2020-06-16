@@ -13,25 +13,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import com.google.common.base.Preconditions;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IAdaptable;
-
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.CompositeConfiguration;
 
 public class CompositeProperties {
 
-    private final File compositePreferencesDir;
-
-    private final IAdaptable[] projectList;
+    private final List<File> projectList;
     private final Boolean overwriteWorkspaceSettings;
     private final GradleDistribution distribution;
     private final File gradleUserHome;
@@ -62,7 +53,6 @@ public class CompositeProperties {
     private static final String KEY_ROOT_PROJECT = "root.project";
 
     private CompositeProperties(CompositePropertiesBuilder builder) {
-        this.compositePreferencesDir = Preconditions.checkNotNull(builder.compositeDirectory);
         this.projectList = builder.projectList;
         this.overwriteWorkspaceSettings = builder.overrideWorkspaceConfiguration;
         this.distribution = builder.gradleDistribution == null ? GradleDistribution.fromBuild() : builder.gradleDistribution;
@@ -77,16 +67,14 @@ public class CompositeProperties {
         this.showExecutionsView = builder.showExecutionsView;
         this.useProjectAsRoot = builder.projectAsCompositeRoot;
         this.rootProject = builder.rootProject == null ? null: builder.rootProject;
-
-
     }
 
-    public static CompositePropertiesReader getCompositeReaderForFile(File compositeProperties) {
-        return new CompositePropertiesReader(compositeProperties);
+    public static CompositePropertiesReader getCompositeReaderForFile(String compositeName) {
+        return new CompositePropertiesReader(compositeName);
     }
 
-    public static CompositePropertiesBuilder forRootProjectDirectory(File rootProjectDirectory) {
-        return new CompositePropertiesBuilder(rootProjectDirectory);
+    public static CompositePropertiesBuilder create() {
+        return new CompositePropertiesBuilder();
     }
 
     public static CompositePropertiesBuilder forCompositeConfiguration(CompositeConfiguration compositeConf) {
@@ -96,7 +84,7 @@ public class CompositeProperties {
     public Properties toProperties() {
         Properties prop = new Properties();
 
-        prop.put(KEY_COMPOSITE_PROJECTS, getProjectString(this.projectList));
+        prop.put(KEY_COMPOSITE_PROJECTS, this.projectList.toString());
         prop.put(KEY_OVERWRITE_WORKSPACE_SETTINGS, this.overwriteWorkspaceSettings.toString());
         prop.put(KEY_DISTRIBUTION, this.distribution == null ? GradleDistribution.fromBuild() : this.distribution.toString());
         prop.put(KEY_GRADLE_USER_HOME, this.gradleUserHome == null ? "" : this.gradleUserHome.getAbsolutePath());
@@ -113,32 +101,13 @@ public class CompositeProperties {
         return prop;
     }
 
-    private String getProjectString(IAdaptable[] projects) {
-        StringBuilder sb = new StringBuilder();
-        for (Iterator<IAdaptable> it = Arrays.asList(projects).iterator(); it.hasNext();) {
-            IAdaptable project = it.next();
-            if (project instanceof IProject) {
-                if (it.hasNext()) {
-                    sb.append(((IProject) project).getName() + ", ");
-                } else {
-                    sb.append(((IProject) project).getName());
-                }
-            } else if (project instanceof IResource) {
-                IResource externalProject = (IResource) project;
-                System.out.println(externalProject.getName());
-            }
-        }
-        return sb.toString();
-    }
-
     private String removeBrackets(String arguments) {
         return arguments.replace("[", "").replace("]", "").replace(",", "");
     }
 
     public static final class CompositePropertiesBuilder {
 
-        private final File compositeDirectory;
-        public IAdaptable[] projectList;
+        public List<File> projectList;
         private boolean overrideWorkspaceConfiguration = false;
         private GradleDistribution gradleDistribution;
         private File gradleUserHome = null;
@@ -153,13 +122,11 @@ public class CompositeProperties {
         private boolean projectAsCompositeRoot = false;
         private File rootProject = null;
 
-        private CompositePropertiesBuilder(File compositeDirectory) {
-            this.compositeDirectory = compositeDirectory;
+        private CompositePropertiesBuilder() {
         }
 
         public CompositePropertiesBuilder(CompositeConfiguration compositeConf) {
-            this.compositeDirectory = compositeConf.getCompositeDir();
-            this.projectList = compositeConf.getProjectList();
+            this.projectList = compositeConf.getIncludedBuilds();
             this.overrideWorkspaceConfiguration = compositeConf.getBuildConfiguration().isOverrideWorkspaceSettings();
             this.gradleDistribution = compositeConf.getBuildConfiguration().getGradleDistribution();
             this.gradleUserHome = compositeConf.getBuildConfiguration().getGradleUserHome();
@@ -172,11 +139,11 @@ public class CompositeProperties {
             this.showConsoleView = compositeConf.getBuildConfiguration().isShowConsoleView();
             this.showExecutionsView = compositeConf.getBuildConfiguration().isShowExecutionsView();
             this.projectAsCompositeRoot = compositeConf.projectAsCompositeRoot();
-            this.rootProject = compositeConf.getRootProject();
+            this.rootProject = compositeConf.getBuildConfiguration().getRootProjectDirectory();
 
         }
 
-        public CompositePropertiesBuilder projectList(IAdaptable[] projectList) {
+        public CompositePropertiesBuilder projectList(List<File> projectList) {
             this.projectList = projectList;
             return this;
         }
@@ -252,13 +219,12 @@ public class CompositeProperties {
     }
 
     public static final class CompositePropertiesReader {
-        private final File compositeDirectory;
         private Properties compositeProperties = new Properties();
 
-        private CompositePropertiesReader(File compositeDirectory) {
-            this.compositeDirectory = compositeDirectory;
+        private CompositePropertiesReader(String compositeName) {
+            File compositeDirectory = CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(compositeName).toFile();
               try {
-                FileInputStream input= new FileInputStream(this.compositeDirectory);
+                FileInputStream input= new FileInputStream(compositeDirectory);
                 this.compositeProperties = new Properties();
                 this.compositeProperties.load(input);
             } catch (IOException e) {
@@ -268,10 +234,6 @@ public class CompositeProperties {
 
         public boolean getProjectAsCompositeRoot() {
             return Boolean.valueOf(this.compositeProperties.get(KEY_USE_PROJECT_AS_ROOT).toString());
-        }
-
-        public File getRootProject() {
-            return new File(this.compositeProperties.get(KEY_ROOT_PROJECT).toString());
         }
 
         //If needed implement reader for other properties

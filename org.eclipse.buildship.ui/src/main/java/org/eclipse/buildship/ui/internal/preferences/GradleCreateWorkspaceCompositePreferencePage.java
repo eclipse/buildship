@@ -17,7 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectGroup;
 import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.CompositeConfiguration;
@@ -28,6 +31,7 @@ import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.GradleImportO
 import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.IGradleCompositeIDs;
 import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeCreationWizard;
 import org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeWizardMessages;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
@@ -94,8 +98,9 @@ public final class GradleCreateWorkspaceCompositePreferencePage extends Abstract
         return "org.eclipse.buildship.ui.GradleCompositePage"; //$NON-NLS-1$
     }
 
+    //TODO (kuzniarz) This will definitely need rework IAdaptable -> File
     private static CompositeCreationConfiguration getCompositeCreationConfiguration() {
-        ArrayList<IAdaptable> compositeElements = new ArrayList<>();
+        List<File> compositeElements = new ArrayList<>();
         String compositeName = gradleComposite != null ? gradleComposite.getName() : "";
         CompositeCreationWizardController creationController = new CompositeCreationWizardController(compositeName, compositeElements);
         return creationController.getConfiguration();
@@ -166,33 +171,34 @@ public final class GradleCreateWorkspaceCompositePreferencePage extends Abstract
     }
 
     protected void updateCompositeProjects() {
-        List<IAdaptable> projectList = new ArrayList<>();
+        List<File> projectList = new ArrayList<>();
 
         for (TreeItem treeElement : this.gradleProjectCheckboxtreeComposite.getCheckboxTree().getItems()) {
             if (treeElement.getChecked() == true) {
                 if (treeElement.getText().contains(" (External): ")) {
-                    //String[] treeValues = treeElement.getText().replace(" (External): ", "$").split("\\$");
+                    String[] treeValues = treeElement.getText().replace(" (External): ", "$").split("\\$");
                     // treeValues[0] contains the project name
                     // treeValues[1] contains the file path
-                    //File externalFolder = new File(treeValues[1]);
-                    projectList.add(null);
+                    File externalFolder = new File(treeValues[1]);
+                    projectList.add(externalFolder);
                 } else {
-                    projectList.add(ResourcesPlugin.getWorkspace().getRoot().getProject(treeElement.getText()));
+                    projectList.add(getGradleRootFor(ResourcesPlugin.getWorkspace().getRoot().getProject(treeElement.getText())));
                 }
             }
         }
-        getConfiguration().getProjectList().setValue(projectList.toArray(new IAdaptable[projectList.size()]));
+        getConfiguration().getIncludedBuildsList().setValue(projectList);
         this.creationConfiguration.setCompositeProjects(projectList);
+    }
+    
+    protected File getGradleRootFor(IProject project) {
+		InternalGradleBuild gradleBuild = (InternalGradleBuild) CorePlugin.internalGradleWorkspace().getBuild(project).get();
+		return gradleBuild.getBuildConfig().getRootProjectDirectory();
     }
 
     private void updateLocation() {
-        File parentLocation = CorePlugin.getInstance().getStateLocation().append("workspace-composites").toFile();
-        File projectDir = parentLocation != null ? new File(parentLocation, this.workspaceCompositeNameText.getText())
-                : null;
-
         // always update project name last to ensure project name validation errors have
         // precedence in the UI
-        getConfiguration().getCompositePreferencesDir().setValue(projectDir);
+        getConfiguration().getCompositeName().setValue(this.workspaceCompositeNameText.getText());
         this.creationConfiguration.setCompositeName(this.workspaceCompositeNameText.getText());
     }
 
@@ -205,15 +211,14 @@ public final class GradleCreateWorkspaceCompositePreferencePage extends Abstract
     public void finish() {
         updateCompositeProjects();
         String workspaceCompositeName = this.workspaceCompositeNameText.getText();
+        String oldWorkspaceCompositeName = gradleComposite.getName();
         IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
 
         try {
-            File compositePreferenceFile = CorePlugin.getInstance().getStateLocation()
-                    .append("workspace-composites").append(workspaceCompositeName).toFile();
-
+            File compositePreferenceFile = getWorkspaceCompositesPropertiesFile(workspaceCompositeName);
+            IAdaptable[] compositeElements = getCompositeElements(getConfiguration().getIncludedBuildsList().getValue());
             if (gradleComposite == null) {
-                gradleComposite = workingSetManager.createWorkingSet(workspaceCompositeName,
-                        getConfiguration().getProjectList().getValue());
+                gradleComposite = workingSetManager.createWorkingSet(workspaceCompositeName, compositeElements);
                 gradleComposite.setId(IGradleCompositeIDs.NATURE);
             } else {
                 IAdaptable[] oldElements = gradleComposite.getElements();
@@ -221,21 +226,40 @@ public final class GradleCreateWorkspaceCompositePreferencePage extends Abstract
                     gradleComposite.setName(this.workspaceCompositeNameText.getText());
                 }
 
-                if (!oldElements.equals(getConfiguration().getProjectList().getValue())) {
-                    gradleComposite.setElements(getConfiguration().getProjectList().getValue());
+                if (!oldElements.equals(compositeElements)) {
+                    gradleComposite.setElements(compositeElements);
                 }
             }
             FileOutputStream out = new FileOutputStream(compositePreferenceFile.getAbsoluteFile());
             Properties prop = getConfiguration().toCompositeProperties().toProperties();
             prop.store(out, " ");
             out.close();
+            if (!workspaceCompositeName.equals(oldWorkspaceCompositeName)) {
+                File oldCompositeProperties = getWorkspaceCompositesPropertiesFile(oldWorkspaceCompositeName);
+                oldCompositeProperties.delete();
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
+    
+    private File getWorkspaceCompositesPropertiesFile(String compositeName) {
+    	return CorePlugin.getInstance().getStateLocation()
+                .append("workspace-composites").append(compositeName).toFile();
+    }
 
-    @Override
+    private IAdaptable[] getCompositeElements(List<File> includedBuildsList) {
+    	List<IAdaptable> compositeElements = new ArrayList<>();
+		for (File includedBuild : includedBuildsList) {
+			//TODO (kuzniarz) Fix: NoSuchElementException for external builds
+			//TODO (kuzniarz) Check if this gets tricky due to (FolderName != GradleProjectName)?
+			compositeElements.add(ResourcesPlugin.getWorkspace().getRoot().getProject(includedBuild.getName()));
+		}
+		return compositeElements.toArray(new IAdaptable[includedBuildsList.size()]);
+	}
+
+	@Override
     public IWorkingSet getSelection() {
         return gradleComposite;
     }

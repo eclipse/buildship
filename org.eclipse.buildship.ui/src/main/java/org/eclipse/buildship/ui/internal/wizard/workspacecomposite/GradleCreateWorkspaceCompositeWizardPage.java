@@ -14,11 +14,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
-
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.util.binding.Property;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
+import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.internal.util.widget.GradleProjectGroup;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -34,10 +36,8 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.util.binding.Property;
-import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.internal.util.widget.GradleProjectGroup;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Page on the {@link WorkspaceCompositeCreationWizard} declaring the workspace composite name and included projects.
@@ -69,7 +69,7 @@ public final class GradleCreateWorkspaceCompositeWizardPage extends AbstractComp
 
     private static CompositeCreationConfiguration getCompositeCreationConfiguration() {
         CompositeCreationWizardController creationController;
-        ArrayList<IAdaptable> compositeElements = new ArrayList<>();
+        List<File> compositeElements = new ArrayList<>();
         if (gradleComposite != null) {
             creationController = new CompositeCreationWizardController(gradleComposite.getName(), compositeElements);
         } else {
@@ -112,7 +112,7 @@ public final class GradleCreateWorkspaceCompositeWizardPage extends AbstractComp
         this.gradleProjectCheckboxtreeComposite = new GradleProjectGroup(root, hasSelectedElement());
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(3, SWT.DEFAULT).applyTo(this.gradleProjectCheckboxtreeComposite);
 
-        getConfiguration().getProjectList().setValue(new IAdaptable[0]);
+        getConfiguration().getIncludedBuildsList().setValue(new ArrayList<>());
 
         if (gradleComposite != null) {
             this.workspaceCompositeNameText.setText(gradleComposite.getName());
@@ -137,16 +137,13 @@ public final class GradleCreateWorkspaceCompositeWizardPage extends AbstractComp
     }
 
     private void updateLocation() {
-         File parentLocation = CorePlugin.getInstance().getStateLocation().append("workspace-composites").toFile();
-         File projectDir = parentLocation != null ? new File(parentLocation, this.workspaceCompositeNameText.getText()) : null;
-
          // always update project name last to ensure project name validation errors have precedence in the UI
-         getConfiguration().getCompositePreferencesDir().setValue(projectDir);
+         getConfiguration().getCompositeName().setValue(this.workspaceCompositeNameText.getText());
          this.creationConfiguration.setCompositeName(this.workspaceCompositeNameText.getText());
     }
 
     protected void updateCompositeProjects() {
-        List<IAdaptable> projectList = new ArrayList<>();
+        List<File> projectList = new ArrayList<>();
 
         for (TreeItem treeElement : this.gradleProjectCheckboxtreeComposite.getCheckboxTree().getItems()) {
             if (treeElement.getChecked() == true) {
@@ -157,12 +154,17 @@ public final class GradleCreateWorkspaceCompositeWizardPage extends AbstractComp
                     //File externalFolder = new File(treeValues[1]);
                     projectList.add(null);
                 } else {
-                    projectList.add(ResourcesPlugin.getWorkspace().getRoot().getProject(treeElement.getText()));
+                    projectList.add(getGradleRootFor(ResourcesPlugin.getWorkspace().getRoot().getProject(treeElement.getText())));
                 }
             }
         }
-        getConfiguration().getProjectList().setValue(projectList.toArray(new IAdaptable[projectList.size()]));
+        getConfiguration().getIncludedBuildsList().setValue(projectList);
         this.creationConfiguration.setCompositeProjects(projectList);
+    }
+    
+    protected File getGradleRootFor(IProject project) {
+		InternalGradleBuild gradleBuild = (InternalGradleBuild) CorePlugin.internalGradleWorkspace().getBuild(project).get();
+		return gradleBuild.getBuildConfig().getRootProjectDirectory();
     }
 
     @Override
