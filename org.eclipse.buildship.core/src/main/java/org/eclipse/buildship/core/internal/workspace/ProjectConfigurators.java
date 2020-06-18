@@ -26,6 +26,7 @@ import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.extension.InternalProjectConfigurator;
 import org.eclipse.buildship.core.internal.extension.ProjectConfiguratorContribution;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.util.gradle.Pair;
 
 public final class ProjectConfigurators {
@@ -112,10 +113,18 @@ public final class ProjectConfigurators {
     }
 
     private IResource markerLocation() {
-        Optional<IProject> projectOrNull = CorePlugin.workspaceOperations().findProjectByLocation(this.gradleBuild.getBuildConfig().getRootProjectDirectory());
-        return projectOrNull.isPresent() ? projectOrNull.get() : ResourcesPlugin.getWorkspace().getRoot();
+        Optional<IProject> maybeProject = CorePlugin.workspaceOperations().findProjectByLocation(this.gradleBuild.getBuildConfig().getRootProjectDirectory());
+        if (!maybeProject.isPresent()) {
+            return ResourcesPlugin.getWorkspace().getRoot();
+        }
+        IProject project = maybeProject.get();
+        try {
+            PersistentModel persistentModel = CorePlugin.modelPersistence().loadModel(project);
+            return project.getFile(persistentModel.getbuildScriptPath());
+        } catch (Exception ignore) {
+            return project;
+        }
     }
-
 
     private static class BaseContext {
         protected final List<Pair<String, Exception>> errors = new ArrayList<>();
