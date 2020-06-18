@@ -19,13 +19,15 @@ public final class SynchronizationProblem {
     private final String message;
     private final Exception exception;
     private final int severity;
+    private final int line;
 
-    private SynchronizationProblem(String pluginId, IResource resource, String message, Exception exception, int severity) {
+    private SynchronizationProblem(String pluginId, IResource resource, String message, Exception exception, int severity, int line) {
         this.pluginId = pluginId;
         this.resource = resource;
         this.message = message;
         this.exception = exception;
         this.severity = severity;
+        this.line = line;
     }
 
     public String getPluginId() {
@@ -48,11 +50,24 @@ public final class SynchronizationProblem {
         return this.severity;
     }
 
-    public static final SynchronizationProblem newError(String pluginId, IResource resource, String message, Exception exception) {
-        return new SynchronizationProblem(pluginId, resource, message, exception, IStatus.ERROR);
+    public int getLine() {
+        return this.line;
     }
 
+    public static final SynchronizationProblem newError(String pluginId, IResource resource, String message, Exception exception) {
+        return new SynchronizationProblem(pluginId, resource, message, exception, IStatus.ERROR, 0);
+    }
+
+    public static final SynchronizationProblem newError(String pluginId, IResource resource, String message, Exception exception, int line) {
+        return new SynchronizationProblem(pluginId, resource, message, exception, IStatus.ERROR, line);
+    }
+
+
     public static final SynchronizationProblem newWarning(String pluginId, IResource resource, String message, Exception exception) {
-        return new SynchronizationProblem(pluginId, resource, message, exception, IStatus.WARNING);
+        return new SynchronizationProblem(pluginId, resource, message, exception, IStatus.WARNING, 0);
+    }
+
+    public static final SynchronizationProblem newWarning(String pluginId, IResource resource, String message, Exception exception, int line) {
+        return new SynchronizationProblem(pluginId, resource, message, exception, IStatus.WARNING, line);
     }
 }
