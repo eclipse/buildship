@@ -89,7 +89,7 @@ public final class ProjectConfigurators {
                 });
             } catch (Exception e) {
                 MarkerLocation markerLocation = markerLocation(e);
-                result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation.getResource(), configuratorFailedMessage(contribution, e, "initialize"), e, markerLocation.getLine()));
+                result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation.getResource(), configuratorFailedMessage(contribution, e, "configure project '" + project.getName() + "'"), e, markerLocation.getLine()));
             }
         }
 
@@ -117,7 +117,7 @@ public final class ProjectConfigurators {
                 });
             } catch (Exception e) {
                 MarkerLocation markerLocation = markerLocation(e);
-                result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation.getResource(), configuratorFailedMessage(contribution, e, "initialize"), e, markerLocation.getLine()));
+                result.add(SynchronizationProblem.newError(contribution.getContributorPluginId(), markerLocation.getResource(), configuratorFailedMessage(contribution, e, "unconfigure project '" + project.getName() + "'"), e, markerLocation.getLine()));
             }
         }
 

@@ -80,7 +80,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         result.status.severity == IStatus.ERROR
         gradleErrorMarkers.size() == 1
         gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
-        gradleErrorMarkers[0].getResource() == project
+        gradleErrorMarkers[0].getResource() == project.getFile('build.gradle')
     }
 
     def "The eclipseWtp task is run before importing WTP projects"() {
@@ -325,7 +325,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         result.status.severity == IStatus.ERROR
         gradleErrorMarkers.size() == 1
         gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
-        gradleErrorMarkers[0].getResource() == project
+        gradleErrorMarkers[0].getResource() == project.getFile('build.gradle')
     }
 
     def "Does not override classpath container customisation"() {
