@@ -192,9 +192,9 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
                 CorePlugin.operationManager().run(this, tokenSource, monitor);
                 for (SynchronizationProblem f : this.failures) {
                     if (f.getSeverity() == IStatus.ERROR) {
-                        GradleErrorMarker.createError(f.getResource(), this.gradleBuild, f.getMessage(), f.getException(), f.getLine());
+                        GradleErrorMarker.createError(f.getResource(), this.gradleBuild, f.getMessage(), f.getException(), 0);
                     } else if (f.getSeverity() == IStatus.WARNING) {
-                        GradleErrorMarker.createWarning(f.getResource(), this.gradleBuild, f.getMessage(), f.getException(), f.getLine());
+                        GradleErrorMarker.createWarning(f.getResource(), this.gradleBuild, f.getMessage(), f.getException(), 0);
                     }
                 }
                 result = DefaultSynchronizationResult.from(getFailures());

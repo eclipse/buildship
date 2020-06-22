@@ -34,12 +34,12 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.Logger;
 import org.eclipse.buildship.core.internal.TraceScope;
-import org.eclipse.buildship.core.internal.UnresolvedDependencyException;
 import org.eclipse.buildship.core.internal.preferences.ClasspathConverter;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
@@ -119,11 +119,9 @@ final class GradleClasspathContainerUpdater {
                         String groupId = m.group(1);
                         String artifactId = m.group(2);
                         String version = m.group(3);
-                        UnresolvedDependencyException exception = new UnresolvedDependencyException(groupId + ":" + artifactId + ":" + version);
-                        this.projectContext.error(exception.getMessage(), exception);
+                        this.projectContext.error("Unresolved dependency: " + groupId + ":" + artifactId + ":" + version, null);
                     } else {
-                        UnresolvedDependencyException exception = new UnresolvedDependencyException(coordinates);
-                        this.projectContext.error(exception.getMessage(), exception);
+                        this.projectContext.error("Unresolved dependency: " + coordinates, null);
                     }
                     continue;
                 }
