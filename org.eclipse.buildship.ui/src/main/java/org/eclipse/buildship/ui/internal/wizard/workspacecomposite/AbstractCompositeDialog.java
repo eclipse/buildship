@@ -11,6 +11,11 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,9 +25,12 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
+import org.eclipse.ui.internal.AggregateWorkingSet;
 
 public abstract class AbstractCompositeDialog extends SelectionDialog {
 	
@@ -32,6 +40,8 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 	private Button 	selectAllButton;
 	private Button 	deselectAllButton;
 	private CheckboxTableViewer compositeSelectionListViewer;
+	private TableViewer viewer;
+	List<IWorkingSet> composites = new ArrayList<IWorkingSet>();
 	private ColumnLabelProvider labelProvider = new ColumnLabelProvider() {
 		private Map<ImageDescriptor, Image> icons = new Hashtable<>();
 		@Override
@@ -54,9 +64,11 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 			return icon;
 		}
 	};
+	private IStructuredContentProvider contentProvider;
 	
 	protected AbstractCompositeDialog(Shell parentShell) {
 		super(parentShell);
+		contentProvider = new ArrayContentProvider();
 	}
 	
 	@Override
@@ -64,21 +76,44 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 		Composite container = createComponents(parent);
 		addListeners();
 		loadCompositeNames();
-		//initial composite selection
+		//loadCompositeSelection(); TODO (kuzniarz) selection/deselection currently not possible
         return container;
+	}
+
+	private void loadCompositeSelection() {
+		this.compositeSelectionListViewer.setAllChecked(false);
+		
+		IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
+		for (IWorkingSet workingSet : manager.getWorkingSets()) {
+			//TODO (kuzniarz) Not yet working
+			this.compositeSelectionListViewer.setChecked(workingSet, workingSet.isVisible());
+			System.out.println(workingSet.getName() + ".isVisible() == " + workingSet.isVisible());
+		}
+		
+	}
+	
+	public void setSelection(IWorkingSet[] workingSets) {
+		setInitialSelections((Object[]) workingSets);
 	}
 
 	private void loadCompositeNames() {
 		compositeSelectionListViewer.setLabelProvider(labelProvider);
-		compositeSelectionListViewer.setContentProvider(ArrayContentProvider.getInstance());
-		IWorkingSet[] workingSetArray = PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSets();
-		List<IWorkingSet> composites = new ArrayList<IWorkingSet>();
+		compositeSelectionListViewer.setContentProvider(contentProvider);
+		IWorkingSet[] workingSetArray = PlatformUI.getWorkbench().getWorkingSetManager().getAllWorkingSets();
 		for (IWorkingSet workingSet : workingSetArray) {
-			if (workingSet.getId().equals(IGradleCompositeIDs.NATURE)) {
+			if (!workingSet.isAggregateWorkingSet() && workingSet.getId().equals(IGradleCompositeIDs.NATURE)) {
 				composites.add(workingSet);
 			}
 		}
-		compositeSelectionListViewer.setInput(composites);	
+		compositeSelectionListViewer.setInput(composites);
+		compositeSelectionListViewer.addSelectionChangedListener(e -> selectionChanged());
+	}
+
+	private Object selectionChanged() {
+		IStructuredSelection selection = (IStructuredSelection) compositeSelectionListViewer.getSelection();
+		this.removeButton.setEnabled(!selection.isEmpty());
+		this.editButton.setEnabled(selection.size() == 1);
+		return null;
 	}
 
 	private Composite createComponents(Composite parent) {
@@ -93,7 +128,7 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 	private void createBottomButtonContainer(Composite container) {
 		Composite buttonContainer = new Composite(container, SWT.NONE);
 		buttonContainer.setLayout(LayoutUtils.newGridLayout(3));
-		buttonContainer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1));
+		buttonContainer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		this.newButton = new Button(buttonContainer, SWT.PUSH);
         this.newButton.setText("New..."); //TODO (kuzniarz) Replace String with constant
         this.newButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -101,10 +136,12 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
         this.editButton = new Button(buttonContainer, SWT.PUSH);
         this.editButton.setText("Edit...");
         this.editButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        this.editButton.setEnabled(false);
         
         this.removeButton = new Button(buttonContainer, SWT.PUSH);
         this.removeButton.setText("Remove");
         this.removeButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        this.removeButton.setEnabled(false);
 	}
 
 	private void createSideButtonContainer(Composite container) {
@@ -122,11 +159,14 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 
 	private void createCompositeCheckboxList(Composite container) {
 		this.compositeSelectionListViewer = CheckboxTableViewer.newCheckList(container, SWT.BORDER | SWT.MULTI);
-		this.compositeSelectionListViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
+		GridData data = new GridData(GridData.FILL_BOTH);
+		data.heightHint = 200;
+		data.widthHint = 250;
+		data.horizontalSpan = 2;
+		this.compositeSelectionListViewer.getTable().setLayoutData(data);
 	}
 	
 	private void addListeners() {
-		// TODO Auto-generated method stub
 		this.newButton.addSelectionListener(new SelectionAdapter() {
 			@Override
             public void widgetSelected(SelectionEvent e) {
@@ -157,6 +197,23 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 				deselectAllWorkspaceComposites();
             }
 		});
+	}
+	
+	protected ISelection getSelectedComposites() {
+		return this.compositeSelectionListViewer.getSelection();
+	}
+	
+	protected void removeSelectedCompositesFromList(IStructuredSelection selection) {
+		List<IWorkingSet> removedComposites = selection.toList();
+		composites.removeAll(removedComposites);
+		this.compositeSelectionListViewer.refresh();
+	}
+	
+	protected void addNewCreatedComposite(IWorkingSet workingSet) {
+		composites.add(workingSet);
+		this.compositeSelectionListViewer.add(workingSet);
+		this.compositeSelectionListViewer.setSelection(new StructuredSelection(workingSet), true);
+		this.compositeSelectionListViewer.setChecked(workingSet, true);
 	}
 
 	protected void deselectAllWorkspaceComposites() {
