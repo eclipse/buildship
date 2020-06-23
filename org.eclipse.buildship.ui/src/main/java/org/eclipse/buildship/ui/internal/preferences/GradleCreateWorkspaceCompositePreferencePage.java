@@ -209,12 +209,11 @@ public final class GradleCreateWorkspaceCompositePreferencePage extends Abstract
 
     @Override
     public void finish() {
-        updateCompositeProjects();
-        String workspaceCompositeName = this.workspaceCompositeNameText.getText();
-        String oldWorkspaceCompositeName = gradleComposite.getName();
-        IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
-
         try {
+        	updateCompositeProjects();
+            String workspaceCompositeName = this.workspaceCompositeNameText.getText();
+            String oldWorkspaceCompositeName = "";
+            IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
             File compositePreferenceFile = getWorkspaceCompositesPropertiesFile(workspaceCompositeName);
             IAdaptable[] compositeElements = getCompositeElements(getConfiguration().getIncludedBuildsList().getValue());
             if (gradleComposite == null) {
@@ -222,6 +221,7 @@ public final class GradleCreateWorkspaceCompositePreferencePage extends Abstract
                 gradleComposite.setId(IGradleCompositeIDs.NATURE);
             } else {
                 IAdaptable[] oldElements = gradleComposite.getElements();
+                oldWorkspaceCompositeName = gradleComposite.getName();
                 if (!gradleComposite.getName().equals(this.workspaceCompositeNameText.getText())) {
                     gradleComposite.setName(this.workspaceCompositeNameText.getText());
                 }
