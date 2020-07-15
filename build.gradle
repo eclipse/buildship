@@ -4,6 +4,7 @@ import java.util.regex.*
 
 plugins {
     id 'com.gradle.build-scan' version '1.8'
+    id "org.ajoberstar.grgit" version "4.0.2"
 }
 
 buildScan {
@@ -681,13 +682,26 @@ gradle.buildFinished {
     }
 }
 
+
 // tag the HEAD of the current branch and push the new tag
 task tag {
-    doLast {
-        def tagVersion = file('version.txt').text.trim()
-        exec { commandLine 'git', 'tag', '-a', "REL_$tagVersion", '-m', "Create tag REL_$tagVersion" }
-        exec { commandLine 'git', 'push', '--tags', githubAuthenticatedHost, 'master' }
-    }
+  doLast {
+     def githubAccessKey = findProperty("githubAccessKey")
+     if (!githubAccessKey) {
+         throw new IllegalStateException("Cannot tag commit: define GitHub access key with -PgithubAccessKey=<access_key> project property")
+     } else {
+         // set access token
+         System.setProperty("org.ajoberstar.grgit.auth.username", githubAccessKey)
+         // tag current state
+         grgit.tag.add {
+           def tagVersion = file('version.txt').text.trim()
+           name =  "REL_$tagVersion"
+           message = "Create tag REL_$tagVersion"
+         }
+         // push changes
+         grgit.push(tags: true)
+     }
+  }
 }
 
 // increment the service segment in the version number and push it to master
