@@ -21,6 +21,7 @@ import org.eclipse.jdt.launching.IRuntimeClasspathEntry
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.util.eclipse.PlatformUtils
 import org.eclipse.buildship.core.GradleDistribution
 
 class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
@@ -195,6 +196,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
     }
 
     @Issue("https://github.com/eclipse/buildship/issues/1004")
+    @IgnoreIf({ !PlatformUtils.supportsTestAttributes() })
     def "Project dependency test code is not on the classpath if without_test_code attribute is set"() {
         setup:
         // Another non-custom source directory is required for the default-directory to be set
