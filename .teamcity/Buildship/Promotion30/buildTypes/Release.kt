@@ -12,8 +12,7 @@ object Release : BuildType({
     templates(Promotion30Template)
 
     params {
-        text("Confirm", "NO", label = "Do you want to proceed with the release?", description = "Read the release instructions document before proceeding. Confirm to publish a new release.", display = ParameterDisplay.PROMPT,
-              regex = "YES", validationMessage = "Confirm by writing YES in order to proceed.")
+        password("github.token", "", label = "GitHub token", description = "Please specify your GitHub auth token to proceed with the release", display = ParameterDisplay.PROMPT)
         param("eclipse.release.type", "release")
         param("build.invoker", "ci")
         param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")

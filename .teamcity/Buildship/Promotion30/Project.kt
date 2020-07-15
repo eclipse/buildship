@@ -18,8 +18,4 @@ object Project : Project({
     buildType(Milestone)
 
     buildTypesOrder = arrayListOf(Release, Milestone, Snapshot)
-
-    params {
-        password("github.token", " credentialsJSON:3fcf7ce9-4dfe-477c-afc1-1da794a69214", label = "GitHub access token", display = ParameterDisplay.HIDDEN)
-    }
 })
