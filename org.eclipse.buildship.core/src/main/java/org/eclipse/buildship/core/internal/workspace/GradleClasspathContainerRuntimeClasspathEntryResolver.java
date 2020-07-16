@@ -145,7 +145,7 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
                     // add the project entry itself so that the source lookup can find the classes
                     // see https://github.com/eclipse/buildship/issues/383
                     result.add(projectRuntimeEntry);
-                    Collections.addAll(result, invokeJavaRuntimeResolveRuntimeClasspathEntry(projectRuntimeEntry, dependencyProject, excludeTestCode));
+                    Collections.addAll(result, invokeJavaRuntimeResolveRuntimeClasspathEntry(projectRuntimeEntry, dependencyProject, excludeTestCode || isTestCodeExcluded(cpe)));
                 }
             }
         }
@@ -163,8 +163,16 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
     }
 
     private boolean hasTestAttribute(IClasspathEntry entry) {
-        for (IClasspathAttribute a : entry.getExtraAttributes()) {
-            if ("test".equals(a.getName()) && Boolean.valueOf(a.getValue())) {
+        return hasEnabledBooleanAttribute("test", entry);
+    }
+
+    private static boolean isTestCodeExcluded(IClasspathEntry entry) {
+        return hasEnabledBooleanAttribute("without_test_code", entry);
+    }
+
+    private static boolean hasEnabledBooleanAttribute(String key, IClasspathEntry entry) {
+        for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
+            if (key.equals(attribute.getName()) && Boolean.parseBoolean(attribute.getValue())) {
                 return true;
             }
         }

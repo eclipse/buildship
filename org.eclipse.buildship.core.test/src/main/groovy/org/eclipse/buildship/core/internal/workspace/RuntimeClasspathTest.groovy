@@ -21,6 +21,7 @@ import org.eclipse.jdt.launching.IRuntimeClasspathEntry
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.util.eclipse.PlatformUtils
 import org.eclipse.buildship.core.GradleDistribution
 
 class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
@@ -192,6 +193,42 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
 
         expect:
         resolvedClasspath.find { it.path.lastSegment().contains 'guava' }
+    }
+
+    @Issue("https://github.com/eclipse/buildship/issues/1004")
+    @IgnoreIf({ !PlatformUtils.supportsTestAttributes() })
+    def "Project dependency test code is not on the classpath if without_test_code attribute is set"() {
+        setup:
+        // Another non-custom source directory is required for the default-directory to be set
+        new File(location, 'a/src/main/java').mkdirs()
+        new File(location, 'a/src/test/java').mkdirs()
+        buildFile << '''
+            project(':a') {
+                apply plugin: 'java-library'
+            }
+
+            project(':b') {
+                apply plugin: 'eclipse'
+
+                dependencies {
+                    implementation project(':a')
+                }
+
+                eclipse.classpath.file.whenMerged {
+                    entries.findAll { it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency }
+                        .each { it.entryAttributes['without_test_code'] = 'true' }
+                }
+            }
+        '''
+        importAndWait(location)
+
+        when:
+        IJavaProject javaProject = JavaCore.create(findProject('b'))
+        IRuntimeClasspathEntry[] classpath = projectRuntimeClasspath(javaProject)
+
+        then:
+        classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.toPortableString() == '/a/bin/main' }
+        !classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.toPortableString() == '/a/bin/test' }
     }
 
     private IRuntimeClasspathEntry[] projectRuntimeClasspath(IJavaProject project) {
