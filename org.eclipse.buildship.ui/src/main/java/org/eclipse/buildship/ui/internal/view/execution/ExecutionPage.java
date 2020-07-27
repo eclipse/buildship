@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.execution;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,9 +21,12 @@ import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.StartEvent;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
+import org.gradle.tooling.events.test.Destination;
 import org.gradle.tooling.events.test.JvmTestKind;
 import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
+import org.gradle.tooling.events.test.TestOutputEvent;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -48,8 +52,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
+import org.eclipse.buildship.ui.internal.console.GradleConsole;
 import org.eclipse.buildship.ui.internal.util.nodeselection.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelectionProvider;
@@ -76,6 +84,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
     private final Map<OperationDescriptor, OperationItem> allItems;
     private final Set<OperationItem> activeItems;
     private final Set<OperationItem> removedItems;
+    private final GradleConsole gradleConsole;
 
     private FilteredTree filteredTree;
     private SelectionHistoryManager selectionHistoryManager;
@@ -92,6 +101,20 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         this.allItems = Maps.newHashMap();
         this.activeItems = Sets.newHashSet();
         this.removedItems = Sets.newHashSet();
+        this.gradleConsole = tryFindGradleConsole(processDescription);
+    }
+
+    private static GradleConsole tryFindGradleConsole(ProcessDescription processDescription) {
+        for (IConsole console : ConsolePlugin.getDefault().getConsoleManager().getConsoles()) {
+            if (console instanceof GradleConsole) {
+                GradleConsole gradleConsole = (GradleConsole) console;
+                Optional<ProcessDescription> desc = gradleConsole.getProcessDescription();
+                if (desc.isPresent() && desc.get().equals(processDescription)) {
+                    return gradleConsole;
+                }
+            }
+        }
+        return null;
     }
 
     public ProcessDescription getProcessDescription() {
@@ -181,6 +204,16 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         if (isExcluded(descriptor)) {
             return;
         }
+
+        if (progressEvent instanceof TestOutputEvent) {
+            try {
+                printToConsole((TestOutputEvent) progressEvent);
+            } catch (IOException e) {
+                CorePlugin.logger().warn("Cannot print test output to console", e);
+            }
+            return;
+        }
+
         OperationItem operationItem = this.allItems.get(descriptor);
         if (null == operationItem) {
             operationItem = new OperationItem(progressEvent);
@@ -202,6 +235,25 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         // attach to (first non-excluded) parent, if this is a new operation (in case of StartEvent)
         OperationItem parentExecutionItem = this.allItems.get(findFirstNonExcludedParent(descriptor));
         parentExecutionItem.addChild(operationItem);
+    }
+
+    private void printToConsole(TestOutputEvent testOutputEvent) throws IOException {
+        if (this.gradleConsole == null) {
+            CorePlugin.logger().warn("Cannot find Gradle console for " + this.processDescription.getName());
+        } else {
+            String message = testOutputEvent.getDescriptor().getMessage();
+            Destination destination = testOutputEvent.getDescriptor().getDestination();
+            switch (destination) {
+                case StdOut:
+                    this.gradleConsole.getOutput().write(message.getBytes());
+                    break;
+                case StdErr:
+                    this.gradleConsole.getError().write(message.getBytes());
+                    break;
+                default:
+                    throw new IllegalStateException("Invalid destination: " + destination);
+            }
+        }
     }
 
     private boolean isExcluded(OperationDescriptor descriptor) {
