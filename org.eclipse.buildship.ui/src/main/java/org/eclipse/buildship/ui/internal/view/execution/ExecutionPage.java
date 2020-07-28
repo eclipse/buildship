@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.execution;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +20,6 @@ import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.StartEvent;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
-import org.gradle.tooling.events.test.Destination;
 import org.gradle.tooling.events.test.JvmTestKind;
 import org.gradle.tooling.events.test.JvmTestOperationDescriptor;
 import org.gradle.tooling.events.test.TestOutputEvent;
@@ -52,9 +50,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IActionBars;
 
-import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
-import org.eclipse.buildship.core.internal.console.ProcessStreams;
 import org.eclipse.buildship.ui.internal.util.nodeselection.ActionShowingContextMenuListener;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelectionProvider;
@@ -188,11 +184,6 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         }
 
         if (progressEvent instanceof TestOutputEvent) {
-            try {
-                printToConsole((TestOutputEvent) progressEvent);
-            } catch (IOException e) {
-                CorePlugin.logger().warn("Cannot print test output to console", e);
-            }
             return;
         }
 
@@ -217,22 +208,6 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         // attach to (first non-excluded) parent, if this is a new operation (in case of StartEvent)
         OperationItem parentExecutionItem = this.allItems.get(findFirstNonExcludedParent(descriptor));
         parentExecutionItem.addChild(operationItem);
-    }
-
-    private void printToConsole(TestOutputEvent testOutputEvent) throws IOException {
-        ProcessStreams gradleConsole = CorePlugin.processStreamsProvider().getOrCreateProcessStreams(this.processDescription);
-        String message = testOutputEvent.getDescriptor().getMessage();
-        Destination destination = testOutputEvent.getDescriptor().getDestination();
-        switch (destination) {
-            case StdOut:
-                gradleConsole.getOutput().write(message.getBytes());
-                break;
-            case StdErr:
-                gradleConsole.getError().write(message.getBytes());
-                break;
-            default:
-                throw new IllegalStateException("Invalid destination: " + destination);
-        }
     }
 
     private boolean isExcluded(OperationDescriptor descriptor) {
