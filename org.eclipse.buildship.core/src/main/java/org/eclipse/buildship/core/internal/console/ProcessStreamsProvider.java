@@ -29,4 +29,12 @@ public interface ProcessStreamsProvider {
      */
     ProcessStreams createProcessStreams(ProcessDescription processDescription);
 
+    /**
+     * Searches the existing streams for the target description and creates a new one if none found.
+     *
+     * @param processDescription the backing process
+     * @return the new instance
+     */
+    ProcessStreams getOrCreateProcessStreams(ProcessDescription processDescription);
+
 }

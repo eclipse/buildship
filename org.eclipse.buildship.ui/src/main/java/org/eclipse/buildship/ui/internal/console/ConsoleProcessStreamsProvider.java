@@ -9,10 +9,15 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.console;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleListener;
 
 import org.eclipse.buildship.core.internal.console.ProcessDescription;
 import org.eclipse.buildship.core.internal.console.ProcessStreams;
@@ -22,7 +27,18 @@ import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
  * Provider of {@link ProcessStreams} instances that are backed by console pages of the Eclipse
  * Console view.
  */
-public final class ConsoleProcessStreamsProvider implements ProcessStreamsProvider {
+public final class ConsoleProcessStreamsProvider implements ProcessStreamsProvider, IConsoleListener {
+
+    private final Map<ProcessDescription, GradleConsole> consoles = new HashMap<>();
+
+    private ConsoleProcessStreamsProvider() {
+    }
+
+    public static ConsoleProcessStreamsProvider create() {
+        ConsoleProcessStreamsProvider provider = new ConsoleProcessStreamsProvider();
+        ConsolePlugin.getDefault().getConsoleManager().addConsoleListener(provider);
+        return provider;
+    }
 
     /**
      * Returns the same instance for each invocation.
@@ -44,17 +60,32 @@ public final class ConsoleProcessStreamsProvider implements ProcessStreamsProvid
     @Override
     public ProcessStreams createProcessStreams(ProcessDescription processDescription) {
         Preconditions.checkNotNull(processDescription);
-        return createAndRegisterNewConsole(processDescription);
+        GradleConsole console = createNewConsole(processDescription);
+        this.consoles.put(processDescription, console);
+        return console;
     }
 
-    private static GradleConsole createAndRegisterNewConsole(ProcessDescription processDescription) {
+    @Override
+    public ProcessStreams getOrCreateProcessStreams(ProcessDescription processDescription) {
+        Preconditions.checkNotNull(processDescription);
+        GradleConsole existingConsole = this.consoles.get(processDescription);
+        if (existingConsole == null) {
+            GradleConsole newConsole = createNewConsole(processDescription);
+            this.consoles.put(processDescription, newConsole);
+            return newConsole;
+        } else {
+            return existingConsole;
+        }
+    }
+
+    private static GradleConsole createNewConsole(ProcessDescription processDescription) {
         // creates a new console and adds it to the Eclipse Console view
         GradleConsole gradleConsole = new GradleConsole(processDescription);
         ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { gradleConsole });
         return gradleConsole;
     }
 
-    private static GradleConsole createAndRegisterNewConsole(String name) {
+    private static GradleConsole createNewConsole(String name) {
         // creates a new console without a process description and adds it to the Eclipse Console view
         GradleConsole gradleConsole = new GradleConsole(name);
         ConsolePlugin.getDefault().getConsoleManager().addConsoles(new IConsole[] { gradleConsole });
@@ -66,7 +97,25 @@ public final class ConsoleProcessStreamsProvider implements ProcessStreamsProvid
      */
     private static final class BackgroundJobProcessStream {
 
-        private static final GradleConsole INSTANCE = createAndRegisterNewConsole(ConsoleMessages.Background_Console_Title);
+        private static final GradleConsole INSTANCE = createNewConsole(ConsoleMessages.Background_Console_Title);
+
+    }
+
+    @Override
+    public void consolesAdded(IConsole[] consoles) {
+        // only this class creates new consoles
+    }
+
+    @Override
+    public void consolesRemoved(IConsole[] consoles) {
+        for (IConsole console : consoles) {
+            if (console instanceof GradleConsole) {
+                Optional<ProcessDescription> description = ((GradleConsole)console).getProcessDescription();
+                if (description.isPresent()) {
+                    this.consoles.remove(description.get());
+                }
+            }
+        }
 
     }
 

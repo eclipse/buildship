@@ -107,7 +107,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     }
 
     private ProcessStreamsProvider createConsoleProcessStreamsProvider() {
-        return new ConsoleProcessStreamsProvider();
+        return ConsoleProcessStreamsProvider.create();
     }
 
     private GradleLaunchConfigurationManager createLaunchConfigurationManager() {

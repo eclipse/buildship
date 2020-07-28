@@ -59,4 +59,8 @@ public final class StdProcessStreamsProvider implements ProcessStreamsProvider {
         return this.stdStreams;
     }
 
+    @Override
+    public ProcessStreams getOrCreateProcessStreams(ProcessDescription processDescription) {
+        return this.stdStreams;
+    }
 }
