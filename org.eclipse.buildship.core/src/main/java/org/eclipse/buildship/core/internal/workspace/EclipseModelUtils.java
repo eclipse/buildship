@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,10 @@ import java.util.stream.Collectors;
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionFailureException;
 import org.gradle.tooling.ProjectConnection;
+import org.gradle.tooling.events.ProgressEvent;
+import org.gradle.tooling.events.ProgressListener;
+import org.gradle.tooling.events.test.Destination;
+import org.gradle.tooling.events.test.TestOutputEvent;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 import org.gradle.tooling.model.eclipse.EclipseRuntime;
@@ -29,6 +34,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.internal.console.ProcessStreams;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
 import org.eclipse.buildship.core.internal.util.gradle.SimpleIntermediateResultHandler;
@@ -107,21 +113,56 @@ public final class EclipseModelUtils {
     private static Collection<EclipseProject> runPhasedModelQuery(ProjectConnection connection, GradleVersion gradleVersion,
             BuildAction<Void> projectsLoadedAction, BuildAction<Collection<EclipseProject>> query) {
         SimpleIntermediateResultHandler<Collection<EclipseProject>> resultHandler = new SimpleIntermediateResultHandler<>();
-        connection.action().projectsLoaded(projectsLoadedAction, new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build().forTasks().run();
+        connection.action().projectsLoaded(projectsLoadedAction, new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build().forTasks().addProgressListener(new TestOutputForwardingListener()).run();
         return resultHandler.getValue();
     }
 
     private static Collection<EclipseProject> queryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
         BuildAction<Collection<EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer());
-        return connection.action(query).run();
+        return connection.action(query).addProgressListener(new TestOutputForwardingListener()).run();
     }
 
     private static <T> Collection<T> queryCompositeModel(Class<T> model, ProjectConnection connection) {
         BuildAction<Collection<T>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(model);
-        return connection.action(query).run();
+        return connection.action(query).addProgressListener(new TestOutputForwardingListener()).run();
     }
 
     private static <T> T queryModel(Class<T> model, ProjectConnection connection) {
-        return connection.getModel(model);
+        return connection.model(model).addProgressListener(new TestOutputForwardingListener()).get();
+    }
+
+    private static class TestOutputForwardingListener implements ProgressListener {
+
+        private ProcessStreams processStreams;
+
+        public TestOutputForwardingListener() {
+            this.processStreams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
+        }
+
+        @Override
+        public void statusChanged(ProgressEvent event) {
+            if (event instanceof TestOutputEvent) {
+                try {
+                    printToConsole((TestOutputEvent) event);
+                } catch (IOException e) {
+                    CorePlugin.logger().warn("Cannot print test output to console", e);
+                }
+            }
+        }
+
+        private void printToConsole(TestOutputEvent testOutputEvent) throws IOException {
+            String message = testOutputEvent.getDescriptor().getMessage();
+            Destination destination = testOutputEvent.getDescriptor().getDestination();
+            switch (destination) {
+                case StdOut:
+                    this.processStreams.getOutput().write(message.getBytes());
+                    break;
+                case StdErr:
+                    this.processStreams.getError().write(message.getBytes());
+                    break;
+                default:
+                    throw new IllegalStateException("Invalid destination: " + destination);
+            }
+        }
     }
 }

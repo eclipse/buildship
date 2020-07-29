@@ -12,6 +12,7 @@ package org.eclipse.buildship.ui.internal.console;
 import java.io.IOException;
 
 import org.gradle.tooling.events.ProgressEvent;
+import org.gradle.tooling.events.ProgressListener;
 import org.gradle.tooling.events.test.Destination;
 import org.gradle.tooling.events.test.TestOutputEvent;
 
@@ -35,15 +36,15 @@ public final class TestOutputForwardingEventListener implements EventListener {
     }
 
     private void handleLaunchRequest(final ExecuteLaunchRequestEvent event) {
-        event.getOperation().addProgressListener(new ForwardingListener(event.getProcessDescription()));
+        event.getOperation().addProgressListener(new TestOutputForwardingListener(event.getProcessDescription()));
     }
 
-    private static class ForwardingListener implements org.gradle.tooling.events.ProgressListener {
+    private static class TestOutputForwardingListener implements ProgressListener {
 
         private final ProcessDescription processDescription;
         private ProcessStreams processStreams;
 
-        public ForwardingListener(ProcessDescription processDescription) {
+        public TestOutputForwardingListener(ProcessDescription processDescription) {
             this.processDescription = processDescription;
         }
 
