@@ -30,6 +30,13 @@ abstract class TestProcessStreamProvider implements ProcessStreamsProvider {
         result
     }
 
+    @Override
+    public ProcessStreams getOrCreateProcessStreams(ProcessDescription processDescription) {
+        ProcessStreams result = new TestProcessStream()
+        processStreams += result
+        result
+    }
+
     static class TestProcessStream implements ProcessStreams {
 
         OutputStream confing = new ByteArrayOutputStream()
