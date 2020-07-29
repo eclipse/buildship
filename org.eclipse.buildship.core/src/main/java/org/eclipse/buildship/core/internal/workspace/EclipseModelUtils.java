@@ -113,29 +113,29 @@ public final class EclipseModelUtils {
     private static Collection<EclipseProject> runPhasedModelQuery(ProjectConnection connection, GradleVersion gradleVersion,
             BuildAction<Void> projectsLoadedAction, BuildAction<Collection<EclipseProject>> query) {
         SimpleIntermediateResultHandler<Collection<EclipseProject>> resultHandler = new SimpleIntermediateResultHandler<>();
-        connection.action().projectsLoaded(projectsLoadedAction, new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build().forTasks().addProgressListener(new TestOutputForwardingListener()).run();
+        connection.action().projectsLoaded(projectsLoadedAction, new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build().forTasks().addProgressListener(new TestOutputForwardingProgressListener()).run();
         return resultHandler.getValue();
     }
 
     private static Collection<EclipseProject> queryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
         BuildAction<Collection<EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer());
-        return connection.action(query).addProgressListener(new TestOutputForwardingListener()).run();
+        return connection.action(query).addProgressListener(new TestOutputForwardingProgressListener()).run();
     }
 
     private static <T> Collection<T> queryCompositeModel(Class<T> model, ProjectConnection connection) {
         BuildAction<Collection<T>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(model);
-        return connection.action(query).addProgressListener(new TestOutputForwardingListener()).run();
+        return connection.action(query).addProgressListener(new TestOutputForwardingProgressListener()).run();
     }
 
     private static <T> T queryModel(Class<T> model, ProjectConnection connection) {
-        return connection.model(model).addProgressListener(new TestOutputForwardingListener()).get();
+        return connection.model(model).addProgressListener(new TestOutputForwardingProgressListener()).get();
     }
 
-    private static class TestOutputForwardingListener implements ProgressListener {
+    private static class TestOutputForwardingProgressListener implements ProgressListener {
 
         private ProcessStreams processStreams;
 
-        public TestOutputForwardingListener() {
+        public TestOutputForwardingProgressListener() {
             this.processStreams = CorePlugin.processStreamsProvider().getBackgroundJobProcessStreams();
         }
 

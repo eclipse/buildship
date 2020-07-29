@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2020 Gradle Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -36,15 +36,15 @@ public final class TestOutputForwardingEventListener implements EventListener {
     }
 
     private void handleLaunchRequest(final ExecuteLaunchRequestEvent event) {
-        event.getOperation().addProgressListener(new TestOutputForwardingListener(event.getProcessDescription()));
+        event.getOperation().addProgressListener(new TestOutputForwardingProgressListener(event.getProcessDescription()));
     }
 
-    private static class TestOutputForwardingListener implements ProgressListener {
+    private static class TestOutputForwardingProgressListener implements ProgressListener {
 
         private final ProcessDescription processDescription;
         private ProcessStreams processStreams;
 
-        public TestOutputForwardingListener(ProcessDescription processDescription) {
+        public TestOutputForwardingProgressListener(ProcessDescription processDescription) {
             this.processDescription = processDescription;
         }
 
