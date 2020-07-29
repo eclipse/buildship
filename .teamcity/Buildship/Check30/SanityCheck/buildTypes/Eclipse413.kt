@@ -10,12 +10,6 @@ object Eclipse413 : BuildType({
 
     templates(EclipseBuildTemplate)
 
-    triggers {
-        retryBuild {
-            attempts = 0
-        }
-    }
-
     params {
         param("eclipse.version", "413")
         param("compiler.location", "%linux.java8.oracle.64bit%/bin/javac")
