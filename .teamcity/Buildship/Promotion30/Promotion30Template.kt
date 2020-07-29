@@ -2,6 +2,7 @@ package Buildship.Promotion30
 
 import Buildship.Check30.Checkpoints.buildTypes.Final
 import Buildship.GitHubVcsRoot
+import Buildship.addCredentialsLeakFailureCondition
 import jetbrains.buildServer.configs.kotlin.v2019_2.CheckoutMode
 import jetbrains.buildServer.configs.kotlin.v2019_2.FailureAction
 import jetbrains.buildServer.configs.kotlin.v2019_2.Template
@@ -10,6 +11,8 @@ object Promotion30Template : Template({
     name = "Promotion30 Template"
 
     artifactRules = "org.eclipse.buildship.site/build/repository/** => update-site"
+
+    addCredentialsLeakFailureCondition()
 
     // The artifact upload requires uses ssh which requires manual confirmation. to work around that, we use the same
     // machine for the upload.
