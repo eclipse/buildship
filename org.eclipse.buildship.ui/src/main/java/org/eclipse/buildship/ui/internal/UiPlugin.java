@@ -34,7 +34,6 @@ import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
 import org.eclipse.buildship.core.internal.util.logging.EclipseLogger;
 import org.eclipse.buildship.ui.internal.console.ConsoleProcessStreamsProvider;
-import org.eclipse.buildship.ui.internal.console.TestOutputForwardingEventListener;
 import org.eclipse.buildship.ui.internal.launch.ConsoleShowingLaunchListener;
 import org.eclipse.buildship.ui.internal.launch.UiGradleLaunchConfigurationManager;
 import org.eclipse.buildship.ui.internal.view.execution.ExecutionShowingLaunchRequestListener;
@@ -61,7 +60,6 @@ public final class UiPlugin extends AbstractUIPlugin {
     private ServiceRegistration gradleLaunchConfigurationService;
     private ConsoleShowingLaunchListener consoleShowingLaunchListener;
     private ExecutionShowingLaunchRequestListener executionShowingLaunchRequestListener;
-    private TestOutputForwardingEventListener testOutputForwardingEventListeneer;
     private ShutdownListener shutdownListener;
 
     @Override
@@ -109,7 +107,7 @@ public final class UiPlugin extends AbstractUIPlugin {
     }
 
     private ProcessStreamsProvider createConsoleProcessStreamsProvider() {
-        return ConsoleProcessStreamsProvider.create();
+        return new ConsoleProcessStreamsProvider();
     }
 
     private GradleLaunchConfigurationManager createLaunchConfigurationManager() {
@@ -131,9 +129,6 @@ public final class UiPlugin extends AbstractUIPlugin {
         this.executionShowingLaunchRequestListener = new ExecutionShowingLaunchRequestListener();
         CorePlugin.listenerRegistry().addEventListener(this.executionShowingLaunchRequestListener);
 
-        this.testOutputForwardingEventListeneer = new TestOutputForwardingEventListener();
-        CorePlugin.listenerRegistry().addEventListener(this.testOutputForwardingEventListeneer);
-
         PlatformUI.getWorkbench().addWorkbenchListener(this.shutdownListener = new ShutdownListener());
     }
 
@@ -141,7 +136,6 @@ public final class UiPlugin extends AbstractUIPlugin {
     private void unregisterListeners() {
         PlatformUI.getWorkbench().removeWorkbenchListener(this.shutdownListener);
         CorePlugin.listenerRegistry().removeEventListener(this.executionShowingLaunchRequestListener);
-        CorePlugin.listenerRegistry().removeEventListener(this.testOutputForwardingEventListeneer);
         DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(this.consoleShowingLaunchListener);
     }
 

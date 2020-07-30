@@ -17,6 +17,9 @@ import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.ProgressEvent;
+import org.gradle.tooling.events.test.Destination;
+import org.gradle.tooling.events.test.TestOutputEvent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.StandardSystemProperty;
@@ -158,8 +161,44 @@ public final class GradleProgressAttributes {
             CancellationForwardingListener cancellationListener = new CancellationForwardingListener(this.monitor, this.tokenSource);
             progressListeners.add(cancellationListener);
             progressEventListeners.add(cancellationListener);
+            progressEventListeners.add(new TestOutputForwardingProgressListener(streams));
 
             return new GradleProgressAttributes(streams, this.tokenSource.token(), progressListeners.build(), progressEventListeners.build(), this.isInteractive);
+        }
+
+        private static class TestOutputForwardingProgressListener implements org.gradle.tooling.events.ProgressListener {
+
+            private final ProcessStreams processStreams;
+
+            public TestOutputForwardingProgressListener(ProcessStreams processStreams) {
+                this.processStreams = processStreams;
+            }
+
+            @Override
+            public void statusChanged(ProgressEvent event) {
+                if (event instanceof TestOutputEvent) {
+                    try {
+                        printToConsole((TestOutputEvent) event);
+                    } catch (IOException e) {
+                        CorePlugin.logger().warn("Cannot print test output to console", e);
+                    }
+                }
+            }
+
+            private void printToConsole(TestOutputEvent testOutputEvent) throws IOException {
+                String message = testOutputEvent.getDescriptor().getMessage();
+                Destination destination = testOutputEvent.getDescriptor().getDestination();
+                switch (destination) {
+                    case StdOut:
+                        this.processStreams.getOutput().write(message.getBytes());
+                        break;
+                    case StdErr:
+                        this.processStreams.getError().write(message.getBytes());
+                        break;
+                    default:
+                        throw new IllegalStateException("Invalid destination: " + destination);
+                }
+            }
         }
     }
 }
