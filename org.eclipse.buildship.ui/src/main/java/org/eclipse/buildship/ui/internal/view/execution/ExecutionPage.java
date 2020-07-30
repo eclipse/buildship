@@ -26,7 +26,9 @@ import org.gradle.tooling.events.test.TestOutputEvent;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
 
 import org.eclipse.core.runtime.Platform;
@@ -112,6 +114,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         this.filteredTree.getViewer().getTree().setHeaderVisible(true);
         this.filteredTree.getViewer().setContentProvider(new ExecutionPageContentProvider());
         this.filteredTree.getViewer().setUseHashlookup(true);
+        this.filteredTree.getViewer().addFilter(new TestOutputFilter());
 
         this.nameColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
         this.nameColumn.getColumn().setText(ExecutionViewMessages.Tree_Column_Operation_Name_Text);
@@ -177,13 +180,11 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         return this.filteredTree;
     }
 
+    private ListMultimap<OperationDescriptor, TestOutputEvent> events = MultimapBuilder.hashKeys().arrayListValues().build();
+
     public void onProgress(ProgressEvent progressEvent) {
         OperationDescriptor descriptor = progressEvent.getDescriptor();
         if (isExcluded(descriptor)) {
-            return;
-        }
-
-        if (progressEvent instanceof TestOutputEvent) {
             return;
         }
 
@@ -320,10 +321,11 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         RunTestAction runTestAction = new RunTestAction(this);
         ShowFailureAction showFailureAction = new ShowFailureAction(this);
         OpenTestSourceFileAction openTestSourceFileAction = new OpenTestSourceFileAction(this);
+        ShowTestOutputAction showTestOutputAction = new ShowTestOutputAction(this);
 
-        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(runTestAction, showFailureAction, openTestSourceFileAction);
+        List<SelectionSpecificAction> contextMenuActions = ImmutableList.<SelectionSpecificAction>of(runTestAction, showFailureAction, openTestSourceFileAction, showTestOutputAction);
 
-        List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction);
+        List<SelectionSpecificAction> contextMenuActionsPrecededBySeparator = ImmutableList.<SelectionSpecificAction>of(openTestSourceFileAction, showTestOutputAction);
         ImmutableList<SelectionSpecificAction> contextMenuActionsSucceededBySeparator = ImmutableList.of();
 
         return new ActionShowingContextMenuListener(this, contextMenuActions, contextMenuActionsPrecededBySeparator, contextMenuActionsSucceededBySeparator);

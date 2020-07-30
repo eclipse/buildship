@@ -15,6 +15,7 @@ import org.gradle.tooling.events.FinishEvent;
 import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.StartEvent;
+import org.gradle.tooling.events.test.TestOutputEvent;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -63,7 +64,7 @@ public final class OperationItem extends ObservableItem implements IAdaptable {
         this.startEvent = event instanceof StartEvent ? (StartEvent)event : null;
         this.descriptor = event.getDescriptor();
         this.finishEvent = null;
-        this.name = event.getDescriptor().getDisplayName();
+        this.name = event instanceof TestOutputEvent ? ((TestOutputEvent)event).getDescriptor().getDestination().name().toLowerCase() + ":" + ((TestOutputEvent)event).getDescriptor().getMessage() : event.getDescriptor().getDisplayName();
         this.children = Lists.newArrayList();
     }
 

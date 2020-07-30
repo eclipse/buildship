@@ -11,20 +11,25 @@ package org.eclipse.buildship.core.internal.gradle;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.OperationDescriptor;
 import org.gradle.tooling.events.ProgressEvent;
-import org.gradle.tooling.events.test.Destination;
+import org.gradle.tooling.events.test.TestFinishEvent;
+import org.gradle.tooling.events.test.TestOutputDescriptor;
 import org.gradle.tooling.events.test.TestOutputEvent;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.StandardSystemProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -169,34 +174,61 @@ public final class GradleProgressAttributes {
         private static class TestOutputForwardingProgressListener implements org.gradle.tooling.events.ProgressListener {
 
             private final ProcessStreams processStreams;
+            private ListMultimap<OperationDescriptor, TestOutputEvent> events;
 
             public TestOutputForwardingProgressListener(ProcessStreams processStreams) {
                 this.processStreams = processStreams;
+                this.events = MultimapBuilder.hashKeys().arrayListValues().build();
             }
 
             @Override
             public void statusChanged(ProgressEvent event) {
                 if (event instanceof TestOutputEvent) {
-                    try {
-                        printToConsole((TestOutputEvent) event);
-                    } catch (IOException e) {
-                        CorePlugin.logger().warn("Cannot print test output to console", e);
+                    this.events.put(event.getDescriptor().getParent(), (TestOutputEvent) event);
+                } else if (event instanceof TestFinishEvent) {
+                    List<TestOutputEvent> output = this.events.removeAll(event.getDescriptor());
+                    if (output.isEmpty()) {
+                        return;
                     }
-                }
-            }
+                    List<String> stdOut = new ArrayList<>();
+                    List<String> stdErr = new ArrayList<>();
 
-            private void printToConsole(TestOutputEvent testOutputEvent) throws IOException {
-                String message = testOutputEvent.getDescriptor().getMessage();
-                Destination destination = testOutputEvent.getDescriptor().getDestination();
-                switch (destination) {
-                    case StdOut:
-                        this.processStreams.getOutput().write(message.getBytes());
-                        break;
-                    case StdErr:
-                        this.processStreams.getError().write(message.getBytes());
-                        break;
-                    default:
-                        throw new IllegalStateException("Invalid destination: " + destination);
+                    for (TestOutputEvent e : output) {
+                        TestOutputDescriptor d = e.getDescriptor();
+
+                        switch (d.getDestination()) {
+                            case StdOut:
+                                stdOut.add(d.getMessage());
+                                break;
+                            case StdErr:
+                                stdErr.add(d.getMessage());
+                                break;
+                            default:
+                                throw new IllegalStateException("Invalid destination: " + d.getDestination());
+                        }
+                    }
+
+                    if (!stdOut.isEmpty()) {
+                        try {
+                            this.processStreams.getOutput().write(("Std out for test " + event.getDisplayName() + ": ").getBytes());
+                            for (String s : stdOut) {
+                                this.processStreams.getOutput().write(s.getBytes());
+                            }
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+
+                    if (!stdErr.isEmpty()) {
+                        try {
+                            this.processStreams.getError().write(("Std err for test " + event.getDisplayName() + ": ").getBytes());
+                            for (String s : stdErr) {
+                                this.processStreams.getError().write(s.getBytes());
+                            }
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
                 }
             }
         }

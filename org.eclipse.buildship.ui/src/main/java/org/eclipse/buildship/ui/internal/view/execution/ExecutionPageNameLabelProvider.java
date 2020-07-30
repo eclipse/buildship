@@ -29,6 +29,7 @@ import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Image;
@@ -42,7 +43,7 @@ import org.eclipse.buildship.ui.internal.util.color.ColorUtils;
  * Label provider for for the first column of {@link ExecutionPage} containing the build operation
  * names.
  */
-public final class ExecutionPageNameLabelProvider extends LabelProvider implements IStyledLabelProvider {
+public final class ExecutionPageNameLabelProvider extends StyledCellLabelProvider implements IStyledLabelProvider {
 
     private final ImmutableMap<String, ColorDescriptor> customTextToColor;
     private final ResourceManager resourceManager;
@@ -73,20 +74,20 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
 
     public static String renderVerbose(FinishEvent finishEvent) {
         OperationDescriptor descriptor = finishEvent.getDescriptor();
-        return render(descriptor, finishEvent, true);
+        return render(null, descriptor, finishEvent, true); // TODO (donat)
     }
 
     public static String renderCompact(OperationItem operationItem) {
         OperationDescriptor descriptor = operationItem.getDescriptor();
         FinishEvent finishEvent = operationItem.getFinishEvent();
-        return render(descriptor, finishEvent, false);
+        return render(operationItem, descriptor, finishEvent, false);
     }
 
-    private static String render(OperationDescriptor descriptor, FinishEvent finishEvent, boolean verbose) {
+    private static String render(OperationItem operationItem, OperationDescriptor descriptor, FinishEvent finishEvent, boolean verbose) {
         if (descriptor instanceof TaskOperationDescriptor) {
             return renderTask(finishEvent, ((TaskOperationDescriptor) descriptor), verbose);
         } else if (descriptor instanceof TestOperationDescriptor) {
-            return renderTest(descriptor, verbose);
+            return renderTest(operationItem, descriptor, verbose);
         } else if (descriptor instanceof TestOutputDescriptor) {
             return renderTestOutput((TestOutputDescriptor) descriptor);
         } else {
@@ -116,16 +117,22 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
         return task.toString();
     }
 
-    private static String renderTest(OperationDescriptor descriptor, boolean verbose) {
+    private static String renderTest(OperationItem operationItem, OperationDescriptor descriptor, boolean verbose) {
         if (verbose) {
             return String.format("Test '%s'", descriptor.getName());
         } else {
-            return descriptor.getName();
+            if (operationItem != null && operationItem.getChildren().stream().filter(i -> i.getDescriptor() instanceof TestOutputDescriptor).findFirst().isPresent()) {
+                // How to add links to the TODO https://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/examples/org.eclipse.swt.snippets/src/org/eclipse/swt/snippets/Snippet356.java
+                // IDEA: uses sash to present the output for the selected test
+                return descriptor.getName() + " (has output <a href=#>foobar</a>)";
+            } else {
+                return descriptor.getName();
+            }
         }
     }
 
     private static String renderTestOutput(TestOutputDescriptor descriptor) {
-        return String.format("%s: %s", descriptor.getDestination().toString(), descriptor.getMessage());
+        return String.format("%s: %s", descriptor.getDestination().toString().toLowerCase(), descriptor.getMessage());
     }
 
     private static String renderOther(OperationDescriptor descriptor) {
@@ -141,6 +148,7 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
                 public void applyStyles(TextStyle textStyle) {
                     ColorDescriptor substringColorDescriptor = ExecutionPageNameLabelProvider.this.customTextToColor.get(text);
                     textStyle.foreground = ExecutionPageNameLabelProvider.this.resourceManager.createColor(substringColorDescriptor);
+
                 }
             };
             styledLabel.setStyle(index, text.length(), styler);
