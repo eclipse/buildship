@@ -129,34 +129,6 @@ Apply the following instructions to install the latest snapshot or milestone of 
  1. Review the list of software that will be installed. Click _Next_ again.
  1. Review and accept the licence agreement and click _Finish_.
 
-
-## Installing from builds.gradle.org update site
-
-We propose you install Buildship from eclipse.org. If, for any reason, you still want to install
-from [builds.gradle.org](https://builds.gradle.org/project.html?projectId=Tooling_Buildship&tab=projectOverview), the following snapshot update sites
-are available for all the supported Eclipse versions:
-  
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse48_Java8/.lastSuccessful/update-site` (latest 4.8 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse47_Java8/.lastSuccessful/update-site` (latest 4.7 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse46_Java8/.lastSuccessful/update-site` (latest 4.6 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse45_Java7/.lastSuccessful/update-site` (latest 4.5 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse44_Java7/.lastSuccessful/update-site` (latest 4.4 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse43_Java7/.lastSuccessful/update-site` (latest 4.3 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse42_Java7/.lastSuccessful/update-site` (latest 4.2 development snapshot)
-
-Apply the following instructions to install the latest snapshot of Buildship into your version of Eclipse.
-
- 1. In Eclipse, open the menu item _Help >> Install New Software_.
- 1. Paste the update site link that matches your Eclipse version into the _Work with_ text box.
- 1. Click the _Add_ button at the top of the screen, give the update site a name, and press _OK_.
- 1. If prompted, set the following credentials: username=guest, password=guest.
- 1. Ensure that the option _Group Items by Category_ is enabled.
- 1. Select the top-level node _Buildship: Eclipse Plug-ins for Gradle_ once it appears.
- 1. Click _Next_. This may take a while.
- 1. Review the list of software that will be installed. Click _Next_ again.
- 1. Review and accept the licence agreement and click _Finish_.
-
-
 ## Updating from update site
 
 If you have already installed Buildship, you can update to the most recent version by opening the menu item _Help >> Check for Updates_. Note, that the update works only if Buildship was installed from the updates sites from download.eclipse.org or from builds.gradle.org, as listed above. If Buildship comes preinstalled in your Eclipse (for instance if you use the standard [Eclipse for Java developers](https://www.eclipse.org/downloads/packages/eclipse-ide-java-developers/neon) package) then you have to do the update manually. To do that just follow the steps from the previous section.
