@@ -9,9 +9,9 @@ object EclipseBuildTemplate : Template({
     name = "Tooling-Eclipse-Build"
 
     artifactRules = """
-        org.eclipse.buildship.site/build/repository/** => update-site
-        org.eclipse.buildship.core.test/build/eclipseTest/workspace/.metadata/.log => test/org.eclipse.buildship.core.test
-        org.eclipse.buildship.ui.test/build/eclipseTest/workspace/.metadata/.log => test/org.eclipse.buildship.ui.test
+        org.eclipse.buildship.site/build/repository/** => .teamcity/update-site
+        org.eclipse.buildship.core.test/build/eclipseTest/workspace/.metadata/.log => .teamcity/test/org.eclipse.buildship.core.test
+        org.eclipse.buildship.ui.test/build/eclipseTest/workspace/.metadata/.log => .teamcity/test/org.eclipse.buildship.ui.test
     """.trimIndent()
 
     params {

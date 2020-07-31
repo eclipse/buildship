@@ -10,7 +10,7 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.Template
 object Promotion30Template : Template({
     name = "Promotion30 Template"
 
-    artifactRules = "org.eclipse.buildship.site/build/repository/** => update-site"
+    artifactRules = "org.eclipse.buildship.site/build/repository/** => .teamcity/update-site"
 
     addCredentialsLeakFailureCondition()
 
