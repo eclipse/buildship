@@ -44,7 +44,6 @@ public final class ColorUtils {
      */
     public static ColorDescriptor getDecorationsColorDescriptorFromCurrentTheme() {
         ITheme theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
-        System.out.println(theme.getColorRegistry().getKeySet());
         return Preconditions.checkNotNull(theme.getColorRegistry().getColorDescriptor(DECORATIONS_COLOR));
     }
 
@@ -55,7 +54,6 @@ public final class ColorUtils {
      */
     public static ColorDescriptor getErrorColorDescriptorFromCurrentTheme() {
         ITheme theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
-        System.out.println(theme.getColorRegistry().getKeySet());
         return Preconditions.checkNotNull(theme.getColorRegistry().getColorDescriptor(ERROR_COLOR));
     }
 }
