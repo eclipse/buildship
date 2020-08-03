@@ -17,7 +17,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
 /**
- * Sorts the test output so that the messages printed to the standard output always come first.
+ * Sorts the test output mesages in the Executions view.
+ * <p>
+ * The messages printed on standard error will come after the ones on standard out.  
  */
 public class ExecutionPageSorter extends ViewerComparator {
 
