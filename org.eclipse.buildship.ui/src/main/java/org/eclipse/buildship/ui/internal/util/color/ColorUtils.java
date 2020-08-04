@@ -22,6 +22,7 @@ import org.eclipse.ui.themes.ITheme;
 public final class ColorUtils {
 
     private static final String DECORATIONS_COLOR = "DECORATIONS_COLOR";
+    private static final String ERROR_COLOR = "ERROR_COLOR";
 
     private ColorUtils() {
     }
@@ -46,4 +47,13 @@ public final class ColorUtils {
         return Preconditions.checkNotNull(theme.getColorRegistry().getColorDescriptor(DECORATIONS_COLOR));
     }
 
+    /**
+     * Returns the color descriptor for {@code ERROR_COLOR} from the current workbench theme.
+     *
+     * @return the theme color descriptor to decorate text
+     */
+    public static ColorDescriptor getErrorColorDescriptorFromCurrentTheme() {
+        ITheme theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
+        return Preconditions.checkNotNull(theme.getColorRegistry().getColorDescriptor(ERROR_COLOR));
+    }
 }
