@@ -27,9 +27,13 @@ import org.eclipse.buildship.ui.internal.util.widget.AdvancedOptionsGroup;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbenchPropertyPage;
@@ -42,6 +46,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
  *
  * @author Sebastian Kuzniarz
  */
+
 public final class GradleCompositeImportOptionsPreferencePage extends PropertyPage implements IWorkbenchPropertyPage{
 
     public static final String PAGE_ID = "org.eclipse.buildship.ui.compositeImportOptionsProperties";
@@ -64,11 +69,20 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
                 .withAutoSyncCheckbox()
                 .withOverrideCheckbox("Override workspace settings", "Configure Workspace Settings")
                 .build();
+        this.gradleProjectSettingsComposite.setVisible(true);
+        
         initValues();
         addListeners();
         return this.gradleProjectSettingsComposite;
     }
 
+    @Override
+    public void applyData(Object data) {
+    	// TODO Auto-generated method stub
+    	super.applyData(data);
+    	
+    }
+    
     private void initValues() {
         IWorkingSet composite = getTargetComposite();
         
@@ -124,9 +138,12 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
 
     private List<File> getIncludedBuildsList(IWorkingSet composite) {
     	List<File> includedBuildsList = new ArrayList<File>();
+    	InternalGradleBuild gradleBuild = null;
 		for (IAdaptable element : composite.getElements()) {
-			InternalGradleBuild gradleBuild = (InternalGradleBuild) CorePlugin.internalGradleWorkspace().getBuild(((IProject) element)).get();
-			includedBuildsList.add(gradleBuild.getBuildConfig().getRootProjectDirectory());
+			if (CorePlugin.internalGradleWorkspace().getBuild(((IProject) element)).isPresent()) {
+				gradleBuild = (InternalGradleBuild) CorePlugin.internalGradleWorkspace().getBuild(((IProject) element)).get();
+				includedBuildsList.add(gradleBuild.getBuildConfig().getRootProjectDirectory());
+			} 
 		}
 		return includedBuildsList;
 	}

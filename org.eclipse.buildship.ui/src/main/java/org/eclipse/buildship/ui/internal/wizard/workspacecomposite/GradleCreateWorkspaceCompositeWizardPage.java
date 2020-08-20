@@ -94,7 +94,6 @@ public final class GradleCreateWorkspaceCompositeWizardPage extends AbstractComp
     }
 
     private void createContent(Composite root) {
-
         // composite name container
         Composite workspaceCompositeNameComposite = new Composite(root, SWT.FILL);
         GridLayoutFactory.fillDefaults().extendedMargins(0, 0, 0, 5).numColumns(2).applyTo(workspaceCompositeNameComposite);

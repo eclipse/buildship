@@ -17,9 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.eclipse.buildship.core.BuildConfiguration;
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectGroup;
@@ -35,6 +37,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -144,11 +148,12 @@ public final class GradleCreateWorkspaceCompositePreferencePage extends Abstract
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(3, SWT.DEFAULT)
                 .applyTo(this.gradleProjectCheckboxtreeComposite);
 
-        addListeners();
-
         if (gradleComposite != null) {
             this.workspaceCompositeNameText.setText(gradleComposite.getName());
+            this.gradleProjectCheckboxtreeComposite.setCheckboxTreeSelection(gradleComposite.getElements());
         }
+        
+        addListeners();
     }
 
     private void addListeners() {
@@ -252,11 +257,18 @@ public final class GradleCreateWorkspaceCompositePreferencePage extends Abstract
     private IAdaptable[] getCompositeElements(List<File> includedBuildsList) {
     	List<IAdaptable> compositeElements = new ArrayList<>();
 		for (File includedBuild : includedBuildsList) {
-			//TODO (kuzniarz) Fix: NoSuchElementException for external builds
-			//TODO (kuzniarz) Check if this gets tricky due to (FolderName != GradleProjectName)?
-			compositeElements.add(ResourcesPlugin.getWorkspace().getRoot().getProject(includedBuild.getName()));
+			//TODO (kuzniarz) Files need to be added to composite to be viewed in ProjectExplorer
+			if (isExternalProject(includedBuild)) {
+				//compositeElements.add(ResourcesPlugin.getWorkspace().getRoot().getFile(Path.fromOSString(includedBuild.getAbsolutePath())));
+			} else {
+				compositeElements.add(ResourcesPlugin.getWorkspace().getRoot().getProject(includedBuild.getName()));
+			}
 		}
 		return compositeElements.toArray(new IAdaptable[includedBuildsList.size()]);
+	}
+
+	private boolean isExternalProject(File includedBuild) {
+		return !ResourcesPlugin.getWorkspace().getRoot().getProject(includedBuild.getName()).exists();
 	}
 
 	@Override
