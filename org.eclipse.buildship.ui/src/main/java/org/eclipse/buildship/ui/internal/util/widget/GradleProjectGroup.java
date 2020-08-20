@@ -77,7 +77,7 @@ public class GradleProjectGroup extends Group {
         }
 
         this.gradleProjectTree.setUseHashlookup(true);
-
+        
         this.buttonComposite = new Composite(this, SWT.NONE);
         this.buttonComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true, 1, 1));
         GridLayoutFactory.fillDefaults().numColumns(1).applyTo(this.buttonComposite);
@@ -89,6 +89,7 @@ public class GradleProjectGroup extends Group {
         this.addExternalGradleProject = new Button(this.buttonComposite, SWT.PUSH);
         this.addExternalGradleProject.setText(WorkspaceCompositeWizardMessages.Button_Add_ExternalGradleProject);
         this.addExternalGradleProject.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        this.addExternalGradleProject.setEnabled(false);
 
         addListener();
     }
@@ -110,10 +111,12 @@ public class GradleProjectGroup extends Group {
     }
 
     private void configureTree() {
-
         ArrayList<String> selection = getInitialTreeSelection();
+        selectTreeElements(selection);
+    }
 
-        try {
+	private void selectTreeElements(ArrayList<String> selection) {
+		try {
             this.gradleProjectTree.getTree().setRedraw(false);
             for (TreeItem item : this.gradleProjectTree.getTree().getItems()) {
                 if (selection.contains(item.getText())) {
@@ -123,8 +126,7 @@ public class GradleProjectGroup extends Group {
         } finally {
             this.gradleProjectTree.getTree().setRedraw(true);
         }
-
-    }
+	}
 
     public boolean hasSelectedItems() {
         return this.gradleProjectTree.getTree().getSelectionCount() > 0;
@@ -175,6 +177,14 @@ public class GradleProjectGroup extends Group {
         });
 
         return projectNames;
+    }
+    
+    public void setCheckboxTreeSelection(IAdaptable[] projects) {
+    	ArrayList<String> compositeProjects = new ArrayList<String>();
+    	for (IAdaptable project : projects) {
+    		compositeProjects.add(((IProject) project).getName());
+    	}
+    	selectTreeElements(compositeProjects);
     }
 
     private void fillCheckboxTreeWithProjects() {

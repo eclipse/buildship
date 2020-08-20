@@ -4,35 +4,37 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.buildship.ui.internal.preferences.GradleCreateWorkspaceCompositePreferencePage;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jdt.internal.ui.workingsets.WorkingSetModel;
+import org.eclipse.jface.preference.IPreferenceNode;
+import org.eclipse.jface.preference.IPreferencePage;
+import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.preference.PreferenceManager;
+import org.eclipse.jface.preference.PreferenceNode;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.IWorkingSetEditWizard;
+import org.eclipse.ui.dialogs.PreferencesUtil;
+import org.eclipse.ui.dialogs.PropertyPage;
+import org.eclipse.ui.internal.dialogs.PropertyDialog;
 
 public class CompositeSelectionDialog extends AbstractCompositeDialog {
 
 	
 	private List<IWorkingSet> removedWorkingSets = new ArrayList<IWorkingSet>();
 	private List<IWorkingSet> addedWorkingSets = new ArrayList<IWorkingSet>();
-	private List<IWorkingSet> editedWorkingSets = new ArrayList<IWorkingSet>();
 	private IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
-	private IWorkingSet[] result;
 	
 	public CompositeSelectionDialog(Shell parentShell) {
 		super(parentShell);
 		this.setTitle(WorkspaceCompositeWizardMessages.Title_ConfigureGradleWorkspaceCompositeDialog);
-		IWorkingSet[] workingSets = getActiveWorkingSets();
-		setSelection(workingSets);
-		result = workingSets;
-	}
-
-	private IWorkingSet[] getActiveWorkingSets() {
-		return new IWorkingSet[0];
 	}
 
 	@Override
@@ -51,13 +53,8 @@ public class CompositeSelectionDialog extends AbstractCompositeDialog {
 	@Override
 	protected void editWorkspaceComposite() {
 		IStructuredSelection selection = (IStructuredSelection) getSelectedComposites();
-		IWorkingSetEditWizard wizard = manager.createWorkingSetEditWizard((IWorkingSet) selection.getFirstElement());
-		WizardDialog dialog = new WizardDialog(this.getShell(), wizard);
-		dialog.create();
-		if (dialog.open() == Window.OK) {
-			IWorkingSet workingSet= wizard.getSelection();
-			editedWorkingSets.add(workingSet);
-		}
+		PreferencesUtil.createPropertyDialogOn(this.getShell(), (IWorkingSet) selection.getFirstElement(), 
+				"org.eclipse.buildship.ui.GradleCompositePage", null, null).open();
 	}
 
 	@Override
@@ -77,9 +74,6 @@ public class CompositeSelectionDialog extends AbstractCompositeDialog {
 			}
 		}
 		addedWorkingSets.clear();
-		editedWorkingSets.clear();
-		//TODO (kuzniarz) Enabling/Disabling composites in the workspace
-		System.out.println(result);
 		super.okPressed();
 	}
 	
@@ -92,8 +86,7 @@ public class CompositeSelectionDialog extends AbstractCompositeDialog {
 				it.remove();
 			}
 		}
-		//restore edited composites
-		// TODO Auto-generated method stub
+		removedWorkingSets.clear();
 		super.cancelPressed();
 	}
 

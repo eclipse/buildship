@@ -25,22 +25,18 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
-import org.eclipse.ui.internal.AggregateWorkingSet;
 
 public abstract class AbstractCompositeDialog extends SelectionDialog {
 	
 	private Button 	newButton;
 	private Button 	editButton;
 	private Button 	removeButton;
-	private Button 	selectAllButton;
-	private Button 	deselectAllButton;
-	private CheckboxTableViewer compositeSelectionListViewer;
-	private TableViewer viewer;
+	private TableViewer compositeSelectionListViewer;
 	List<IWorkingSet> composites = new ArrayList<IWorkingSet>();
 	private ColumnLabelProvider labelProvider = new ColumnLabelProvider() {
 		private Map<ImageDescriptor, Image> icons = new Hashtable<>();
@@ -76,24 +72,7 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 		Composite container = createComponents(parent);
 		addListeners();
 		loadCompositeNames();
-		//loadCompositeSelection(); TODO (kuzniarz) selection/deselection currently not possible
         return container;
-	}
-
-	private void loadCompositeSelection() {
-		this.compositeSelectionListViewer.setAllChecked(false);
-		
-		IWorkingSetManager manager = PlatformUI.getWorkbench().getWorkingSetManager();
-		for (IWorkingSet workingSet : manager.getWorkingSets()) {
-			//TODO (kuzniarz) Not yet working
-			this.compositeSelectionListViewer.setChecked(workingSet, workingSet.isVisible());
-			System.out.println(workingSet.getName() + ".isVisible() == " + workingSet.isVisible());
-		}
-		
-	}
-	
-	public void setSelection(IWorkingSet[] workingSets) {
-		setInitialSelections((Object[]) workingSets);
 	}
 
 	private void loadCompositeNames() {
@@ -118,9 +97,8 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 
 	private Composite createComponents(Composite parent) {
 		Composite container = (Composite) super.createDialogArea(parent);
-		container.setLayout(LayoutUtils.newGridLayout(4));
+		container.setLayout(LayoutUtils.newGridLayout(3));
 		createCompositeCheckboxList(container);
-		createSideButtonContainer(container);
 		createBottomButtonContainer(container);
 		return container;
 	}
@@ -130,35 +108,22 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 		buttonContainer.setLayout(LayoutUtils.newGridLayout(3));
 		buttonContainer.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		this.newButton = new Button(buttonContainer, SWT.PUSH);
-        this.newButton.setText("New..."); //TODO (kuzniarz) Replace String with constant
+        this.newButton.setText(WorkspaceCompositeWizardMessages.CompositeConfigurationDialog_New);
         this.newButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         
         this.editButton = new Button(buttonContainer, SWT.PUSH);
-        this.editButton.setText("Edit...");
+        this.editButton.setText(WorkspaceCompositeWizardMessages.CompositeConfigurationDialog_Edit);
         this.editButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         this.editButton.setEnabled(false);
         
         this.removeButton = new Button(buttonContainer, SWT.PUSH);
-        this.removeButton.setText("Remove");
+        this.removeButton.setText(WorkspaceCompositeWizardMessages.CompositeConfigurationDialog_Remove);
         this.removeButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         this.removeButton.setEnabled(false);
 	}
 
-	private void createSideButtonContainer(Composite container) {
-		Composite sideButtonContainer = new Composite(container, SWT.NONE);
-		sideButtonContainer.setLayout(LayoutUtils.newGridLayout(1));
-		sideButtonContainer.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1));
-		this.selectAllButton = new Button(sideButtonContainer, SWT.PUSH);
-        this.selectAllButton.setText("Select All");
-        this.selectAllButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        
-        this.deselectAllButton = new Button(sideButtonContainer, SWT.PUSH);
-        this.deselectAllButton.setText("Deselect All");
-        this.deselectAllButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-	}
-
 	private void createCompositeCheckboxList(Composite container) {
-		this.compositeSelectionListViewer = CheckboxTableViewer.newCheckList(container, SWT.BORDER | SWT.MULTI);
+		this.compositeSelectionListViewer = new TableViewer(new Table(container, SWT.BORDER));
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.heightHint = 200;
 		data.widthHint = 250;
@@ -185,18 +150,6 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
                 removeWorkspaceComposite();
             }
 		});
-		this.selectAllButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-            public void widgetSelected(SelectionEvent e) {
-				selectAllWorkspaceComposites();
-            }
-		});
-		this.deselectAllButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-            public void widgetSelected(SelectionEvent e) {
-				deselectAllWorkspaceComposites();
-            }
-		});
 	}
 	
 	protected ISelection getSelectedComposites() {
@@ -212,18 +165,8 @@ public abstract class AbstractCompositeDialog extends SelectionDialog {
 	protected void addNewCreatedComposite(IWorkingSet workingSet) {
 		composites.add(workingSet);
 		this.compositeSelectionListViewer.add(workingSet);
-		this.compositeSelectionListViewer.setSelection(new StructuredSelection(workingSet), true);
-		this.compositeSelectionListViewer.setChecked(workingSet, true);
 	}
 
-	protected void deselectAllWorkspaceComposites() {
-		compositeSelectionListViewer.setCheckedElements(new Object[0]);
-	}
-
-	protected void selectAllWorkspaceComposites() {
-		compositeSelectionListViewer.setCheckedElements(PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSets());
-	}
-	
 	protected abstract void createNewWorkspaceComposite();
 	protected abstract void editWorkspaceComposite();
 	protected abstract void removeWorkspaceComposite();
