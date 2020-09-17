@@ -26,7 +26,7 @@
     <requirement
         name="org.eclipse.emf.ecoretools.design.feature.group"/>
     <repository
-        url="https://dist.springsource.org/snapshot/GRECLIPSE/e4.16"/>
+        url="https://dist.springsource.org/snapshot/GRECLIPSE/e4.17"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
