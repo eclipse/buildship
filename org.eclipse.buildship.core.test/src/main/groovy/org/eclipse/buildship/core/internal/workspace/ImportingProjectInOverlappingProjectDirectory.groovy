@@ -34,7 +34,6 @@ class ImportingProjectInOverlappingProjectDirectory extends ProjectSynchronizati
 
         then:
         result.status.isOK()
-        getGradleErrorMarkers(findProject('sub1')).size() == 1
-        getGradleErrorMarkers(findProject('sub1'))[0].getAttribute(IMarker.MESSAGE) == "The Gradle build declares more than one sub-projects at this location"
+        getGradleErrorMarkers(findProject('sub1')).empty
     }
 }

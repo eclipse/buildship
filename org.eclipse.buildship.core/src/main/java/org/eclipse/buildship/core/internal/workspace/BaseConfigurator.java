@@ -37,7 +37,7 @@ import org.eclipse.buildship.core.InitializationContext;
 import org.eclipse.buildship.core.ProjectConfigurator;
 import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
+import org.eclipse.buildship.core.internal.CoreTraceScopes;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 public class BaseConfigurator implements ProjectConfigurator {
@@ -45,7 +45,6 @@ public class BaseConfigurator implements ProjectConfigurator {
     Set<File> duplicateLocations;
     private Map<File, EclipseProject> locationToProject;
     private GradleVersion gradleVersion;
-    private GradleBuild gradleBuild;
 
     @Override
     public void init(InitializationContext context, IProgressMonitor monitor) {
@@ -59,7 +58,6 @@ public class BaseConfigurator implements ProjectConfigurator {
             this.duplicateLocations = calculateDuplicateLocations(rootModels);
             this.locationToProject = HierarchicalElementUtils.getAll(rootModels).stream()
                 .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
-            this.gradleBuild = context.getGradleBuild();
         } catch (Exception e) {
             context.error("Cannot Query Eclipse model", e);
         }
@@ -122,8 +120,8 @@ public class BaseConfigurator implements ProjectConfigurator {
             return;
         }
         if (this.duplicateLocations.contains(location.toFile())) {
-            String message = "The Gradle build declares more than one sub-projects at this location";
-            GradleErrorMarker.createWarning(project, (InternalGradleBuild) this.gradleBuild, message, null, -1);
+            String message = "The Gradle build declares more than one sub-projects at location" + location.toPortableString();
+            CorePlugin.logger().trace(CoreTraceScopes.PROJECT_CONFIGURATORS, message);
         }
     }
 
