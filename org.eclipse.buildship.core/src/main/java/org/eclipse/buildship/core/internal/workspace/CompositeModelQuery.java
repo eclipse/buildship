@@ -9,8 +9,10 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 import org.gradle.api.Action;
@@ -47,11 +49,12 @@ public final class CompositeModelQuery<T, U> implements BuildAction<Collection<T
     @Override
     public Collection<T> execute(BuildController controller) {
         Collection<T> models = new ArrayList<>();
-        collectRootModels(controller, controller.getBuildModel(), models);
+        Collection<File> visitedBuilds = new HashSet<>();
+        collectRootModels(controller, controller.getBuildModel(), models, visitedBuilds);
         return models;
     }
 
-    private void collectRootModels(BuildController controller, GradleBuild build, Collection<T> models) {
+    private void collectRootModels(BuildController controller, GradleBuild build, Collection<T> models, Collection<File> visitedBuilds) {
         if (this.parameter != null) {
             models.add(controller.getModel(build.getRootProject(), this.modelType, this.parameterType, this.parameter));
         } else {
@@ -60,7 +63,10 @@ public final class CompositeModelQuery<T, U> implements BuildAction<Collection<T
         }
 
         for (GradleBuild includedBuild : build.getIncludedBuilds()) {
-            collectRootModels(controller, includedBuild, models);
+        	if (!visitedBuilds.contains(includedBuild.getRootProject().getProjectDirectory())) {
+        		visitedBuilds.add(includedBuild.getRootProject().getProjectDirectory());
+        		collectRootModels(controller, includedBuild, models, visitedBuilds);
+        	}
         }
     }
 
