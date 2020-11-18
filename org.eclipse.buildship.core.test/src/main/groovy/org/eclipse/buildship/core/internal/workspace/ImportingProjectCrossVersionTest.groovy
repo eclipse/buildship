@@ -139,6 +139,57 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
         where:
         distribution << getSupportedGradleDistributions('>=4.0')
     }
+	
+	@Unroll
+	def "Can handle duplicated build includes"(GradleDistribution distribution) {
+		given:
+		file('composite-build/included1/settings.gradle') << '''
+			includeBuild '../included2'
+        '''
+		
+		when:
+		importAndWait(compositeProjectDir, distribution)
+
+		then:
+		allProjects().size() == 7
+		findProject('root')
+		findProject('included1')
+		findProject('included2')
+		findProject('included1-sub1')
+		findProject('included1-sub2')
+		findProject('included2-sub1')
+		findProject('included2-sub2')
+
+		where:
+        distribution << getSupportedGradleDistributions('>=4.0')
+	}
+	
+	@Unroll
+	def "Can handle cyclic build includes"(GradleDistribution distribution) {
+		given:
+		file('composite-build/included1/settings.gradle') << '''
+			includeBuild '../included2'
+        '''
+		file('composite-build/included2/settings.gradle') << '''
+			includeBuild '../included1'
+        '''
+		
+		when:
+		importAndWait(compositeProjectDir, distribution)
+
+		then:
+		allProjects().size() == 7
+		findProject('root')
+		findProject('included1')
+		findProject('included2')
+		findProject('included1-sub1')
+		findProject('included1-sub2')
+		findProject('included2-sub1')
+		findProject('included2-sub2')
+
+		where:
+		distribution << getSupportedGradleDistributions('>=6.8')
+	}
 
     @Ignore("TODO Buildship doesn't de-duplicate project names which makes the synchronization fail")
     @Unroll
