@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.internal.util.gradle;
 
 import java.io.File;
 
+import org.gradle.tooling.model.ComponentSelector;
 import org.gradle.tooling.model.GradleModuleVersion;
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 
@@ -52,6 +53,24 @@ class CompatEclipseExternalDependency extends CompatEclipseClasspathEntry<Eclips
             return getElement().isExported();
         } catch (Exception ignore) {
             return true;
+        }
+    }
+
+    @Override
+    public boolean isResolved() {
+        try {
+            return getElement().isResolved();
+        } catch (Exception ignore) {
+            return true;
+        }
+    }
+
+    @Override
+    public ComponentSelector getAttemptedSelector() {
+        try {
+            return getElement().getAttemptedSelector();
+        } catch (Exception ignore) {
+            return null;
         }
     }
 }
