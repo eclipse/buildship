@@ -69,8 +69,8 @@ public final class TaskViewActionStateRules {
             return TaskScopedActionEnablement.DISABLED_DEFAULT;
         }
 
-        if (hasMultipleOrIncludedParentProject(taskNodes)) {
-            return TaskScopedActionEnablement.DISABLED_INCLUDED_BUILD;
+        if (hasMultipleParentProject(taskNodes)) {
+            return TaskScopedActionEnablement.DISABLED_MULTIPLE_ROOT_PROJECTS;
         }
 
         // if project tasks are selected only then the execution should be permitted
@@ -90,12 +90,9 @@ public final class TaskViewActionStateRules {
         return  TaskScopedActionEnablement.DISABLED_DEFAULT;
     }
 
-    private static boolean hasMultipleOrIncludedParentProject(List<TaskNode> nodes) {
+    private static boolean hasMultipleParentProject(List<TaskNode> nodes) {
         Preconditions.checkArgument(!nodes.isEmpty());
         final ProjectNode firstParent = nodes.get(0).getParentProjectNode();
-        if (firstParent.isIncludedProject()) {
-            return true;
-        }
         return Iterables.any(nodes, new Predicate<TaskNode>() {
 
             @Override
@@ -149,14 +146,14 @@ public final class TaskViewActionStateRules {
             return false;
         }
 
-        return nodeSelection.hasAllNodesOfType(ProjectNode.class) && nodeSelection.isSingleSelection() && !nodeSelection.getFirstElement(ProjectNode.class).isIncludedProject();
+        return nodeSelection.hasAllNodesOfType(ProjectNode.class) && nodeSelection.isSingleSelection();
     }
 
     /**
      * Possible statuses that {@link #taskScopedTaskExecutionActionsEnablement(NodeSelection)} can return.
      */
     public enum TaskScopedActionEnablement {
-        ENABLED, DISABLED_DEFAULT, DISABLED_INCLUDED_BUILD, DISABLED_NO_ROOT_PROJECT;
+        ENABLED, DISABLED_DEFAULT, DISABLED_MULTIPLE_ROOT_PROJECTS, DISABLED_NO_ROOT_PROJECT;
 
         public boolean asBoolean() {
             return this == ENABLED;

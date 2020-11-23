@@ -18,7 +18,6 @@ import java.util.SortedSet;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -57,10 +56,10 @@ class BuildInvocations {
         return this.taskSelectors;
     }
 
-    public static Map<Path, BuildInvocations> collectAll(GradleProject project) {
+    public static Map<Path, BuildInvocations> collectAll(GradleProject project, String buildPath) {
         ImmutableMultimap<Path, ProjectTask> projectTasks = getAllProjectTasksByProjectPath(project);
         ImmutableMultimap<Path, TaskSelector> taskSelectors = getAllTaskSelectorsByProjectPath(project);
-        return buildBuildInvocationsMapping(project, projectTasks, taskSelectors);
+        return buildBuildInvocationsMapping(project, projectTasks, taskSelectors, buildPath);
     }
 
     private static ImmutableMultimap<Path, ProjectTask> getAllProjectTasksByProjectPath(GradleProject project) {
@@ -120,9 +119,7 @@ class BuildInvocations {
     }
 
     private static ImmutableSortedMap<Path, BuildInvocations> buildBuildInvocationsMapping(GradleProject project, Multimap<Path, ProjectTask> projectTasks,
-            Multimap<Path, TaskSelector> taskSelectors) {
-        Preconditions.checkState(taskSelectors.keySet().containsAll(projectTasks.keySet()), "Task selectors are always configured for all projects");
-
+            Multimap<Path, TaskSelector> taskSelectors, String buildPath) {
         // create mappings for all projects which contain tasks selectors (which covers at least
         // those projects that contain project tasks)
         ImmutableSortedMap.Builder<Path, BuildInvocations> mapping = ImmutableSortedMap.orderedBy(Path.Comparator.INSTANCE);
@@ -131,6 +128,7 @@ class BuildInvocations {
             ImmutableList<TaskSelector> taskSelectorsOfProject = ImmutableList.copyOf(taskSelectors.get(projectPath));
             mapping.put(projectPath, new BuildInvocations(projectTasksOfProject, taskSelectorsOfProject));
         }
+
 
         // create additional mappings for all those projects which do not contain any task selectors
         // this is the case if a project does not contain any tasks nor does any of its child

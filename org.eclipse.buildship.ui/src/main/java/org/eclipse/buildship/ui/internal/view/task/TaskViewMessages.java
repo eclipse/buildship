@@ -27,7 +27,7 @@ public final class TaskViewMessages extends NLS {
     // context menu entries
 
     public static String Action_RunTasks_Text;
-    public static String Action_RunTasks_Text_Disabled_Included;
+    public static String Action_RunTasks_Text_Multiple_Root;
     public static String Action_RunTasks_Text_Disabled_NonStandard_layout;
     public static String Action_RunTasks_Text_Disabled_Other;
     public static String Action_RunDefaultTasks_Text;
