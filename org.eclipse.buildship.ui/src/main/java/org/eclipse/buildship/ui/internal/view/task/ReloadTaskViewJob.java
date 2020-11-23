@@ -9,19 +9,14 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.io.File;
 import java.util.Map;
-import java.util.Set;
 
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -34,10 +29,8 @@ import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJob;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
-import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
-import org.eclipse.buildship.core.internal.workspace.ModelProvider;
 
 /**
  * Loads the tasks for all projects into the cache and refreshes the task view afterwards.
@@ -61,22 +54,13 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
     }
 
     private TaskViewContent loadContent(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        List<EclipseProject> projects = Lists.newArrayList();
-        Map<String, IProject> faultyProjects = allGradleWorkspaceProjects();
-
+        Map<String, IProject> allGradleWorkspaceProjects = allGradleWorkspaceProjects();
+        Map<File, Map<String, EclipseProject>> models = Maps.newLinkedHashMap();
         for (InternalGradleBuild gradleBuild : CorePlugin.internalGradleWorkspace().getGradleBuilds()) {
-            try {
-                Set<EclipseProject> eclipseProjects = fetchEclipseGradleProjects(gradleBuild.getModelProvider(), tokenSource, monitor);
-                for (EclipseProject eclipseProject : eclipseProjects) {
-                    faultyProjects.remove(eclipseProject.getName());
-                }
-                projects.addAll(eclipseProjects);
-            } catch (RuntimeException e) {
-                // faulty projects will be represented as empty nodes
-                CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath(), e);
-            }
+            models.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), gradleBuild.getModelProvider().fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor));
+
         }
-        return new TaskViewContent(projects, Lists.newArrayList(faultyProjects.values()));
+        return new TaskViewContent(models, allGradleWorkspaceProjects);
     }
 
     private Map<String, IProject> allGradleWorkspaceProjects() {
@@ -87,15 +71,6 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
             }
         }
         return result;
-    }
-
-    private Set<EclipseProject> fetchEclipseGradleProjects(ModelProvider modelProvider, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        Collection<EclipseProject> models = modelProvider.fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
-        LinkedHashSet<EclipseProject> projects = Sets.newLinkedHashSet();
-        for (EclipseProject model : models) {
-            projects.addAll(HierarchicalElementUtils.getAll(model));
-        }
-        return projects;
     }
 
     private void refreshTaskView(final TaskViewContent content) {

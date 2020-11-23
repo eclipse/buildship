@@ -11,11 +11,13 @@ package org.eclipse.buildship.core
 
 import java.util.function.Function
 
+import org.gradle.api.Action
 import org.gradle.tooling.IntermediateResultHandler
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.UnknownModelException
 import org.gradle.tooling.model.GradleProject
+import org.gradle.tooling.model.eclipse.EclipseProject
 
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.preferences.IEclipsePreferences
@@ -144,10 +146,10 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
        File location = dir('GradleBuildConnectionTest_1')
        GradleBuild gradleBuild = gradleBuildFor(location)
        Function query = { ProjectConnection c -> c.action(IdeFriendlyClassLoading.loadCompositeModelQuery(GradleProject)).run() }
-       Collection<GradleProject> result= gradleBuild.withConnection(query, new NullProgressMonitor())
+       Map<String, GradleProject> result = gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
-       result[0].projectDirectory == location.canonicalFile
+       result[":"].projectDirectory == location.canonicalFile
 
        when:
        location = dir('GradleBuildConnectionTest_2')
@@ -156,7 +158,7 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
        result = gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
-       1 * resultHandler.onComplete({ GradleProject p -> p.projectDirectory == location.canonicalFile })
+       1 * resultHandler.onComplete({ Map<String, GradleProject> gp -> gp[':'].projectDirectory == location.canonicalFile })
 
        when:
        location = dir('GradleBuildConnectionTest_3')
@@ -165,7 +167,7 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
        result = gradleBuild.withConnection(query, new NullProgressMonitor())
 
        then:
-       1 * resultHandler.onComplete({ GradleProject p -> p.projectDirectory == location.canonicalFile })
+       1 * resultHandler.onComplete({ Map<String, GradleProject> gp -> gp[':'].projectDirectory == location.canonicalFile })
    }
 
    def "Exceptions are re-thrown to the client"() {

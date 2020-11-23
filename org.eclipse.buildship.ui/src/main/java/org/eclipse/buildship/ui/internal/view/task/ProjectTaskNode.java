@@ -74,6 +74,10 @@ public final class ProjectTaskNode implements TaskNode {
     }
 
     public String getPath() {
-        return this.projectTask.getPath().getPath();
+        if (this.parentProjectNode.isPartOfIncludedBuild()) {
+            return ":" + this.parentProjectNode.getBuildPath() + this.projectTask.getPath().getPath();
+        } else {
+            return this.projectTask.getPath().getPath();
+        }
     }
 }

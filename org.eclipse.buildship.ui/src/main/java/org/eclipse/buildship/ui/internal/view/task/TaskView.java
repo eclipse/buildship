@@ -182,8 +182,8 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
      */
     public void setContent(TaskViewContent content) {
         if (!this.pages.isDisposed() && !this.treeViewer.getControl().isDisposed()) {
-            List<EclipseProject> models = content.getProjects();
-            List<IProject> faultyProjects = content.getFaultyProjects();
+            List<EclipseProject> models = content.getAllEclipseProjects();
+            List<IProject> faultyProjects = content.getFaultyWorkspaceProjects();
             this.pages.showPage((models.isEmpty() && faultyProjects.isEmpty()) ? this.emptyInputPage : this.nonEmptyInputPage);
             this.treeViewer.setInput(content);
         }

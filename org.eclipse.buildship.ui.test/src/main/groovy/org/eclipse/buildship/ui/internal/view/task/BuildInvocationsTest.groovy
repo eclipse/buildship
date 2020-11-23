@@ -75,7 +75,7 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
         ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getBuild(project).get().modelProvider
         List<EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
         GradleProject gradleProject = eclipseProjects[0].gradleProject
-        Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject)
+        Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject, false)
 
         then:
         pathToBuildInvocations.keySet() == [Path.from(':'), Path.from(':sub1'), Path.from(':sub2'), Path.from(':sub2:subSub')] as Set
@@ -155,7 +155,7 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
         ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getBuild(project).get().modelProvider
         List<EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
         GradleProject gradleProject = eclipseProjects[0].gradleProject
-        Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject)
+        Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject, false)
 
         then:
         pathToBuildInvocations.keySet() == [Path.from(':'), Path.from(':sub1'), Path.from(':sub2')] as Set

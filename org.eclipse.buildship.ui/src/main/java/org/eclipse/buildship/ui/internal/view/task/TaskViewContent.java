@@ -9,30 +9,62 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
+import com.google.common.collect.Lists;
+
 import org.eclipse.core.resources.IProject;
+
+import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 
 /**
  * Encapsulates the content backing the {@link TaskView}.
  */
 public final class TaskViewContent {
 
-    private final List<EclipseProject> projects;
-    private final List<IProject> faultyProjects;
+    private final Map<File, Map<String, EclipseProject>> models;
+    private final List<EclipseProject> allEclipseProjects;
+    private final List<IProject> faultyWorkspaceProjects;
 
-    public TaskViewContent(List<EclipseProject> projects, List<IProject> faultyProjects) {
-        this.projects = projects;
-        this.faultyProjects = faultyProjects;
+    public TaskViewContent(Map<File, Map<String, EclipseProject>> models, Map<String, IProject> allGradleWorkspaceProjects) {
+        this.models = models;
+        this.allEclipseProjects = collectAllEclipseProjects(models);
+        this.faultyWorkspaceProjects = collectFaultyWorkspaceProjects(allGradleWorkspaceProjects, this.allEclipseProjects);
     }
 
-    public List<EclipseProject> getProjects() {
-        return this.projects;
+    private static List<EclipseProject> collectAllEclipseProjects(Map<File, Map<String, EclipseProject>> models) {
+        List<EclipseProject> result = Lists.newArrayList();
+        for(Map<String, EclipseProject> ep1 : models.values()) {
+            for (EclipseProject ep2 : ep1.values()) {
+                result.addAll(HierarchicalElementUtils.getAll(ep2));
+            }
+        }
+        return result;
     }
 
-    public List<IProject> getFaultyProjects() {
-        return this.faultyProjects;
+    private static List<IProject> collectFaultyWorkspaceProjects(Map<String, IProject> workspaceProjects, List<EclipseProject> eclipseProjects) {
+        Map<String, IProject> result = new LinkedHashMap<>(workspaceProjects);
+        for (EclipseProject p : eclipseProjects) {
+            result.remove(p.getName());
+        }
+        return new ArrayList<>(result.values());
+    }
+
+    public List<IProject> getFaultyWorkspaceProjects() {
+        return this.faultyWorkspaceProjects;
+    }
+
+    public List<EclipseProject> getAllEclipseProjects() {
+        return this.allEclipseProjects;
+    }
+
+    public Map<File, Map<String, EclipseProject>> getModels() {
+        return this.models;
     }
 }

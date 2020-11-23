@@ -73,6 +73,7 @@ public final class TaskSelectorNode implements TaskNode {
     }
 
     public String getProjectPath() {
+        System.err.println(this.taskSelector.getProjectPath().getPath());
         return this.taskSelector.getProjectPath().getPath();
     }
 
