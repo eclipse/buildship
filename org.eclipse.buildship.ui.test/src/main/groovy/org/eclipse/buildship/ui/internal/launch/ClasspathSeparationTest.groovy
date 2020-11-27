@@ -73,7 +73,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         then:
         assertConsoleOutputContains('pkg.CustomMain available')
         assertConsoleOutputContains('main.txt available')
-        assertConsoleOutputContains('test.txt inaccessible')
+        assertConsoleOutputContains('test.txt available')
     }
 
     def "Only main dependencies are available when Java application launched from src/main/java folder"() {
@@ -105,7 +105,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
         assertConsoleOutputContains('main.txt available')
-        assertConsoleOutputContains('test.txt inaccessible')
+        assertConsoleOutputContains('test.txt available')
     }
 
     def "Main and test dependencies are available when JUnit test method executed"() {
@@ -121,7 +121,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
         assertConsoleOutputContains('main.txt available')
-        assertConsoleOutputContains('test.txt inaccessible')
+        assertConsoleOutputContains('test.txt available')
     }
 
     def "Main and test dependencies are available when JUnit test project executed"() {
@@ -137,7 +137,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('com.google.common.collect.ImmutableList available')
         assertConsoleOutputContains('junit.framework.Test available')
         assertConsoleOutputContains('main.txt available')
-        assertConsoleOutputContains('test.txt inaccessible')
+        assertConsoleOutputContains('test.txt available')
     }
 
     private File createSampleProject(String name) {
