@@ -10,9 +10,13 @@
 package org.eclipse.buildship.ui.internal.launch
 
 import org.gradle.api.JavaVersion
+import org.osgi.framework.Bundle
+import org.osgi.framework.Version
 import spock.lang.IgnoreIf
+import spock.lang.Requires
 
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.Platform
 import org.eclipse.debug.core.DebugPlugin
 import org.eclipse.debug.core.ILaunch
 import org.eclipse.debug.core.ILaunchConfiguration
@@ -22,6 +26,7 @@ import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 
+//@Requires({ ClasspathSeparationTest.supportsTestAttributes() })
 class ClasspathSeparationTest extends SwtBotSpecification {
 
     def cleanup() {
@@ -164,6 +169,9 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                         file {
                             whenMerged {
                                 entries += new SourceFolder('src/custom', 'customOutputFolder')
+                                entries.each { println it; println it.getClass() }
+                                entries.findAll { it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency }
+                                       .each { it.entryAttributes['without_test_code'] = "false" }
                             }
                         }
                     }
@@ -283,5 +291,15 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     private void assertConsoleOutputContains(String text) {
         assert consoles.activeConsoleContent.contains(text)
+    }
+
+    public static boolean supportsTestAttributes() {
+        Bundle platformBundle = Platform.getBundle("org.eclipse.platform");
+        if (platformBundle == null) {
+            return false;
+        }
+        Version platform = platformBundle.getVersion();
+        Version eclipseLuna = new Version(4, 8, 0);
+        return platform.compareTo(eclipseLuna) >= 0;
     }
 }
