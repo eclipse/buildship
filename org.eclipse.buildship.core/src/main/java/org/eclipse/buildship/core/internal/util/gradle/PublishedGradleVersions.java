@@ -218,7 +218,12 @@ public final class PublishedGradleVersions {
     }
 
     private static File getCacheFile() {
-        return new File(System.getProperty("user.home"), ".tooling/gradle/versions.json");
+        // ensures compliance with XDG base spec: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+        String xdgCache = System.getenv("XDG_CACHE_HOME");
+        if (xdgCache == null) {
+            xdgCache = System.getProperty("user.home") + "/.cache/";
+        }
+        return new File(xdgCache, "tooling/gradle/versions.json");
     }
 
     /**
