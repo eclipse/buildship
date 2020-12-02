@@ -55,8 +55,8 @@ class CompatEclipseExternalDependency extends CompatEclipseClasspathEntry<Eclips
             return true;
         }
     }
-    
 
+    @Override
     public boolean isResolved() {
         try {
             return getElement().isResolved();
@@ -64,7 +64,7 @@ class CompatEclipseExternalDependency extends CompatEclipseClasspathEntry<Eclips
             return true;
         }
     }
-    
+
     @Override
     public ComponentSelector getAttemptedSelector() {
         try {
