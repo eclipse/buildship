@@ -63,10 +63,10 @@ public final class CompositeModelQuery<T, U> implements BuildAction<Collection<T
         }
 
         for (GradleBuild includedBuild : build.getIncludedBuilds()) {
-        	if (!visitedBuilds.contains(includedBuild.getRootProject().getProjectDirectory())) {
-        		visitedBuilds.add(includedBuild.getRootProject().getProjectDirectory());
-        		collectRootModels(controller, includedBuild, models, visitedBuilds);
-        	}
+            if (!visitedBuilds.contains(includedBuild.getRootProject().getProjectDirectory())) {
+                visitedBuilds.add(includedBuild.getRootProject().getProjectDirectory());
+                collectRootModels(controller, includedBuild, models, visitedBuilds);
+            }
         }
     }
 

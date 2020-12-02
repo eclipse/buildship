@@ -124,7 +124,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('test.txt available')
     }
 
-    def "Main and test dependencies are available when JUnit test project executedt"() {
+    def "Main and test dependencies are available when JUnit test project executed"() {
         setup:
         importAndWait(createSampleProject('sample-project'))
 
@@ -164,6 +164,9 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                         file {
                             whenMerged {
                                 entries += new SourceFolder('src/custom', 'customOutputFolder')
+                                entries.each { println it; println it.getClass() }
+                                entries.findAll { it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency }
+                                       .each { it.entryAttributes['without_test_code'] = "false" }
                             }
                         }
                     }
