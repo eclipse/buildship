@@ -33,7 +33,7 @@ def eclipseVersionAgnosticDependencies = [
 // the default version is 48 which can be overridden through -Peclipse.version=<version>
 // also the target platforms contain 1) the Eclipse SDK 2) the latest junit 3) SWTBot 2.2.1
 eclipseBuild {
-    defaultEclipseVersion = '415'
+    defaultEclipseVersion = '416'
 
     final def swtPluginId = "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}"
 
@@ -275,9 +275,9 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.21.0',
             'org.eclipse.emf.edit'                  : '2.16.0',
-            'org.eclipse.oomph.resources'           : '1.12.0',
-            'org.eclipse.oomph.resources.edit'      : '1.10.0',
-            'org.eclipse.oomph.predicates'          : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.14.0',
+            'org.eclipse.oomph.resources.edit'      : '1.11.0',
+            'org.eclipse.oomph.predicates'          : '1.12.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.10.0',
             'org.eclipse.oomph.setup.core'          : '1.10.0',
@@ -318,9 +318,9 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.21.0',
             'org.eclipse.emf.edit'                  : '2.16.0',
-            'org.eclipse.oomph.resources'           : '1.12.0',
-            'org.eclipse.oomph.resources.edit'      : '1.10.0',
-            'org.eclipse.oomph.predicates'          : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.14.0',
+            'org.eclipse.oomph.resources.edit'      : '1.11.0',
+            'org.eclipse.oomph.predicates'          : '1.12.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.10.0',
             'org.eclipse.oomph.setup.core'          : '1.11.0',
@@ -361,9 +361,9 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.21.0',
             'org.eclipse.emf.edit'                  : '2.16.0',
-            'org.eclipse.oomph.resources'           : '1.12.0',
-            'org.eclipse.oomph.resources.edit'      : '1.10.0',
-            'org.eclipse.oomph.predicates'          : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.14.0',
+            'org.eclipse.oomph.resources.edit'      : '1.11.0',
+            'org.eclipse.oomph.predicates'          : '1.12.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.12.0',
             'org.eclipse.oomph.setup.core'          : '1.12.0',
@@ -404,9 +404,9 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.21.0',
             'org.eclipse.emf.edit'                  : '2.16.0',
-            'org.eclipse.oomph.resources'           : '1.12.0',
-            'org.eclipse.oomph.resources.edit'      : '1.10.0',
-            'org.eclipse.oomph.predicates'          : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.14.0',
+            'org.eclipse.oomph.resources.edit'      : '1.11.0',
+            'org.eclipse.oomph.predicates'          : '1.12.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.13.0',
             'org.eclipse.oomph.setup.core'          : '1.13.0',
@@ -447,9 +447,9 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.21.0',
             'org.eclipse.emf.edit'                  : '2.16.0',
-            'org.eclipse.oomph.resources'           : '1.12.0',
-            'org.eclipse.oomph.resources.edit'      : '1.10.0',
-            'org.eclipse.oomph.predicates'          : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.14.0',
+            'org.eclipse.oomph.resources.edit'      : '1.11.0',
+            'org.eclipse.oomph.predicates'          : '1.12.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.14.0',
             'org.eclipse.oomph.setup.core'          : '1.14.0',
@@ -490,9 +490,9 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.20.0',
             'org.eclipse.emf.edit'                  : '2.16.0',
-            'org.eclipse.oomph.resources'           : '1.12.0',
-            'org.eclipse.oomph.resources.edit'      : '1.10.0',
-            'org.eclipse.oomph.predicates'          : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.14.0',
+            'org.eclipse.oomph.resources.edit'      : '1.11.0',
+            'org.eclipse.oomph.predicates'          : '1.12.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.15.0',
             'org.eclipse.oomph.setup.core'          : '1.15.0',
@@ -534,9 +534,9 @@ eclipseBuild {
             'org.junit'                             : '4.12.0',
             'org.eclipse.emf.ecore'                 : '2.21.0',
             'org.eclipse.emf.edit'                  : '2.16.0',
-            'org.eclipse.oomph.resources'           : '1.12.0',
-            'org.eclipse.oomph.resources.edit'      : '1.10.0',
-            'org.eclipse.oomph.predicates'          : '1.11.0',
+            'org.eclipse.oomph.resources'           : '1.14.0',
+            'org.eclipse.oomph.resources.edit'      : '1.11.0',
+            'org.eclipse.oomph.predicates'          : '1.12.0',
             'org.eclipse.oomph.predicates.edit'     : '1.10.0',
             'org.eclipse.oomph.setup'               : '1.16.0',
             'org.eclipse.oomph.setup.core'          : '1.16.0',
@@ -544,6 +544,49 @@ eclipseBuild {
             'org.eclipse.oomph.base'                : '1.13.0',
             'org.eclipse.oomph.base.edit'           : '1.12.0'
         ]
+    }
+    
+    targetPlatform {
+        eclipseVersion = '416'
+        targetDefinition = file('tooling-e416.target')
+        versionMapping = [
+             "$swtPluginId"                         : '3.114.100',
+            'com.ibm.icu'                           : '64.2.0',
+            'org.eclipse.core.expressions'          : '3.6.800',
+            'org.eclipse.core.filesystem'           : '1.7.700',
+            'org.eclipse.core.net'                  : '1.3.900',
+            'org.eclipse.core.resources'            : '3.13.700',
+            'org.eclipse.core.runtime'              : '3.18.0',
+            'org.eclipse.core.variables'            : '3.4.800',
+            'org.eclipse.debug.core'                : '3.15.100',
+            'org.eclipse.debug.ui'                  : '3.14.500',
+            'org.eclipse.help'                      : '3.8.800',
+            'org.eclipse.jdt.core'                  : '3.22.0',
+            'org.eclipse.jdt.junit.core'            : '3.10.700',
+            'org.eclipse.jdt.launching'             : '3.17.100',
+            'org.eclipse.jdt.ui'                    : '3.21.100',
+            'org.eclipse.jface.databinding'         : '1.11.100',
+            'org.eclipse.jface.text'                : '3.16.300',
+            'org.eclipse.ui'                        : '3.117.0',
+            'org.eclipse.ui.console'                : '3.9.200',
+            'org.eclipse.ui.editors'                : '3.13.200',
+            'org.eclipse.ui.ide'                    : '3.17.100',
+            'org.eclipse.ui.navigator'              : '3.9.300',
+            'org.eclipse.ui.views'                  : '3.10.300',
+            'org.eclipse.ui.workbench.texteditor'   : '3.14.200',
+            'org.junit'                             : '4.12.0',
+            'org.eclipse.emf.ecore'                 : '2.22.0',
+            'org.eclipse.emf.edit'                  : '2.16.0',
+            'org.eclipse.oomph.resources'           : '1.14.0',
+            'org.eclipse.oomph.resources.edit'      : '1.11.0',
+            'org.eclipse.oomph.predicates'          : '1.12.0',
+            'org.eclipse.oomph.predicates.edit'     : '1.10.0',
+            'org.eclipse.oomph.setup'               : '1.17.0',
+            'org.eclipse.oomph.setup.core'          : '1.17.0',
+            'org.eclipse.oomph.setup.edit'          : '1.14.0',
+            'org.eclipse.oomph.base'                : '1.13.0',
+            'org.eclipse.oomph.base.edit'           : '1.12.0'
+         ]
     }
 
     scmRepo = "https://github.com/eclipse/buildship.git"

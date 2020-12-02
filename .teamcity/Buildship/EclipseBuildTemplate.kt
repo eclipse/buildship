@@ -20,7 +20,7 @@ object EclipseBuildTemplate : Template({
         param("eclipse.test.java.home", "%env.JAVA_HOME%")
         param("gradle.tasks", "clean build")
         param("env.JAVA_HOME", "%linux.java7.oracle.64bit%")
-        param("eclipsetest.mirrors", "jcenter:http://dev12.gradle.org:8081/artifactory/jcenter")
+        param("eclipsetest.mirrors", "jcenter:https://dev12.gradle.org/artifactory/jcenter")
         param("enable.oomph.plugin", "true")
     }
 
