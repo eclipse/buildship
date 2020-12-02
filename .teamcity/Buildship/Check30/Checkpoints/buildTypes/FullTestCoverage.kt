@@ -45,6 +45,7 @@ object FullTestCoverage : BuildType({
         snapshot(Buildship.Check30.FullTestCoverage.Linux.buildTypes.Eclipse413, CheckpointUtils.DefaultFailureCondition)
         snapshot(Buildship.Check30.FullTestCoverage.Linux.buildTypes.Eclipse414, CheckpointUtils.DefaultFailureCondition)
         snapshot(Buildship.Check30.FullTestCoverage.Linux.buildTypes.Eclipse415, CheckpointUtils.DefaultFailureCondition)
+        snapshot(Buildship.Check30.FullTestCoverage.Linux.buildTypes.Eclipse416, CheckpointUtils.DefaultFailureCondition)
         snapshot(Buildship.Check30.FullTestCoverage.Windows.buildTypes.Eclipse44, CheckpointUtils.DefaultFailureCondition)
         snapshot(Buildship.Check30.FullTestCoverage.Windows.buildTypes.Eclipse47, CheckpointUtils.DefaultFailureCondition)
     }
