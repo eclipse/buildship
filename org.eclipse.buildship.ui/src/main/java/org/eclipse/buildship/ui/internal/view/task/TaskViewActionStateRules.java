@@ -73,6 +73,12 @@ public final class TaskViewActionStateRules {
             return TaskScopedActionEnablement.DISABLED_MULTIPLE_ROOT_PROJECTS;
         }
 
+        // disable the task execution in included builds when the Gradle version is <6.8.
+        BuildNode buildNode = taskNodes.get(0).getParentProjectNode().getBuildNode();
+        if (buildNode.isIncludedBuild() && !buildNode.getBuildTreeNode().supportsTaskExecutionInIncludedBuild()) {
+            return TaskScopedActionEnablement.COMPOSITE_WITH_UNSUPPORTED_GRADLE_VERSION;
+        }
+
         // if project tasks are selected only then the execution should be permitted
         List<ProjectTaskNode> projectNodes = FluentIterable.from(elements).filter(ProjectTaskNode.class).toList();
         if (projectNodes.size() == taskNodes.size()) {
@@ -153,7 +159,7 @@ public final class TaskViewActionStateRules {
      * Possible statuses that {@link #taskScopedTaskExecutionActionsEnablement(NodeSelection)} can return.
      */
     public enum TaskScopedActionEnablement {
-        ENABLED, DISABLED_DEFAULT, DISABLED_MULTIPLE_ROOT_PROJECTS, DISABLED_NO_ROOT_PROJECT;
+        ENABLED, DISABLED_DEFAULT, DISABLED_MULTIPLE_ROOT_PROJECTS, DISABLED_NO_ROOT_PROJECT, COMPOSITE_WITH_UNSUPPORTED_GRADLE_VERSION;
 
         public boolean asBoolean() {
             return this == ENABLED;
