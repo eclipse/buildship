@@ -12,21 +12,31 @@ package org.eclipse.buildship.ui.internal.view.task;
 
 import java.io.File;
 
+import org.gradle.tooling.model.build.BuildEnvironment;
+
 import com.google.common.base.Objects;
+
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
  * Represents a composite build that has a root build and and zero or more included builds.
  */
 public class BuildTreeNode {
 
-    private File rootProjectDir;
+    private final File rootProjectDir;
+    private final GradleVersion gradleVersion;
 
-    public BuildTreeNode(File rootProjectDir) {
+    public BuildTreeNode(File rootProjectDir, BuildEnvironment buildEnvironment) {
         this.rootProjectDir = rootProjectDir;
+        this.gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
     }
 
     public File getRootProjectDir() {
         return this.rootProjectDir;
+    }
+
+    public boolean supportsTaskExecutionInIncludedBuild() {
+        return this.gradleVersion.supportsTaskExecutionInIncudedBuild();
     }
 
     @Override

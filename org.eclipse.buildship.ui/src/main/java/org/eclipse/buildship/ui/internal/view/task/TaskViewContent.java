@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import org.eclipse.core.resources.IProject;
@@ -49,16 +50,17 @@ public final class TaskViewContent {
         return this.allBuilds;
     }
 
-    public static TaskViewContent from(Map<File, Map<String, EclipseProject>> allModels, Map<String, IProject> allGradleWorkspaceProjects) {
+    public static TaskViewContent from(Map<File, Map<String, EclipseProject>> allModels, Map<File, BuildEnvironment> environments, Map<String, IProject> allGradleWorkspaceProjects) {
         List<BuildNode> builds = new ArrayList<>();
+
         for (Entry<File, Map<String, EclipseProject>> model : allModels.entrySet()) {
             File rootProjectDir = model.getKey();
-            BuildTreeNode buildTreeNode = new BuildTreeNode(rootProjectDir);
+            BuildEnvironment buildEnvironment = environments.get(rootProjectDir);
+            BuildTreeNode buildTreeNode = new BuildTreeNode(rootProjectDir, buildEnvironment);
             for (Entry<String,EclipseProject> entry : model.getValue().entrySet()) {
                 String includedBuildName = entry.getKey().equals(":") ? null : entry.getKey();
                 EclipseProject rootEclipseProject = entry.getValue();
                 builds.add(new BuildNode(buildTreeNode, rootEclipseProject, includedBuildName));
-
             }
         }
         List<IProject> faultyWorkspaceProjects = collectFaultyWorkspaceProjects(allGradleWorkspaceProjects, builds);
