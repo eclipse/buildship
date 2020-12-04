@@ -9,10 +9,9 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -56,14 +55,11 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
     }
 
     private TaskViewContent loadContent(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        List<GradleBuildViewModel> allModels = new ArrayList<>();
+        Map<File, Map<String, EclipseProject>> allModels = new LinkedHashMap<>();
         for (InternalGradleBuild gradleBuild : CorePlugin.internalGradleWorkspace().getGradleBuilds()) {
             Map<String, EclipseProject> models = gradleBuild.getModelProvider().fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
-            for (Entry<String, EclipseProject> model : models.entrySet()) {
-                String includedBuildName = model.getKey().equals(":") ? null : model.getKey();
-                EclipseProject eclipseProject = model.getValue();
-                allModels.add(new GradleBuildViewModel(gradleBuild.getBuildConfig().getRootProjectDirectory(), eclipseProject, includedBuildName));
-            }
+            allModels.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), models);
+
         }
         return TaskViewContent.from(allModels, allGradleWorkspaceProjects());
     }

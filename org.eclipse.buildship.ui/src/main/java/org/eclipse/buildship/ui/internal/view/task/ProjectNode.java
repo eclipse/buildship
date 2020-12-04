@@ -9,15 +9,11 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
-import java.util.Map;
-
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 
 import org.eclipse.core.resources.IProject;
 
@@ -30,18 +26,16 @@ import org.eclipse.buildship.core.internal.util.gradle.Path;
 public final class ProjectNode extends BaseProjectNode {
 
     private final ProjectNode parentProjectNode;
-    private final Map<Path, BuildInvocations> allBuildInvocations;
     private final EclipseProject eclipseProject;
-    private final Path projectPath;
-    private final GradleBuildViewModel buildViewModel;
+    private final BuildInvocations buildInvocations;
+    private final BuildNode buildNode;
 
-    public ProjectNode(ProjectNode parentProjectNode, Optional<IProject> workspaceProject, Map<Path, BuildInvocations> allBuildInvocations, EclipseProject eclipseProject, GradleBuildViewModel buildViewModel) {
+    public ProjectNode(ProjectNode parentProjectNode, BuildNode buildNode, Optional<IProject> workspaceProject, EclipseProject eclipseProject) {
         super(workspaceProject);
-        this.parentProjectNode = parentProjectNode; // is null for root project
-        this.allBuildInvocations = Preconditions.checkNotNull(allBuildInvocations);
+        this.parentProjectNode = parentProjectNode; // null for root project
         this.eclipseProject = eclipseProject;
-        this.projectPath = Path.from(buildViewModel.getRootEclipseProject().getGradleProject().getPath());
-        this.buildViewModel = buildViewModel;
+        this.buildInvocations = buildNode.buildInvocationsFor(Path.from(eclipseProject.getGradleProject().getPath()));
+        this.buildNode = buildNode;
     }
 
     public String getDisplayName() {
@@ -75,16 +69,12 @@ public final class ProjectNode extends BaseProjectNode {
         return this.eclipseProject.getGradleProject();
     }
 
-    public Map<Path, BuildInvocations> getAllBuildInvocations() {
-        return ImmutableMap.copyOf(this.allBuildInvocations);
-    }
-
     public BuildInvocations getInvocations() {
-        return this.allBuildInvocations.get(this.projectPath);
+        return this.buildInvocations;
     }
 
-    public GradleBuildViewModel getBuildViewModel() {
-        return this.buildViewModel;
+    public BuildNode getBuildNode() {
+        return this.buildNode;
     }
 
     @Override
@@ -102,14 +92,15 @@ public final class ProjectNode extends BaseProjectNode {
         }
 
         ProjectNode that = (ProjectNode) other;
-        return Objects.equal(this.parentProjectNode, that.parentProjectNode)
-                && Objects.equal(this.allBuildInvocations, that.allBuildInvocations)
+        return Objects.equal(this.getWorkspaceProject(), that.getWorkspaceProject())
+                && Objects.equal(this.parentProjectNode, that.parentProjectNode)
                 && Objects.equal(this.eclipseProject, that.eclipseProject)
-                && Objects.equal(this.buildViewModel, that.buildViewModel);
+                && Objects.equal(this.buildInvocations, that.buildInvocations)
+                && Objects.equal(this.buildNode, that.buildNode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.allBuildInvocations, this.projectPath, this.eclipseProject, this.buildViewModel);
+        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.buildInvocations, this.buildNode);
     }
 }
