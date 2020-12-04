@@ -47,7 +47,6 @@ public class BuildNode {
         return this.includedBuildName;
     }
 
-
     public EclipseProject getRootEclipseProject() {
         return this.rootEclipseProject;
     }
