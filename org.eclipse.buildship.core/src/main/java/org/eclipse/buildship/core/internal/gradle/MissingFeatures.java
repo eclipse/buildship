@@ -45,6 +45,7 @@ public final class MissingFeatures {
         addIfNeeded("5.6", "Receive compile-time error when referencing test source in main source set", missingFeatures);
         addIfNeeded("5.6", "Substitute closed project references with their publications", missingFeatures);
         addIfNeeded("5.6", "Test debugging", missingFeatures);
+        addIfNeeded("6.8", "Task execution in included builds", missingFeatures);
         return missingFeatures.build();
     }
 
