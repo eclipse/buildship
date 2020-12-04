@@ -136,7 +136,6 @@ public final class EclipseTestListener implements ITestRunListener2 {
         return new DefaultTestSuiteDescriptor(id, displayName) {
             private static final long serialVersionUID = 1L;
 
-            @Override
             public Object getOwnerBuildOperationId() {
                 return testTaskOperationid;
             }

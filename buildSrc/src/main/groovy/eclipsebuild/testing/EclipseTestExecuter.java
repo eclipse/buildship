@@ -11,26 +11,22 @@
 
 package eclipsebuild.testing;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
 import eclipsebuild.Config;
 import eclipsebuild.Constants;
 import eclipsebuild.TestBundlePlugin;
+import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
+import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
 import org.gradle.api.GradleException;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.internal.GradleInternal;
+import org.gradle.api.internal.file.DefaultFileCollectionFactory;
 import org.gradle.api.internal.file.FileResolver;
+import org.gradle.api.internal.file.IdentityFileResolver;
+import org.gradle.api.internal.file.collections.DefaultDirectoryFileTreeFactory;
+import org.gradle.api.internal.provider.PropertyHost;
+import org.gradle.api.internal.tasks.DefaultTaskDependencyFactory;
 import org.gradle.api.internal.tasks.testing.*;
 import org.gradle.api.internal.tasks.testing.detection.TestFrameworkDetector;
 import org.gradle.api.internal.tasks.testing.processors.TestMainAction;
@@ -38,16 +34,21 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestOutputEvent;
-import org.gradle.initialization.DefaultBuildCancellationToken;
-import org.gradle.internal.concurrent.DefaultExecutorFactory;
+import org.gradle.api.tasks.util.PatternSet;
+import org.gradle.api.tasks.util.internal.PatternSets;
+import org.gradle.internal.Factory;
+import org.gradle.internal.nativeintegration.services.FileSystems;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.time.Time;
 import org.gradle.process.ExecResult;
-import org.gradle.process.internal.DefaultJavaExecAction;
+import org.gradle.process.internal.DefaultJavaDebugOptions;
+import org.gradle.process.internal.DefaultJavaForkOptions;
+import org.gradle.process.internal.ExecFactory;
 import org.gradle.process.internal.JavaExecAction;
 
-import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
-import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.*;
 
 public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec> {
 
@@ -102,7 +103,13 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         File equinoxLauncherFile = getEquinoxLauncherFile(testEclipseDir);
         LOGGER.info("equinox launcher file {}", equinoxLauncherFile);
 
-        final JavaExecAction javaExecHandleBuilder = new DefaultJavaExecAction(getFileResolver(testTask), new DefaultExecutorFactory().create("Exec process"), new DefaultBuildCancellationToken());
+        List<String> jvmArgs = collectJvmArgs();
+
+
+        ExecFactory execFactory = ((GradleInternal) project.getGradle()).getServices().get(ExecFactory.class);
+        final JavaExecAction javaExecHandleBuilder = execFactory.newJavaExecAction();
+        javaExecHandleBuilder.jvmArgs(jvmArgs);
+
         javaExecHandleBuilder.setClasspath(this.project.files(equinoxLauncherFile));
         javaExecHandleBuilder.setMain("org.eclipse.equinox.launcher.Main");
 
@@ -114,93 +121,11 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
             LOGGER.warn("Java executable doesn't exist: " + executable.getAbsolutePath());
         }
 
-        List<String> programArgs = new ArrayList<String>();
-
-        programArgs.add("-os");
-        programArgs.add(Constants.getOs());
-        programArgs.add("-ws");
-        programArgs.add(Constants.getWs());
-        programArgs.add("-arch");
-        programArgs.add(Constants.getArch());
-
-        if (getExtension(testTask).isConsoleLog()) {
-            programArgs.add("-consoleLog");
-        }
-        File optionsFile = getExtension(testTask).getOptionsFile();
-        if (optionsFile != null) {
-            programArgs.add("-debug");
-            programArgs.add(optionsFile.getAbsolutePath());
-        }
-        programArgs.add("-version");
-        programArgs.add("4");
-        programArgs.add("-port");
-        programArgs.add(Integer.toString(pdeTestPort));
-        programArgs.add("-testLoaderClass");
-        programArgs.add("org.eclipse.jdt.internal.junit4.runner.JUnit4TestLoader");
-        programArgs.add("-loaderpluginname");
-        programArgs.add("org.eclipse.jdt.junit4.runtime");
-        programArgs.add("-classNames");
-
-        List testNames = new ArrayList(collectTestNames(testTask, testTaskOperationId, rootTestSuiteId));
-        Collections.sort(testNames);
-        programArgs.addAll(testNames);
-
-        programArgs.add("-application");
-        programArgs.add(getExtension(testTask).getApplicationName());
-        programArgs.add("-product org.eclipse.platform.ide");
-        // alternatively can use URI for -data and -configuration (file:///path/to/dir/)
-        programArgs.add("-data");
-        programArgs.add(runDir.getAbsolutePath() + File.separator + "workspace");
-        programArgs.add("-configuration");
-        programArgs.add(configIniFile.getParentFile().getAbsolutePath());
-
-        programArgs.add("-testpluginname");
-        String fragmentHost = getExtension(testTask).getFragmentHost();
-        if (fragmentHost != null) {
-            programArgs.add(fragmentHost);
-        } else {
-            programArgs.add(this.project.getName());
-        }
+        List<String> programArgs = collectArgs(pdeTestPort, testTask, testTaskOperationId, rootTestSuiteId, runDir, configIniFile);
 
         javaExecHandleBuilder.setArgs(programArgs);
         javaExecHandleBuilder.setSystemProperties(testTask.getSystemProperties());
         javaExecHandleBuilder.setEnvironment(testTask.getEnvironment());
-
-        // TODO this should be specified when creating the task (to allow override in build script)
-        List<String> jvmArgs = new ArrayList<String>();
-        jvmArgs.add("-XX:MaxPermSize=256m");
-        jvmArgs.add("-Xms40m");
-        jvmArgs.add("-Xmx1024m");
-
-        // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
-        // TODO we should remove this option when it is not required by Eclipse
-        if (JavaVersion.current().isJava9Compatible()) {
-            jvmArgs.add("--add-modules=ALL-SYSTEM");
-        }
-        // uncomment to debug spawned Eclipse instance
-        // jvmArgs.add("-Xdebug");
-        // jvmArgs.add("-Xrunjdwp:transport=dt_socket,address=8998,server=y");
-
-        if (Constants.getOs().equals("macosx")) {
-            jvmArgs.add("-XstartOnFirstThread");
-        }
-
-        // declare mirror urls if exists
-        Map<String, String> mirrorUrls = new HashMap<>();
-        if (project.hasProperty("mirrors")) {
-            String mirrorsString = (String) project.property("mirrors");
-            String[] mirrors = mirrorsString.split(",");
-            for (String mirror : mirrors) {
-                if (!"".equals(mirror)) {
-                    String[] nameAndUrl = mirror.split(":", 2);
-                    mirrorUrls.put(nameAndUrl[0], nameAndUrl[1]);
-                }
-            }
-        }
-
-        for (Map.Entry<String, String> mirrorUrl : mirrorUrls.entrySet()) {
-            jvmArgs.add("-Dorg.eclipse.buildship.eclipsetest.mirrors." + mirrorUrl.getKey() + "=" + mirrorUrl.getValue());
-        }
 
         javaExecHandleBuilder.setJvmArgs(jvmArgs);
         javaExecHandleBuilder.setWorkingDir(this.project.getBuildDir());
@@ -251,6 +176,96 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         }
     }
 
+    private List<String> collectArgs(int pdeTestPort, Test testTask, Object testTaskOperationId, Object rootTestSuiteId, File runDir, File configIniFile) {
+        List<String> programArgs = new ArrayList<String>();
+
+        programArgs.add("-os");
+        programArgs.add(Constants.getOs());
+        programArgs.add("-ws");
+        programArgs.add(Constants.getWs());
+        programArgs.add("-arch");
+        programArgs.add(Constants.getArch());
+
+        if (getExtension(testTask).isConsoleLog()) {
+            programArgs.add("-consoleLog");
+        }
+        File optionsFile = getExtension(testTask).getOptionsFile();
+        if (optionsFile != null) {
+            programArgs.add("-debug");
+            programArgs.add(optionsFile.getAbsolutePath());
+        }
+        programArgs.add("-version");
+        programArgs.add("4");
+        programArgs.add("-port");
+        programArgs.add(Integer.toString(pdeTestPort));
+        programArgs.add("-testLoaderClass");
+        programArgs.add("org.eclipse.jdt.internal.junit4.runner.JUnit4TestLoader");
+        programArgs.add("-loaderpluginname");
+        programArgs.add("org.eclipse.jdt.junit4.runtime");
+        programArgs.add("-classNames");
+
+        List testNames = new ArrayList(collectTestNames(testTask, testTaskOperationId, rootTestSuiteId));
+        Collections.sort(testNames);
+        programArgs.addAll(testNames);
+
+        programArgs.add("-application");
+        programArgs.add(getExtension(testTask).getApplicationName());
+        programArgs.add("-product org.eclipse.platform.ide");
+        // alternatively can use URI for -data and -configuration (file:///path/to/dir/)
+        programArgs.add("-data");
+        programArgs.add(runDir.getAbsolutePath() + File.separator + "workspace");
+        programArgs.add("-configuration");
+        programArgs.add(configIniFile.getParentFile().getAbsolutePath());
+
+        programArgs.add("-testpluginname");
+        String fragmentHost = getExtension(testTask).getFragmentHost();
+        if (fragmentHost != null) {
+            programArgs.add(fragmentHost);
+        } else {
+            programArgs.add(this.project.getName());
+        }
+        return programArgs;
+    }
+
+    private List<String> collectJvmArgs() {
+        // TODO this should be specified when creating the task (to allow override in build script)
+        List<String> jvmArgs = new ArrayList<String>();
+        jvmArgs.add("-XX:MaxPermSize=256m");
+        jvmArgs.add("-Xms400m");
+        jvmArgs.add("-Xmx2999m");
+
+        // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
+        // TODO we should remove this option when it is not required by Eclipse
+        if (JavaVersion.current().isJava9Compatible()) {
+            jvmArgs.add("--add-modules=ALL-SYSTEM");
+        }
+        // uncomment to debug spawned Eclipse instance
+        // jvmArgs.add("-Xdebug");
+        // jvmArgs.add("-Xrunjdwp:transport=dt_socket,address=8998,server=y");
+
+        if (Constants.getOs().equals("macosx")) {
+            jvmArgs.add("-XstartOnFirstThread");
+        }
+
+        // declare mirror urls if exists
+        Map<String, String> mirrorUrls = new HashMap<>();
+        if (project.hasProperty("mirrors")) {
+            String mirrorsString = (String) project.property("mirrors");
+            String[] mirrors = mirrorsString.split(",");
+            for (String mirror : mirrors) {
+                if (!"".equals(mirror)) {
+                    String[] nameAndUrl = mirror.split(":", 2);
+                    mirrorUrls.put(nameAndUrl[0], nameAndUrl[1]);
+                }
+            }
+        }
+
+        for (Map.Entry<String, String> mirrorUrl : mirrorUrls.entrySet()) {
+            jvmArgs.add("-Dorg.eclipse.buildship.eclipsetest.mirrors." + mirrorUrl.getKey() + "=" + mirrorUrl.getValue());
+        }
+        return jvmArgs;
+    }
+
     private File getEquinoxLauncherFile(File testEclipseDir) {
          File[] plugins = new File(testEclipseDir, "plugins").listFiles();
          for (File plugin : plugins) {
@@ -278,7 +293,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
             detector = new EclipsePluginTestClassScanner(testClassFiles, processor);
         }
 
-        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), Time.clock(), testTaskOperationId, rootTestSuiteId, String.format("Gradle Eclipse Test Run %s", testTask.getIdentityPath())).run();
+        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), Time.clock(), /*testTaskOperationId,*/ rootTestSuiteId, String.format("Gradle Eclipse Test Run %s", testTask.getIdentityPath())).run();
         LOGGER.info("collected test class names: {}", processor.classNames);
         return processor.classNames;
     }
