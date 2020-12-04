@@ -9,11 +9,13 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -27,13 +29,11 @@ import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
  */
 public final class TaskViewContent {
 
-    private final Collection<GradleBuildViewModel> models;
-    private final List<EclipseProject> allEclipseProjects;
+    private final List<BuildNode> allBuilds;
     private final List<IProject> faultyWorkspaceProjects;
 
-    private TaskViewContent(Collection<GradleBuildViewModel> models, List<EclipseProject> allEclipseProjects, List<IProject> faultyWorkspaceProjects) {
-       this.models = models;
-       this.allEclipseProjects = allEclipseProjects;
+    private TaskViewContent(List<BuildNode> allBuilds, List<IProject> faultyWorkspaceProjects) {
+       this.allBuilds = allBuilds;
        this.faultyWorkspaceProjects = faultyWorkspaceProjects;
     }
 
@@ -42,28 +42,38 @@ public final class TaskViewContent {
     }
 
     public boolean isEmpty() {
-        return this.allEclipseProjects.isEmpty() && this.faultyWorkspaceProjects.isEmpty();
+        return this.allBuilds.isEmpty() && this.faultyWorkspaceProjects.isEmpty();
     }
 
-    public Collection<GradleBuildViewModel> getModels() {
-        return this.models;
+    public Collection<BuildNode> getBuilds() {
+        return this.allBuilds;
     }
 
-    public static TaskViewContent from(Collection<GradleBuildViewModel> models, Map<String, IProject> allGradleWorkspaceProjects) {
-        List<EclipseProject> allEclipseProjects = collectAllEclipseProjects(models);
-        List<IProject> faultyWorkspaceProjects = collectFaultyWorkspaceProjects(allGradleWorkspaceProjects, allEclipseProjects);
-        return new TaskViewContent(models, allEclipseProjects, faultyWorkspaceProjects);
+    public static TaskViewContent from(Map<File, Map<String, EclipseProject>> allModels, Map<String, IProject> allGradleWorkspaceProjects) {
+        List<BuildNode> builds = new ArrayList<>();
+        for (Entry<File, Map<String, EclipseProject>> model : allModels.entrySet()) {
+            File rootProjectDir = model.getKey();
+            BuildTreeNode buildTreeNode = new BuildTreeNode(rootProjectDir);
+            for (Entry<String,EclipseProject> entry : model.getValue().entrySet()) {
+                String includedBuildName = entry.getKey().equals(":") ? null : entry.getKey();
+                EclipseProject rootEclipseProject = entry.getValue();
+                builds.add(new BuildNode(buildTreeNode, rootEclipseProject, includedBuildName));
+
+            }
+        }
+        List<IProject> faultyWorkspaceProjects = collectFaultyWorkspaceProjects(allGradleWorkspaceProjects, builds);
+        return new TaskViewContent(builds, faultyWorkspaceProjects);
     }
 
-    private static List<EclipseProject> collectAllEclipseProjects(Collection<GradleBuildViewModel> models) {
-        return models.stream().map(GradleBuildViewModel::getRootEclipseProject).flatMap(p -> HierarchicalElementUtils.getAll(p).stream()).collect(Collectors.toUnmodifiableList());
-    }
-
-    private static List<IProject> collectFaultyWorkspaceProjects(Map<String, IProject> workspaceProjects, List<EclipseProject> eclipseProjects) {
+    private static List<IProject> collectFaultyWorkspaceProjects(Map<String, IProject> workspaceProjects, List<BuildNode> builds) {
         Map<String, IProject> result = new LinkedHashMap<>(workspaceProjects);
-        for (EclipseProject p : eclipseProjects) {
+        for (EclipseProject p : collectAllEclipseProjects(builds)) {
             result.remove(p.getName());
         }
         return new ArrayList<>(result.values());
+    }
+
+    private static List<EclipseProject> collectAllEclipseProjects(List<BuildNode> builds) {
+        return builds.stream().map(BuildNode::getRootEclipseProject).flatMap(p -> HierarchicalElementUtils.getAll(p).stream()).collect(Collectors.toList());
     }
 }

@@ -88,7 +88,7 @@ public final class TaskNodeSelectionUtils {
 
     private static File workingDirForTask(TaskNode taskNode, File rootDir) {
         if (taskNode instanceof ProjectTaskNode) {
-            return taskNode.getParentProjectNode().getBuildViewModel().getBuildRootDir();
+            return taskNode.getParentProjectNode().getBuildNode().getBuildTreeNode().getRootProjectDir();
         } else if (taskNode instanceof TaskSelectorNode) {
             return taskNode.getParentProjectNode().getEclipseProject().getProjectDirectory();
         } else {

@@ -10,23 +10,50 @@
 
 package org.eclipse.buildship.ui.internal.view.task;
 
-import java.io.File;
+import java.util.Map;
+
+import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Objects;
+
+import org.eclipse.buildship.core.internal.util.gradle.Path;
 
 /**
  * Can be a root build or an included build.
  */
 public class BuildNode {
 
-    private File rootProjectDir;
+    private final BuildTreeNode buildTreeNode;
+    private final EclipseProject rootEclipseProject;
+    private final String includedBuildName;
+    private Map<Path, BuildInvocations> allBuildInvocations;
 
-    public BuildNode(File rootProjectDir) {
-        this.rootProjectDir = rootProjectDir;
+    public BuildNode(BuildTreeNode buildTreeNode, EclipseProject rootEclipseProject, String includedBuildName) {
+        this.buildTreeNode = buildTreeNode;
+        this.rootEclipseProject = rootEclipseProject;
+        this.includedBuildName = includedBuildName;
+        this.allBuildInvocations = BuildInvocations.collectAll(rootEclipseProject.getGradleProject());
     }
 
-    public File getRootProjectDir() {
-        return this.rootProjectDir;
+    public BuildTreeNode getBuildTreeNode() {
+        return this.buildTreeNode;
+    }
+
+    public boolean isIncludedBuild() {
+        return this.includedBuildName != null;
+    }
+
+    public String getIncludedBuildName() {
+        return this.includedBuildName;
+    }
+
+
+    public EclipseProject getRootEclipseProject() {
+        return this.rootEclipseProject;
+    }
+
+    public BuildInvocations buildInvocationsFor(Path path) {
+        return this.allBuildInvocations.get(path);
     }
 
     @Override
@@ -39,11 +66,13 @@ public class BuildNode {
         }
 
         BuildNode that = (BuildNode) other;
-        return Objects.equal(this.rootProjectDir, that.rootProjectDir);
+        return Objects.equal(this.buildTreeNode, that.buildTreeNode) &&
+                Objects.equal(this.rootEclipseProject, that.rootEclipseProject) &&
+                Objects.equal(this.includedBuildName, that.includedBuildName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.rootProjectDir);
+        return Objects.hashCode(this.buildTreeNode, this.rootEclipseProject, this.includedBuildName);
     }
 }
