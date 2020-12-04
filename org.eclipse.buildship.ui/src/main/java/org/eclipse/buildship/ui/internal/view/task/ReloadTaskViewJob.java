@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
@@ -56,12 +57,15 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
 
     private TaskViewContent loadContent(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         Map<File, Map<String, EclipseProject>> allModels = new LinkedHashMap<>();
+        Map<File, BuildEnvironment> environments = new LinkedHashMap<>();
         for (InternalGradleBuild gradleBuild : CorePlugin.internalGradleWorkspace().getGradleBuilds()) {
+            BuildEnvironment buildEnvironment = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, this.modelFetchStrategy, tokenSource, monitor);
             Map<String, EclipseProject> models = gradleBuild.getModelProvider().fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
             allModels.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), models);
+            environments.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), buildEnvironment);
 
         }
-        return TaskViewContent.from(allModels, allGradleWorkspaceProjects());
+        return TaskViewContent.from(allModels, environments, allGradleWorkspaceProjects());
     }
 
     private Map<String, IProject> allGradleWorkspaceProjects() {

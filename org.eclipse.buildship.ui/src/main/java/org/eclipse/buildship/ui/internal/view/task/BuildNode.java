@@ -26,7 +26,7 @@ public class BuildNode {
     private final BuildTreeNode buildTreeNode;
     private final EclipseProject rootEclipseProject;
     private final String includedBuildName;
-    private Map<Path, BuildInvocations> allBuildInvocations;
+    private final Map<Path, BuildInvocations> allBuildInvocations;
 
     public BuildNode(BuildTreeNode buildTreeNode, EclipseProject rootEclipseProject, String includedBuildName) {
         this.buildTreeNode = buildTreeNode;

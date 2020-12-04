@@ -159,16 +159,27 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     public static List<TaskNode> taskNodesFor(ProjectNode projectNode) {
         List<TaskNode> taskNodes = Lists.newArrayList();
-        for (ProjectTask projectTask : projectNode.getInvocations().getProjectTasks()) {
-            taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
+
+        if (shouldContainProjectTasks(projectNode)) {
+            for (ProjectTask projectTask : projectNode.getInvocations().getProjectTasks()) {
+                taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
+            }
         }
 
-        if (!projectNode.getBuildNode().isIncludedBuild()) {
+        if (shouldContainTaskSelectors(projectNode)) {
             for (TaskSelector taskSelector : projectNode.getInvocations().getTaskSelectors()) {
                 taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
             }
         }
         return taskNodes;
+    }
+
+    private static boolean shouldContainProjectTasks(ProjectNode projectNode) {
+        return !projectNode.getBuildNode().isIncludedBuild() || projectNode.getBuildNode().getBuildTreeNode().supportsTaskExecutionInIncludedBuild();
+    }
+
+    private static boolean shouldContainTaskSelectors(ProjectNode projectNode) {
+        return !projectNode.getBuildNode().isIncludedBuild();
     }
 
     private Object[] childrenOf(TaskGroupNode groupNode) {
