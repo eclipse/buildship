@@ -58,6 +58,9 @@ public final class RunTasksAction extends CommandBackedAction implements Selecti
             case DISABLED_NO_ROOT_PROJECT:
                 setText(TaskViewMessages.Action_RunTasks_Text_Disabled_NonStandard_layout);
                 break;
+            case COMPOSITE_WITH_UNSUPPORTED_GRADLE_VERSION:
+                setText(TaskViewMessages.Action_RunTasks_Text_No_Support_For_Task_Execution_In_Included_build);
+                break;
             default:
                 setText(TaskViewMessages.Action_RunTasks_Text_Disabled_Other);
                 break;

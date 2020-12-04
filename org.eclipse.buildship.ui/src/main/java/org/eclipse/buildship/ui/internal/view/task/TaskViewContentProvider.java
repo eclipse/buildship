@@ -160,10 +160,8 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
     public static List<TaskNode> taskNodesFor(ProjectNode projectNode) {
         List<TaskNode> taskNodes = Lists.newArrayList();
 
-        if (shouldContainProjectTasks(projectNode)) {
-            for (ProjectTask projectTask : projectNode.getInvocations().getProjectTasks()) {
-                taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
-            }
+        for (ProjectTask projectTask : projectNode.getInvocations().getProjectTasks()) {
+            taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
         }
 
         if (shouldContainTaskSelectors(projectNode)) {
@@ -172,10 +170,6 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
             }
         }
         return taskNodes;
-    }
-
-    private static boolean shouldContainProjectTasks(ProjectNode projectNode) {
-        return !projectNode.getBuildNode().isIncludedBuild() || projectNode.getBuildNode().getBuildTreeNode().supportsTaskExecutionInIncludedBuild();
     }
 
     private static boolean shouldContainTaskSelectors(ProjectNode projectNode) {
