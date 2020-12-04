@@ -11,13 +11,11 @@ package org.eclipse.buildship.core
 
 import java.util.function.Function
 
-import org.gradle.api.Action
 import org.gradle.tooling.IntermediateResultHandler
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.ResultHandler
 import org.gradle.tooling.UnknownModelException
 import org.gradle.tooling.model.GradleProject
-import org.gradle.tooling.model.eclipse.EclipseProject
 
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.preferences.IEclipsePreferences

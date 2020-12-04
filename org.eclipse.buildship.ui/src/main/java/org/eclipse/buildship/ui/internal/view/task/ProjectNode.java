@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
-import java.io.File;
 import java.util.Map;
 
 import org.gradle.tooling.model.GradleProject;
@@ -31,22 +30,18 @@ import org.eclipse.buildship.core.internal.util.gradle.Path;
 public final class ProjectNode extends BaseProjectNode {
 
     private final ProjectNode parentProjectNode;
-    private final EclipseProject eclipseProject;
-    private final GradleProject gradleProject;
     private final Map<Path, BuildInvocations> allBuildInvocations;
+    private final EclipseProject eclipseProject;
     private final Path projectPath;
-    private final String buildPath;
-    private final File buildRoot;
+    private final GradleBuildViewModel buildViewModel;
 
-    public ProjectNode(ProjectNode parentProjectNode, EclipseProject eclipseProject, GradleProject gradleProject, Optional<IProject> workspaceProject, Map<Path, BuildInvocations> allBuildInvocations, Path projectPath, String buildPath, File buildRoot) {
+    public ProjectNode(ProjectNode parentProjectNode, Optional<IProject> workspaceProject, Map<Path, BuildInvocations> allBuildInvocations, EclipseProject eclipseProject, GradleBuildViewModel buildViewModel) {
         super(workspaceProject);
         this.parentProjectNode = parentProjectNode; // is null for root project
-        this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
-        this.gradleProject = Preconditions.checkNotNull(gradleProject);
         this.allBuildInvocations = Preconditions.checkNotNull(allBuildInvocations);
-        this.projectPath = Preconditions.checkNotNull(projectPath);
-        this.buildPath = buildPath;
-        this.buildRoot = buildRoot;
+        this.eclipseProject = eclipseProject;
+        this.projectPath = Path.from(buildViewModel.getRootEclipseProject().getGradleProject().getPath());
+        this.buildViewModel = buildViewModel;
     }
 
     public String getDisplayName() {
@@ -77,7 +72,7 @@ public final class ProjectNode extends BaseProjectNode {
     }
 
     public GradleProject getGradleProject() {
-        return this.gradleProject;
+        return this.eclipseProject.getGradleProject();
     }
 
     public Map<Path, BuildInvocations> getAllBuildInvocations() {
@@ -88,22 +83,13 @@ public final class ProjectNode extends BaseProjectNode {
         return this.allBuildInvocations.get(this.projectPath);
     }
 
-
-    public String getBuildPath() {
-        return this.buildPath;
-    }
-
-    public File getBuildRoot() {
-        return this.buildRoot;
-    }
-
-    public boolean isPartOfIncludedBuild() {
-        return !getBuildPath().equals(":");
+    public GradleBuildViewModel getBuildViewModel() {
+        return this.buildViewModel;
     }
 
     @Override
     public String toString() {
-        return this.gradleProject.getName();
+        return this.eclipseProject.getGradleProject().getName();
     }
 
     @Override
@@ -117,15 +103,13 @@ public final class ProjectNode extends BaseProjectNode {
 
         ProjectNode that = (ProjectNode) other;
         return Objects.equal(this.parentProjectNode, that.parentProjectNode)
-                && Objects.equal(this.eclipseProject, that.eclipseProject)
-                && Objects.equal(this.gradleProject, that.gradleProject)
                 && Objects.equal(this.allBuildInvocations, that.allBuildInvocations)
-                && Objects.equal(this.buildPath, that.buildPath)
-                && Objects.equal(this.buildRoot, that.buildRoot);
+                && Objects.equal(this.eclipseProject, that.eclipseProject)
+                && Objects.equal(this.buildViewModel, that.buildViewModel);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.gradleProject, this.allBuildInvocations, this.projectPath, this.buildPath, this.buildRoot);
+        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.allBuildInvocations, this.projectPath, this.eclipseProject, this.buildViewModel);
     }
 }
