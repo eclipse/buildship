@@ -47,6 +47,7 @@ public final class CompositeModelQuery<T, U> implements BuildAction<Map<String, 
     @Override
     public Map<String, T> execute(BuildController controller) {
         Map<String,T> acc = new HashMap<>();
+        // ':' represents the root build
         collectRootModels(controller, controller.getBuildModel(), acc, ":");
         return acc;
     }

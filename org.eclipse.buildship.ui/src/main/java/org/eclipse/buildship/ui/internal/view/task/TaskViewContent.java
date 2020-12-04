@@ -9,15 +9,14 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
-import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.gradle.tooling.model.eclipse.EclipseProject;
-
-import com.google.common.collect.Lists;
 
 import org.eclipse.core.resources.IProject;
 
@@ -28,24 +27,36 @@ import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
  */
 public final class TaskViewContent {
 
-    private final Map<File, Map<String, EclipseProject>> models;
+    private final Collection<GradleBuildViewModel> models;
     private final List<EclipseProject> allEclipseProjects;
     private final List<IProject> faultyWorkspaceProjects;
 
-    public TaskViewContent(Map<File, Map<String, EclipseProject>> models, Map<String, IProject> allGradleWorkspaceProjects) {
-        this.models = models;
-        this.allEclipseProjects = collectAllEclipseProjects(models);
-        this.faultyWorkspaceProjects = collectFaultyWorkspaceProjects(allGradleWorkspaceProjects, this.allEclipseProjects);
+    private TaskViewContent(Collection<GradleBuildViewModel> models, List<EclipseProject> allEclipseProjects, List<IProject> faultyWorkspaceProjects) {
+       this.models = models;
+       this.allEclipseProjects = allEclipseProjects;
+       this.faultyWorkspaceProjects = faultyWorkspaceProjects;
     }
 
-    private static List<EclipseProject> collectAllEclipseProjects(Map<File, Map<String, EclipseProject>> models) {
-        List<EclipseProject> result = Lists.newArrayList();
-        for(Map<String, EclipseProject> ep1 : models.values()) {
-            for (EclipseProject ep2 : ep1.values()) {
-                result.addAll(HierarchicalElementUtils.getAll(ep2));
-            }
-        }
-        return result;
+    public List<IProject> getFaultyWorkspaceProjects() {
+        return this.faultyWorkspaceProjects;
+    }
+
+    public boolean isEmpty() {
+        return this.allEclipseProjects.isEmpty() && this.faultyWorkspaceProjects.isEmpty();
+    }
+
+    public Collection<GradleBuildViewModel> getModels() {
+        return this.models;
+    }
+
+    public static TaskViewContent from(Collection<GradleBuildViewModel> models, Map<String, IProject> allGradleWorkspaceProjects) {
+        List<EclipseProject> allEclipseProjects = collectAllEclipseProjects(models);
+        List<IProject> faultyWorkspaceProjects = collectFaultyWorkspaceProjects(allGradleWorkspaceProjects, allEclipseProjects);
+        return new TaskViewContent(models, allEclipseProjects, faultyWorkspaceProjects);
+    }
+
+    private static List<EclipseProject> collectAllEclipseProjects(Collection<GradleBuildViewModel> models) {
+        return models.stream().map(GradleBuildViewModel::getRootEclipseProject).flatMap(p -> HierarchicalElementUtils.getAll(p).stream()).collect(Collectors.toUnmodifiableList());
     }
 
     private static List<IProject> collectFaultyWorkspaceProjects(Map<String, IProject> workspaceProjects, List<EclipseProject> eclipseProjects) {
@@ -54,17 +65,5 @@ public final class TaskViewContent {
             result.remove(p.getName());
         }
         return new ArrayList<>(result.values());
-    }
-
-    public List<IProject> getFaultyWorkspaceProjects() {
-        return this.faultyWorkspaceProjects;
-    }
-
-    public List<EclipseProject> getAllEclipseProjects() {
-        return this.allEclipseProjects;
-    }
-
-    public Map<File, Map<String, EclipseProject>> getModels() {
-        return this.models;
     }
 }
