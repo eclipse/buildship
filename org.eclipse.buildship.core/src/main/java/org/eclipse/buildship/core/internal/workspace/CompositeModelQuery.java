@@ -53,6 +53,10 @@ public final class CompositeModelQuery<T, U> implements BuildAction<Map<String, 
     }
 
     private void collectRootModels(BuildController controller, GradleBuild build, Map<String, T> models, String buildPath) {
+        if (models.containsKey(buildPath)) {
+            return; // can happen when there's a cycle in the included builds
+        }
+
         if (this.parameter != null) {
             models.put(buildPath, controller.getModel(build.getRootProject(), this.modelType, this.parameterType, this.parameter));
         } else {
