@@ -96,7 +96,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         // create a new node for the given Eclipse project and then recurse into the children
         ProjectNode projectNode = new ProjectNode(parentProjectNode, buildNode, workspaceProject, eclipseProject);
         acc.add(projectNode);
-        for (EclipseProject childProject : buildNode.getRootEclipseProject().getChildren()) {
+        for (EclipseProject childProject : eclipseProject.getChildren()) {
             collectProjectNodesRecursively(childProject, projectNode, acc, buildNode);
         }
     }

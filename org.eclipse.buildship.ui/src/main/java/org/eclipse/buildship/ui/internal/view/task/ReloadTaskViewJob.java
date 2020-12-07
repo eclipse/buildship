@@ -59,11 +59,14 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         Map<File, Map<String, EclipseProject>> allModels = new LinkedHashMap<>();
         Map<File, BuildEnvironment> environments = new LinkedHashMap<>();
         for (InternalGradleBuild gradleBuild : CorePlugin.internalGradleWorkspace().getGradleBuilds()) {
-            BuildEnvironment buildEnvironment = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, this.modelFetchStrategy, tokenSource, monitor);
-            Map<String, EclipseProject> models = gradleBuild.getModelProvider().fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
-            allModels.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), models);
-            environments.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), buildEnvironment);
-
+            try {
+                BuildEnvironment buildEnvironment = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, this.modelFetchStrategy, tokenSource, monitor);
+                Map<String, EclipseProject> models = gradleBuild.getModelProvider().fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
+                allModels.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), models);
+                environments.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), buildEnvironment);
+            } catch (RuntimeException e) {
+                CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath(), e);
+            }
         }
         return TaskViewContent.from(allModels, environments, allGradleWorkspaceProjects());
     }
