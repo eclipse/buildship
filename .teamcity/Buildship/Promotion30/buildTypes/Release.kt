@@ -1,6 +1,7 @@
 package Buildship.Promotion30.buildTypes
 
 import Buildship.Promotion30.Promotion30Template
+import Buildship.Promotion30.PromotionDependencyTemplate
 import jetbrains.buildServer.configs.kotlin.v2019_2.BuildType
 import jetbrains.buildServer.configs.kotlin.v2019_2.ParameterDisplay
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
@@ -9,7 +10,7 @@ object Release : BuildType({
     id("Promote30_Release")
     name = "Promote Release"
 
-    templates(Promotion30Template)
+    templates(Promotion30Template, PromotionDependencyTemplate)
 
     params {
         password("github.token", "", label = "GitHub token", description = "Please specify your GitHub auth token to proceed with the release", display = ParameterDisplay.PROMPT)

@@ -1,10 +1,8 @@
 package Buildship.Promotion30
 
-import Buildship.Check30.Checkpoints.buildTypes.Final
 import Buildship.GitHubVcsRoot
 import Buildship.addCredentialsLeakFailureCondition
 import jetbrains.buildServer.configs.kotlin.v2019_2.CheckoutMode
-import jetbrains.buildServer.configs.kotlin.v2019_2.FailureAction
 import jetbrains.buildServer.configs.kotlin.v2019_2.Template
 
 object Promotion30Template : Template({
@@ -32,13 +30,5 @@ object Promotion30Template : Template({
 
     failureConditions {
         errorMessage = true
-    }
-
-    dependencies {
-        snapshot(Final) {
-            onDependencyFailure = FailureAction.FAIL_TO_START
-            onDependencyCancel = FailureAction.CANCEL
-        }
-        snapshot(Buildship.Check30.CrossVersionCoverage.buildTypes.Eclipse47Java9, Buildship.Check30.Checkpoints.buildTypes.CheckpointUtils.DefaultFailureCondition)
     }
 })

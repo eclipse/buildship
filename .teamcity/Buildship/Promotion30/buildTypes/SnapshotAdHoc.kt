@@ -1,31 +1,20 @@
 package Buildship.Promotion30.buildTypes
 
-import Buildship.Check30.Checkpoints.buildTypes.Final
 import Buildship.Promotion30.Promotion30Template
-import Buildship.Promotion30.PromotionDependencyTemplate
 import jetbrains.buildServer.configs.kotlin.v2019_2.BuildType
-import jetbrains.buildServer.configs.kotlin.v2019_2.FailureAction
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.schedule
 
-object Snapshot : BuildType({
-    id("Promote30_Snapshot")
-    name = "Promote Snapshot"
+object SnapshotAdHoc : BuildType({
+    id("Promote30_Snapshot_Adhoc")
+    name = "Promote Snapshot (adhoc)"
 
-    templates(Promotion30Template, PromotionDependencyTemplate)
+    templates(Promotion30Template)
 
     params {
         param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
         param("eclipse.release.type", "snapshot")
         param("build.invoker", "ci")
-    }
-
-    dependencies {
-        snapshot(Final) {
-            onDependencyFailure = FailureAction.FAIL_TO_START
-            onDependencyCancel = FailureAction.CANCEL
-        }
-        snapshot(Buildship.Check30.CrossVersionCoverage.buildTypes.Eclipse47Java9, Buildship.Check30.Checkpoints.buildTypes.CheckpointUtils.DefaultFailureCondition)
     }
 
     steps {
@@ -220,26 +209,6 @@ object Snapshot : BuildType({
                 "-Dgradle.cache.remote.username=%gradle.cache.remote.username%"
                 "-Dgradle.cache.remote.password=%gradle.cache.remote.password%"
             """.trimIndent()
-        }
-    }
-
-    triggers {
-        schedule {
-            schedulingPolicy = daily {
-                hour = 23
-            }
-            branchFilter = """
-                +:*
-                -:teamcity-versioned-settings
-            """.trimIndent()
-            triggerRules = """
-                -:docs/**
-                -:README.MD
-            """.trimIndent()
-            triggerBuild = always()
-            enforceCleanCheckout = true
-            param("revisionRule", "lastFinished")
-            param("dayOfWeek", "Sunday")
         }
     }
 })
