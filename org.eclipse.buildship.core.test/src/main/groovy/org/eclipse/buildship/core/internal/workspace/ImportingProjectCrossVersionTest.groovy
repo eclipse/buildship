@@ -139,14 +139,14 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
         where:
         distribution << getSupportedGradleDistributions('>=4.0')
     }
-	
+
 	@Unroll
 	def "Can handle duplicated build includes"(GradleDistribution distribution) {
 		given:
 		file('composite-build/included1/settings.gradle') << '''
 			includeBuild '../included2'
         '''
-		
+
 		when:
 		importAndWait(compositeProjectDir, distribution)
 
@@ -161,9 +161,9 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 		findProject('included2-sub2')
 
 		where:
-        distribution << getSupportedGradleDistributions('>=4.0')
+        distribution << getSupportedGradleDistributions('>=4.10')
 	}
-	
+
 	@Unroll
 	def "Can handle cyclic build includes"(GradleDistribution distribution) {
 		given:
@@ -173,7 +173,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 		file('composite-build/included2/settings.gradle') << '''
 			includeBuild '../included1'
         '''
-		
+
 		when:
 		importAndWait(compositeProjectDir, distribution)
 
