@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import com.google.common.collect.Lists;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -109,8 +111,7 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (!includeExportedEntriesOnly || cpe.isExported()) {
                 if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && configurationScopes.isEntryIncluded(cpe)) {
-                    result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath(),
-                            hasModuleAttribute(cpe) ? IRuntimeClasspathEntry.MODULE_PATH : IRuntimeClasspathEntry.CLASS_PATH));
+                    addLibraryClasspathEntry(result, cpe);
                 } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
                     Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
                     if (candidate.isPresent()) {
@@ -137,8 +138,7 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
 
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && !(excludeTestCode && hasTestAttribute(cpe))) {
-                result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath(),
-                        hasModuleAttribute(cpe) ? IRuntimeClasspathEntry.MODULE_PATH : IRuntimeClasspathEntry.CLASS_PATH));
+                addLibraryClasspathEntry(result, cpe);
             } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
                 Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
                 if (candidate.isPresent()) {
@@ -154,6 +154,19 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         return result.toArray(new IRuntimeClasspathEntry[result.size()]);
     }
 
+    private void addLibraryClasspathEntry(List<IRuntimeClasspathEntry> result, final IClasspathEntry cpe) {
+        try {
+            Method m = JavaRuntime.class.getMethod("newArchiveRuntimeClasspathEntry", IPath.class, int.class);
+            int modulePathAttribute = IRuntimeClasspathEntry.class.getField("MODULE_PATH").getInt(null);
+            int classPathAttribute = IRuntimeClasspathEntry.class.getField("CLASS_PATH").getInt(null);
+            result.add( (IRuntimeClasspathEntry) m.invoke(null, cpe.getPath(), hasModuleAttribute(cpe) ? modulePathAttribute : classPathAttribute));
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException e) {
+            // Method does not exist yet in this version of eclipse.
+            // Revert to old behavior
+            result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath()));
+        }
+    }
+
     private static IRuntimeClasspathEntry[] invokeJavaRuntimeResolveRuntimeClasspathEntry(IRuntimeClasspathEntry projectRuntimeEntry, IJavaProject dependencyProject, boolean excludeTestCode) throws CoreException{
         // JavaRuntime.resolveRuntimeClasspathEntry is available since Eclipse 4.8
         try {
@@ -163,8 +176,9 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
             throw new GradlePluginsRuntimeException("JavaRuntime.resolveRuntimeClasspathEntry() should not be called when Buildship is installed for Eclipse 4.8", e);
         }
     }
+
     private boolean hasModuleAttribute(IClasspathEntry entry) {
-        return hasEnabledBooleanAttribute(IClasspathAttribute.MODULE, entry);
+        return hasEnabledBooleanAttribute("module", entry);
     }
 
     private boolean hasTestAttribute(IClasspathEntry entry) {
