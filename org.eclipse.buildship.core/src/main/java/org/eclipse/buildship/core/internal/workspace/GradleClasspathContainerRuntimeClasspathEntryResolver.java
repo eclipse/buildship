@@ -109,7 +109,8 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (!includeExportedEntriesOnly || cpe.isExported()) {
                 if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && configurationScopes.isEntryIncluded(cpe)) {
-                    result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath()));
+                    result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath(),
+                            hasModuleAttribute(cpe) ? IRuntimeClasspathEntry.MODULE_PATH : IRuntimeClasspathEntry.CLASS_PATH));
                 } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
                     Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
                     if (candidate.isPresent()) {
@@ -136,7 +137,8 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
 
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && !(excludeTestCode && hasTestAttribute(cpe))) {
-                result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath()));
+                result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath(),
+                        hasModuleAttribute(cpe) ? IRuntimeClasspathEntry.MODULE_PATH : IRuntimeClasspathEntry.CLASS_PATH));
             } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
                 Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
                 if (candidate.isPresent()) {
@@ -160,6 +162,9 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException("JavaRuntime.resolveRuntimeClasspathEntry() should not be called when Buildship is installed for Eclipse 4.8", e);
         }
+    }
+    private boolean hasModuleAttribute(IClasspathEntry entry) {
+        return hasEnabledBooleanAttribute(IClasspathAttribute.MODULE, entry);
     }
 
     private boolean hasTestAttribute(IClasspathEntry entry) {
