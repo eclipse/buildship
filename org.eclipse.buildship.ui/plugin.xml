@@ -311,7 +311,7 @@
         <launchConfigurationTypeImage
                 id="org.eclipse.buildship.ui.launch.test.runconfigurationtypeimage"
                 configTypeID="org.eclipse.buildship.core.launch.test.runconfiguration"
-                icon="icons/full/obj16/launch_config.png">
+                icon="icons/full/obj16/test_launch_config.png">
         </launchConfigurationTypeImage>
     </extension>
     <extension
@@ -333,7 +333,7 @@
           point="org.eclipse.debug.ui.launchShortcuts">
        <shortcut
              class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcut"
-             icon="icons/full/obj16/launch_config.png"
+             icon="icons/full/obj16/test_launch_config.png"
              id="org.eclipse.buildship.ui.shortcut.test"
              label="Gradle Test"
              modes="run">
@@ -361,7 +361,7 @@
        </shortcut>
        <shortcut
              class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcut"
-             icon="icons/full/obj16/launch_config.png"
+             icon="icons/full/obj16/test_launch_config.png"
              id="org.eclipse.buildship.ui.shortcut.test.debug"
              label="Gradle Test"
              modes="debug">
