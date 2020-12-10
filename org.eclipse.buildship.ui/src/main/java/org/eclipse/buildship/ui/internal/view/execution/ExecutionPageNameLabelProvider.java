@@ -53,10 +53,10 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
         this.resourceManager = new LocalResourceManager(JFaceResources.getResources());
         ColorDescriptor decorationsColor = ColorUtils.getDecorationsColorDescriptorFromCurrentTheme();
         this.customTextToColor = ImmutableMap.of("UP-TO-DATE", decorationsColor, "FROM-CACHE", decorationsColor);
-        ColorDescriptor errorColor = ColorUtils.getErrorColorDescriptorFromCurrentTheme();
         this.stdErrStyler = new Styler() {
+            @Override
             public void applyStyles(TextStyle textStyle) {
-                textStyle.foreground = ExecutionPageNameLabelProvider.this.resourceManager.createColor(errorColor);
+                textStyle.foreground = ExecutionPageNameLabelProvider.this.resourceManager.createColor(decorationsColor);
             }
         };
     }
@@ -167,6 +167,15 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
     }
 
     private Image calculateImage(OperationItem operationItem) {
+        if (operationItem.getDescriptor() instanceof TestOutputDescriptor) {
+            TestOutputDescriptor descriptor = (TestOutputDescriptor) operationItem.getDescriptor();
+            if (descriptor.getDestination() == Destination.StdOut) {
+                return PluginImages.OPERATION_TEST_OUTPUT.withState(PluginImage.ImageState.ENABLED).getImage();
+            } else {
+                return PluginImages.OPERATION_TEST_ERR_OUTPUT.withState(PluginImage.ImageState.ENABLED).getImage();
+            }
+        }
+
         if (operationItem.getFinishEvent() != null) {
             OperationResult result = operationItem.getFinishEvent().getResult();
             if (result instanceof FailureResult) {
