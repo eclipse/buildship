@@ -59,6 +59,8 @@ public enum PluginImages implements PluginImage {
     OPERATION_SUCCESS(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_success.png")),
     OPERATION_SKIPPED(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_skipped.png")),
     OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png")),
+    OPERATION_TEST_OUTPUT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_test_output.png")),
+    OPERATION_TEST_ERR_OUTPUT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_test_err_output.png")),
     PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/project.png")),
     JAVA_PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/java_project.png")),
     FAULTY_PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/faulty_project.png")),
