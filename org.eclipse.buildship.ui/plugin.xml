@@ -580,6 +580,12 @@
              id="org.eclipse.buildship.ui.preferences"
              name="Gradle">
        </page>
+       <page
+             category="org.eclipse.buildship.ui.preferences"
+             class="org.eclipse.buildship.ui.internal.preferences.GradleExperimentalFeaturesPreferencePage"
+             id="org.eclipse.buildship.ui.preferences.experimental"
+             name="Experimental features">
+       </page>
     </extension>
 
     <!-- Add the "Gradle" menu to the project preferences -->

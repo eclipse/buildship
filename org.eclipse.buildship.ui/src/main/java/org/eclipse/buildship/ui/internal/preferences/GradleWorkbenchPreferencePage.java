@@ -44,6 +44,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     private final Validator<GradleDistributionViewModel> distributionValidator;
 
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
+    private boolean experimentalModuleSupportEnabled;
 
 
     public GradleWorkbenchPreferencePage() {
@@ -78,6 +79,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(config.isAutoSync());
         this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(config.isShowConsoleView());
         this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(config.isShowExecutionsView());
+        this.experimentalModuleSupportEnabled = config.isExperimentalModuleSupportEnabled();
     }
 
     private void addListeners() {
@@ -101,7 +103,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         List<String> jvmArguments = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments();
         boolean showConsoleView = this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection();
         boolean showExecutionsView = this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection();
-        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView, this.experimentalModuleSupportEnabled);
         CorePlugin.configurationManager().saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }
