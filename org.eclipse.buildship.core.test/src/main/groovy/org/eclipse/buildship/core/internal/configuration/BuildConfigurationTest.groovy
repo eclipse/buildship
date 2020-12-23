@@ -56,7 +56,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         when:
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync, workspaceArguments, workspaceJvmArguments, showConsole, showExecutions))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync, workspaceArguments, workspaceJvmArguments, showConsole, showExecutions, false))
         BuildConfiguration configuration = createInheritingBuildConfiguration(projectDir)
 
         then:
@@ -203,7 +203,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync, workspaceArguments, workspaceJvmArguments, showConsole, showExecutions))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync, workspaceArguments, workspaceJvmArguments, showConsole, showExecutions, false))
         buildConfig = configurationManager.loadBuildConfiguration(projectDir)
 
         then:
@@ -242,7 +242,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, null, !buildScansEnabled, !offlineMode, !autoSync, [], [], false, false))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, null, !buildScansEnabled, !offlineMode, !autoSync, [], [], false, false, false))
         buildConfig = configurationManager.loadBuildConfiguration(projectDir)
 
         then:

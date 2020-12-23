@@ -206,7 +206,8 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             workspaceConfig.arguments,
             workspaceConfig.jvmArguments,
             workspaceConfig.showConsoleView,
-            workspaceConfig.showExecutionsView)
+            workspaceConfig.showExecutionsView,
+            false)
         configurationManager.saveWorkspaceConfiguration(workspaceConfig)
     }
 
