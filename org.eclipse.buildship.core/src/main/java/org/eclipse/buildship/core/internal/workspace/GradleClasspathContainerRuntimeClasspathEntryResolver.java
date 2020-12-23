@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,8 +21,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
@@ -58,27 +55,25 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         LaunchConfigurationScope configurationScopes = LaunchConfigurationScope.from(configuration);
         // IJavaLaunchConfigurationConstants.ATTR_EXCLUDE_TEST_CODE not available in Eclipse 4.3
         boolean excludeTestCode = configuration.getAttribute("org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE", false);
-        IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(CorePlugin.PLUGIN_ID);
-        boolean modular = preferences.getBoolean("experimental.module.support", false);
-        return resolveRuntimeClasspathEntry(entry, entry.getJavaProject(), configurationScopes, excludeTestCode, modular);
+        return resolveRuntimeClasspathEntry(entry, entry.getJavaProject(), configurationScopes, excludeTestCode, hasModuleSupport());
     }
 
     @Override
     public IRuntimeClasspathEntry[] resolveRuntimeClasspathEntry(IRuntimeClasspathEntry entry, IJavaProject project) throws CoreException {
-        IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(CorePlugin.PLUGIN_ID);
-        boolean modular = preferences.getBoolean("experimental.module.support", false);
-        return resolveRuntimeClasspathEntry(entry, project, LaunchConfigurationScope.INCLUDE_ALL, false, modular);
+        return resolveRuntimeClasspathEntry(entry, project, LaunchConfigurationScope.INCLUDE_ALL, false, hasModuleSupport());
     }
 
     // @Override commented out as this method doesn't exist older Eclipse versions
     public IRuntimeClasspathEntry[] resolveRuntimeClasspathEntry(IRuntimeClasspathEntry entry, IJavaProject project, boolean excludeTestCode) throws CoreException {
-        IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(CorePlugin.PLUGIN_ID);
-        boolean modular = preferences.getBoolean("experimental.module.support", false);
-        return resolveRuntimeClasspathEntry(entry, project, LaunchConfigurationScope.INCLUDE_ALL, excludeTestCode, modular);
+        return resolveRuntimeClasspathEntry(entry, project, LaunchConfigurationScope.INCLUDE_ALL, excludeTestCode, hasModuleSupport());
+    }
+
+    private static boolean hasModuleSupport() {
+        return CorePlugin.configurationManager().loadWorkspaceConfiguration().isExperimentalModuleSupportEnabled();
     }
 
     private IRuntimeClasspathEntry[] resolveRuntimeClasspathEntry(IRuntimeClasspathEntry entry, IJavaProject project, LaunchConfigurationScope configurationScopes,
-            boolean excludeTestCode, boolean modular) throws CoreException {
+            boolean excludeTestCode, boolean moduleSupport) throws CoreException {
         if (entry.getType() != IRuntimeClasspathEntry.CONTAINER || !entry.getPath().equals(GradleClasspathContainer.CONTAINER_PATH)) {
             return new IRuntimeClasspathEntry[0];
         }
@@ -91,9 +86,9 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         // Eclipse 4.3 (Kepler) doesn't support test attributes, so for that case we fall back to custom scope attributes
         IRuntimeClasspathEntry[] result;
         if (model.getGradleVersion().supportsTestAttributes() && PlatformUtils.supportsTestAttributes()) {
-            result = runtimeClasspathWithTestSources(project, excludeTestCode, modular);
+            result = runtimeClasspathWithTestSources(project, excludeTestCode, moduleSupport);
         } else {
-            result = runtimeClasspathWithGradleScopes(project, configurationScopes, excludeTestCode, modular);
+            result = runtimeClasspathWithGradleScopes(project, configurationScopes, excludeTestCode, moduleSupport);
         }
 
         return Arrays.stream(result).distinct().toArray(IRuntimeClasspathEntry[]::new);
@@ -117,7 +112,7 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
 
     private void collectContainerRuntimeClasspathWithGradleScopes(IClasspathContainer container, List<IRuntimeClasspathEntry> result, boolean includeExportedEntriesOnly,
             LaunchConfigurationScope configurationScopes, boolean modular) throws CoreException {
-        
+
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (!includeExportedEntriesOnly || cpe.isExported()) {
                 if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && configurationScopes.isEntryIncluded(cpe)) {
@@ -138,7 +133,7 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         }
     }
 
-    private IRuntimeClasspathEntry[] runtimeClasspathWithTestSources(IJavaProject project, boolean excludeTestCode, boolean modular) throws CoreException {
+    private IRuntimeClasspathEntry[] runtimeClasspathWithTestSources(IJavaProject project, boolean excludeTestCode, boolean moduleSuppport) throws CoreException {
         List<IRuntimeClasspathEntry> result = Lists.newArrayList();
 
         IClasspathContainer container = JavaCore.getClasspathContainer(GradleClasspathContainer.CONTAINER_PATH, project);
@@ -148,7 +143,7 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
 
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && !(excludeTestCode && hasTestAttribute(cpe))) {
-                addLibraryClasspathEntry(result, cpe, modular);
+                addLibraryClasspathEntry(result, cpe, moduleSuppport);
             } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
                 Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
                 if (candidate.isPresent()) {
@@ -164,14 +159,14 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         return result.toArray(new IRuntimeClasspathEntry[result.size()]);
     }
 
-    private void addLibraryClasspathEntry(List<IRuntimeClasspathEntry> result, final IClasspathEntry cpe,boolean modular) {
-        if (modular) {
+    private void addLibraryClasspathEntry(List<IRuntimeClasspathEntry> result, final IClasspathEntry cpe,boolean moduleSupport) {
+        if (moduleSupport) {
             try {
                 Method m = JavaRuntime.class.getMethod("newArchiveRuntimeClasspathEntry", IPath.class, int.class);
                 int modulePathAttribute = IRuntimeClasspathEntry.class.getField("MODULE_PATH").getInt(null);
                 int classPathAttribute = IRuntimeClasspathEntry.class.getField("CLASS_PATH").getInt(null);
                 result.add( (IRuntimeClasspathEntry) m.invoke(null, cpe.getPath(), hasModuleAttribute(cpe) ? modulePathAttribute : classPathAttribute));
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchFieldException e) {
+            } catch (Exception e) {
                 // Method does not exist yet in this version of eclipse.
                 // Revert to old behavior
                 result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath()));
