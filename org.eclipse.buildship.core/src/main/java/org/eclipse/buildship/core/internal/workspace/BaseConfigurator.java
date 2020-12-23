@@ -49,7 +49,7 @@ public class BaseConfigurator implements ProjectConfigurator {
         try {
             Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> {
                 this.gradleVersion = GradleVersion.version(connection.getModel(BuildEnvironment.class).getGradle().getGradleVersion());
-                return EclipseModelUtils.queryModels(connection);
+                return EclipseModelUtils.queryModels(connection).values();
             }, monitor);
             this.locationToProject = rootModels.stream()
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())

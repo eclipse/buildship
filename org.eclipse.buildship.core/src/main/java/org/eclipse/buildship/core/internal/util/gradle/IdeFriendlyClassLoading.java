@@ -15,7 +15,7 @@ import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Map;
 
 import org.gradle.api.Action;
 import org.gradle.tooling.BuildAction;
@@ -43,13 +43,13 @@ public class IdeFriendlyClassLoading {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, U> BuildAction<Collection<T>> loadCompositeModelQuery(Class<T> model, Class<U> parameterType, Action<? super U> parameter) {
-        return (BuildAction<Collection<T>>) loadClass(CompositeModelQuery.class, new Object[] { model, parameterType, parameter });
+    public static <T, U> BuildAction<Map<String, T>>loadCompositeModelQuery(Class<T> model, Class<U> parameterType, Action<? super U> parameter) {
+        return (BuildAction<Map<String, T>>) loadClass(CompositeModelQuery.class, new Object[] { model, parameterType, parameter });
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> BuildAction<Collection<T>> loadCompositeModelQuery(Class<T> model) {
-        return (BuildAction<Collection<T>>) loadClass(CompositeModelQuery.class, model );
+    public static <T> BuildAction<Map<String, T>> loadCompositeModelQuery(Class<T> model) {
+        return (BuildAction<Map<String, T>>) loadClass(CompositeModelQuery.class, model );
     }
 
     @SuppressWarnings("unchecked")

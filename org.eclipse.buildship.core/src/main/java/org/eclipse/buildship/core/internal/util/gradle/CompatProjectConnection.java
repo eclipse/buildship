@@ -13,11 +13,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionExecuter;
@@ -33,6 +32,8 @@ import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.events.OperationType;
 import org.gradle.tooling.model.eclipse.EclipseProject;
+
+import com.google.common.collect.Maps;
 
 /**
  * Injects {@link CompatEclipseProject} into all model queries requesting the {@link EclipseProject}
@@ -97,8 +98,17 @@ public class CompatProjectConnection implements ProjectConnection {
     private static <T> T injectCompatibilityModel(T model) {
         if (model instanceof EclipseProject) {
             return (T) new CompatEclipseProject((EclipseProject) model);
-        } else if (model instanceof Collection<?>) {
-            return (T) ((Collection<?>) model).stream().map(m -> injectCompatibilityModel(m)).collect(Collectors.toList());
+        } else if (model instanceof Map<?, ?>) {
+            Map<String, EclipseProject> compatModel = Maps.newLinkedHashMap();
+            for (Entry<Object, Object> entry : ((Map<Object, Object>)model).entrySet()) {
+                if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof EclipseProject)) {
+                    return model;
+                }
+                String buildPath = (String) entry.getKey();
+                EclipseProject eclipseProject = (EclipseProject) entry.getValue();
+                compatModel.put(buildPath, (EclipseProject) injectCompatibilityModel(eclipseProject));
+            }
+            return (T) compatModel;
         } else {
             return model;
         }

@@ -10,9 +10,9 @@
 package org.eclipse.buildship.core.internal;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -259,10 +259,10 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         }
     }
 
-    private static Set<EclipseProject> collectAll(Collection<EclipseProject> models) {
+    private static Set<EclipseProject> collectAll(Map<String, EclipseProject> models) {
         ImmutableSet.Builder<EclipseProject> result = ImmutableSet.builder();
-        for (EclipseProject model : models) {
-            result.addAll(HierarchicalElementUtils.getAll(model));
+        for (Entry<String, EclipseProject> model : models.entrySet()) {
+            result.addAll(HierarchicalElementUtils.getAll(model.getValue()));
         }
         return result.build();
     }
