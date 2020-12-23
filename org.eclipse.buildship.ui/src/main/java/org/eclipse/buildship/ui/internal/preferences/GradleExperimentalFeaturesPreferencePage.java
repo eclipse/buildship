@@ -22,6 +22,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
+import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.ui.internal.util.widget.HoverText;
 
 /**
@@ -40,13 +41,13 @@ public final class GradleExperimentalFeaturesPreferencePage extends PreferencePa
     @Override
     protected Control createContents(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
-        GridLayoutFactory.swtDefaults().numColumns(1).margins(0, 0).applyTo(composite);
+        GridLayoutFactory.swtDefaults().numColumns(1).applyTo(composite);
 
-        this.enableModuleSuppotCheckbox = new Button(parent, SWT.CHECK);
-        this.enableModuleSuppotCheckbox.setText("Enable module support");
+        this.enableModuleSuppotCheckbox = new Button(composite, SWT.CHECK);
+        this.enableModuleSuppotCheckbox.setText(CoreMessages.Preference_Label_ModulePath);
         this.enableModuleSuppotCheckbox.setSelection(CorePlugin.configurationManager().loadWorkspaceConfiguration().isExperimentalModuleSupportEnabled());
-        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true, false).applyTo(this.enableModuleSuppotCheckbox);
-        HoverText.createAndAttach(this.enableModuleSuppotCheckbox, "Add module dependencies to the modulepath");
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(this.enableModuleSuppotCheckbox);
+        HoverText.createAndAttach(this.enableModuleSuppotCheckbox, CoreMessages.Preference_Label_ModulePathHover);
 
         return composite;
     }
