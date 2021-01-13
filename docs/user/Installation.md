@@ -35,6 +35,9 @@ This update site is built against the Eclipse version that was current at the ti
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
+2020-06         | snapshot  | `https://download.eclipse.org/buildship/updates/e416/snapshots/3.x`
+2020-06         | milestone | `https://download.eclipse.org/buildship/updates/e416/milestones/3.x`
+2020-06         | release   | `https://download.eclipse.org/buildship/updates/e416/releases/3.x`
 2020-03         | snapshot  | `https://download.eclipse.org/buildship/updates/e415/snapshots/3.x`
 2020-03         | milestone | `https://download.eclipse.org/buildship/updates/e415/milestones/3.x`
 2020-03         | release   | `https://download.eclipse.org/buildship/updates/e415/releases/3.x`
