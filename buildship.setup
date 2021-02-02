@@ -606,12 +606,6 @@
             pattern="org\.eclipse\.buildship\.site"/>
         <operand
             xsi:type="predicates:NamePredicate"
-            pattern="org\.eclipse\.buildship\.stsmigration"/>
-        <operand
-            xsi:type="predicates:NamePredicate"
-            pattern="org\.eclipse\.buildship\.stsmigration\.test"/>
-        <operand
-            xsi:type="predicates:NamePredicate"
             pattern="org\.gradle\.toolingapi"/>
         <operand
             xsi:type="predicates:NamePredicate"
