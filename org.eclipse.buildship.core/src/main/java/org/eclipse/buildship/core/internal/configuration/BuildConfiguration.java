@@ -50,4 +50,6 @@ public interface BuildConfiguration {
     GradleArguments toGradleArguments();
 
     org.eclipse.buildship.core.BuildConfiguration toApiBuildConfiguration();
+
+    BuildConfigurationProperties getProperties();
 }

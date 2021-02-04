@@ -22,7 +22,7 @@ import org.eclipse.buildship.core.GradleDistribution;
  *
  * @author Donat Csikos
  */
-final class DefaultBuildConfigurationProperties {
+public final class BuildConfigurationProperties {
 
     private final File rootProjectDirectory;
     private final GradleDistribution gradleDistribution;
@@ -37,7 +37,7 @@ final class DefaultBuildConfigurationProperties {
     private final boolean showConsoleView;
     private final boolean showExecutionsView;
 
-    public DefaultBuildConfigurationProperties(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
+    public BuildConfigurationProperties(File rootProjectDirectory, GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, boolean overrideWorkspaceSettings, boolean buildScansEnabled,
             boolean offlineMode, boolean autoSync, List<String> arguments, List<String> jvmArguments, boolean showConsoleView, boolean showExecutionsView) {
         this.rootProjectDirectory = canonicalize(rootProjectDirectory);
         this.gradleDistribution = gradleDistribution;
@@ -111,8 +111,8 @@ final class DefaultBuildConfigurationProperties {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DefaultBuildConfigurationProperties) {
-            DefaultBuildConfigurationProperties other = (DefaultBuildConfigurationProperties) obj;
+        if (obj instanceof BuildConfigurationProperties) {
+            BuildConfigurationProperties other = (BuildConfigurationProperties) obj;
             return Objects.equal(this.rootProjectDirectory, other.rootProjectDirectory)
                     && Objects.equal(this.gradleDistribution, other.gradleDistribution)
                     && Objects.equal(this.gradleUserHome, other.gradleUserHome)
