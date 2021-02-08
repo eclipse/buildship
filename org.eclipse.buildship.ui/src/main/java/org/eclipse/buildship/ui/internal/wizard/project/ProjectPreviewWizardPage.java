@@ -79,7 +79,6 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
 
     private final Font keyFont;
     private final Font valueFont;
-    private final String pageContextInformation;
 
     private Label projectDirLabel;
     private Label gradleUserHomeLabel;
@@ -94,16 +93,13 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
     public ProjectPreviewWizardPage(ProjectImportConfiguration configuration) {
         this(configuration,
              ProjectWizardMessages.Title_PreviewImportWizardPage,
-             ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageDefault,
-             ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageContext);
+             ProjectWizardMessages.InfoMessage_GradlePreviewWizardPageDefault);
     }
 
-    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, String title, String defaultMessage,
-            String pageContextInformation) {
+    public ProjectPreviewWizardPage(ProjectImportConfiguration configuration, String title, String defaultMessage) {
         super("ProjectPreview", title, defaultMessage, configuration, ImmutableList.<Property<?>>of()); //$NON-NLS-1$
         this.keyFont = FontUtils.getCustomDialogFont(SWT.BOLD);
         this.valueFont = FontUtils.getCustomDialogFont(SWT.NONE);
-        this.pageContextInformation = pageContextInformation;
     }
 
     @Override
@@ -432,11 +428,6 @@ public final class ProjectPreviewWizardPage extends AbstractWizardPage {
             treeItem.setText(childProject.getName());
             populateRecursively(childProject, treeItem);
         }
-    }
-
-    @Override
-    protected String getPageContextInformation() {
-        return this.pageContextInformation;
     }
 
     @Override

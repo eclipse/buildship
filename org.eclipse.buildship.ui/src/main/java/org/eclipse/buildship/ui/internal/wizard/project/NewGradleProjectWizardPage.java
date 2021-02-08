@@ -9,17 +9,11 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.wizard.project;
 
+import java.io.File;
+import java.util.List;
+
 import com.google.common.collect.ImmutableList;
 
-import org.eclipse.buildship.core.internal.util.file.FileUtils;
-import org.eclipse.buildship.ui.internal.UiPlugin;
-import org.eclipse.buildship.ui.internal.UiPluginConstants;
-import org.eclipse.buildship.ui.internal.i18n.UiMessages;
-import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
-import org.eclipse.buildship.ui.internal.util.selection.TargetWidgetsInvertingSelectionListener;
-import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
-import org.eclipse.buildship.ui.internal.util.workbench.WorkingSetUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -34,8 +28,15 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 
-import java.io.File;
-import java.util.List;
+import org.eclipse.buildship.core.internal.util.file.FileUtils;
+import org.eclipse.buildship.ui.internal.UiPlugin;
+import org.eclipse.buildship.ui.internal.UiPluginConstants;
+import org.eclipse.buildship.ui.internal.i18n.UiMessages;
+import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
+import org.eclipse.buildship.ui.internal.util.layout.LayoutUtils;
+import org.eclipse.buildship.ui.internal.util.selection.TargetWidgetsInvertingSelectionListener;
+import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
+import org.eclipse.buildship.ui.internal.util.workbench.WorkingSetUtils;
 
 /**
  * Page on the {@link org.eclipse.buildship.ui.internal.wizard.project.ProjectCreationWizard} declaring the project name and project location.
@@ -177,10 +178,4 @@ public final class NewGradleProjectWizardPage extends AbstractWizardPage {
         this.creationConfiguration.setUseDefaultLocation(this.useDefaultWorkspaceLocationButton.getSelection());
         this.creationConfiguration.setProjectName(this.projectNameText.getText());
     }
-
-    @Override
-    protected String getPageContextInformation() {
-        return ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageContext;
-    }
-
 }

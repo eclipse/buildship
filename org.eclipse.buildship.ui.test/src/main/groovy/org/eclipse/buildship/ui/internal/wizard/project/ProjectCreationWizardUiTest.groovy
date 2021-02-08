@@ -11,28 +11,16 @@ package org.eclipse.buildship.ui.internal.wizard.project
 
 import spock.lang.Ignore
 
-import com.google.common.base.Optional
-import com.google.common.base.Preconditions
-import com.google.common.base.Predicate
-
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.IAdaptable
 import org.eclipse.jface.dialogs.IDialogConstants
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor
-import org.eclipse.swtbot.swt.finder.keyboard.Keystrokes
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.ui.IWorkingSet
 import org.eclipse.ui.IWorkingSetManager
 import org.eclipse.ui.PlatformUI
 
-import java.nio.file.Files
-import java.nio.file.Path
-
-import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.ui.internal.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 
@@ -40,11 +28,8 @@ import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
     def "Can open new wizard from menu bar"() {
-        setup:
-        openGradleCreationWizard()
-
         when:
-        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName)
+        openGradleCreationWizard()
 
         then:
         // if widget is not available then a WidgetNotFoundException is thrown
@@ -164,7 +149,6 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         shell.activate()
         bot.waitUntil(Conditions.shellIsActive(shell.getText()))
         bot.tree().expandNode("Gradle").select("Gradle Project")
-        bot.button(IDialogConstants.NEXT_LABEL).click()
         bot.button(IDialogConstants.NEXT_LABEL).click()
     }
 
