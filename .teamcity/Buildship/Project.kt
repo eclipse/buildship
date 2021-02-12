@@ -5,51 +5,55 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.Project
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.*
 
-val ib1_1 = IndividualScenarioBuildType(type = "SanityCheck", os = "Linux", eclipseVersion = "4.13", javaVersion = "8")
-val ib2_1 = IndividualScenarioBuildType(type = "Basic", os = "Linux", eclipseVersion = "4.3", javaVersion = "8")
-val ib2_2 = IndividualScenarioBuildType(type = "Basic", os = "Linux", eclipseVersion = "4.12", javaVersion = "8")
-val ib2_3 = IndividualScenarioBuildType(type = "Basic", os = "Windows", eclipseVersion = "4.3", javaVersion = "8")
-val ib2_4 = IndividualScenarioBuildType(type = "Basic", os = "Windows", eclipseVersion = "4.6", javaVersion = "8")
-val ib3_1 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.4", javaVersion = "8")
-val ib3_2 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.5", javaVersion = "8")
-val ib3_3 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.6", javaVersion = "8")
-val ib3_4 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.7", javaVersion = "8")
-val ib3_5 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.7", javaVersion = "9")
-val ib3_6 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.8", javaVersion = "8")
-val ib3_7 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.9", javaVersion = "8")
-val ib3_8 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.10", javaVersion = "8")
-val ib3_9 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.11", javaVersion = "8")
-val ib3_10 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.12", javaVersion = "8")
-val ib3_11 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.13", javaVersion = "8")
-val ib3_12 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.14", javaVersion = "8")
-val ib3_13 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.15", javaVersion = "8")
-val ib3_14 = IndividualScenarioBuildType(type = "Full", os = "Linux", eclipseVersion = "4.16", javaVersion = "8")
-val ib3_15 = IndividualScenarioBuildType(type = "Full", os = "Windows", eclipseVersion = "4.4", javaVersion = "8")
-val ib3_16 = IndividualScenarioBuildType(type = "Full", os = "Windows", eclipseVersion = "4.7", javaVersion = "8")
-val ib4_1 = IndividualScenarioBuildType(type = "CrossVersion", os = "Linux", eclipseVersion = "4.7", javaVersion = "9")
+val individualBuildsForPhase1 = listOf(
+    IndividualScenarioBuildType(ScenarioType.SANITY_CHECK, OS.LINUX, EclipseVersion.ECLIPSE4_13, Jdk.ORACLE_JDK_8)
+)
+val individualBuildsForPhase2 = listOf(
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_3, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_12, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_3, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_6, Jdk.ORACLE_JDK_8)
+)
+val individualBuildsForPhase3 = listOf(
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_4, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_5, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_6, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_7, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_7, Jdk.ORACLE_JDK_9),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_8, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_9, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_10, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_11, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_12, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_13, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_14, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_15, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_16, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_4, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_7, Jdk.ORACLE_JDK_8)
+)
+val individualBuildsForPhase4 = listOf(
+    IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_7, Jdk.ORACLE_JDK_9)
+)
 
-val individualBuildsForPhase1 = listOf(ib1_1)
-val individualBuildsForPhase2 = listOf(ib2_1, ib2_2, ib2_3, ib2_4)
-val individualBuildsForPhase3 = listOf(ib3_1, ib3_2, ib3_3, ib3_4, ib3_5, ib3_6, ib3_7, ib3_8, ib3_9, ib3_10, ib3_11,  ib3_12, ib3_13, ib3_14, ib3_15, ib3_16)
-val individualBuildsForPhase4 = listOf(ib4_1)
+val tb1_1 = CheckpointBuildType("Sanity Check (Phase 1/1)", individualBuildsForPhase1, null, Trigger.GIT)
+val tb1_2 = CheckpointBuildType("Basic Test Coverage (Phase 1/2)", individualBuildsForPhase1, null)
+val tb2_2 = CheckpointBuildType("Basic Test Coverage (Phase 2/2)", individualBuildsForPhase2, tb1_2)
+val tb3_1 = CheckpointBuildType("Full Test Coverage (Phase 1/3)", individualBuildsForPhase1, null)
+val tb3_2 = CheckpointBuildType("Full Test Coverage (Phase 2/3)", individualBuildsForPhase2, tb3_1)
+val tb3_3 = CheckpointBuildType("Full Test Coverage (Phase 3/3)", individualBuildsForPhase3, tb3_2)
+val tb4_1 = CheckpointBuildType("Cross-Version Test Coverage (Phase 1/4)", individualBuildsForPhase1, null, Trigger.DAILY)
+val tb4_2 = CheckpointBuildType("Cross-Version Test Coverage (Phase 2/4)", individualBuildsForPhase2, tb4_1)
+val tb4_3 = CheckpointBuildType("Cross-Version Test Coverage (Phase 3/4)", individualBuildsForPhase3, tb4_2)
+val tb4_4 = CheckpointBuildType("Cross-Version Test Coverage (Phase 4/4)", individualBuildsForPhase4, tb4_3)
 
-val tb1_1 = TriggerBuildType("Sanity Check (Trigger)", individualBuildsForPhase1, null, "git")
-val tb1_2 = TriggerBuildType("Basic Test Coverage (Trigger, Phase 1/2)", individualBuildsForPhase1, null)
-val tb2_2 = TriggerBuildType("Basic Test Coverage (Phase 2/2)", individualBuildsForPhase2, tb1_2)
-val tb3_1 = TriggerBuildType("Full Test Coverage (Trigger, Phase 1/3)", individualBuildsForPhase1, null)
-val tb3_2 = TriggerBuildType("Full Test Coverage (Phase 2/3)", individualBuildsForPhase2, tb3_1)
-val tb3_3 = TriggerBuildType("Full Test Coverage (Phase 3/3)", individualBuildsForPhase3, tb3_2)
-val tb4_1 = TriggerBuildType("Cross-Version Coverage (Trigger, Phase 1/4)", individualBuildsForPhase1, null, "daily")
-val tb4_2 = TriggerBuildType("Cross-Version Test Coverage (Phase 2/4)", individualBuildsForPhase2, tb4_1)
-val tb4_3 = TriggerBuildType("Cross-Version Test Coverage (Phase 3/4)", individualBuildsForPhase3, tb4_2)
-val tb4_4 = TriggerBuildType("Cross-Version Test Coverage (Phase 4/4)", individualBuildsForPhase4, tb4_3)
-
-val snapshotPromotion = PromotionBuildType("snapshot", tb4_4, "daily")
+val snapshotPromotion = PromotionBuildType("snapshot", tb4_4, Trigger.DAILY)
 val milestonePromotion = PromotionBuildType("milestone", tb4_4)
 val releasePromotion = PromotionBuildType("release", tb4_4)
 
-class IndividualScenarioBuildType(type: String, os: String, eclipseVersion: String, javaVersion: String) : BuildType({
-    createId("Individual", "${type}_Test_Coverage_${os}_Eclipse${eclipseVersion.replace(".", "_")}_Java${javaVersion}")
+class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: EclipseVersion, jdk: Jdk) : BuildType({
+    createId("Individual", "${type.name.toLowerCase()}_Test_Coverage_${os.name.toLowerCase()}_Eclipse${eclipseVersion.versionNumber}_Java${jdk.majorVersion}")
+    addCredentialsLeakFailureCondition()
 
     artifactRules = """
         org.eclipse.buildship.site/build/repository/** => .teamcity/update-site
@@ -58,22 +62,15 @@ class IndividualScenarioBuildType(type: String, os: String, eclipseVersion: Stri
     """.trimIndent()
 
     params {
-        val sep = if (os == "Windows") "\\" else "/"
         param("eclipse.release.type", "snapshot")
         param("build.invoker", "ci")
         param("eclipsetest.mirrors", "jcenter:https://dev12.gradle.org/artifactory/jcenter")
-        param("eclipse.version", eclipseVersion.replace(".", ""))
-        param("compiler.location", """%${os.toLowerCase()}.java${javaVersion}.oracle.64bit%${sep}bin${sep}javac""")
-        param("eclipse.test.java.home", "%${os.toLowerCase()}.java${javaVersion}.oracle.64bit%")
-        param("env.JAVA_HOME", "%${os.toLowerCase()}.java${javaVersion}.oracle.64bit%")
+        param("eclipse.version", eclipseVersion.updateSiteVersion)
+        param("compiler.location", jdk.getJavaCompilerPath(os))
+        param("eclipse.test.java.home", jdk.getJavaHomePath(os))
+        param("env.JAVA_HOME", jdk.getJavaHomePath(os))
         param("enable.oomph.plugin", "false")
-        when(type) {
-            "Basic"        -> param("gradle.tasks", "clean eclipseTest")
-            "Full"         -> param("gradle.tasks", "clean build")
-            "SanityCheck"  -> param("gradle.tasks", "assemble checkstyleMain")
-            "CrossVersion" -> param("gradle.tasks", "clean crossVersionEclipseTest")
-            else -> throw RuntimeException("Unrecognized type: $type")
-        }
+        param("gradle.tasks", type.gradleTasks)
     }
 
     triggers {
@@ -100,8 +97,6 @@ class IndividualScenarioBuildType(type: String, os: String, eclipseVersion: Stri
         checkoutMode = CheckoutMode.ON_AGENT
     }
 
-    addCredentialsLeakFailureCondition()
-
     cleanup {
         all(days = 5)
         history(days = 5)
@@ -110,15 +105,15 @@ class IndividualScenarioBuildType(type: String, os: String, eclipseVersion: Stri
     }
 
     requirements {
-        contains("teamcity.agent.jvm.os.name", os)
+        contains("teamcity.agent.jvm.os.name", os.name.toLowerCase())
     }
 })
 
-
-class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: String = "none") : BuildType({
+class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Trigger = Trigger.NONE) : BuildType({
     createId("Promotion", typeName.capitalize())
-
     artifactRules = "org.eclipse.buildship.site/build/repository/** => .teamcity/update-site"
+    trigger.applyOn(this)
+    addCredentialsLeakFailureCondition()
 
     params {
         when(typeName) {
@@ -129,8 +124,6 @@ class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Stri
         param("eclipse.release.type", typeName)
         param("build.invoker", "ci")
     }
-
-    addCredentialsLeakFailureCondition()
 
     // The artifact upload requires uses ssh which requires manual confirmation. to work around that, we use the same
     // machine for the upload.
@@ -191,83 +184,25 @@ class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Stri
             }
         }
     }
-
-    if (trigger == "daily") {
-        triggers {
-            schedule {
-                schedulingPolicy = daily {
-                    hour = 23
-                }
-                branchFilter = """
-                +:*
-                -:teamcity-versioned-settings
-            """.trimIndent()
-                triggerRules = """
-                -:docs/**
-                -:README.MD
-            """.trimIndent()
-                triggerBuild = always()
-                enforceCleanCheckout = true
-                param("revisionRule", "lastFinished")
-                param("dayOfWeek", "Sunday")
-            }
-        }
-    }
-
 })
 
-class TriggerBuildType(triggerName: String, scenarios: List<IndividualScenarioBuildType>, prev: TriggerBuildType?, trigger: String = "none") : BuildType({
-    createId("Trigger", triggerName)
+class CheckpointBuildType(triggerName: String, scenarios: List<IndividualScenarioBuildType>, previousCheckpoint: CheckpointBuildType?, trigger: Trigger = Trigger.NONE) : BuildType({
+    createId("Checkpoint", triggerName)
+    trigger.applyOn(this)
 
-    if (trigger == "git") {
-        triggers {
-            vcs {
-                quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_DEFAULT
-                triggerRules = """
-                    +:**
-                    -:**.md
-                """.trimIndent()
-                branchFilter = """
-                    +:*
-                    -:teamcity-versioned-settings
-                """.trimIndent()
-                perCheckinTriggering = true
-                groupCheckinsByCommitter = true
-                enableQueueOptimization = false
-            }
-        }
-    } else if (trigger == "daily") {
-        triggers {
-            schedule {
-                schedulingPolicy = daily {
-                    hour = 4
-                    timezone = "Europe/Budapest"
-                }
-                branchFilter = """
-                    +:*
-                    -:teamcity-versioned-settings
-                """.trimIndent()
-                triggerBuild = always()
-                param("revisionRule", "lastFinished")
-                param("dayOfWeek", "Sunday")
-            }
-        }
-    }
-
-    if (prev != null) {
+    if (previousCheckpoint != null) {
         triggers {
             finishBuildTrigger {
-                buildType = prev.id!!.value
+                buildType = previousCheckpoint.id!!.value
                 successfulOnly = true
                 branchFilter = "+:*"
             }
         }
 
         dependencies {
-             snapshot(prev, DefaultFailureCondition)
+             snapshot(previousCheckpoint, DefaultFailureCondition)
         }
     }
-
 
     dependencies {
         scenarios.forEach {
@@ -276,10 +211,11 @@ class TriggerBuildType(triggerName: String, scenarios: List<IndividualScenarioBu
     }
 })
 
+
 object Project : Project({
     description = "Eclipse plugins for Gradle http://eclipse.org/buildship"
-
     vcsRoot(GitHubVcsRoot)
+    subprojectsWithOrder(listOf(IndividualBuilds, Checkpoints, Promotions))
 
     params {
         param("env.JAVA_TOOL_OPTIONS", "-Dfile.encoding=UTF8")
@@ -295,23 +231,15 @@ object Project : Project({
         artifacts(days = 5)
         preventDependencyCleanup = false
     }
-
-    subProject(BuildshipBuilds)
-    subProject(BuildshipTriggers)
-    subProject(BuildshipPromotions)
 })
 
-object BuildshipBuilds : Project({
-    name = "Individual coverage scenarios"
-    id("Buildship_individual_coverage_scenarios")
-
-    // TODO both EclipseBuildTemplate and the other template should be here
+object IndividualBuilds : Project({
+    createId("Individual Coverage Scenarios")
     buildTypesWithOrder(individualBuildsForPhase1 + individualBuildsForPhase2 + individualBuildsForPhase3 + individualBuildsForPhase4)
 })
 
-object BuildshipTriggers : Project({
-    name = "Triggers"
-    id("Buildship_triggers")
+object Checkpoints : Project({
+    createId("Checkpoints")
     buildTypesWithOrder(listOf(
         tb1_1,
         tb1_2, tb2_2,
@@ -319,47 +247,8 @@ object BuildshipTriggers : Project({
         tb4_1, tb4_2, tb4_3, tb4_4))
 })
 
-object BuildshipPromotions : Project({
-    name = "Promotions"
-    id("Buildship_promotions")
-
+object Promotions : Project({
+    createId("Promotions")
     buildTypesWithOrder(listOf(snapshotPromotion, milestonePromotion, releasePromotion))
 })
 
-private fun Project.buildTypesWithOrder(buildTypes: List<BuildType>) {
-    buildTypes.forEach { bt ->
-        buildType(bt)
-    }
-    buildTypesOrder = buildTypes
-}
-
-private fun BuildType.createId(type: String, name: String)  {
-    this.name = name
-    id("${type}_${name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("/", "").replace(",", "")}")
-}
-
-private val DefaultFailureCondition : SnapshotDependency.() -> Unit
-    get() =  {
-        onDependencyCancel = FailureAction.ADD_PROBLEM
-        onDependencyFailure = FailureAction.FAIL_TO_START
-    }
-
-enum class EclipseVersion(val codeName: String, val versionNumber: String) {
-    Eclipse_4_3("Kepler", "4.3"),
-    Eclipse_4_4("Luna", "4.4"),
-    Eclipse_4_5("Mars", "4.5"),
-    Eclipse_4_6("Neon", "4.6"),
-    Eclipse_4_7("Oxygen", "4.7"),
-    Eclipse_4_8("Photon", "4.8"),
-    Eclipse_4_9("2018-09", "4.9"),
-    Eclipse_4_10("2018-12", "4.10"),
-    Eclipse_4_11("2019-03", "4.11"),
-    Eclipse_4_12("2019-06", "4.12"),
-    Eclipse_4_13("2019-09", "4.13"),
-    Eclipse_4_14("2019-12", "4.14"),
-    Eclipse_4_15("2020-03", "4.15"),
-    Eclipse_4_16("2020-06", "4.16");
-
-    val updateSiteVersion: String
-        get() = versionNumber.replace(".", "")
-}
