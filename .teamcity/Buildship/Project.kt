@@ -5,32 +5,6 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.Project
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.*
 
-object Project : Project({
-    description = "Eclipse plugins for Gradle http://eclipse.org/buildship"
-
-    vcsRoot(GitHubVcsRoot)
-    template(EclipseBuildTemplate)
-
-    params {
-        param("env.JAVA_TOOL_OPTIONS", "-Dfile.encoding=UTF8")
-        password("eclipse.downloadServer.password", "credentialsJSON:e600b1ef-46bb-4ced-b45b-795da6964956", label = "Password", display = ParameterDisplay.HIDDEN)
-        password("eclipse.downloadServer.username", "credentialsJSON:23f3947f-45b2-46b8-83f6-9341c9b914f6", label = "Username", display = ParameterDisplay.HIDDEN)
-        // Do not allow UI changes in the TeamCity configuration
-        param("teamcity.ui.settings.readOnly", "true")
-    }
-
-    cleanup {
-        all(days = 5)
-        history(days = 5)
-        artifacts(days = 5)
-        preventDependencyCleanup = false
-    }
-
-    subProject(Buildship.Promotion30.Project)
-    subProject(Buildship.Check30.Project)
-    subProject(BuildshipExperimentalPipeline)
-})
-
 val ib1_1 = IndividualScenarioBuildType(type = "SanityCheck", os = "Linux", eclipseVersion = "4.13", javaVersion = "8")
 val ib2_1 = IndividualScenarioBuildType(type = "Basic", os = "Linux", eclipseVersion = "4.3", javaVersion = "8")
 val ib2_2 = IndividualScenarioBuildType(type = "Basic", os = "Linux", eclipseVersion = "4.12", javaVersion = "8")
@@ -77,10 +51,17 @@ val releasePromotion = PromotionBuildType("release", tb4_4)
 class IndividualScenarioBuildType(type: String, os: String, eclipseVersion: String, javaVersion: String) : BuildType({
     createId("Individual", "${type}_Test_Coverage_${os}_Eclipse${eclipseVersion.replace(".", "_")}_Java${javaVersion}")
 
-    templates(IndividualScenarioTemplate)
+    artifactRules = """
+        org.eclipse.buildship.site/build/repository/** => .teamcity/update-site
+        org.eclipse.buildship.core.test/build/eclipseTest/workspace/.metadata/.log => .teamcity/test/org.eclipse.buildship.core.test
+        org.eclipse.buildship.ui.test/build/eclipseTest/workspace/.metadata/.log => .teamcity/test/org.eclipse.buildship.ui.test
+    """.trimIndent()
 
     params {
         val sep = if (os == "Windows") "\\" else "/"
+        param("eclipse.release.type", "snapshot")
+        param("build.invoker", "ci")
+        param("eclipsetest.mirrors", "jcenter:https://dev12.gradle.org/artifactory/jcenter")
         param("eclipse.version", eclipseVersion.replace(".", ""))
         param("compiler.location", """%${os.toLowerCase()}.java${javaVersion}.oracle.64bit%${sep}bin${sep}javac""")
         param("eclipse.test.java.home", "%${os.toLowerCase()}.java${javaVersion}.oracle.64bit%")
@@ -95,6 +76,39 @@ class IndividualScenarioBuildType(type: String, os: String, eclipseVersion: Stri
         }
     }
 
+    triggers {
+        retryBuild {
+            delaySeconds = 0
+            attempts = 2
+        }
+    }
+
+    steps {
+        gradle {
+            name = "RUNNER_21"
+            id = "RUNNER_21"
+            tasks = "%gradle.tasks%"
+            buildFile = ""
+            gradleParams = "-Peclipse.version=%eclipse.version% -Pcompiler.location='%compiler.location%' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -Peclipse.test.java.home='%eclipse.test.java.home%' --info --stacktrace -Declipse.p2.mirror=false -Dscan -Pmirrors=%eclipsetest.mirrors% -Penable.oomph.plugin=%enable.oomph.plugin% \"-Dgradle.cache.remote.url=%gradle.cache.remote.url%\" \"-Dgradle.cache.remote.username=%gradle.cache.remote.username%\" \"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\""
+            jvmArgs = "-XX:MaxPermSize=256m"
+            param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
+        }
+    }
+
+    vcs {
+        root(GitHubVcsRoot)
+        checkoutMode = CheckoutMode.ON_AGENT
+    }
+
+    addCredentialsLeakFailureCondition()
+
+    cleanup {
+        all(days = 5)
+        history(days = 5)
+        artifacts(days = 5)
+        preventDependencyCleanup = false
+    }
+
     requirements {
         contains("teamcity.agent.jvm.os.name", os)
     }
@@ -104,7 +118,7 @@ class IndividualScenarioBuildType(type: String, os: String, eclipseVersion: Stri
 class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: String = "none") : BuildType({
     createId("Promotion", typeName.capitalize())
 
-    templates(PromotionTemplate)
+    artifactRules = "org.eclipse.buildship.site/build/repository/** => .teamcity/update-site"
 
     params {
         when(typeName) {
@@ -114,6 +128,28 @@ class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Stri
         param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
         param("eclipse.release.type", typeName)
         param("build.invoker", "ci")
+    }
+
+    addCredentialsLeakFailureCondition()
+
+    // The artifact upload requires uses ssh which requires manual confirmation. to work around that, we use the same
+    // machine for the upload.
+    // TODO We should separate the update site generation and the artifact upload into two separate steps.
+    requirements {
+        contains("teamcity.agent.jvm.os.name", "Linux")
+        contains("teamcity.agent.name", "dev")
+    }
+
+    vcs {
+        root(GitHubVcsRoot)
+
+        checkoutMode = CheckoutMode.ON_AGENT
+        cleanCheckout = true
+        showDependenciesChanges = true
+    }
+
+    failureConditions {
+        errorMessage = true
     }
 
     dependencies {
@@ -240,9 +276,26 @@ class TriggerBuildType(triggerName: String, scenarios: List<IndividualScenarioBu
     }
 })
 
+object Project : Project({
+    description = "Eclipse plugins for Gradle http://eclipse.org/buildship"
 
-object BuildshipExperimentalPipeline : Project({
-    name = "Experimental pipeline"
+    vcsRoot(GitHubVcsRoot)
+
+    params {
+        param("env.JAVA_TOOL_OPTIONS", "-Dfile.encoding=UTF8")
+        password("eclipse.downloadServer.password", "credentialsJSON:e600b1ef-46bb-4ced-b45b-795da6964956", label = "Password", display = ParameterDisplay.HIDDEN)
+        password("eclipse.downloadServer.username", "credentialsJSON:23f3947f-45b2-46b8-83f6-9341c9b914f6", label = "Username", display = ParameterDisplay.HIDDEN)
+        // Do not allow UI changes in the TeamCity configuration
+        param("teamcity.ui.settings.readOnly", "true")
+    }
+
+    cleanup {
+        all(days = 5)
+        history(days = 5)
+        artifacts(days = 5)
+        preventDependencyCleanup = false
+    }
+
     subProject(BuildshipBuilds)
     subProject(BuildshipTriggers)
     subProject(BuildshipPromotions)
@@ -251,8 +304,6 @@ object BuildshipExperimentalPipeline : Project({
 object BuildshipBuilds : Project({
     name = "Individual coverage scenarios"
     id("Buildship_individual_coverage_scenarios")
-
-    template(IndividualScenarioTemplate)
 
     // TODO both EclipseBuildTemplate and the other template should be here
     buildTypesWithOrder(individualBuildsForPhase1 + individualBuildsForPhase2 + individualBuildsForPhase3 + individualBuildsForPhase4)
@@ -271,8 +322,6 @@ object BuildshipTriggers : Project({
 object BuildshipPromotions : Project({
     name = "Promotions"
     id("Buildship_promotions")
-
-    template(PromotionTemplate)
 
     buildTypesWithOrder(listOf(snapshotPromotion, milestonePromotion, releasePromotion))
 })
@@ -295,7 +344,7 @@ private val DefaultFailureCondition : SnapshotDependency.() -> Unit
         onDependencyFailure = FailureAction.FAIL_TO_START
     }
 
-private enum class EclipseVersion(val codeName: String, val versionNumber: String) {
+enum class EclipseVersion(val codeName: String, val versionNumber: String) {
     Eclipse_4_3("Kepler", "4.3"),
     Eclipse_4_4("Luna", "4.4"),
     Eclipse_4_5("Mars", "4.5"),
@@ -314,86 +363,3 @@ private enum class EclipseVersion(val codeName: String, val versionNumber: Strin
     val updateSiteVersion: String
         get() = versionNumber.replace(".", "")
 }
-
-
-object PromotionTemplate : Template({
-    name = "Promotion Build Template"
-
-    artifactRules = "org.eclipse.buildship.site/build/repository/** => .teamcity/update-site"
-
-    addCredentialsLeakFailureCondition()
-
-    // The artifact upload requires uses ssh which requires manual confirmation. to work around that, we use the same
-    // machine for the upload.
-    // TODO We should separate the update site generation and the artifact upload into two separate steps.
-    requirements {
-        contains("teamcity.agent.jvm.os.name", "Linux")
-        contains("teamcity.agent.name", "dev")
-    }
-
-    vcs {
-        root(GitHubVcsRoot)
-
-        checkoutMode = CheckoutMode.ON_AGENT
-        cleanCheckout = true
-        showDependenciesChanges = true
-    }
-
-    failureConditions {
-        errorMessage = true
-    }
-})
-
-object IndividualScenarioTemplate : Template({
-    name = "Individual Scenario Build Template"
-
-    artifactRules = """
-        org.eclipse.buildship.site/build/repository/** => .teamcity/update-site
-        org.eclipse.buildship.core.test/build/eclipseTest/workspace/.metadata/.log => .teamcity/test/org.eclipse.buildship.core.test
-        org.eclipse.buildship.ui.test/build/eclipseTest/workspace/.metadata/.log => .teamcity/test/org.eclipse.buildship.ui.test
-    """.trimIndent()
-
-    params {
-        param("eclipse.release.type", "snapshot")
-        param("build.invoker", "ci")
-        param("eclipse.test.java.home", "%env.JAVA_HOME%")
-        param("gradle.tasks", "clean build")
-        param("env.JAVA_HOME", "%linux.java7.oracle.64bit%")
-        param("eclipsetest.mirrors", "jcenter:https://dev12.gradle.org/artifactory/jcenter")
-        param("enable.oomph.plugin", "true")
-    }
-
-    vcs {
-        root(GitHubVcsRoot)
-
-        checkoutMode = CheckoutMode.ON_AGENT
-    }
-
-    triggers {
-        retryBuild {
-            delaySeconds = 0
-            attempts = 2
-        }
-    }
-
-    steps {
-        gradle {
-            name = "RUNNER_21"
-            id = "RUNNER_21"
-            tasks = "%gradle.tasks%"
-            buildFile = ""
-            gradleParams = "-Peclipse.version=%eclipse.version% -Pcompiler.location='%compiler.location%' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -Peclipse.test.java.home='%eclipse.test.java.home%' --info --stacktrace -Declipse.p2.mirror=false -Dscan -Pmirrors=%eclipsetest.mirrors% -Penable.oomph.plugin=%enable.oomph.plugin% \"-Dgradle.cache.remote.url=%gradle.cache.remote.url%\" \"-Dgradle.cache.remote.username=%gradle.cache.remote.username%\" \"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\""
-            jvmArgs = "-XX:MaxPermSize=256m"
-            param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
-        }
-    }
-
-    addCredentialsLeakFailureCondition()
-
-    cleanup {
-        all(days = 5)
-        history(days = 5)
-        artifacts(days = 5)
-        preventDependencyCleanup = false
-    }
-})

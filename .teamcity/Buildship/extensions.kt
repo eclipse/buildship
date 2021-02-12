@@ -1,11 +1,11 @@
 package Buildship
 
-import jetbrains.buildServer.configs.kotlin.v2019_2.Template
+import jetbrains.buildServer.configs.kotlin.v2019_2.BuildType
 import jetbrains.buildServer.configs.kotlin.v2019_2.failureConditions.BuildFailureOnText
 import jetbrains.buildServer.configs.kotlin.v2019_2.failureConditions.failOnText
 import jetbrains.buildServer.configs.kotlin.v2019_2.ui.add
 
-fun Template.addCredentialsLeakFailureCondition() {
+fun BuildType.addCredentialsLeakFailureCondition() {
     failureConditions {
         add {
             failOnText {
