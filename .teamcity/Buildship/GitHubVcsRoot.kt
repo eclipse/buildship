@@ -7,7 +7,7 @@ object GitHubVcsRoot : GitVcsRoot({
     url = "https://github.com/eclipse/buildship.git"
     branchSpec = "+:refs/heads/*"
     agentGitPath = "%env.TEAMCITY_GIT_PATH%"
-    agentCleanFilesPolicy = GitVcsRoot.AgentCleanFilesPolicy.NON_IGNORED_ONLY
+    agentCleanFilesPolicy = AgentCleanFilesPolicy.NON_IGNORED_ONLY
     useMirrors = false
     authMethod = anonymous()
 })
