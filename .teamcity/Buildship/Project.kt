@@ -105,7 +105,7 @@ class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: Ec
     }
 
     requirements {
-        contains("teamcity.agent.jvm.os.name", os.name.toLowerCase())
+        contains("teamcity.agent.jvm.os.name", os.name.toLowerCase().capitalize())
     }
 })
 
