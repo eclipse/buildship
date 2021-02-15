@@ -36,10 +36,10 @@ val individualBuildsForPhase4 = listOf(
     IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_7, Jdk.ORACLE_JDK_9)
 )
 
-val tb1_1 = CheckpointBuildType("Sanity Check (Phase 1/1)", individualBuildsForPhase1, null, Trigger.GIT)
+val tb1_1 = CheckpointBuildType("Sanity Check (Phase 1/1)", individualBuildsForPhase1, null)
 val tb1_2 = CheckpointBuildType("Basic Test Coverage (Phase 1/2)", individualBuildsForPhase1, null)
 val tb2_2 = CheckpointBuildType("Basic Test Coverage (Phase 2/2)", individualBuildsForPhase2, tb1_2)
-val tb3_1 = CheckpointBuildType("Full Test Coverage (Phase 1/3)", individualBuildsForPhase1, null)
+val tb3_1 = CheckpointBuildType("Full Test Coverage (Phase 1/3)", individualBuildsForPhase1, null, Trigger.GIT)
 val tb3_2 = CheckpointBuildType("Full Test Coverage (Phase 2/3)", individualBuildsForPhase2, tb3_1)
 val tb3_3 = CheckpointBuildType("Full Test Coverage (Phase 3/3)", individualBuildsForPhase3, tb3_2)
 val tb4_1 = CheckpointBuildType("Cross-Version Test Coverage (Phase 1/4)", individualBuildsForPhase1, null, Trigger.DAILY)
