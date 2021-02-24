@@ -21,9 +21,11 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.base.Charsets;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -36,6 +38,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.event.Event;
 import org.eclipse.buildship.core.internal.event.EventListener;
@@ -50,32 +53,37 @@ import org.eclipse.buildship.core.internal.workspace.WorkbenchShutdownEvent;
  */
 public final class DefaultModelPersistence implements ModelPersistence, EventListener {
 
-    private final LoadingCache<IProject, PersistentModel> modelCache;
+    private final Cache<String, PersistentModel> modelCache;
 
     private DefaultModelPersistence() {
-        this.modelCache = CacheBuilder.newBuilder().build(new CacheLoader<IProject, PersistentModel>() {
-
-            @Override
-            public PersistentModel load(IProject project) throws Exception {
-                return doLoadModel(project);
-            }
-        });
+        this.modelCache = CacheBuilder.newBuilder().build();
     }
 
     @Override
-    public PersistentModel loadModel(IProject project) {
-        return this.modelCache.getUnchecked(project);
+    public PersistentModel loadModel(final IProject project) {
+        try {
+            return this.modelCache.get(project.getName(), new Callable<PersistentModel>() {
+
+                @Override
+                public PersistentModel call() throws FileNotFoundException, IOException {
+                    return doLoadModel(project);
+                }
+            });
+        } catch (ExecutionException e) {
+            CorePlugin.logger().warn("Failed to load model for " + project.getName());
+            throw new GradlePluginsRuntimeException(e.getCause());
+        }
     }
 
     @Override
     public void saveModel(PersistentModel model) {
-        this.modelCache.put(model.getProject(), model);
+        this.modelCache.put(model.getProject().getName(), model);
     }
 
     @Override
     public void deleteModel(IProject project) {
         preferencesFile(project).delete();
-        this.modelCache.invalidate(project);
+        this.modelCache.invalidate(project.getName());
     }
 
     @Override
@@ -95,13 +103,13 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
 
     private void movePreferencesFile(ProjectMovedEvent event) throws IOException {
         String previousName = event.getPreviousName();
-        for (IProject cached : this.modelCache.asMap().keySet()) {
-            if (cached.getName().equals(previousName)) {
-                PersistentModel model = this.modelCache.getUnchecked(cached);
+        for (String cached : this.modelCache.asMap().keySet()) {
+            if (cached.equals(previousName)) {
+                PersistentModel model = this.modelCache.getIfPresent(cached);
                 // Don't copy absent model as it references the old project
                 // https://github.com/eclipse/buildship/issues/936
                 if (model.isPresent()) {
-                    this.modelCache.put(event.getProject(), model);
+                    this.modelCache.put(event.getProject().getName(), model);
                 }
                 this.modelCache.invalidate(cached);
             }
@@ -132,8 +140,8 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
     }
 
     private void persistAllProjectPrefs() {
-        Map<IProject, PersistentModel> modelCacheMap = this.modelCache.asMap();
-        for (Entry<IProject, PersistentModel> entry : modelCacheMap.entrySet()) {
+        Map<String, PersistentModel> modelCacheMap = this.modelCache.asMap();
+        for (Entry<String, PersistentModel> entry : modelCacheMap.entrySet()) {
             PersistentModel model = entry.getValue();
             if (model.isPresent()) {
                 persistPrefs(entry.getKey(), model);
@@ -141,16 +149,16 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
         }
     }
 
-    private static void persistPrefs(IProject project, PersistentModel model) {
+    private static void persistPrefs(String projectName, PersistentModel model) {
         try {
-            persistPrefsChecked(project, model);
+            persistPrefsChecked(projectName, model);
         } catch (IOException e) {
-            CorePlugin.logger().warn("Can't save persistent model for project " + project.getName(), e);
+            CorePlugin.logger().warn("Can't save persistent model for project " + projectName, e);
         }
     }
 
-    private static void persistPrefsChecked(IProject project, PersistentModel model) throws IOException {
-        File preferencesFile = preferencesFile(project);
+    private static void persistPrefsChecked(String projectName, PersistentModel model) throws IOException {
+        File preferencesFile = preferencesFile(projectName);
 
         if (!preferencesFile.exists()) {
             Files.createParentDirs(preferencesFile);
@@ -187,8 +195,8 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
                 for (IProject project : CorePlugin.workspaceOperations().getAllProjects()) {
                     if (GradleProjectNature.isPresentOn(project)) {
                         try {
-                            DefaultModelPersistence.this.modelCache.get(project);
-                        } catch (ExecutionException e) {
+                            loadModel(project);
+                        } catch (Exception e) {
                             CorePlugin.logger().warn("Can't load persistent model for project " + project.getName(), e);
                         }
                     }
