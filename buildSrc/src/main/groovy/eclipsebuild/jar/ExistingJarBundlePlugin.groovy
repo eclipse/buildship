@@ -6,14 +6,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
-import org.gradle.api.artifacts.Dependency
-import org.gradle.api.artifacts.ResolvedArtifact
-import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
-import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.Property
-import org.gradle.api.specs.Specs
 import org.gradle.plugins.ide.eclipse.EclipsePlugin
 import org.gradle.plugins.ide.eclipse.model.Library
 
@@ -51,7 +47,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.getPluginManager().apply(BasePlugin.class)
+        project.getPluginManager().apply(JavaPlugin.class)
 
         configureExtensions(project)
         configureConfigurations(project)
@@ -75,15 +71,15 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
                 lib.sourcePath = fileReference(sourceJarName(project))
                 entries += lib
             }
-
+            project.tasks[EclipsePlugin.ECLIPSE_CP_TASK_NAME].dependsOn TASK_NAME_CONVERT_TO_BUNDLE
             project.tasks[EclipsePlugin.ECLIPSE_CP_TASK_NAME].doLast {
                 // copy jar file into project
-                File jar = JarBundleUtils.firstDependencyJar(getPluginConfiguration(project))
-                String jarName = jarName(project)
+                File depJar = JarBundleUtils.firstDependencyJar(getPluginConfiguration(project))
+                File localJar = (project.tasks[TASK_NAME_CONVERT_TO_BUNDLE].target as File).listFiles()[0]
                 project.copy {
-                    from jar
+                    from localJar
                     into project.file('.')
-                    rename { jarName }
+                    rename { jarName(project) }
                 }
 
                 // copy the source jar file into project
@@ -100,7 +96,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
                 String bundleVersion = project.extensions.bundleInfo.bundleVersion.get()
                 String qualifier = 'qualifier'
                 project.file('META-INF').mkdirs()
-                project.file('META-INF/MANIFEST.MF').text = JarBundleUtils.manifestContent(jar, template, packageFilter, bundleVersion, qualifier)
+                project.file('META-INF/MANIFEST.MF').text = JarBundleUtils.manifestContent([depJar, localJar], template, packageFilter, bundleVersion, qualifier).replace("Bundle-ClassPath: .", "Bundle-ClassPath: ${jarName(project)}")
             }
         }
     }

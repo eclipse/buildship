@@ -18,8 +18,10 @@ import org.eclipse.core.runtime.NullProgressMonitor
 
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.util.gradle.Path
+import org.eclipse.buildship.core.internal.workspace.ExtendedEclipseModelUtils
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy
 import org.eclipse.buildship.core.internal.workspace.ModelProvider
+import org.eclipse.buildship.model.ExtendedEclipseModel
 import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class BuildInvocationsTest extends ProjectSynchronizationSpecification {
@@ -73,7 +75,8 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
         IProject project = findProject('project-with-subtasks')
 
         ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getBuild(project).get().modelProvider
-        Map<String, EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        Map<String, ExtendedEclipseModel> models = modelProvider.fetchModels(ExtendedEclipseModel, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        Map<String, EclipseProject> eclipseProjects = ExtendedEclipseModelUtils.collectEclipseModels(models)
         GradleProject gradleProject = eclipseProjects[':'].gradleProject
         Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject)
 
@@ -153,7 +156,8 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
 
         IProject project = findProject('project-without-tasks')
         ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getBuild(project).get().modelProvider
-        Map<String, EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        Map<String, ExtendedEclipseModel> models = modelProvider.fetchModels(ExtendedEclipseModel, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        Map<String, EclipseProject> eclipseProjects = ExtendedEclipseModelUtils.collectEclipseModels(models)
         GradleProject gradleProject = eclipseProjects[':'].gradleProject
         Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject)
 

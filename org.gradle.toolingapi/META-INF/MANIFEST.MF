@@ -3,9 +3,10 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gradle Tooling API
 Bundle-Vendor: Gradle Inc.
 Bundle-SymbolicName: org.gradle.toolingapi
-Bundle-ClassPath: .
+Bundle-ClassPath: org.gradle.toolingapi_7.4.1.jar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.slf4j;version="1.7.2"
+<<<<<<< HEAD
 Export-Package: org.gradle.api;version="7.4.2",
  org.gradle.cache;version="7.4.2",
  org.gradle.cli;version="7.4.2",
@@ -29,3 +30,29 @@ Export-Package: org.gradle.api;version="7.4.2",
  org.gradle.tooling.model.java;version="7.4.2",
  org.gradle.tooling.model.kotlin.dsl;version="7.4.2"
 Bundle-Version: 7.4.2.qualifier
+=======
+Export-Package: org.eclipse.buildship.model;version="7.4.1",
+ org.gradle.api;version="7.4.1",
+ org.gradle.cache;version="7.4.1",
+ org.gradle.cli;version="7.4.1",
+ org.gradle.scripts;version="7.4.1",
+ org.gradle.tooling;version="7.4.1",
+ org.gradle.tooling.events;version="7.4.1",
+ org.gradle.tooling.events.configuration;version="7.4.1",
+ org.gradle.tooling.events.download;version="7.4.1",
+ org.gradle.tooling.events.task;version="7.4.1",
+ org.gradle.tooling.events.task.java;version="7.4.1",
+ org.gradle.tooling.events.test;version="7.4.1",
+ org.gradle.tooling.events.transform;version="7.4.1",
+ org.gradle.tooling.events.work;version="7.4.1",
+ org.gradle.tooling.exceptions;version="7.4.1",
+ org.gradle.tooling.model;version="7.4.1",
+ org.gradle.tooling.model.build;version="7.4.1",
+ org.gradle.tooling.model.cpp;version="7.4.1",
+ org.gradle.tooling.model.eclipse;version="7.4.1",
+ org.gradle.tooling.model.gradle;version="7.4.1",
+ org.gradle.tooling.model.idea;version="7.4.1",
+ org.gradle.tooling.model.java;version="7.4.1",
+ org.gradle.tooling.model.kotlin.dsl;version="7.4.1"
+Bundle-Version: 7.4.1.qualifier
+>>>>>>> f689a4cf (Replace EclipseProject with custom local tooling model)
