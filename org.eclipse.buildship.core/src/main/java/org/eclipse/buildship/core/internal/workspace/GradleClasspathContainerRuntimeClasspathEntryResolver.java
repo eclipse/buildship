@@ -60,12 +60,12 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
 
     @Override
     public IRuntimeClasspathEntry[] resolveRuntimeClasspathEntry(IRuntimeClasspathEntry entry, IJavaProject project) throws CoreException {
-        return resolveRuntimeClasspathEntry(entry, project, LaunchConfigurationScope.INCLUDE_ALL, false, hasModuleSupport());
+        return resolveRuntimeClasspathEntry(entry, entry.getJavaProject(), LaunchConfigurationScope.INCLUDE_ALL, false, hasModuleSupport());
     }
 
     // @Override commented out as this method doesn't exist older Eclipse versions
     public IRuntimeClasspathEntry[] resolveRuntimeClasspathEntry(IRuntimeClasspathEntry entry, IJavaProject project, boolean excludeTestCode) throws CoreException {
-        return resolveRuntimeClasspathEntry(entry, project, LaunchConfigurationScope.INCLUDE_ALL, excludeTestCode, hasModuleSupport());
+        return resolveRuntimeClasspathEntry(entry, entry.getJavaProject(), LaunchConfigurationScope.INCLUDE_ALL, excludeTestCode, hasModuleSupport());
     }
 
     private static boolean hasModuleSupport() {
@@ -77,7 +77,6 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         if (entry.getType() != IRuntimeClasspathEntry.CONTAINER || !entry.getPath().equals(GradleClasspathContainer.CONTAINER_PATH)) {
             return new IRuntimeClasspathEntry[0];
         }
-
         PersistentModel model = CorePlugin.modelPersistence().loadModel(project.getProject());
         if (!model.isPresent()) {
             throw new GradlePluginsRuntimeException("Model not available for " + project.getProject().getName());
