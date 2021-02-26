@@ -12,7 +12,6 @@ package org.eclipse.buildship.ui.internal.workspace
 import org.gradle.api.JavaVersion
 import org.gradle.tooling.CancellationTokenSource
 import org.gradle.tooling.GradleConnector
-import org.gradle.tooling.model.eclipse.EclipseProject
 import spock.lang.IgnoreIf
 
 import org.eclipse.core.commands.Command
@@ -23,14 +22,15 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.viewers.StructuredSelection
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.internal.event.Event
 import org.eclipse.buildship.core.internal.event.EventListener
-import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy
 import org.eclipse.buildship.core.internal.workspace.GradleNatureAddedEvent
+import org.eclipse.buildship.model.ExtendedEclipseModel
 import org.eclipse.buildship.ui.internal.test.fixtures.EclipseProjects
 import org.eclipse.buildship.ui.internal.test.fixtures.WorkspaceSpecification
 
@@ -91,7 +91,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
         BuildConfiguration buildConfig = createInheritingBuildConfiguration(projectLocation)
         CancellationTokenSource tokenSource = GradleConnector.newCancellationTokenSource()
         IProgressMonitor monitor = new NullProgressMonitor()
-        return CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig).getModelProvider().fetchModels(EclipseProject.class, FetchStrategy.FROM_CACHE_ONLY, tokenSource, monitor) != null
+        return CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig).getModelProvider().fetchModels(ExtendedEclipseModel.class, FetchStrategy.FROM_CACHE_ONLY, tokenSource, monitor) != null
     }
 
     private class TestEventListener implements EventListener {

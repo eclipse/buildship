@@ -31,8 +31,10 @@ import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJob;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.workspace.ExtendedEclipseModelUtils;
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
+import org.eclipse.buildship.model.ExtendedEclipseModel;
 
 /**
  * Loads the tasks for all projects into the cache and refreshes the task view afterwards.
@@ -61,7 +63,8 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
         for (InternalGradleBuild gradleBuild : CorePlugin.internalGradleWorkspace().getGradleBuilds()) {
             try {
                 BuildEnvironment buildEnvironment = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, this.modelFetchStrategy, tokenSource, monitor);
-                Map<String, EclipseProject> models = gradleBuild.getModelProvider().fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
+                Map<String, ExtendedEclipseModel> extendedEclipseModel = gradleBuild.getModelProvider().fetchModels(ExtendedEclipseModel.class, this.modelFetchStrategy, tokenSource, monitor);
+                Map<String, EclipseProject> models = ExtendedEclipseModelUtils.collectEclipseModels(extendedEclipseModel);
                 allModels.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), models);
                 environments.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), buildEnvironment);
             } catch (RuntimeException e) {

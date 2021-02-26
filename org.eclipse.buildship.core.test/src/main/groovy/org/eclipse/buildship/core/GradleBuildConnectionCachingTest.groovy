@@ -28,7 +28,8 @@ import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider
 import org.eclipse.buildship.core.internal.test.fixtures.TestProcessStreamProvider
 import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading
-import org.eclipse.buildship.core.internal.workspace.EclipseModelUtils
+import org.eclipse.buildship.core.internal.workspace.ExtendedEclipseModelUtils
+import org.eclipse.buildship.model.ExtendedEclipseModel
 
 class GradleBuildConnectionCachingTest extends BaseProjectConfiguratorTest {
 
@@ -88,8 +89,8 @@ class GradleBuildConnectionCachingTest extends BaseProjectConfiguratorTest {
     def "Build action loads value from cache during synchronization"() {
         setup:
         ResultHandler<Collection<EclipseProject>> resultHandler = Mock(ResultHandler)
-        Function<ProjectConnection, EclipseProject> firstAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class)).run() }
-        Function<ProjectConnection, EclipseProject> secondAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class)).run(resultHandler) }
+        Function<ProjectConnection, EclipseProject> firstAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(ExtendedEclipseModel.class)).run() }
+        Function<ProjectConnection, EclipseProject> secondAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(ExtendedEclipseModel.class)).run(resultHandler) }
         TestConfigurator firstConfigurator = new TestConfigurator(firstAction)
         TestConfigurator secondConfigurator = new TestConfigurator(secondAction)
         registerConfigurator(firstConfigurator)
@@ -108,8 +109,8 @@ class GradleBuildConnectionCachingTest extends BaseProjectConfiguratorTest {
     def "Build action loads value from cache during synchronization while supplying eclipseRuntime"() {
         setup:
         ResultHandler<Collection<EclipseProject>> resultHandler = Mock(ResultHandler)
-        Function<ProjectConnection, EclipseProject> firstAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, EclipseModelUtils.buildEclipseRuntimeConfigurer())).run() }
-        Function<ProjectConnection, EclipseProject> secondAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, EclipseModelUtils.buildEclipseRuntimeConfigurer())).run(resultHandler) }
+        Function<ProjectConnection, EclipseProject> firstAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(ExtendedEclipseModel.class, EclipseRuntime.class, ExtendedEclipseModelUtils.buildEclipseRuntimeConfigurer())).run() }
+        Function<ProjectConnection, EclipseProject> secondAction = { ProjectConnection p -> p.action(IdeFriendlyClassLoading.loadCompositeModelQuery(ExtendedEclipseModel.class, EclipseRuntime.class, ExtendedEclipseModelUtils.buildEclipseRuntimeConfigurer())).run(resultHandler) }
         TestConfigurator firstConfigurator = new TestConfigurator(firstAction)
         TestConfigurator secondConfigurator = new TestConfigurator(secondAction)
         registerConfigurator(firstConfigurator)

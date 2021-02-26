@@ -47,26 +47,27 @@ class JarBundleUtils {
         dependency.moduleArtifacts.find { it.classifier == 'sources' }
     }
 
-
-    static String manifestContent(File jar, String template, String packageFilter, String bundleVersion, String qualifier, String sourceReference = null) {
-        List<String> packageNames = packageNames(jar, packageFilter) as List
+    static String manifestContent(Iterable<File> jars, String template, String packageFilter, String bundleVersion, String qualifier, String sourceReference = null) {
+        List<String> packageNames = packageNames(jars, packageFilter) as List
         packageNames.sort()
         String fullVersion = "${bundleVersion}.${qualifier}"
         manifestFor(template, packageNames, bundleVersion, fullVersion, sourceReference)
     }
 
-    private static Set<String> packageNames(File jar, String filteredPackagesPattern) {
+    private static Set<String> packageNames(Iterable<File> jars, String filteredPackagesPattern) {
         def result = [] as Set
         Pattern filteredPackages = Pattern.compile(filteredPackagesPattern)
-        new ZipInputStream(new FileInputStream(jar)).withCloseable { zip ->
-            ZipEntry e
-            while (e = zip.nextEntry) {
-                if (!e.directory && e.name.endsWith(".class")) {
-                    int index = e.name.lastIndexOf('/')
-                    if (index < 0) index = e.name.length()
-                    String packageName = e.name.substring(0, index).replace('/', '.')
-                    if (!packageName.matches(filteredPackages)) {
-                        result.add(packageName)
+        jars.each { jar->
+            new ZipInputStream(new FileInputStream(jar)).withCloseable { zip ->
+                ZipEntry e
+                while (e = zip.nextEntry) {
+                    if (!e.directory && e.name.endsWith(".class")) {
+                        int index = e.name.lastIndexOf('/')
+                        if (index < 0) index = e.name.length()
+                        String packageName = e.name.substring(0, index).replace('/', '.')
+                        if (!packageName.matches(filteredPackages)) {
+                            result.add(packageName)
+                        }
                     }
                 }
             }

@@ -87,7 +87,7 @@ public interface GradleBuild {
      * You can load the <a href="https://docs.gradle.org/current/javadoc/org/gradle/tooling/ProjectConnection.html#model-java.lang.Class-"> default models</a>.
      * Also, You can load custom models provided by Gradle plugins or even inject your own with an init script:
      * <pre><code>
-     *     connection.model(CustomModel.class).withArguments("--init-script", "/path/to/init-script/with/model").get();
+     *     connection.model(ExtendedEclipseModel.class).withArguments("--init-script", "/path/to/init-script/with/model").get();
      * </code></pre>
      * An example project with custom model loading is available at <a href="https://github.com/eclipse/buildship/tree/master/samples/custom-model">https://github.com/eclipse/buildship/tree/master/samples/custom-model</a>.
      *

@@ -63,7 +63,7 @@ public class WtpConfigurator implements ProjectConfigurator {
         // TODO (donat) add required model declarations to the project configurator extension point
         GradleBuild gradleBuild = context.getGradleBuild();
         try {
-            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> EclipseModelUtils.queryModels(connection).values(), monitor);
+            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> ExtendedEclipseModelUtils.collectEclipseModels(ExtendedEclipseModelUtils.queryModels(connection)).values(), monitor);
             this.locationToProject = rootModels.stream()
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
                 .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));

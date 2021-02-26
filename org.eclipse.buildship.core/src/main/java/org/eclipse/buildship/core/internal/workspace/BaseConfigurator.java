@@ -37,6 +37,8 @@ import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
+import org.eclipse.buildship.model.ExtendedEclipseModel;
+
 public class BaseConfigurator implements ProjectConfigurator {
 
     private Map<File, EclipseProject> locationToProject;
@@ -49,7 +51,8 @@ public class BaseConfigurator implements ProjectConfigurator {
         try {
             Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> {
                 this.gradleVersion = GradleVersion.version(connection.getModel(BuildEnvironment.class).getGradle().getGradleVersion());
-                return EclipseModelUtils.queryModels(connection).values();
+                Map<String, ExtendedEclipseModel> extendedEclipseModels = ExtendedEclipseModelUtils.queryModels(connection);
+                return ExtendedEclipseModelUtils.collectEclipseModels(extendedEclipseModels).values();
             }, monitor);
             this.locationToProject = rootModels.stream()
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())

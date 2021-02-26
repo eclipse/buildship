@@ -72,7 +72,7 @@ public final class DefaultModelProvider implements ModelProvider {
         return executeOperation(() ->
             // TODO (donat) Right now, project configurators can only get cached model query results if they invoke the same exact actions
             // used below. We should fix this by letting configurators declare their required models.
-            DefaultModelProvider.this.gradleBuild.withConnection(connection -> EclipseModelUtils.runTasksAndQueryModels(connection), tokenSource, monitor),
+            DefaultModelProvider.this.gradleBuild.withConnection(connection -> ExtendedEclipseModelUtils.collectEclipseModels(ExtendedEclipseModelUtils.runTasksAndQueryModels(connection)), tokenSource, monitor),
         FetchStrategy.FORCE_RELOAD, EclipseProject.class);
     }
 

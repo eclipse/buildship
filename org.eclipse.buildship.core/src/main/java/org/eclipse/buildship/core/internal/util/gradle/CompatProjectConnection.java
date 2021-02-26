@@ -31,12 +31,13 @@ import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.events.OperationType;
-import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.collect.Maps;
 
+import org.eclipse.buildship.model.ExtendedEclipseModel;
+
 /**
- * Injects {@link CompatEclipseProject} into all model queries requesting the {@link EclipseProject}
+ * Injects {@link CompatEclipseProject} into all model queries requesting the {@link ExtendedEclipseModel}
  * model.
  *
  * @author Donat Csikos
@@ -96,17 +97,17 @@ public class CompatProjectConnection implements ProjectConnection {
 
     @SuppressWarnings("unchecked")
     private static <T> T injectCompatibilityModel(T model) {
-        if (model instanceof EclipseProject) {
-            return (T) new CompatEclipseProject((EclipseProject) model);
+        if (model instanceof ExtendedEclipseModel) {
+            return (T) new CompatExtendedEclipseModel((ExtendedEclipseModel) model);
         } else if (model instanceof Map<?, ?>) {
-            Map<String, EclipseProject> compatModel = Maps.newLinkedHashMap();
+            Map<String, ExtendedEclipseModel> compatModel = Maps.newLinkedHashMap();
             for (Entry<Object, Object> entry : ((Map<Object, Object>)model).entrySet()) {
-                if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof EclipseProject)) {
+                if (!(entry.getKey() instanceof String) || !(entry.getValue() instanceof ExtendedEclipseModel)) {
                     return model;
                 }
                 String buildPath = (String) entry.getKey();
-                EclipseProject eclipseProject = (EclipseProject) entry.getValue();
-                compatModel.put(buildPath, (EclipseProject) injectCompatibilityModel(eclipseProject));
+                ExtendedEclipseModel extendedEclipseModel = (ExtendedEclipseModel) entry.getValue();
+                compatModel.put(buildPath, (ExtendedEclipseModel) injectCompatibilityModel(extendedEclipseModel));
             }
             return (T) compatModel;
         } else {

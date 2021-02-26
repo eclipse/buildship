@@ -53,6 +53,7 @@ import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.internal.util.gradle.IdeAttachedProjectConnection;
 import org.eclipse.buildship.core.internal.workspace.ConnectionAwareLauncherProxy;
 import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider;
+import org.eclipse.buildship.core.internal.workspace.ExtendedEclipseModelUtils;
 import org.eclipse.buildship.core.internal.workspace.ImportRootProjectOperation;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 import org.eclipse.buildship.core.internal.workspace.ModelProvider;
@@ -223,7 +224,8 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
                 SubMonitor progress = SubMonitor.convert(monitor, 5);
                 progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.gradleBuild.getBuildConfig().getRootProjectDirectory())));
                 new ImportRootProjectOperation(this.gradleBuild.getBuildConfig(), this.newProjectHandler).run(progress.newChild(1));
-                Set<EclipseProject> allProjects = collectAll(this.gradleBuild.modelProvider.fetchEclipseProjectAndRunSyncTasks(tokenSource, progress.newChild(1)));
+                Map<String, EclipseProject> result = this.gradleBuild.withConnection(connection -> ExtendedEclipseModelUtils.collectEclipseModels(ExtendedEclipseModelUtils.runTasksAndQueryModels(connection)), progress.newChild(1));
+                Set<EclipseProject> allProjects = collectAll(result);
                 new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
                 new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
                 this.failures = new SynchronizeGradleBuildOperation(allProjects, this.gradleBuild, this.newProjectHandler,

@@ -41,18 +41,20 @@ class ConvertOsgiBundleTask extends DefaultTask {
         createNewBundle(project, JarBundleUtils.firstDependencyJar(pluginConfiguration))
     }
 
-    void createNewBundle(Project project, File jar) {
+    void createNewBundle(Project project, File depJar) {
         String sourceReference = PluginUtils.sourceReference(project)
-        String manifest = JarBundleUtils.manifestContent(jar, template.get(), packageFilter.get(), bundleVersion.get(), qualifier.get(), sourceReference)
+        Iterable<File> localJars = project.tasks['jar'].outputs.files
+        String manifest = JarBundleUtils.manifestContent([depJar] + localJars, template.get(), packageFilter.get(), bundleVersion.get(), qualifier.get(), sourceReference)
 
         File extraResources = project.file("${project.buildDir}/tmp/bundle-resources")
         File manifestFile = new File(extraResources, '/META-INF/MANIFEST.MF')
         manifestFile.parentFile.mkdirs()
         manifestFile.text = manifest
 
-        File osgiJar = new File(target, "osgi_${jar.name}")
+        File osgiJar = new File(target, "osgi_${project.name}.jar")
         project.ant.zip(destfile: osgiJar) {
-            zipfileset(src: jar, excludes: 'META-INF/MANIFEST.MF')
+            localJars.each { jar -> zipfileset(src: jar, excludes: 'META-INF/MANIFEST.MF')}
+            zipfileset(src: depJar, excludes: 'META-INF/MANIFEST.MF')
         }
 
         project.ant.zip(update: 'true', destfile: osgiJar) {

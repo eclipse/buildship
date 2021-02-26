@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
@@ -23,6 +25,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import com.google.common.collect.Maps;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 
@@ -308,5 +311,15 @@ public final class CorePlugin extends Plugin {
 
     public static ExtensionManager extensionManager() {
         return getInstance().extensionManager;
+    }
+
+    public static File pluginLocation(String pluginId) {
+        try {
+            BundleContext bundleContext = getInstance().getBundle().getBundleContext();
+            Bundle bundle = Arrays.stream(bundleContext.getBundles()).filter(b -> b.getSymbolicName().equals(pluginId)).findFirst().get();
+            return FileLocator.getBundleFile(bundle);
+        } catch (Exception e) {
+            throw new GradlePluginsRuntimeException("Cannot retrieve location of plugin " + pluginId, e);
+        }
     }
 }
