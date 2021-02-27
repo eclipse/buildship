@@ -47,7 +47,7 @@ val tb4_2 = CheckpointBuildType("Cross-Version Test Coverage (Phase 2/4)", indiv
 val tb4_3 = CheckpointBuildType("Cross-Version Test Coverage (Phase 3/4)", individualBuildsForPhase3, tb4_2)
 val tb4_4 = CheckpointBuildType("Cross-Version Test Coverage (Phase 4/4)", individualBuildsForPhase4, tb4_3)
 
-val snapshotPromotion = PromotionBuildType("snapshot", tb4_4, Trigger.DAILY)
+val snapshotPromotion = PromotionBuildType("snapshot", tb4_4, Trigger.DAILY_MASTER)
 val milestonePromotion = PromotionBuildType("milestone", tb4_4)
 val releasePromotion = PromotionBuildType("release", tb4_4)
 

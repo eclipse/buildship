@@ -41,6 +41,24 @@ enum class Trigger(val func: (BuildType) -> Unit) {
                 param("dayOfWeek", "Sunday")
             }
         }
+    }),
+
+    DAILY_MASTER({ buildType ->
+        buildType.triggers {
+            schedule {
+                schedulingPolicy = daily {
+                    hour = 4
+                    timezone = "Europe/Budapest"
+                }
+                branchFilter = """
+                    +:master
+                    -:teamcity-versioned-settings
+                """.trimIndent()
+                triggerBuild = always()
+                param("revisionRule", "lastFinished")
+                param("dayOfWeek", "Sunday")
+            }
+        }
     });
 
     fun applyOn(buildType: BuildType) {
