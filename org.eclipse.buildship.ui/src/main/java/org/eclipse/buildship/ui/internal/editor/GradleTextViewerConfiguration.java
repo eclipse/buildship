@@ -10,7 +10,6 @@
 package org.eclipse.buildship.ui.internal.editor;
 
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
-import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
@@ -34,11 +33,6 @@ public class GradleTextViewerConfiguration extends TextSourceViewerConfiguration
         GradlePresentationReconciler reconciler = new GradlePresentationReconciler();
         reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
         return reconciler;
-    }
-
-    @Override
-    public IReconciler getReconciler(ISourceViewer sourceViewer) {
-        return null;
     }
 
     @Override
