@@ -127,6 +127,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'war'
                 apply plugin: 'eclipse'
             """
+            file 'settings.gradle', ''
         }
         wtpinstalled = true
 
@@ -170,6 +171,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                     compile "junit:junit:4.12"
                 }
             """
+            file 'settings.gradle', ''
         }
         wtpinstalled = true
 
@@ -190,7 +192,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'java'
                 ${jcenterRepositoryBlock}
                 dependencies {
-                    compile "junit:junit:4.12"
+                    implementation "junit:junit:4.12"
                 }
             """
         }
@@ -213,7 +215,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'war'
                 ${jcenterRepositoryBlock}
                 dependencies {
-                    compile "junit:junit:4.12"
+                    implementation "junit:junit:4.12"
                 }
             """
         }
@@ -236,7 +238,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'war'
                 ${jcenterRepositoryBlock}
                 dependencies {
-                    compile "junit:junit:4.12"
+                    implementation "junit:junit:4.12"
                 }
             """
         }

@@ -27,7 +27,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         def projectDir = dir('sample-project') {
             file 'build.gradle',  """apply plugin: "java"
                ${jcenterRepositoryBlock}
-               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+               dependencies { implementation "org.springframework:spring-beans:1.2.8"}
             """
         }
         importAndWait(projectDir)
@@ -79,7 +79,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         File projectDir = dir('sample-project') {
             file 'build.gradle',  """apply plugin: "java"
                ${jcenterRepositoryBlock}
-               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+               dependencies { implementation "org.springframework:spring-beans:1.2.8"}
             """
         }
 
@@ -101,7 +101,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         File projectDir = dir('sample-project') {
             file 'build.gradle',  """apply plugin: "java"
                ${jcenterRepositoryBlock}
-               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+               dependencies { implementation "org.springframework:spring-beans:1.2.8"}
             """
         }
 

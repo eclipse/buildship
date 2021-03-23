@@ -19,7 +19,7 @@ import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
 
-    @Shared def Attributes validAttributes = new Attributes (
+    @Shared def Attributes validAttributes = new Attributes(
         tasks : ['clean'],
         workingDir : "/home/user/workspace",
         gradleDistr : GradleDistribution.fromBuild().toString(),
@@ -85,16 +85,12 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
 
     def "Can create a new valid instance with valid null arguments"() {
         when:
-        def configuration = att.toConfiguration()
+        def attributes = validAttributes.copy { javaHome = null }
+        def configuration = attributes.toConfiguration()
 
         then:
         configuration != null
-        att.javaHome != null || configuration.getJavaHome() == null
-
-        where:
-        att << [
-            validAttributes.copy { javaHome = null },
-        ]
+        attributes.javaHome != null || configuration.getJavaHome() == null
     }
 
     def "Creation fails when null argument passed"() {
@@ -257,7 +253,7 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
             new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, gradleUserHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
         }
 
-        def Attributes copy(@DelegatesTo(value = Attributes, strategy=Closure.DELEGATE_FIRST) Closure closure) {
+        def Attributes copy(@DelegatesTo(value = Attributes, strategy = Closure.DELEGATE_FIRST) Closure closure) {
             def clone = clone()
             def Closure clonedClosure =  closure.clone()
             clonedClosure.setResolveStrategy(Closure.DELEGATE_FIRST)

@@ -17,7 +17,10 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
 
     def "Synchronization finishes even if contributed configurator fails to initialize"() {
         setup:
-        File location = dir("FaultyProjectConfiguratorTest_1")
+        File location = dir("FaultyProjectConfiguratorTest_1") {
+            file 'settings.gradle', ''
+        }
+
         registerConfigurator(new FaultyInit())
 
         when:
@@ -33,7 +36,9 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
 
     def "Synchronization finishes even if contributed configurator throws exception in configure()"() {
         setup:
-        File location = dir("FaultyProjectConfiguratorTest_2")
+        File location = dir("FaultyProjectConfiguratorTest_2") {
+            file 'settings.gradle', ''
+        }
         registerConfigurator(new FaultyConfigure())
 
         when:

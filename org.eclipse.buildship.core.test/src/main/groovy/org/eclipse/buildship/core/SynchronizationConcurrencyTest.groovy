@@ -47,7 +47,9 @@ class SynchronizationConcurrencyTest extends ProjectSynchronizationSpecification
     def "Synchronization requires workspace rule"() {
         setup:
         // import a sample project
-        File location = dir('SynchronizationConcurrencyTest')
+        File location = dir('SynchronizationConcurrencyTest') {
+            file 'settings.gradle', ''
+        }
         importAndWait(location)
 
         Job syncJob = new SyncJob(location)

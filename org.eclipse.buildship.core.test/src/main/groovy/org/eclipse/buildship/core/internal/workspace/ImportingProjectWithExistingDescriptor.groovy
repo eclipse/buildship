@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import spock.lang.Ignore
+
 import com.google.common.base.Optional
 
 import org.eclipse.core.resources.IProject
@@ -24,6 +26,7 @@ import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
+@Ignore
 class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizationSpecification {
 
     def "The project is added to the workspace"() {
@@ -31,7 +34,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         project.delete(false, null)
         setup:
         def projectDir = dir('sample-project') {
-            file 'settings.gradle'
+            file 'settings.gradle', ''
         }
 
         expect:

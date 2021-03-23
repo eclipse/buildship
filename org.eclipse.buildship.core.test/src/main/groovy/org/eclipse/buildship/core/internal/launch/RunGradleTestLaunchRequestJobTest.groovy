@@ -34,7 +34,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
                 allprojects {
                     apply plugin: 'java'
                     ${jcenterRepositoryBlock}
-                    dependencies.testCompile 'junit:junit:4.12'
+                    dependencies.testImplementation 'junit:junit:4.12'
 
                     tasks.withType(Test) {
                         onOutput { descriptor, event ->

@@ -274,15 +274,16 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected static String getJcenterRepositoryBlock() {
+        // TODO (donat) everything should be converted to Maven Central
         String jcenterMirror = System.getProperty("org.eclipse.buildship.eclipsetest.mirrors.jcenter")
         if (jcenterMirror == null) {
             """
                 repositories {
                     if (org.gradle.api.JavaVersion.current().isJava8Compatible()) {
-                        jcenter()
+                        mavenCentral()
                     } else {
                         maven {
-                            url = "http://jcenter.bintray.com"
+                            url = "https://repo1.maven.org/maven2/"
                         }
                     }
                 }

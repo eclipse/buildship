@@ -19,7 +19,9 @@ class ProjectConfiguratorTest extends BaseProjectConfiguratorTest {
 
     def "Configurator initialized once per synchronization"() {
         setup:
-        File location = dir('ProjectConfiguratorTest_1')
+        File location = dir('ProjectConfiguratorTest_1') {
+            file 'settings.gradle', ''
+        }
 
         when:
         importAndWait(location)

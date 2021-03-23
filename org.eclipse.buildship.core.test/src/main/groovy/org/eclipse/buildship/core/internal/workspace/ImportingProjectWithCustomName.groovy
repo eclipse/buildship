@@ -104,7 +104,7 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
                 file 'build.gradle', '''
                     apply plugin: 'java'
                     dependencies {
-                        compile project(':b')
+                        implementation project(':b')
                     }
                 '''
             }

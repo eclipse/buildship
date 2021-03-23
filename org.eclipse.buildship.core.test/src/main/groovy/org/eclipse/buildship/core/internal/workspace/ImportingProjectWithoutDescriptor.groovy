@@ -9,14 +9,17 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import spock.lang.Ignore
+
 import org.eclipse.buildship.core.internal.CorePlugin
 
+@Ignore
 class ImportingProjectWithoutDescriptor extends SingleProjectSynchronizationSpecification {
 
     def "The project is created and added to the workspace"() {
         setup:
         def projectDir = dir('sample-project') {
-            file 'settings.gradle'
+            file 'settings.gradle', ''
         }
 
         expect:

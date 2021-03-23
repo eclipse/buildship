@@ -17,7 +17,9 @@ class SynchronizationProgressTest extends ProjectSynchronizationSpecification {
 
    def "Null monitor can be used when no progress is desired"() {
        setup:
-       File location = dir('SynchronizationProgressTest')
+       File location = dir('SynchronizationProgressTest')  {
+           file 'settings.gradle', ''
+       }
 
        when:
        GradleBuild gradleBuild = gradleBuildFor(location)
@@ -36,7 +38,9 @@ class SynchronizationProgressTest extends ProjectSynchronizationSpecification {
 
    def "Progress reported to the monitor"() {
        setup:
-       File location = dir('SynchronizationProgressTest')
+       File location = dir('SynchronizationProgressTest')  {
+           file 'settings.gradle', ''
+       }
        GradleBuild gradleBuild = gradleBuildFor(location)
        IProgressMonitor monitor = Mock(IProgressMonitor)
 

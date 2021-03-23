@@ -70,7 +70,7 @@ class DuplicateRuntimeClasspathEntryTest extends ProjectSynchronizationSpecifica
                commonDir = common {
                    file 'build.gradle', """
                        dependencies {
-                           compile "org.springframework:spring-core:1.2.8"
+                           implementation "org.springframework:spring-core:1.2.8"
                        }
                    """
                    dir 'src/main/java'
@@ -78,8 +78,8 @@ class DuplicateRuntimeClasspathEntryTest extends ProjectSynchronizationSpecifica
                apiDir = api {
                    file 'build.gradle', """
                        dependencies {
-                           compile (project(":common"))
-                           compile "org.springframework:spring-beans:1.2.8"
+                           implementation (project(":common"))
+                           implementation "org.springframework:spring-beans:1.2.8"
                        }
                    """
                    dir 'src/main/java'
@@ -87,8 +87,8 @@ class DuplicateRuntimeClasspathEntryTest extends ProjectSynchronizationSpecifica
                implDir = impl {
                    file 'build.gradle', """
                        dependencies {
-                           compile (project(":common"))
-                           compile (project(":api"))
+                           implementation (project(":common"))
+                           implementation (project(":api"))
                        }
                    """
                    dir 'src/main/java'

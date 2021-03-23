@@ -28,7 +28,7 @@ class SourcePathTest extends ProjectSynchronizationSpecification {
              file('build.gradle') << 'allprojects { apply plugin: "java" }'
 
              dir('p1') {
-                 file('build.gradle') << 'dependencies { compile project(":p2") }'
+                 file('build.gradle') << 'dependencies { implementation project(":p2") }'
                  dir('src/main/java').mkdirs()
              }
 
