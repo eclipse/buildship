@@ -12,7 +12,7 @@ enum class Trigger(val func: (BuildType) -> Unit) {
             vcs {
                 quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_DEFAULT
                 triggerRules = """
-                    +:**
+                    +:*
                     -:**.md
                 """.trimIndent()
                 branchFilter = """
