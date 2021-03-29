@@ -21,7 +21,7 @@ import org.eclipse.buildship.core.GradleDistribution
 
 class SourcePathTest extends ProjectSynchronizationSpecification {
 
-    def "Source files available from project dependency"(String version) {
+    def "Source files available from project dependency"() {
          setup:
          File projectDir = dir('root') {
              file('settings.gradle') << 'include "p1","p2"'

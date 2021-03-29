@@ -172,7 +172,7 @@ class GradleImportTaskTest extends ProjectSynchronizationSpecification {
     }
 
     @Unroll
-    def "new build configuration can override workspace settings (#distributionType)"(GradleDistribution distribution, DistributionType distributionType, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, boolean showConsole, boolean showExecutions, boolean customGradleHome) {
+    def "new build configuration can override workspace settings (#distributionType)"() {
         setup:
         File projectDir = dir('projectDir') { file 'settings.gradle', '''rootProject.name = 'testProject' ''' }
         File projectGradleUserHome = dir('gradle-user-home').canonicalFile

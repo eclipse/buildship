@@ -46,26 +46,26 @@ class GradleDistributionViewModelTest extends Specification {
         Type.VERSION             | '2.4'
     }
 
-    def "Validation fails for invalid objects"(GradleDistributionViewModel.Type type, String configuration) {
+    def "Validation fails for invalid objects"() {
         setup:
         GradleDistributionViewModel distributionViewModel = new GradleDistributionViewModel(type, configuration)
 
         expect:
         distributionViewModel.validate().present
-        distributionViewModel.type == type ? Optional.of(type) : Optional.empty()
+        distributionViewModel.type == expectedType
 
         where:
-        type                     | configuration
-        null                     | null
-        null                     | ''
-        Type.LOCAL_INSTALLATION  | null
-        Type.LOCAL_INSTALLATION  | ''
-        Type.LOCAL_INSTALLATION  | '/path/to/nonexisting/folder'
-        Type.REMOTE_DISTRIBUTION | null
-        Type.REMOTE_DISTRIBUTION | ''
-        Type.REMOTE_DISTRIBUTION | '[invalid-url]'
-        Type.VERSION             | null
-        Type.VERSION             | ''
+        type                     | configuration                 | expectedType
+        null                     | null                          | Optional.empty()
+        null                     | ''                            | Optional.empty()
+        Type.LOCAL_INSTALLATION  | null                          | Optional.of(Type.LOCAL_INSTALLATION)
+        Type.LOCAL_INSTALLATION  | ''                            | Optional.of(Type.LOCAL_INSTALLATION)
+        Type.LOCAL_INSTALLATION  | '/path/to/nonexisting/folder' | Optional.of(Type.LOCAL_INSTALLATION)
+        Type.REMOTE_DISTRIBUTION | null                          | Optional.of(Type.REMOTE_DISTRIBUTION)
+        Type.REMOTE_DISTRIBUTION | ''                            | Optional.of(Type.REMOTE_DISTRIBUTION)
+        Type.REMOTE_DISTRIBUTION | '[invalid-url]'               | Optional.of(Type.REMOTE_DISTRIBUTION)
+        Type.VERSION             | null                          | Optional.of(Type.VERSION)
+        Type.VERSION             | ''                            | Optional.of(Type.VERSION)
     }
 
     def "Can convert valid wrapper distribution info objects to Gradle distribution"() {
