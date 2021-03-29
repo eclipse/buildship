@@ -83,29 +83,29 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
         configuration.getGradleUserHome().getAbsolutePath() == new File(validAttributes.gradleUserHome).getAbsolutePath()
     }
 
-    def "Can create a new valid instance with valid null arguments"(Attributes attributes) {
+    def "Can create a new valid instance with valid null arguments"() {
         when:
-        def configuration = attributes.toConfiguration()
+        def configuration = att.toConfiguration()
 
         then:
         configuration != null
-        attributes.javaHome != null || configuration.getJavaHome() == null
+        att.javaHome != null || configuration.getJavaHome() == null
 
         where:
-        attributes << [
+        att << [
             validAttributes.copy { javaHome = null },
         ]
     }
 
-    def "Creation fails when null argument passed"(Attributes attributes) {
+    def "Creation fails when null argument passed"() {
         when:
-        attributes.toConfiguration()
+        att.toConfiguration()
 
         then:
         thrown(RuntimeException)
 
         where:
-        attributes << [
+        att << [
             validAttributes.copy { tasks = null },
             validAttributes.copy { workingDir = null },
             validAttributes.copy { jvmArguments = null},

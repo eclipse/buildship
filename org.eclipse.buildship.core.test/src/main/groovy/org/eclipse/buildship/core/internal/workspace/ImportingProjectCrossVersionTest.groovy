@@ -105,7 +105,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
     }
 
     @Unroll
-    def "Can import a multi-project build with Gradle #distribution.configuration"(GradleDistribution distribution) {
+    def "Can import a multi-project build with Gradle #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(multiProjectDir, distribution)
 
@@ -122,7 +122,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
     }
 
     @Unroll
-    def "Included builds imported with de-duplicated names for #distribution.configuration"(GradleDistribution distribution) {
+    def "Included builds imported with de-duplicated names for #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(compositeProjectDir, distribution)
 
@@ -193,7 +193,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 
     @Ignore("TODO Buildship doesn't de-duplicate project names which makes the synchronization fail")
     @Unroll
-    def "Included builds imported but not de-duplicated names for #distribution.configuration"(GradleDistribution distribution) {
+    def "Included builds imported but not de-duplicated names for #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(compositeProjectDir, distribution)
 
@@ -213,7 +213,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 
     @Unroll
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Included builds ignored for #distribution.configuration"(GradleDistribution distribution) {
+    def "Included builds ignored for #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(compositeProjectDir, distribution)
 

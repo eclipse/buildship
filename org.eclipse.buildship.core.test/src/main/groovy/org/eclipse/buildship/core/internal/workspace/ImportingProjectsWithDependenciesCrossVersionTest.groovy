@@ -58,7 +58,7 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
     }
 
     @Unroll
-    def "Dependencies are not exported for #distribution.configuration"(GradleDistribution distribution) {
+    def "Dependencies are not exported for #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(projectDir, distribution)
 
@@ -71,7 +71,7 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
     }
 
     @Unroll
-    def "Dependenies have no access rules for #distribution.configuration"(GradleDistribution distribution) {
+    def "Dependenies have no access rules for #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(projectDir, distribution)
 
@@ -84,7 +84,7 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
     }
 
     @Unroll
-    def "Binary dependencies can define javadoc location for #distribution.configuration"(GradleDistribution distribution) {
+    def "Binary dependencies can define javadoc location for #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(projectDir, distribution)
 
@@ -96,7 +96,7 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
         distribution << supportedGradleDistributions
     }
 
-    def "Binary dependencies define classpath scopes for #distribution.configuration"(GradleDistribution distribution) {
+    def "Binary dependencies define classpath scopes for #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(projectDir, distribution)
 
@@ -109,7 +109,7 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
         distribution << getSupportedGradleDistributions('>=4.4')
     }
 
-    def "Binary dependencies does not define classpath scopes for #distribution.configuration"(GradleDistribution distribution) {
+    def "Binary dependencies does not define classpath scopes for #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(projectDir, distribution)
 

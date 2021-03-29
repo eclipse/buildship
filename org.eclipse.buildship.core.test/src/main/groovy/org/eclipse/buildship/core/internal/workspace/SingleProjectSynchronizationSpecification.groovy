@@ -26,6 +26,7 @@ import org.eclipse.buildship.core.internal.Logger
 import org.eclipse.buildship.core.internal.configuration.BuildConfigurationPersistence
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.eclipse.buildship.core.internal.util.gradle.JavaVersionUtil
 
 abstract class SingleProjectSynchronizationSpecification extends ProjectSynchronizationSpecification {
@@ -50,7 +51,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     }
 
     @Unroll
-    def "Natures and build commands are updated for Gradle #distribution.configuration"(GradleDistribution distribution) {
+    def "Natures and build commands are updated for Gradle #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -173,7 +174,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     }
 
     @Unroll
-    def "Source settings are updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Source settings are updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareJavaProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -231,7 +232,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
     @Unroll
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Source settings match current Java version for #distribution.configuration"(GradleDistribution distribution) {
+    def "Source settings match current Java version for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareJavaProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -262,7 +263,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
     @Unroll
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Source folders are not updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Source folders are not updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareJavaProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -296,7 +297,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
 
     @Unroll
-    def "Source folders are updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Source folders are updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareJavaProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -367,7 +368,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
     @Unroll
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Custom classpath containers are not updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Custom classpath containers are not updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -395,7 +396,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     }
 
     @Unroll
-    def "Custom classpath containers are updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Custom classpath containers are updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -424,7 +425,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
     @Unroll
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Custom project output location is not updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Custom project output location is not updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -451,7 +452,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     }
 
     @Unroll
-    def "Custom project output location is updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Custom project output location is updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -479,7 +480,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
     @Unroll
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Custom access rules are not updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Custom access rules are not updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -536,7 +537,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     }
 
     @Unroll
-    def "Custom access rules are updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Custom access rules are updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -595,7 +596,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     }
 
     @Unroll
-    def "Custom source folder output location is updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Custom source folder output location is updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -630,7 +631,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
     @Unroll
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Custom source folder output location is not updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Custom source folder output location is not updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -664,7 +665,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     }
 
     @Unroll
-    def "Classpath attributes are updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Classpath attributes are updated for #distribution.version"() {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -726,7 +727,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
     @Unroll
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Classpath attributes are not updated for #distribution.configuration"(GradleDistribution distribution) {
+    def "Classpath attributes are not updated for #distribution.version"(GradleDistribution distribution) {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
