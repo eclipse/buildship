@@ -499,8 +499,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 }
 
                 dependencies {
-                    implementation 'com.google.guava:guava:18.0'
-                    implementation project(':api')
+                    compile 'com.google.guava:guava:18.0'
+                    compile project(':api')
                 }
 
                 eclipse {
@@ -741,8 +741,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 }
 
                 dependencies {
-                    implementation 'com.google.guava:guava:18.0'
-                    implementation project(':api')
+                    compile 'com.google.guava:guava:18.0'
+                    compile project(':api')
                 }
 
                 eclipse {
