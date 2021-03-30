@@ -74,7 +74,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
             file 'build.gradle',  """
                 apply plugin: "java"
                 ${jcenterRepositoryBlock}
-                dependencies { testCompile 'junit:junit:4.10' }
+                dependencies { testImplementation 'junit:junit:4.10' }
             """
             dir('src/test/java') {
                 file 'SampleTest.java', '''

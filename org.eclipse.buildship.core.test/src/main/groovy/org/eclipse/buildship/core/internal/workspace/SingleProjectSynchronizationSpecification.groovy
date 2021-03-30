@@ -39,7 +39,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
-            file 'settings.gradle'
+            file 'settings.gradle', ''
         }
 
         when:
@@ -556,8 +556,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 }
 
                 dependencies {
-                    compile 'com.google.guava:guava:18.0'
-                    compile project(':api')
+                    implementation 'com.google.guava:guava:18.0'
+                    implementation project(':api')
                 }
 
                 eclipse {
@@ -679,8 +679,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 }
 
                 dependencies {
-                    compile 'com.google.guava:guava:18.0'
-                    compile project(':api')
+                    implementation 'com.google.guava:guava:18.0'
+                    implementation project(':api')
                 }
 
                 eclipse {

@@ -105,7 +105,7 @@ class GradleBuildConnectionTest extends ProjectSynchronizationSpecification {
                ${jcenterRepositoryBlock}
 
                dependencies {
-                   testCompile 'junit:junit:4.12'
+                   testImplementation 'junit:junit:4.12'
                }
 
                test.testLogging {

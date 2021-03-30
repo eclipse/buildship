@@ -64,7 +64,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Source folder is included in classpath if it doesn't supply scope information"() {
         setup:
-        File projectDir = createSampleProject('sample-project')
+        File projectDir = createSampleProject('sample-project', 'implementation')
         importAndWait(projectDir)
 
         when:
@@ -78,7 +78,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Only main dependencies are available when Java application launched from src/main/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'))
+        importAndWait(createSampleProject('sample-project', 'implementation'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main', true))
@@ -94,7 +94,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when Java application launched from src/test/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'))
+        importAndWait(createSampleProject('sample-project', 'implementation'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.JunitTest'))
@@ -110,7 +110,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when JUnit test method executed"() {
         setup:
-        importAndWait(createSampleProject('sample-project'))
+        importAndWait(createSampleProject('sample-project', 'implementation'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project', 'pkg.JunitTest', 'test'))
@@ -126,7 +126,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when JUnit test project executed"() {
         setup:
-        importAndWait(createSampleProject('sample-project'))
+        importAndWait(createSampleProject('sample-project', 'implementation'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project'))
@@ -140,7 +140,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('test.txt available')
     }
 
-    private File createSampleProject(String name) {
+    private File createSampleProject(String name, String configuration = 'compile') {
         dir(name) {
             file 'settings.gradle', """
                 include ':resource-library'
@@ -154,9 +154,9 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                 ${jcenterRepositoryBlock}
 
                 dependencies {
-                    compile project(':resource-library')
-                    compile 'com.google.guava:guava:18.0'
-                    testCompile 'junit:junit:4.12'
+                    $configuration project(':resource-library')
+                    $configuration 'com.google.guava:guava:18.0'
+                    test${configuration.capitalize()} 'junit:junit:4.12'
                 }
 
                 eclipse {

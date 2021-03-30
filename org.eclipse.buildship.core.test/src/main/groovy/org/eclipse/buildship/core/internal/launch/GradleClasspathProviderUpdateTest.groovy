@@ -65,7 +65,9 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
 
     def "Classpath provider not added for new non-Java project"() {
         setup:
-        File projectDir = dir('project-name')
+        File projectDir = dir('project-name') {
+            file 'settings.gradle', ''
+        }
 
         when:
         importAndWait(projectDir)

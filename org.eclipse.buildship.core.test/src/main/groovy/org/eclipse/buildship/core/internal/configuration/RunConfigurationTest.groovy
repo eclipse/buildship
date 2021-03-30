@@ -122,7 +122,10 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         ]
         variableManager.addVariables(variables)
 
-        File projectDir = dir('sample-project').canonicalFile
+        File projectDir = dir('sample-project') {
+            file 'settings.gradle', ''
+        }
+        projectDir = projectDir.canonicalFile
         importAndWait(projectDir)
 
         ILaunchConfiguration launchConfig = emptyLaunchConfig()
@@ -150,7 +153,10 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
     @Issue('https://github.com/eclipse/buildship/issues/572')
     def "load attributes from invaild expressions"() {
         setup:
-        File projectDir = dir('sample-project').canonicalFile
+        File projectDir = dir('sample-project') {
+            file 'settings.gradle', ''
+        }
+        projectDir = projectDir.canonicalFile
         importAndWait(projectDir)
 
         ILaunchConfiguration launchConfig = emptyLaunchConfig()

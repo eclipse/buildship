@@ -49,7 +49,7 @@ class GradleClasspathContainerInitializerTest extends ProjectSynchronizationSpec
                 repositories.jcenter()
 
                 dependencies {
-                    compile 'com.google.guava:guava:21.0'
+                    implementation 'com.google.guava:guava:21.0'
                 }
             """
         }

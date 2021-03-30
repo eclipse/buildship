@@ -54,7 +54,9 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
     def "can import the root project of a broken build, even if the root project name is already taken in the workspace"() {
         setup:
         dir('another') {
-            File existingProjectLocation = dir('broken-project')
+            File existingProjectLocation = dir('broken-project') {
+                file 'settings.gradle', ''
+            }
             importAndWait(existingProjectLocation)
         }
 

@@ -35,7 +35,10 @@ class GradleWorkspaceTest extends ProjectSynchronizationSpecification {
 
     def "Can get a Gradle build via valid Gradle project"() {
         setup:
-        importAndWait(dir("GradleWorkspaceTest"))
+        File projectDir = dir('GradleWorkspaceTest') {
+            file 'settings.gradle', ''
+        }
+        importAndWait(projectDir)
         IProject project = findProject("GradleWorkspaceTest")
 
         expect:
@@ -52,7 +55,11 @@ class GradleWorkspaceTest extends ProjectSynchronizationSpecification {
 
     def "Can create a Gradle build"() {
         setup:
-        BuildConfiguration configuration = BuildConfiguration.forRootProjectDirectory(dir('GradleWorkspaceTest')).build()
+        File projectDir = dir('GradleWorkspaceTest') {
+            file 'settings.gradle', ''
+        }
+
+        BuildConfiguration configuration = BuildConfiguration.forRootProjectDirectory(projectDir).build()
 
         expect:
         GradleCore.workspace.createBuild(configuration)

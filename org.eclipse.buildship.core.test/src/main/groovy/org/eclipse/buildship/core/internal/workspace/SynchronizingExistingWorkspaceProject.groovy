@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
+@Ignore
 class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronizationSpecification {
 
     @Ignore('Now we update project settingsfor closed projects too')
@@ -48,7 +49,7 @@ class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronization
         def projectDir = dir('sample-project') {
             file 'build.gradle', """apply plugin: "java"
                ${jcenterRepositoryBlock}
-               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+               dependencies { implementation "org.springframework:spring-beans:1.2.8"}
             """
             dir 'src/main/java'
         }

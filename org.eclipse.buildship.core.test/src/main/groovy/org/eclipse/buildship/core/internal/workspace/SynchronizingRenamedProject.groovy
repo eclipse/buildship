@@ -18,7 +18,9 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
 
     def "Project name is updated when it changes in Gradle"() {
         setup:
-        def sample = dir('sample')
+        def sample = dir('sample') {
+            file 'settings.gradle', ''
+        }
         importAndWait(sample)
 
         expect:
@@ -52,7 +54,9 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
 
     def "Project name is not updated if it conflicts with unrelated workspace project"() {
         setup:
-        def sample = dir('sample')
+        def sample = dir('sample') {
+            file 'settings.gradle', ''
+        }
         importAndWait(sample)
         def alreadyThere = newProject("already-there")
 

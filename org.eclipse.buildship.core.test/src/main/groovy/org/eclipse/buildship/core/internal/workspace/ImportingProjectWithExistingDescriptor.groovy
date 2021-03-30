@@ -31,7 +31,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         project.delete(false, null)
         setup:
         def projectDir = dir('sample-project') {
-            file 'settings.gradle'
+            file 'settings.gradle', ''
         }
 
         expect:
