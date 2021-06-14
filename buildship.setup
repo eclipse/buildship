@@ -635,7 +635,7 @@
           versionRange="2.7.0"/>
       <requirement
           name="com.google.guava"
-          versionRange="27.1.0"/>
+          versionRange="30.1.0"/>
       <requirement
           name="org.slf4j.api"
           versionRange="1.7.2"/>
