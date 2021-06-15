@@ -1,11 +1,6 @@
 package Buildship
 
 enum class EclipseVersion(val codeName: String, val versionNumber: String) {
-    ECLIPSE4_3("Kepler", "4.3"),
-    ECLIPSE4_4("Luna", "4.4"),
-    ECLIPSE4_5("Mars", "4.5"),
-    ECLIPSE4_6("Neon", "4.6"),
-    ECLIPSE4_7("Oxygen", "4.7"),
     ECLIPSE4_8("Photon", "4.8"),
     ECLIPSE4_9("2018-09", "4.9"),
     ECLIPSE4_10("2018-12", "4.10"),
