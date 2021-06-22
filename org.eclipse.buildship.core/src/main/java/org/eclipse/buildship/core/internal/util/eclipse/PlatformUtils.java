@@ -21,10 +21,20 @@ public class PlatformUtils {
     public static boolean supportsTestAttributes() {
         Bundle platformBundle = Platform.getBundle("org.eclipse.platform");
         if (platformBundle == null) {
-            return false;
+        	// the bundle "org.eclipse.platform" will be null when it's JDT.LS
+        	// in that case we check the JDT.LS bundle
+            return supportsTestAttrubutesInJdtLs();
         }
         Version platform = platformBundle.getVersion();
         Version eclipseLuna = new Version(4, 8, 0);
         return platform.compareTo(eclipseLuna) >= 0;
+    }
+    
+    private static boolean supportsTestAttrubutesInJdtLs() {
+    	Bundle lsBundle = Platform.getBundle("org.eclipse.jdt.ls.core");
+        if (lsBundle == null) {
+            return false;
+        }
+        return lsBundle.getVersion().compareTo(new Version(1, 0, 0)) >= 0;
     }
 }
