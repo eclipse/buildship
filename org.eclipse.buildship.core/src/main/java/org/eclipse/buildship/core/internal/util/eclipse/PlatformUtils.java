@@ -30,7 +30,7 @@ public class PlatformUtils {
         return platform.compareTo(eclipseLuna) >= 0;
     }
     
-    private static boolean supportsTestAttrubutesInJdtLs() {
+    private static boolean supportsTestAttributesInJdtLs() {
     	Bundle lsBundle = Platform.getBundle("org.eclipse.jdt.ls.core");
         if (lsBundle == null) {
             return false;
