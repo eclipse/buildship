@@ -21,8 +21,8 @@ public class PlatformUtils {
     public static boolean supportsTestAttributes() {
         Bundle platformBundle = Platform.getBundle("org.eclipse.platform");
         if (platformBundle == null) {
-        	// the bundle "org.eclipse.platform" will be null when it's JDT.LS
-        	// in that case we check the JDT.LS bundle
+            // the bundle "org.eclipse.platform" will be null when it's JDT.LS
+            // in that case we check the JDT.LS bundle
             return supportsTestAttributesInJdtLs();
         }
         Version platform = platformBundle.getVersion();
@@ -31,7 +31,7 @@ public class PlatformUtils {
     }
 
     private static boolean supportsTestAttributesInJdtLs() {
-    	Bundle lsBundle = Platform.getBundle("org.eclipse.jdt.ls.core");
+        Bundle lsBundle = Platform.getBundle("org.eclipse.jdt.ls.core");
         if (lsBundle == null) {
             return false;
         }
