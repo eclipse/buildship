@@ -23,13 +23,13 @@ public class PlatformUtils {
         if (platformBundle == null) {
         	// the bundle "org.eclipse.platform" will be null when it's JDT.LS
         	// in that case we check the JDT.LS bundle
-            return supportsTestAttrubutesInJdtLs();
+            return supportsTestAttributesInJdtLs();
         }
         Version platform = platformBundle.getVersion();
         Version eclipseLuna = new Version(4, 8, 0);
         return platform.compareTo(eclipseLuna) >= 0;
     }
-    
+
     private static boolean supportsTestAttributesInJdtLs() {
     	Bundle lsBundle = Platform.getBundle("org.eclipse.jdt.ls.core");
         if (lsBundle == null) {
