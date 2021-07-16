@@ -115,10 +115,4 @@ public final class GradleProjectWizardPage extends AbstractWizardPage {
             }
         });
     }
-
-    @Override
-    protected String getPageContextInformation() {
-        return ProjectWizardMessages.InfoMessage_GradleProjectWizardPageContext;
-    }
-
 }

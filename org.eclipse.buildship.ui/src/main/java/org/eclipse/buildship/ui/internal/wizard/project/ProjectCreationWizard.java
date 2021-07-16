@@ -41,13 +41,7 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
      */
     private static final String PROJECT_CREATION_DIALOG_SETTINGS = "org.eclipse.buildship.ui.wizard.project.creation"; //$NON-NLS-1$
 
-    /**
-     * Preference key that flags whether the welcome page should be shown as part of the creation wizard.
-     */
-    private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.wizard.project.creation.showWelcomePage"; //$NON-NLS-1$
-
     // the pages to display in the wizard
-    private final GradleWelcomeWizardPage welcomeWizardPage;
     private final NewGradleProjectWizardPage newGradleProjectPage;
     private final GradleOptionsWizardPage gradleOptionsPage;
     private final ProjectPreviewWizardPage projectPreviewPage;
@@ -71,8 +65,6 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
      * @param dialogSettings          the dialog settings to store/retrieve dialog preferences
      */
     public ProjectCreationWizard(IDialogSettings dialogSettings) {
-        super(PREF_SHOW_WELCOME_PAGE);
-
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);
@@ -86,17 +78,13 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
         // the data models of the wizard
         final ProjectImportConfiguration importConfiguration = this.importController.getConfiguration();
         ProjectCreationConfiguration creationConfiguration = this.creationController.getConfiguration();
-        WelcomePageContent welcomePageContent = WelcomePageContentFactory.createCreationWizardWelcomePageContent();
-        this.welcomeWizardPage = new GradleWelcomeWizardPage(importConfiguration, welcomePageContent);
         this.newGradleProjectPage = new NewGradleProjectWizardPage(importConfiguration, creationConfiguration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(importConfiguration,
                 ProjectWizardMessages.Title_NewGradleProjectOptionsWizardPage,
-                ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageDefault,
-                ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageContext);
+                ProjectWizardMessages.InfoMessage_NewGradleProjectOptionsWizardPageDefault);
         this.projectPreviewPage = new ProjectPreviewWizardPage(importConfiguration,
                 ProjectWizardMessages.Title_NewGradleProjectPreviewWizardPage,
-                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault,
-                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageContext);
+                ProjectWizardMessages.InfoMessage_NewGradleProjectPreviewWizardPageDefault);
     }
 
     @Override
@@ -125,9 +113,6 @@ public final class ProjectCreationWizard extends AbstractProjectWizard implement
     @Override
     public void addPages() {
         // assign wizard pages to this wizard
-        if (isShowWelcomePage()) {
-            addPage(this.welcomeWizardPage);
-        }
         addPage(this.newGradleProjectPage);
         addPage(this.gradleOptionsPage);
         addPage(this.projectPreviewPage);

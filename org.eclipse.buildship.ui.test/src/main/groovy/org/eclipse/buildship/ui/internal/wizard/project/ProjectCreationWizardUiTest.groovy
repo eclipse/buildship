@@ -34,11 +34,8 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
     final def String TEST_PROJECT_NAME = "TestProject"
 
     def "Can open new wizard from menu bar"() {
-        setup:
-        openGradleCreationWizard()
-
         when:
-        bot.text(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault)
+        openGradleCreationWizard()
 
         then:
         // if widget is not available then a WidgetNotFoundException is thrown
@@ -136,7 +133,6 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         shell.activate()
         bot.waitUntil(Conditions.shellIsActive("New"))
         bot.tree().expandNode("Gradle").select("Gradle Project")
-        bot.button(IDialogConstants.NEXT_LABEL).click()
         bot.button(IDialogConstants.NEXT_LABEL).click()
     }
 
