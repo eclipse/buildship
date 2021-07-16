@@ -39,7 +39,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
         root.expanded
 
         when:
-        SWTBotTreeItem runNode = root.getNode('Run tasks')
+        SWTBotTreeItem runNode = root.getNode('Run main tasks')
 
         then:
         !runNode.expanded
@@ -63,7 +63,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
 
         when:
         root.expand()
-        SWTBotTreeItem runNode = root.getNode('Run tasks')
+        SWTBotTreeItem runNode = root.getNode('Run main tasks').getNode('Run tasks')
         runNode.expand()
         SWTBotTreeItem testNode = runNode.getNode(':test')
         testNode.expand()
