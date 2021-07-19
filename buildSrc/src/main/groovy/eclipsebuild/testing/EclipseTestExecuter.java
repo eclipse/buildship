@@ -226,7 +226,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         Future<?> testCollectorJob = threadPool.submit(new Runnable() {
             @Override
             public void run() {
-                EclipseTestListener pdeTestListener = new EclipseTestListener(testResultProcessor, suiteName, this, testTaskOperationId, rootTestSuiteId);
+                EclipseTestListener pdeTestListener = new EclipseTestListener(testResultProcessor, suiteName, this, testTaskOperationId, rootTestSuiteId, project.getLogger());
                 new RemoteTestRunnerClient().startListening(new ITestRunListener2[] { pdeTestListener }, pdeTestPort);
                 LOGGER.info("Listening on port " + pdeTestPort + " for test suite " + suiteName + " results ...");
                 synchronized (this) {

@@ -25,11 +25,12 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
 
         when:
         SynchronizationResult result = tryImportAndWait(location)
+        def loggedErrors = platformLogErrors.findAll { it.plugin == 'pluginId' }
 
         then:
         result.status.severity == IStatus.ERROR
-        platformLogErrors.size() == 1
-        platformLogErrors[0].message == "Project configurator 'configurator1' failed to initialize"
+        loggedErrors.size() == 1
+        loggedErrors[0].message == "Project configurator 'configurator1' failed to initialize"
         gradleErrorMarkers.size() == 1
         gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "Project configurator 'configurator1' failed to initialize"
     }

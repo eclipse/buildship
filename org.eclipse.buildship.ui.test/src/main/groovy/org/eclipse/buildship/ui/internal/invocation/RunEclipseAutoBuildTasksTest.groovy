@@ -62,6 +62,7 @@ class RunEclipseAutoBuildTasksTest extends SwtBotSpecification {
             dir('src/main/java') {
                 file 'A.java', ''
             }
+            file 'settings.gradle', ''
          }
          importAndWait(location)
          openInEditor(findProject('run-eclipse-auto-build-task').getFile('src/main/java/A.java'))

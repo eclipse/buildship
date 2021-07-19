@@ -35,7 +35,7 @@ class ExecutionViewExpandAndCollapseAllTest extends BaseExecutionViewTest {
 
         then:
         tree.getTreeItem('Run build').expanded
-        tree.getTreeItem('Run build').getNode('Run tasks').expanded
+        tree.getTreeItem('Run build').getNode('Run main tasks').getNode('Run tasks').expanded
     }
 
     File sampleProject() {
