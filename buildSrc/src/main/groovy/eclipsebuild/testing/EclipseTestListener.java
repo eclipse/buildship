@@ -23,6 +23,7 @@ import org.gradle.api.internal.tasks.testing.TestDescriptorInternal;
 import org.gradle.api.internal.tasks.testing.TestResultProcessor;
 import org.gradle.api.internal.tasks.testing.TestStartEvent;
 import org.gradle.api.internal.tasks.testing.results.AttachParentTestResultProcessor;
+import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.testing.TestOutputEvent;
 import org.gradle.api.tasks.testing.TestResult.ResultType;
 
@@ -37,17 +38,19 @@ public final class EclipseTestListener implements ITestRunListener2 {
     private final Object waitMonitor;
     private final Object testTaskOperationId;
     private final Object rootTestSuiteId;
+    private final Logger logger;
 
     private TestDescriptorInternal currentTestSuite;
     private TestDescriptorInternal currentTestClass;
     private TestDescriptorInternal currentTestMethod;
 
-    public EclipseTestListener(TestResultProcessor testResultProcessor, String suite, Object waitMonitor, Object testTaskOperationId, Object rootTestSuiteId) {
+    public EclipseTestListener(TestResultProcessor testResultProcessor, String suite, Object waitMonitor, Object testTaskOperationId, Object rootTestSuiteId, Logger logger) {
         this.resultProcessor = new AttachParentTestResultProcessor(testResultProcessor);
         this.waitMonitor = waitMonitor;
         this.suiteName = suite;
         this.testTaskOperationId = testTaskOperationId;
         this.rootTestSuiteId = rootTestSuiteId;
+        this.logger = logger;
     }
 
     @Override
@@ -84,6 +87,8 @@ public final class EclipseTestListener implements ITestRunListener2 {
 
     @Override
     public synchronized void testStarted(String testId, String testName) {
+        logger.info("Test started: " + testName);
+
         // TODO need idGenerator
         String testClass = testName;
         String testMethod = testName;
