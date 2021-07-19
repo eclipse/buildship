@@ -716,6 +716,7 @@ subprojects {
             name = 'gradle-remote'
             url gradleRemoteRepositoryUrl
         }
+        mavenCentral()
     }    
 }
 
