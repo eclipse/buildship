@@ -693,11 +693,6 @@ subprojects {
     // configure the repositories where the external dependencies can be found
     repositories {
         maven {
-            name = 'kotlin-dev-repository'
-            url kotlinDevRepositoryUrl
-        }
-
-        maven {
             name = 'mavenized-target-platform'
             url "${eclipsebuild.Config.on(project).mavenizedTargetPlatformDir}"
         }
