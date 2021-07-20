@@ -194,7 +194,7 @@ class CheckpointBuildType(triggerName: String, scenarios: List<IndividualScenari
         }
 
         dependencies {
-             snapshot(previousCheckpoint, DefaultFailureCondition)
+             snapshot(previousCheckpoint, FailWhenDependenciesFail)
         }
     }
 

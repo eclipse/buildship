@@ -51,3 +51,9 @@ val DefaultFailureCondition : SnapshotDependency.() -> Unit
         onDependencyCancel = FailureAction.ADD_PROBLEM
         onDependencyFailure = FailureAction.FAIL_TO_START
     }
+
+val FailWhenDependenciesFail : SnapshotDependency.() -> Unit
+    get() =  {
+        onDependencyCancel = FailureAction.ADD_PROBLEM
+        onDependencyFailure = FailureAction.ADD_PROBLEM
+    }
