@@ -53,6 +53,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
 
     def "Double-clicking test class and method open editor"() {
         setup:
+        bot.closeAllEditors()
         File projectDir = sampleTestProject()
         importAndWait(projectDir)
         launchTaskAndWait(projectDir, 'build')
