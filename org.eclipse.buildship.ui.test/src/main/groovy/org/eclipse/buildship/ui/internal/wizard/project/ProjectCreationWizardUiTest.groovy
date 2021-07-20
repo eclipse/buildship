@@ -17,6 +17,8 @@ import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IAdaptable
 import org.eclipse.jface.dialogs.IDialogConstants
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor
+import org.eclipse.swtbot.swt.finder.keyboard.Keystrokes
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox
@@ -97,6 +99,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
         when:
         bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(TEST_PROJECT_NAME)
+        bot.checkBox("Add project to working sets").deselect()
         bot.checkBox("Add project to working sets").select()
         bot.button("Select...").click()
         // create a 'Gradle' working set if not exists
