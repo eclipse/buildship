@@ -10,9 +10,9 @@ val individualBuildsForPhase1 = listOf(
 )
 val individualBuildsForPhase2 = listOf(
     IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_8, Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_16, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_20, Jdk.ORACLE_JDK_8),
     IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_8, Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_16, Jdk.ORACLE_JDK_8)
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_20, Jdk.ORACLE_JDK_8)
 )
 val individualBuildsForPhase3 = listOf(
     IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_8, Jdk.ORACLE_JDK_8),
@@ -24,8 +24,12 @@ val individualBuildsForPhase3 = listOf(
     IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_14, Jdk.ORACLE_JDK_8),
     IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_15, Jdk.ORACLE_JDK_8),
     IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_16, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_17, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_18, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_19, Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_20, Jdk.ORACLE_JDK_8),
     IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_8, Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_16, Jdk.ORACLE_JDK_8)
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_20, Jdk.ORACLE_JDK_8)
 )
 val individualBuildsForPhase4 = listOf(
     IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_8, Jdk.ORACLE_JDK_9)
