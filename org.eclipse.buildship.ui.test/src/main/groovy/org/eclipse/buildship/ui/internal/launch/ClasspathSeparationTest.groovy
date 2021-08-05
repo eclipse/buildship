@@ -31,7 +31,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
     def "All dependencies are available when Gradle doesn't supply scope information"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('3.5'))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('3.5'), [], new File(System.getProperty("jdk8.location")))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main'))
@@ -48,7 +48,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
     def "All dependencies are available when target source folders doesn't supply scope information"() {
         setup:
         File projectDir = createSampleProject('sample-project')
-        importAndWait(projectDir, GradleDistribution.forVersion('4.4'))
+        importAndWait(projectDir, GradleDistribution.forVersion('4.4'),[], new File(System.getProperty("jdk8.location")))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.CustomMain'))

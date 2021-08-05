@@ -59,23 +59,27 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         assert result.status.isOK()
     }
 
-    protected SynchronizationResult tryImportAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
-        GradleBuild gradleBuild = gradleBuildFor(location, gradleDistribution)
+    protected SynchronizationResult tryImportAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild(), File javaHome = null) {
+        GradleBuild gradleBuild = gradleBuildFor(location, gradleDistribution, javaHome)
         SynchronizationResult result = gradleBuild.synchronize(new NullProgressMonitor())
         waitForGradleJobsToFinish()
         waitForResourceChangeEvents()
         result
     }
 
-    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
-        SynchronizationResult result = tryImportAndWait(location, gradleDistribution)
+    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild(), File javaHome = null) {
+        SynchronizationResult result = tryImportAndWait(location, gradleDistribution, javaHome)
+        if (!result.status.isOK()) {
+            result.status.getException().printStackTrace();
+        }
         assert result.status.isOK()
     }
 
-    protected static GradleBuild gradleBuildFor(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild()) {
+    protected static GradleBuild gradleBuildFor(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild(), File javaHome = null) {
         BuildConfiguration configuration = BuildConfiguration.forRootProjectDirectory(location)
             .gradleDistribution(gradleDistribution)
             .overrideWorkspaceConfiguration(true)
+            .javaHome(javaHome)
             .build()
         GradleCore.workspace.createBuild(configuration)
     }

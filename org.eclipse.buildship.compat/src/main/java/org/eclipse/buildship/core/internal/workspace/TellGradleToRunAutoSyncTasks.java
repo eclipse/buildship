@@ -7,18 +7,19 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ******************************************************************************/
-package org.eclipse.buildship.core.internal.workspace;
 
+
+package org.eclipse.buildship.core.internal.workspace;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildController;
-import org.gradle.tooling.model.eclipse.RunEclipseSynchronizationTasks;
+import org.gradle.tooling.model.eclipse.RunEclipseAutoBuildTasks;
 
-public final class TellGradleToRunSynchronizationTasks implements BuildAction<Void> {
+public final class TellGradleToRunAutoSyncTasks implements BuildAction<Void> {
 
     @Override
     public Void execute(BuildController controller) {
-        controller.getModel(RunEclipseSynchronizationTasks.class);
+        controller.getModel(RunEclipseAutoBuildTasks.class);
         return null;
     }
 

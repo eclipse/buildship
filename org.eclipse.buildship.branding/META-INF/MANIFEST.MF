@@ -4,5 +4,5 @@ Bundle-Name: Buildship, Eclipse Plug-ins for Gradle
 Bundle-SymbolicName: org.eclipse.buildship.branding;singleton:=true
 Bundle-Version: 3.1.5.qualifier
 Bundle-Vendor: Eclipse Buildship
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ClassPath: .

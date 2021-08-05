@@ -17,11 +17,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import eclipsebuild.Config;
 import eclipsebuild.Constants;
@@ -84,6 +87,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
             final int pdeTestPort) {
 
         Test testTask = ((EclipseTestExecutionSpec)testSpec).getTestTask();
+        Set<String> includePatterns = ((EclipseTestExecutionSpec)testSpec).getFilters();
 
         final Object testTaskOperationId = this.executor.getCurrentOperation().getParentId();
         final Object rootTestSuiteId = testTask.getPath();
@@ -141,7 +145,11 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         programArgs.add("org.eclipse.jdt.junit4.runtime");
         programArgs.add("-classNames");
 
-        List testNames = new ArrayList(collectTestNames(testTask, testTaskOperationId, rootTestSuiteId));
+        List<String> testNames = new ArrayList(collectTestNames(testTask, testTaskOperationId, rootTestSuiteId));
+        if (!includePatterns.isEmpty()) {
+            Set<Pattern> patterns = includePatterns.stream().map( p -> Pattern.compile(".*" + p + ".*")).collect(Collectors.toSet());
+            testNames = testNames.stream().filter( testName -> matches(testName, patterns)).collect(Collectors.toList());
+        }
         Collections.sort(testNames);
         programArgs.addAll(testNames);
 
@@ -249,6 +257,10 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         } catch (Exception e) {
             throw new GradleException("Test execution failed", e);
         }
+    }
+
+    private boolean matches(String testName, Set<Pattern> patterns) {
+        return patterns.stream().anyMatch(pattern -> pattern.matcher(testName).matches());
     }
 
     private File getEquinoxLauncherFile(File testEclipseDir) {

@@ -4,7 +4,7 @@ Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - Oomph Import Setup Task UI
 Bundle-SymbolicName: org.eclipse.buildship.oomph.test;singleton:=true
 Bundle-Version: 3.1.5.qualifier
 Bundle-Vendor: Eclipse Buildship
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: org.eclipse.buildship.core
 Automatic-Module-Name: org.eclipse.buildship.oomph.test
 Require-Bundle: org.junit,

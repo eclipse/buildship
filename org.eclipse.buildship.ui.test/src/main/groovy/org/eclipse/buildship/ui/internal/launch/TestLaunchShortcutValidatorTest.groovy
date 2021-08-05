@@ -20,7 +20,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
 
     def "Launch shortcut enabled on test sources"() {
         setup:
-        importAndWait(createProjectWithSources(dependencyConfiguration), GradleDistribution.forVersion(gradleVersion))
+        importAndWait(createProjectWithSources(dependencyConfiguration), GradleDistribution.forVersion(gradleVersion), [], jdk == "8" ? new File(System.getProperty("jdk8.location")) : null)
 
         when:
         IJavaProject project = findJavaProject('project-with-sources')
@@ -31,9 +31,9 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
         testLaunchShortcutEnabledOn(type)
 
         where:
-        gradleVersion                   | dependencyConfiguration
-        '4.3'                           | 'compile'
-        GradleVersion.current().version | 'implementation'
+        gradleVersion                   | dependencyConfiguration | jdk
+        '4.3'                           | 'compile'               | "8"
+        GradleVersion.current().version | 'implementation'        | null
     }
 
     def "Launch debug shortcut enabled on test sources"() {
@@ -50,7 +50,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
 
     def "Launch debug shortcut disabled for projects using Gradle < 5.6"() {
         setup:
-        importAndWait(createProjectWithSources(), GradleDistribution.forVersion('5.5.1'))
+        importAndWait(createProjectWithSources(), GradleDistribution.forVersion('5.5.1'), [], new File(System.getProperty("jdk11.location")))
 
         when:
         IJavaProject project = findJavaProject('project-with-sources')
@@ -62,7 +62,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
 
     def "Launch shortcut disabled on production sources"() {
         setup:
-        importAndWait(createProjectWithSources(dependencyConfiguration), GradleDistribution.forVersion(gradleVersion))
+        importAndWait(createProjectWithSources(dependencyConfiguration), GradleDistribution.forVersion(gradleVersion), [], jdk == "8" ? new File(System.getProperty("jdk8.location")) : null)
 
         when:
         IJavaProject project = findJavaProject('project-with-sources')
@@ -73,9 +73,9 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
         !testLaunchShortcutEnabledOn(type)
 
         where:
-        gradleVersion                   | dependencyConfiguration
-        '4.3'                           | 'compile'
-        GradleVersion.current().version | 'implementation'
+        gradleVersion                   | dependencyConfiguration | jdk
+        '4.3'                           | 'compile'               | "8"
+        GradleVersion.current().version | 'implementation'        | null
     }
 
     def "Launch shortcut disabled on non-source type"() {

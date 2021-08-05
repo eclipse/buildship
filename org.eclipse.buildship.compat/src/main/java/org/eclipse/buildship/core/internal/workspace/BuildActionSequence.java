@@ -7,18 +7,29 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ******************************************************************************/
+
 package org.eclipse.buildship.core.internal.workspace;
 
+import java.io.Serializable;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildController;
-import org.gradle.tooling.model.eclipse.RunEclipseAutoBuildTasks;
 
-public final class TellGradleToRunAutoSyncTasks implements BuildAction<Void> {
+public class BuildActionSequence implements BuildAction<Void>, Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private final BuildAction<?>[] actions;
+
+    public BuildActionSequence(BuildAction<?> ... actions) {
+        super();
+        this.actions = actions;
+    }
 
     @Override
     public Void execute(BuildController controller) {
-        controller.getModel(RunEclipseAutoBuildTasks.class);
+        for (BuildAction<?> action : this.actions) {
+            action.execute(controller);
+        }
         return null;
     }
 

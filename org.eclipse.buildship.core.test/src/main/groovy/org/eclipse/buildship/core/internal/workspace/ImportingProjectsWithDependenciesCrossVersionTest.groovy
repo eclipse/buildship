@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 import org.eclipse.jdt.core.IClasspathEntry
@@ -112,7 +113,7 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
 
     def "Binary dependencies does not define classpath scopes for #distribution.version"(GradleDistribution distribution) {
         when:
-        importAndWait(sampleProject(distribution), distribution)
+        importAndWait(sampleProject(distribution), distribution, new File(System.getProperty("jdk8.location")))
 
         then:
         guavaDependency.extraAttributes.length == 0
