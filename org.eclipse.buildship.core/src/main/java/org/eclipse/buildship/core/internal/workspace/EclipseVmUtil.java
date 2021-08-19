@@ -27,7 +27,7 @@ import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
  * Helper class to access the installed VMs in the Eclipse registry.
  */
 @SuppressWarnings("restriction")
-final class EclipseVmUtil {
+public final class EclipseVmUtil {
 
     private static final String VM_ID_PREFIX = "org.eclipse.buildship.core.vm.";
 

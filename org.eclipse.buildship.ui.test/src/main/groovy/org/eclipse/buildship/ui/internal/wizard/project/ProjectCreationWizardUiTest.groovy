@@ -38,7 +38,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         openGradleCreationWizard()
 
         when:
-        bot.text(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault)
+        bot.label(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault)
 
         then:
         // if widget is not available then a WidgetNotFoundException is thrown
@@ -133,9 +133,9 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
     private def openGradleCreationWizard() {
         bot.menu("File").menu("New").menu("Other...").click()
-        SWTBotShell shell = bot.shell("New")
+        SWTBotShell shell = bot.shells().find { SWTBotShell shell -> ['New', 'Select a wizard'].contains(shell.text) }
         shell.activate()
-        bot.waitUntil(Conditions.shellIsActive("New"))
+        bot.waitUntil(Conditions.shellIsActive(shell.getText()))
         bot.tree().expandNode("Gradle").select("Gradle Project")
         bot.button(IDialogConstants.NEXT_LABEL).click()
         bot.button(IDialogConstants.NEXT_LABEL).click()
