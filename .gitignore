@@ -4,6 +4,7 @@
 .settings
 .eclipse
 build
+build.app
 target
 bin
 
