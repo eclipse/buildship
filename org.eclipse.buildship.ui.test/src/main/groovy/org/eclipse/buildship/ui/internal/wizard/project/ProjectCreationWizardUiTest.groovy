@@ -38,7 +38,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         openGradleCreationWizard()
 
         when:
-        bot.label(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault)
+        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName)
 
         then:
         // if widget is not available then a WidgetNotFoundException is thrown
