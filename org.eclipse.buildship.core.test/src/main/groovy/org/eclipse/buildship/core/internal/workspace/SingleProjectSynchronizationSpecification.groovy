@@ -667,6 +667,10 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     @Unroll
     def "Classpath attributes are updated for #distribution.version"() {
         setup:
+
+        GradleVersion version = GradleVersion.version(distribution.version)
+        def configuration = version <= GradleVersion.version("6.8.2") ? "compile" : "implementation"
+
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
             dir 'src/main/java'
@@ -679,8 +683,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 }
 
                 dependencies {
-                    implementation 'com.google.guava:guava:18.0'
-                    implementation project(':api')
+                    $configuration 'com.google.guava:guava:18.0'
+                    $configuration project(':api')
                 }
 
                 eclipse {
