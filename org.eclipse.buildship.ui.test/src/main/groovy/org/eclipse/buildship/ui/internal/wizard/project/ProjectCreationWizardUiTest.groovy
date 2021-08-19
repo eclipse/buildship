@@ -33,14 +33,12 @@ import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 
 class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
-    final def String TEST_PROJECT_NAME = "TestProject"
-
     def "Can open new wizard from menu bar"() {
         setup:
         openGradleCreationWizard()
 
         when:
-        bot.text(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault)
+        bot.label(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault)
 
         then:
         // if widget is not available then a WidgetNotFoundException is thrown
@@ -70,7 +68,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         openGradleCreationWizard()
 
         when:
-        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(TEST_PROJECT_NAME)
+        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText("TestProject")
         bot.button(IDialogConstants.NEXT_LABEL).click()
         bot.button(IDialogConstants.NEXT_LABEL).click()
         // wait until the project preview finishes loading and the buttons are enabled again
@@ -80,7 +78,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         then:
         // after the project preview loaded the test project should be created
         File workspaceRootFolder = LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
-        File projectFolder = workspaceRootFolder.listFiles().find{ it.name == TEST_PROJECT_NAME }
+        File projectFolder = workspaceRootFolder.listFiles().find{ it.name == "TestProject" }
         projectFolder != null
         projectFolder.exists()
         projectFolder.isDirectory()
@@ -98,7 +96,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         openGradleCreationWizard()
 
         when:
-        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(TEST_PROJECT_NAME)
+        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText("TestProject")
         bot.checkBox("Add project to working sets").deselect()
         bot.checkBox("Add project to working sets").select()
         bot.button("Select...").click()
@@ -129,15 +127,15 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         // the 'Gradle' working set should contain the new test project
         PlatformUI.workbench.workingSetManager.getWorkingSet('Gradle').elements.any {
             IProject project = (IProject) it.getAdapter(IProject.class)
-            project == null ? false : TEST_PROJECT_NAME == project.name
+            project == null ? false : "TestProject" == project.name
         }
     }
 
     private def openGradleCreationWizard() {
         bot.menu("File").menu("New").menu("Other...").click()
-        SWTBotShell shell = bot.shell("New")
+        SWTBotShell shell = bot.shells().find { SWTBotShell shell -> ['New', 'Select a wizard'].contains(shell.text) }
         shell.activate()
-        bot.waitUntil(Conditions.shellIsActive("New"))
+        bot.waitUntil(Conditions.shellIsActive(shell.getText()))
         bot.tree().expandNode("Gradle").select("Gradle Project")
         bot.button(IDialogConstants.NEXT_LABEL).click()
         bot.button(IDialogConstants.NEXT_LABEL).click()

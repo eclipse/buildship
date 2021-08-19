@@ -2,6 +2,7 @@ apply plugin: eclipsebuild.TestBundlePlugin
 apply plugin: 'groovy'
 
 dependencies {
+    compile project(':org.eclipse.buildship.compat')
     compile project(':org.eclipse.buildship.core')
     compile project(':org.eclipse.buildship.ui')
 }

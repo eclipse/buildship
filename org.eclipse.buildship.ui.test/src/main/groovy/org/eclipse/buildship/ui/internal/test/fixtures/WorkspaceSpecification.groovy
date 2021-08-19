@@ -37,6 +37,7 @@ import org.eclipse.buildship.core.internal.configuration.ConfigurationManager
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.workspace.EclipseVmUtil
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView
 
@@ -56,6 +57,8 @@ abstract class WorkspaceSpecification extends Specification {
 
     def setup() {
         externalTestDir = tempFolderProvider.newFolder('external')
+        EclipseVmUtil.findOrRegisterVM("8", new File(System.getProperty("jdk8.location")))
+        EclipseVmUtil.findOrRegisterVM("11", new File(System.getProperty("jdk11.location")))
     }
 
     def cleanup() {

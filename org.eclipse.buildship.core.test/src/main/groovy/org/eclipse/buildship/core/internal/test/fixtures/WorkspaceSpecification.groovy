@@ -42,6 +42,8 @@ import org.eclipse.buildship.core.internal.preferences.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.preferences.PersistentModel
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.workspace.EclipseVmUtil
+import org.eclipse.buildship.core.internal.workspace.EclipseVmUtilTest
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 
@@ -64,6 +66,8 @@ abstract class WorkspaceSpecification extends Specification {
     def setup() {
         externalTestDir = tempFolderProvider.newFolder('external')
         Platform.addLogListener(logCollector)
+        EclipseVmUtil.findOrRegisterVM("8", new File(System.getProperty("jdk8.location")))
+        EclipseVmUtil.findOrRegisterVM("11", new File(System.getProperty("jdk11.location")))
     }
 
     def cleanup() {

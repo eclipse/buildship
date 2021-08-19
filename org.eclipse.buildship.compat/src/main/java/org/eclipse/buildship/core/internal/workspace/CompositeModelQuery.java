@@ -7,6 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ******************************************************************************/
+
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.util.HashMap;

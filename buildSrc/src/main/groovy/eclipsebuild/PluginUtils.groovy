@@ -46,6 +46,15 @@ class PluginUtils {
                     eachEntry { entry ->
                         if (entry.key == 'Bundle-Version') {
                             entry.value = project.version
+                        } else if (entry.key == 'Bundle-RequiredExecutionEnvironment') {
+                            def targetCompat = project.targetCompatibility.majorVersion
+                            if (targetCompat == '8') {
+                                entry.value = 'JavaSE-1.8'
+                            } else if (targetCompat == '11') {
+                                entry.value = 'JavaSE-11'
+                            } else {
+                                throw new RuntimeException("Unhandled value for Bundle-RequiredExecutionEnvironment: " + targetCompat)
+                            }
                         }
                     }
                 }

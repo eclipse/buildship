@@ -588,6 +588,9 @@
             pattern="org\.eclipse\.buildship\.branding"/>
         <operand
             xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.compat"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
             pattern="org\.eclipse\.buildship\.core"/>
         <operand
             xsi:type="predicates:NamePredicate"

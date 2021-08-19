@@ -33,7 +33,7 @@ def eclipseVersionAgnosticDependencies = [
 // the default version is 48 which can be overridden through -Peclipse.version=<version>
 // also the target platforms contain 1) the Eclipse SDK 2) the latest junit 3) SWTBot 2.2.1
 eclipseBuild {
-    defaultEclipseVersion = '416'
+    defaultEclipseVersion = '420'
 
     final def swtPluginId = "org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}"
 
@@ -814,13 +814,28 @@ project.assembleTargetPlatform.doLast {
     }
 }
 
+if (!project.hasProperty('jdk8.location')) {
+    throw new Exception('jdk8.location project property required for build')
+} else if (!project.hasProperty('jdk11.location')) {
+    throw new Exception('jdk11.location project property required for build')
+}
+// quotes required on TeamCity to pass property with spaces, e.g. a Windows file path
+def jdk8Location = project.property('jdk8.location').replace('\"', '').replace('\'', '')
+def jdk11Location = project.property('jdk11.location').replace('\"', '').replace('\'', '')
+
 subprojects {
     // set the calculated version on all projects in the hierarchy
     version = rootProject.version
 
     plugins.withType(JavaPlugin) {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        def config = Config.on(project)
+        if (project.name.endsWith(".compat") || config.targetPlatform.eclipseVersion in ['43', '44', '45', '46', '47', '48', '49', '410', '411', '412', '413', '414', '415', '416']) {
+            sourceCompatibility = 1.8
+            targetCompatibility = 1.8
+        } else {
+            sourceCompatibility = 1.11
+            targetCompatibility = 1.11
+        }
 
         tasks.matching { it instanceof JavaCompile || it instanceof GroovyCompile }.all {
             // enable all warnings except for different sourceCompatibility and targetCompatibility value
@@ -832,9 +847,10 @@ subprojects {
 //            }
             options.fork = true
 
-            if (project.hasProperty('compiler.location')) {
-                // quotes required on TeamCity to pass property with spaces, e.g. a Windows file path
-                options.forkOptions.executable = project.property('compiler.location').replace('\"', '').replace('\'', '')
+            if (project.name.endsWith(".compat") || config.targetPlatform.eclipseVersion in ['43', '44', '45', '46', '47', '48', '49', '410', '411', '412', '413', '414', '415', '416']) {
+                options.forkOptions.executable = jdk8Location + "/bin/javac"
+            } else {
+                options.forkOptions.executable = jdk11Location + "/bin/javac"
             }
         }
     }
@@ -860,6 +876,11 @@ subprojects {
       configFile = "$checkstyleConfigDir/checkstyle.xml" as File
       configProperties = ['checkstyleConfigDir': checkstyleConfigDir]
       inputs.file "$checkstyleConfigDir/suppressions.xml" as File
+    }
+
+    tasks.withType(Test).all {
+        jvmArgs "-Djdk8.location=$jdk8Location"
+        jvmArgs "-Djdk11.location=$jdk11Location"
     }
 
     // configure the repositories where the external dependencies can be found
