@@ -195,6 +195,14 @@ class CheckpointBuildType(triggerName: String, scenarios: List<IndividualScenari
     createId("Checkpoint", triggerName)
     trigger.applyOn(this)
 
+    vcs {
+        root(GitHubVcsRoot)
+
+        checkoutMode = CheckoutMode.ON_AGENT
+        cleanCheckout = true
+        showDependenciesChanges = true
+    }
+
     if (previousCheckpoint != null) {
         triggers {
             finishBuildTrigger {
