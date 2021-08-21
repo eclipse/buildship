@@ -137,7 +137,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
         findProject('included2-sub2')
 
         where:
-        distribution << getSupportedGradleDistributions('>=4.0')
+        distribution << getSupportedGradleDistributions('>=5.5')
     }
 
 	@Unroll
