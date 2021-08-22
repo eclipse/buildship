@@ -6,34 +6,34 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.*
 
 val individualBuildsForPhase1 = listOf(
-    IndividualScenarioBuildType(ScenarioType.SANITY_CHECK, OS.LINUX, EclipseVersion.ECLIPSE4_13, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8)
+    IndividualScenarioBuildType(ScenarioType.SANITY_CHECK, OS.LINUX, EclipseVersion.ECLIPSE4_13, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8)
 )
 val individualBuildsForPhase2 = listOf(
-    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_8, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_20, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
-    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_8, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_20, defaultCompilerJdk= Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.OPEN_JDK_11)
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_20, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_20, eclipseRuntimeJdk = Jdk.OPEN_JDK_11)
 )
 val individualBuildsForPhase3 = listOf(
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_8, defaultCompilerJdk =  Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_9, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_10, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_11, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_12, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_13, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_14, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_15, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_16, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_17, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_18, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_19, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_20, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_9, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_10, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_12, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_13, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_14, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_15, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_16, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_17, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_18, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_19, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_20, eclipseRuntimeJdk = Jdk.OPEN_JDK_11),
 
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_8, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
-    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_20, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.OPEN_JDK_11)
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8),
+    IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_20, eclipseRuntimeJdk = Jdk.OPEN_JDK_11)
 )
 val individualBuildsForPhase4 = listOf(
-    IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_8, defaultCompilerJdk = Jdk.OPEN_JDK_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8)
+    IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8)
 )
 
 val tb1_1 = CheckpointBuildType("Sanity Check (Phase 1/1)", individualBuildsForPhase1, null)
@@ -51,7 +51,7 @@ val snapshotPromotion = PromotionBuildType("snapshot", tb4_4, Trigger.DAILY_MAST
 val milestonePromotion = PromotionBuildType("milestone", tb4_4)
 val releasePromotion = PromotionBuildType("release", tb4_4)
 
-class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: EclipseVersion, defaultCompilerJdk: Jdk, eclipseRuntimeJdk: Jdk) : BuildType({
+class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: EclipseVersion, eclipseRuntimeJdk: Jdk) : BuildType({
     createId("Individual", "${type.name.toLowerCase()}_Test_Coverage_${os.name.toLowerCase()}_Eclipse${eclipseVersion.versionNumber}_OnJava${eclipseRuntimeJdk.majorVersion}")
     addCredentialsLeakFailureCondition()
 
@@ -65,7 +65,7 @@ class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: Ec
         param("eclipse.release.type", "snapshot")
         param("build.invoker", "ci")
         param("eclipse.version", eclipseVersion.updateSiteVersion)
-        param("compiler.location", defaultCompilerJdk.getJavaCompilerPath(os))
+        param("compiler.location", Jdk.OPEN_JDK_11.getJavaCompilerPath(os))
         param("eclipse.test.java.home", eclipseRuntimeJdk.getJavaHomePath(os))
         param("env.JAVA_HOME", eclipseRuntimeJdk.getJavaHomePath(os))
         param("enable.oomph.plugin", "false")
@@ -124,6 +124,8 @@ class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Trig
         param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
         param("eclipse.release.type", typeName)
         param("build.invoker", "ci")
+        param("env.JAVA_HOME", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
+        param("compiler.location", Jdk.OPEN_JDK_11.getJavaCompilerPath(OS.LINUX))
         param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(OS.LINUX))
         param("jdk11.location", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
     }
@@ -180,7 +182,7 @@ class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Trig
                 buildFile = ""
                 gradleParams = """
                     --exclude-task eclipseTest
-                    -Peclipse.version=45 -Pcompiler.location='%linux.java8.oracle.64bit%/bin/javac' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=build.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=/home/data/httpd/download.eclipse.org/buildship/updates -PECLIPSE_ORG_TEMP_PATH=/home/data/httpd/download.eclipse.org/buildship/temp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates -PgithubAccessKey=%github.token%
+                    -Peclipse.version=45 -Pcompiler.location='%compiler.location%' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=build.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=/home/data/httpd/download.eclipse.org/buildship/updates -PECLIPSE_ORG_TEMP_PATH=/home/data/httpd/download.eclipse.org/buildship/temp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates -PgithubAccessKey=%github.token%
                     --stacktrace
                     "-Dgradle.cache.remote.url=%gradle.cache.remote.url%"
                     "-Dgradle.cache.remote.username=%gradle.cache.remote.username%"
