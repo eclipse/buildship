@@ -124,6 +124,8 @@ class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Trig
         param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
         param("eclipse.release.type", typeName)
         param("build.invoker", "ci")
+        param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(OS.LINUX))
+        param("jdk11.location", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
     }
 
     // The artifact upload requires uses ssh which requires manual confirmation. to work around that, we use the same
