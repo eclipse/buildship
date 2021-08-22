@@ -537,7 +537,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     }
 
     @Unroll
-    def "Custom access rules are updated for #distribution.version"(GradleDistribution distribution) {
+    def "Custom access rules are updated for #distribution.version"() {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -545,7 +545,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
             dir('src/main/java')
 
             file 'settings.gradle', 'include "api"'
-
+            GradleVersion version = GradleVersion.version(distribution.version)
+            def configuration = version <= GradleVersion.version("6.8.2") ? "compile" : "implementation"
             file 'build.gradle', """
                 import org.gradle.plugins.ide.eclipse.model.AccessRule
 
@@ -556,8 +557,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
                 }
 
                 dependencies {
-                    implementation 'com.google.guava:guava:18.0'
-                    implementation project(':api')
+                    $configuration 'com.google.guava:guava:18.0'
+                    $configuration project(':api')
                 }
 
                 eclipse {
