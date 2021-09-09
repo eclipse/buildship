@@ -32,6 +32,7 @@ remotes {
 }
 
 dependencies {
+    localPlugin project(':org.eclipse.buildship.compat')
     localPlugin project(':org.eclipse.buildship.core')
     localPlugin project(':org.eclipse.buildship.ui')
     localPlugin project(':org.eclipse.buildship.branding')
