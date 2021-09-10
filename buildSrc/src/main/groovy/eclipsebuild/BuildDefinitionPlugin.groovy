@@ -223,12 +223,29 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             config.nonMavenizedTargetPlatformDir.deleteDir()
         }
 
+        // repository mirrors
+        def mirrors = [:]
+        if (project.hasProperty('repository.mirrors')) {
+            String allMirrors = project.property('repository.mirrors')
+            allMirrors.split(',').each {
+                if (!it.contains("->")) {
+                    throw new RuntimeException("Mirrors should be denoted as sourceUrl->targetUrl")
+                }
+                def mirror = it.split('->')
+                mirrors[mirror[0]] = mirror[1]
+            }
+        }
+
         // collect  update sites and feature names
         def updateSites = []
         def features = []
         def rootNode = new XmlSlurper().parseText(config.targetPlatform.targetDefinition.text)
         rootNode.locations.location.each { location ->
-            updateSites.add(location.repository.@location.text().replace('\${project_loc}', 'file://' +  project.projectDir.absolutePath))
+            String siteUrl = location.repository.@location.text().replace('\${project_loc}', 'file://' +  project.projectDir.absolutePath)
+            if (mirrors[siteUrl]) {
+                siteUrl = mirrors[siteUrl]
+            }
+            updateSites.add(siteUrl)
             location.unit.each {unit -> features.add("${unit.@id}/${unit.@version}") }
         }
 
