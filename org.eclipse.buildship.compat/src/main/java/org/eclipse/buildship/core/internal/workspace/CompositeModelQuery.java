@@ -59,9 +59,9 @@ public final class CompositeModelQuery<T, U> implements BuildAction<Map<String, 
         }
 
         if (this.parameter != null) {
-            models.put(buildPath, controller.getModel(build.getRootProject(), this.modelType, this.parameterType, this.parameter));
+            models.put(buildPath, controller.getModel(build, this.modelType, this.parameterType, this.parameter));
         } else {
-            models.put(buildPath, controller.getModel(build.getRootProject(), this.modelType));
+            models.put(buildPath, controller.getModel(build, this.modelType));
 
         }
 
