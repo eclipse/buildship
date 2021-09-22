@@ -243,7 +243,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         rootNode.locations.location.each { location ->
             String siteUrl = location.repository.@location.text().replace('\${project_loc}', 'file://' +  project.projectDir.absolutePath)
             if (mirrors[siteUrl]) {
-                siteUrl = mirrors[siteUrl]
+                updateSites.add(mirrors[siteUrl])
             }
             updateSites.add(siteUrl)
             location.unit.each {unit -> features.add("${unit.@id}/${unit.@version}") }
