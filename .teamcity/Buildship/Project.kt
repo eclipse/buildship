@@ -51,12 +51,6 @@ val snapshotPromotion = PromotionBuildType("snapshot", tb4_4, Trigger.DAILY_MAST
 val milestonePromotion = PromotionBuildType("milestone", tb4_4)
 val releasePromotion = PromotionBuildType("release", tb4_4)
 
-val allMirrors = EclipseVersion.values()
-    .map { "https://download.eclipse.org/releases/${it.codeName.toLowerCase()}->https://repo.grdev.net/artifactory/eclipse-ide/releases/${it.codeName.toLowerCase()}" }
-    .joinToString(",") +
-        ",https://download.eclipse.org/tools/orbit/downloads/drops/R20210602031627/repository->https://repo.grdev.net/artifactory/eclipse-orbit" +
-        ",https://download.eclipse.org/technology/swtbot/releases/2.2.1->https://repo.grdev.net/artifactory/eclipse-swtbot"
-
 class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: EclipseVersion, eclipseRuntimeJdk: Jdk) : BuildType({
     createId("Individual", "${type.name.toLowerCase()}_Test_Coverage_${os.name.toLowerCase()}_Eclipse${eclipseVersion.versionNumber}_OnJava${eclipseRuntimeJdk.majorVersion}")
     addCredentialsLeakFailureCondition()
@@ -78,7 +72,7 @@ class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: Ec
         param("gradle.tasks", type.gradleTasks)
         param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(os))
         param("jdk11.location", Jdk.OPEN_JDK_11.getJavaHomePath(os))
-        param("repository.mirrors", allMirrors)
+        param("repository.mirrors", allMirrors())
     }
 
     triggers {
@@ -135,7 +129,7 @@ class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Trig
         param("compiler.location", Jdk.OPEN_JDK_11.getJavaCompilerPath(OS.LINUX))
         param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(OS.LINUX))
         param("jdk11.location", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
-        param("repository.mirrors", allMirrors)
+        param("repository.mirrors", allMirrors())
     }
 
     // The artifact upload requires uses ssh which requires manual confirmation. to work around that, we use the same
@@ -279,3 +273,9 @@ object Promotions : Project({
     buildTypesWithOrder(listOf(snapshotPromotion, milestonePromotion, releasePromotion))
 })
 
+
+fun allMirrors() = EclipseVersion.values()
+    .map { "https://download.eclipse.org/releases/${it.codeName.toLowerCase()}->https://repo.grdev.net/artifactory/eclipse-ide/releases/${it.codeName.toLowerCase()}" }
+    .joinToString(",") +
+        ",https://download.eclipse.org/tools/orbit/downloads/drops/R20210602031627/repository->https://repo.grdev.net/artifactory/eclipse-orbit" +
+        ",https://download.eclipse.org/technology/swtbot/releases/2.2.1->https://repo.grdev.net/artifactory/eclipse-swtbot"
