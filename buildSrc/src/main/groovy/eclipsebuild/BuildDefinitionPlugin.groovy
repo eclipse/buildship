@@ -276,7 +276,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
                     '-tag', 'target-platform',
                     '-destination', config.nonMavenizedTargetPlatformDir.path,
                     '-profile', 'SDKProfile',
-                    '-bundlepool', new File(project.buildDir, ".p2").absolutePath,
+                    '-bundlepool', new File(project.buildDir, "p2").absolutePath,
                     '-p2.os', Constants.os,
                     '-p2.ws', Constants.ws,
                     '-p2.arch', Constants.arch,
