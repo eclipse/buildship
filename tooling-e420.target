@@ -3,8 +3,8 @@
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.m2e.feature.feature.group" version="1.18.0.20210603-1206"/>
-            <unit id="org.eclipse.sdk.ide" version="4.20.0.I20210611-1600"/>
             <unit id="org.eclipse.oomph.setup.feature.group" version="1.21.0.v20210601-0619"/>
+            <unit id="org.eclipse.sdk.ide" version="4.20.0.I20210611-1600"/>
             <repository location="https://download.eclipse.org/releases/2021-06"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
