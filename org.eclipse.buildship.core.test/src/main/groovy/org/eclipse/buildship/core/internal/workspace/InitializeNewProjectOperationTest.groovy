@@ -24,7 +24,7 @@ import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 class InitializeNewProjectOperationTest extends WorkspaceSpecification {
 
     @Unroll
-    @Timeout(value = 1, unit = TimeUnit.MINUTES)
+    @Timeout(value = 3, unit = TimeUnit.MINUTES)
     def "Can initialize a new project with #gradleDistribution"(GradleDistribution gradleDistribution) {
         setup:
         File location = new File(testDir, 'initializeNewProjectOperationTest1')
