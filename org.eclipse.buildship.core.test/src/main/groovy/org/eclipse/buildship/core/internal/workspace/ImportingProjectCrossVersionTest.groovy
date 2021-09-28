@@ -191,6 +191,50 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 		distribution << getSupportedGradleDistributions('>=6.8')
 	}
 
+    @Unroll
+    def "Can handle cycle including the root build"(GradleDistribution distribution) {
+        given:
+        file('composite-build/settings.gradle').text = '''
+            rootProject.name = 'root'
+            includeBuild 'included1'
+        '''
+        file('composite-build/included1/settings.gradle').text = '''
+            rootProject.name = 'included1'
+            includeBuild '..'
+        '''
+
+        when:
+        importAndWait(compositeProjectDir, distribution)
+
+        then:
+        allProjects().size() == 2
+        findProject('root')
+        findProject('included1')
+
+        where:
+        distribution << getSupportedGradleDistributions('>=6.8.1')
+    }
+
+    @Unroll
+    def "Can handle self-include of root build"(GradleDistribution distribution) {
+        // For context, see: https://github.com/gradle/gradle/pull/15817
+        given:
+        file('composite-build/settings.gradle').text = '''
+            rootProject.name = 'root'
+			includeBuild '.'
+        '''
+
+        when:
+        importAndWait(compositeProjectDir, distribution)
+
+        then:
+        allProjects().size() == 1
+        findProject('root')
+
+        where:
+        distribution << getSupportedGradleDistributions('>=6.8.1')
+    }
+
     @Ignore("TODO Buildship doesn't de-duplicate project names which makes the synchronization fail")
     @Unroll
     def "Included builds imported but not de-duplicated names for #distribution.version"(GradleDistribution distribution) {

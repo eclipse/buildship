@@ -49,11 +49,11 @@ public final class CompositeModelQuery<T, U> implements BuildAction<Map<String, 
     public Map<String, T> execute(BuildController controller) {
         Map<String,T> acc = new HashMap<>();
         // ':' represents the root build
-        collectRootModels(controller, controller.getBuildModel(), acc, ":");
+        collectRootModels(controller, controller.getBuildModel(), acc, ":", controller.getBuildModel().getRootProject().getName());
         return acc;
     }
 
-    private void collectRootModels(BuildController controller, GradleBuild build, Map<String, T> models, String buildPath) {
+    private void collectRootModels(BuildController controller, GradleBuild build, Map<String, T> models, String buildPath, String rootBuildRootProjectName) {
         if (models.containsKey(buildPath)) {
             return; // can happen when there's a cycle in the included builds
         }
@@ -62,11 +62,13 @@ public final class CompositeModelQuery<T, U> implements BuildAction<Map<String, 
             models.put(buildPath, controller.getModel(build.getRootProject(), this.modelType, this.parameterType, this.parameter));
         } else {
             models.put(buildPath, controller.getModel(build.getRootProject(), this.modelType));
-
         }
 
         for (GradleBuild includedBuild : build.getIncludedBuilds()) {
-            collectRootModels(controller, includedBuild, models, includedBuild.getRootProject().getName());
+            String includedBuildRootProjectName = includedBuild.getRootProject().getName();
+            if (!includedBuildRootProjectName.equals(rootBuildRootProjectName)) {
+                collectRootModels(controller, includedBuild, models, includedBuildRootProjectName, rootBuildRootProjectName);
+            }
         }
     }
 
