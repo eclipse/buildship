@@ -11,11 +11,16 @@
 
 package eclipsebuild
 
+import com.google.common.hash.HashFunction
+import com.google.common.hash.Hashing
 import eclipsebuild.jar.ExistingJarBundlePlugin
+import eclipsebuild.mavenize.BundleMavenDeployer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.logging.LogLevel
-import eclipsebuild.mavenize.BundleMavenDeployer
+
+import java.nio.charset.StandardCharsets
 
 /**
  * Gradle plugin for the root project of the Eclipse plugin build.
@@ -116,6 +121,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     // task names
     static final String TASK_NAME_DOWNLOAD_ECLIPSE_SDK = "downloadEclipseSdk"
     static final String TASK_NAME_ASSEMBLE_TARGET_PLATFORM = "assembleTargetPlatform"
+    static final String TASK_NAME_ADD_EXISTING_JAR_BUNDLES_TO_TARGET_PLATFORM = "addExistingJarBundlesToTargetPlatform"
     static final String TASK_NAME_INSTALL_TARGET_PLATFORM = "installTargetPlatform"
     static final String TASK_NAME_UNINSTALL_TARGET_PLATFORM = "uninstallTargetPlatform"
     static final String TASK_NAME_UNINSTALL_ALL_TARGET_PLATFORMS = "uninstallAllTargetPlatforms"
@@ -128,6 +134,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         validateDslBeforeBuildStarts(project, config)
         addTaskDownloadEclipseSdk(project, config)
         addTaskAssembleTargetPlatform(project, config)
+        addTaskAddExistingJarsToTargetPlatform(project, config)
         addTaskInstallTargetPlatform(project, config)
         addTaskUninstallTargetPlatform(project, config)
         addTaskUninstallAllTargetPlatforms(project, config)
@@ -191,6 +198,26 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             project.afterEvaluate { inputs.file config.targetPlatform.targetDefinition }
             project.afterEvaluate { outputs.dir config.nonMavenizedTargetPlatformDir }
 
+            doLast { assembleTargetPlatform(project, config) }
+
+            onlyIf {
+                HashFunction sha512HashFunction = Hashing.sha512()
+                String hash = sha512HashFunction.hashString(config.targetPlatform.targetDefinition.text, StandardCharsets.UTF_8)
+                File digestFile = new File(config.nonMavenizedTargetPlatformDir, 'digest')
+                boolean digestMatch = digestFile.exists() ? digestFile.text == hash : false
+                !digestMatch
+            }
+        }
+    }
+
+    static void addTaskAddExistingJarsToTargetPlatform(Project project, Config config) {
+        project.task(TASK_NAME_ADD_EXISTING_JAR_BUNDLES_TO_TARGET_PLATFORM, dependsOn: [
+                TASK_NAME_ASSEMBLE_TARGET_PLATFORM,
+        ]) {
+            group = Constants.gradleTaskGroupName
+            description = "Adds local jar bundle plugins to the assembled target platform"
+
+
             // install existing jar bundles
             project.rootProject.allprojects.each { Project p ->
                 p.afterEvaluate {
@@ -200,7 +227,18 @@ class BuildDefinitionPlugin implements Plugin<Project> {
                 }
             }
 
-            doLast { assembleTargetPlatform(project, config) }
+            doLast { addExistingJarsToTargetPlatform(project, config) }
+
+            onlyIf {
+                Task t = project.tasks[TASK_NAME_ASSEMBLE_TARGET_PLATFORM]
+                boolean didWork = t.state.didWork
+                project.rootProject.allprojects.each { Project p ->
+                    if (p.plugins.hasPlugin(ExistingJarBundlePlugin)) {
+                        didWork = didWork || p.tasks[ExistingJarBundlePlugin.TASK_NAME_CREATE_P2_REPOSITORY].state.didWork
+                    }
+                }
+                didWork
+            }
         }
     }
 
@@ -213,6 +251,15 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             assembleTargetPlatformUnprotected(project, config)
         } finally  {
             lock.unlock()
+        }
+    }
+
+    static void addExistingJarsToTargetPlatform(Project project, Config config) {
+        project.rootProject.allprojects.each { Project p ->
+            if (p.plugins.hasPlugin(ExistingJarBundlePlugin)) {
+                String repo = new File(p.buildDir, ExistingJarBundlePlugin.P2_REPOSITORY_FOLDER).toURI().toURL().toString()
+                executeP2Director(p, config, repo, p.extensions.bundleInfo.bundleName.get())
+            }
         }
     }
 
@@ -254,12 +301,10 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         project.logger.info("Assemble target platfrom in '${config.nonMavenizedTargetPlatformDir.absolutePath}'.\n    Update sites: '${updateSites.join(' ')}'\n    Features: '${features.join(' ')}'")
 
         executeP2Director(project, config, updateSites.join(','), features.join(','))
-        project.rootProject.allprojects.each { Project p ->
-            if (p.plugins.hasPlugin(ExistingJarBundlePlugin)) {
-                String repo = new File(p.buildDir, ExistingJarBundlePlugin.P2_REPOSITORY_FOLDER).toURI().toURL().toString()
-                executeP2Director(p, config, repo, p.extensions.bundleInfo.bundleName.get())
-            }
-        }
+
+        HashFunction sha512HashFunction = Hashing.sha512()
+        String hash = sha512HashFunction.hashString(config.targetPlatform.targetDefinition.text, StandardCharsets.UTF_8)
+        new File(config.nonMavenizedTargetPlatformDir, 'digest').text = hash
     }
 
     private static void executeP2Director(Project project, Config config, String repositoryUrl, String installIU) {
@@ -288,12 +333,16 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     }
 
     static void addTaskInstallTargetPlatform(Project project, Config config) {
-        project.task(TASK_NAME_INSTALL_TARGET_PLATFORM, dependsOn: TASK_NAME_ASSEMBLE_TARGET_PLATFORM) {
+        project.task(TASK_NAME_INSTALL_TARGET_PLATFORM, dependsOn: TASK_NAME_ADD_EXISTING_JAR_BUNDLES_TO_TARGET_PLATFORM) {
             group = Constants.gradleTaskGroupName
             description = "Converts the assembled Eclipse distribution to a Maven repoository."
             project.afterEvaluate { inputs.dir config.nonMavenizedTargetPlatformDir }
             project.afterEvaluate { outputs.dir config.mavenizedTargetPlatformDir }
             doLast { installTargetPlatform(project, config) }
+            onlyIf {
+                Task t = project.tasks[TASK_NAME_ASSEMBLE_TARGET_PLATFORM]
+                t.state.didWork
+            }
         }
     }
 
