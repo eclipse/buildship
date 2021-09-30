@@ -1,5 +1,6 @@
 package eclipsebuild
 
+import com.google.common.hash.HashFunction
 import com.google.common.hash.Hashing
 import com.google.common.hash.HashingOutputStream
 import org.gradle.api.DefaultTask
@@ -10,6 +11,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
 @CacheableTask
