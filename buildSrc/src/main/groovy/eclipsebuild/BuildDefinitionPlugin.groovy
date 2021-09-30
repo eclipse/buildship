@@ -186,6 +186,10 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             downloadUrl = Constants.eclipseSdkDownloadUrl
             expectedSha256Sum = Constants.eclipseSdkDownloadSha256Hash
             targetDir = config.eclipseSdkDir
+            onlyIf {
+                File digestFile = new File(config.eclipseSdkDir, 'digest')
+                !new File(config.eclipseSdkDir, Constants.eclipseExePath).exists() || !digestFile.exists() || (digestFile.exists() && digestFile.text != Constants.eclipseSdkDownloadSha256Hash)
+            }
         }
     }
 

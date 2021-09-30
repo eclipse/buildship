@@ -1,6 +1,6 @@
 package eclipsebuild
 
-import com.google.common.hash.HashFunction
+
 import com.google.common.hash.Hashing
 import com.google.common.hash.HashingOutputStream
 import org.gradle.api.DefaultTask
@@ -11,7 +11,6 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
 
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
 @CacheableTask
@@ -44,7 +43,7 @@ class DownloadEclipseSdkTask extends DefaultTask {
         File destination = new File(targetDir, 'eclipse-sdk.archive')
         project.logger.info("Download Eclipse SDK from '${downloadUrl}' to '$destination.absolutePath'")
         project.ant.get(src: new URL(downloadUrl), dest: destination)
-        verifySdk256Sum(destination)
+        verifyAndSaveSdk256Sum(targetDir, destination)
 
         // extract it to the same location where it was extracted
         project.logger.info("Extract 'archive to '$targetDir.absolutePath'")
@@ -65,11 +64,12 @@ class DownloadEclipseSdkTask extends DefaultTask {
         }
     }
 
-    private void verifySdk256Sum(File destination) {
+    private void verifyAndSaveSdk256Sum(File targetDir,  File destination) {
         def actualSha256Sum = calculateSdk256Sum(destination)
         if (actualSha256Sum != expectedSha256Sum) {
             throw new RuntimeException("Eclipse SDK SHA-126 sum does not match. Expected: $expectedSha256Sum, actual: $actualSha256Sum.")
         }
+        new File(targetDir, 'digest').text = actualSha256Sum
     }
 
     private File eclipseSdkExe() {
