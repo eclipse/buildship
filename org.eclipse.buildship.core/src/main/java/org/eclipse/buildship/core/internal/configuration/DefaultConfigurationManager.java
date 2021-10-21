@@ -111,7 +111,17 @@ public class DefaultConfigurationManager implements ConfigurationManager {
 
     @Override
     public ProjectConfiguration loadProjectConfiguration(IProject project) {
-        String pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project.getLocation().toFile());
+        String pathToRoot = null;
+        if (project.isAccessible()) {
+            try {
+                pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project);
+            } catch (RuntimeException e) {
+                // fallback to the file IO based preferences store.
+            }   
+        }
+        if (pathToRoot == null) {
+            pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project.getLocation().toFile());
+        }
         File rootDir = relativePathToProjectRoot(project.getLocation(), pathToRoot);
         BuildConfiguration buildConfig = loadBuildConfiguration(rootDir);
         return new DefaultProjectConfiguration(project.getLocation().toFile(), buildConfig);
@@ -128,6 +138,18 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     private ProjectConfiguration loadProjectConfiguration(File projectDir) {
+        Preconditions.checkNotNull(projectDir);
+        Preconditions.checkArgument(projectDir.exists());
+        Optional<IProject> projectCandidate = CorePlugin.workspaceOperations().findProjectByLocation(projectDir);
+        if (projectCandidate.isPresent() && projectCandidate.get().isAccessible()) {
+            IProject project = projectCandidate.get();
+            try {
+                return loadProjectConfiguration(project);
+            } catch (Exception e) {
+                // fallback to the file IO based preferences store.
+            }
+        }
+
         String pathToRoot = this.buildConfigurationPersistence.readPathToRoot(projectDir);
         File rootDir = relativePathToProjectRoot(new Path(projectDir.getAbsolutePath()), pathToRoot);
         BuildConfiguration buildConfig = loadBuildConfiguration(rootDir);

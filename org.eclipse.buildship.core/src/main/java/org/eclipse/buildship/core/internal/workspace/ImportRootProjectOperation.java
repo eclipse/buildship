@@ -65,8 +65,8 @@ public final class ImportRootProjectOperation {
 
                 File rootDir = ImportRootProjectOperation.this.buildConfiguration.getRootProjectDirectory();
                 verifyNoWorkspaceRootIsImported(rootDir, progress.newChild(1));
-                saveProjectConfiguration(ImportRootProjectOperation.this.buildConfiguration, rootDir, progress.newChild(1));
                 importRootProject(rootDir, progress.newChild(1));
+                saveProjectConfiguration(ImportRootProjectOperation.this.buildConfiguration, rootDir, progress.newChild(1));
             }
         }, monitor);
     }
