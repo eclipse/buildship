@@ -11,27 +11,22 @@ package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
+import org.gradle.tooling.model.eclipse.EclipseWorkspace;
 import org.gradle.tooling.model.eclipse.EclipseWorkspaceProject;
 
-class DefaultEclipseWorkspaceProject implements EclipseWorkspaceProject, Serializable {
+public class DefaultEclipseWorkspace implements EclipseWorkspace, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final String name;
     private final File location;
-    private final boolean isOpen;
+    private final List<EclipseWorkspaceProject> projects;
 
-    public DefaultEclipseWorkspaceProject(String name, File location, boolean isOpen) {
+    public DefaultEclipseWorkspace(File location, List<EclipseWorkspaceProject> projects) {
         super();
-        this.name = name;
         this.location = location;
-        this.isOpen = isOpen;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
+        this.projects = projects;
     }
 
     @Override
@@ -40,13 +35,13 @@ class DefaultEclipseWorkspaceProject implements EclipseWorkspaceProject, Seriali
     }
 
     @Override
-    public boolean isOpen() {
-        return this.isOpen;
+    public List<EclipseWorkspaceProject> getProjects() {
+        return this.projects;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.isOpen, this.location, this.name);
+        return Objects.hash(this.location, this.projects);
     }
 
     @Override
@@ -60,8 +55,8 @@ class DefaultEclipseWorkspaceProject implements EclipseWorkspaceProject, Seriali
         if (getClass() != obj.getClass()) {
             return false;
         }
-        DefaultEclipseWorkspaceProject other = (DefaultEclipseWorkspaceProject) obj;
-        return this.isOpen == other.isOpen && Objects.equals(this.location, other.location) && Objects.equals(this.name, other.name);
+        DefaultEclipseWorkspace other = (DefaultEclipseWorkspace) obj;
+        return Objects.equals(this.location, other.location) && Objects.equals(this.projects, other.projects);
     }
 
 }

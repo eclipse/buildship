@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.workspace.CompositeModelQuery;
-import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider;
+import org.eclipse.buildship.core.internal.workspace.TellGradleToRunAutoSyncTasks;
 
 /**
  * When Buildship is launched from the IDE - as an Eclipse application or as a plug-in
@@ -124,9 +124,9 @@ public class IdeFriendlyClassLoading {
     }
 
     private static final Class<?> loadClassWithIdeFriendlyClassLoader(String classname) throws Exception {
-        ClassLoader coreClassloader = DefaultModelProvider.class.getClassLoader();
+        ClassLoader compatClassloader = TellGradleToRunAutoSyncTasks.class.getClassLoader();
         ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
-        URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""));
+        URL actionRootUrl = FileLocator.resolve(compatClassloader.getResource(""));
 
         if (classLoader == null) {
             classLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);

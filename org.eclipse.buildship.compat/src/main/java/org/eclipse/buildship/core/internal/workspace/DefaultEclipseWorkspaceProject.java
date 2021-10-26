@@ -11,22 +11,27 @@ package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
 
-import org.gradle.tooling.model.eclipse.EclipseWorkspace;
 import org.gradle.tooling.model.eclipse.EclipseWorkspaceProject;
 
-class DefaultEclipseWorkspace implements EclipseWorkspace, Serializable {
+public class DefaultEclipseWorkspaceProject implements EclipseWorkspaceProject, Serializable {
 
     private static final long serialVersionUID = 1L;
+    private final String name;
     private final File location;
-    private final List<EclipseWorkspaceProject> projects;
+    private final boolean isOpen;
 
-    public DefaultEclipseWorkspace(File location, List<EclipseWorkspaceProject> projects) {
+    public DefaultEclipseWorkspaceProject(String name, File location, boolean isOpen) {
         super();
+        this.name = name;
         this.location = location;
-        this.projects = projects;
+        this.isOpen = isOpen;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 
     @Override
@@ -35,13 +40,13 @@ class DefaultEclipseWorkspace implements EclipseWorkspace, Serializable {
     }
 
     @Override
-    public List<EclipseWorkspaceProject> getProjects() {
-        return this.projects;
+    public boolean isOpen() {
+        return this.isOpen;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.location, this.projects);
+        return Objects.hash(this.isOpen, this.location, this.name);
     }
 
     @Override
@@ -55,8 +60,8 @@ class DefaultEclipseWorkspace implements EclipseWorkspace, Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        DefaultEclipseWorkspace other = (DefaultEclipseWorkspace) obj;
-        return Objects.equals(this.location, other.location) && Objects.equals(this.projects, other.projects);
+        DefaultEclipseWorkspaceProject other = (DefaultEclipseWorkspaceProject) obj;
+        return this.isOpen == other.isOpen && Objects.equals(this.location, other.location) && Objects.equals(this.name, other.name);
     }
 
 }
