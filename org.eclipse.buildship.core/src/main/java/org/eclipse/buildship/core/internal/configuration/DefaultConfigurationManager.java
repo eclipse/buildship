@@ -115,7 +115,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         if (project.isAccessible()) {
             try {
                 pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project);
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 // fallback to the file IO based preferences store.
             }   
         }
