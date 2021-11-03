@@ -162,18 +162,7 @@ class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Trig
                 name = "Build and upload update site for Eclipse ${eclipseVersion.codeName} (${eclipseVersion.versionNumber})"
                 tasks = "clean build uploadUpdateSite"
                 buildFile = ""
-                gradleParams = """
-                    -Prepository.mirrors=\"%repository.mirrors%\"
-                    --exclude-task eclipseTest
-                    -Peclipse.version=${eclipseVersion.updateSiteVersion} -Pcompiler.location='%linux.java8.oracle.64bit%/bin/javac' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=build.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=/home/data/httpd/download.eclipse.org/buildship/updates -PECLIPSE_ORG_TEMP_PATH=/home/data/httpd/download.eclipse.org/buildship/temp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates
-                    --stacktrace -Declipse.p2.mirror=false
-                    -Penable.oomph.plugin=false
-                    "-Dgradle.cache.remote.url=%gradle.cache.remote.url%"
-                    "-Dgradle.cache.remote.username=%gradle.cache.remote.username%"
-                    "-Dgradle.cache.remote.password=%gradle.cache.remote.password%"
-                    -Pjdk8.location='%jdk8.location%'
-                    -Pjdk11.location='%jdk11.location%'
-                """.trimIndent()
+                gradleParams = "-Prepository.mirrors=\"%repository.mirrors%\" --exclude-task eclipseTest -Peclipse.version=${eclipseVersion.updateSiteVersion} -Pcompiler.location='%linux.java8.oracle.64bit%/bin/javac' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=build.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=/home/data/httpd/download.eclipse.org/buildship/updates -PECLIPSE_ORG_TEMP_PATH=/home/data/httpd/download.eclipse.org/buildship/temp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates --stacktrace -Declipse.p2.mirror=false -Penable.oomph.plugin=false \"-Dgradle.cache.remote.url=%gradle.cache.remote.url%\" \"-Dgradle.cache.remote.username=%gradle.cache.remote.username%\" \"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\" -Pjdk8.location='%jdk8.location%' -Pjdk11.location='%jdk11.location%'"
                 param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
             }
         }
@@ -183,17 +172,7 @@ class PromotionBuildType(typeName: String,  dependency: BuildType, trigger: Trig
                 name = "Tag revision and increment version number"
                 tasks = "tag incrementVersion"
                 buildFile = ""
-                gradleParams = """
-                    -Prepository.mirrors=\"%repository.mirrors%\"
-                    --exclude-task eclipseTest
-                    -Peclipse.version=45 -Pcompiler.location='%compiler.location%' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=build.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=/home/data/httpd/download.eclipse.org/buildship/updates -PECLIPSE_ORG_TEMP_PATH=/home/data/httpd/download.eclipse.org/buildship/temp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates -PgithubAccessKey=%github.token%
-                    --stacktrace
-                    "-Dgradle.cache.remote.url=%gradle.cache.remote.url%"
-                    "-Dgradle.cache.remote.username=%gradle.cache.remote.username%"
-                    "-Dgradle.cache.remote.password=%gradle.cache.remote.password%"
-                    -Pjdk8.location='%jdk8.location%'
-                    -Pjdk11.location='%jdk11.location%'
-                """.trimIndent()
+                gradleParams = "-Prepository.mirrors=\"%repository.mirrors%\" --exclude-task eclipseTest -Peclipse.version=45 -Pcompiler.location='%compiler.location%' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=build.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=/home/data/httpd/download.eclipse.org/buildship/updates -PECLIPSE_ORG_TEMP_PATH=/home/data/httpd/download.eclipse.org/buildship/temp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates -PgithubAccessKey=%github.token% --stacktrace \"-Dgradle.cache.remote.url=%gradle.cache.remote.url%\" \"-Dgradle.cache.remote.username=%gradle.cache.remote.username%\" \"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\" -Pjdk8.location='%jdk8.location%' -Pjdk11.location='%jdk11.location%'"
             }
         }
     }
