@@ -4,7 +4,7 @@ apply plugin: 'org.hidetake.ssh'
 buildscript {
     repositories { jcenter() }
     dependencies {
-        classpath 'org.hidetake:gradle-ssh-plugin:1.1.2'
+        classpath 'org.hidetake:gradle-ssh-plugin:2.10.1'
     }
 }
 
@@ -28,6 +28,7 @@ remotes {
         user =  ECLIPSE_ORG_FTP_USER
         password = ECLIPSE_ORG_FTP_PASSWORD
         knownHosts = project.rootProject.file('gradle/ssh/known_hosts')
+        fileTransfer = 'scp'
     }
 }
 
@@ -244,8 +245,12 @@ private void signByEclipseService(signedFolder, unsignedFolder) {
               put from: source, into: remoteFolder
               execute "curl -o $remoteFolder/$source.name -F file=@$remoteFolder/$source.name https://cbi.eclipse.org/jarsigner/sign"
               println "$remoteFolder/$source.name"
-              get from: "$remoteFolder/$source.name", into: target.path
-                            
+
+              // ssh plugin cannot download artifacts from rojects-storage.eclipse.org. To work around the issue we scp from the command line
+              //get from: "$remoteFolder/$source.name", into: target.path
+              def cmd = "sshpass -p $ECLIPSE_ORG_FTP_PASSWORD scp $ECLIPSE_ORG_FTP_USER@$ECLIPSE_ORG_FTP_HOST:$remoteFolder/$source.name ${target.path}"
+              def process = cmd.execute()
+              process.in.eachLine { println it }
           }
       }
 
