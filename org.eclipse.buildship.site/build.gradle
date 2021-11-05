@@ -242,7 +242,7 @@ private void signByEclipseService(signedFolder, unsignedFolder) {
               target.text = ''
                             
               put from: source, into: remoteFolder
-              execute "curl -o $remoteFolder/$source.name -F file=@$remoteFolder/$source.name http://build.eclipse.org:31338/sign"
+              execute "curl -o $remoteFolder/$source.name -F file=@$remoteFolder/$source.name https://cbi.eclipse.org/jarsigner/sign"
               println "$remoteFolder/$source.name"
               get from: "$remoteFolder/$source.name", into: target.path
                             
