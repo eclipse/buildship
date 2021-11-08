@@ -160,9 +160,9 @@ artifact.repository.factory.order=compositeArtifacts.xml,\\!
                     execute "rm -rf $compositeFolder/compositeContent.xml"
                     
                     // update composite repo metadate
-                    put from: new File(compositeArtifactsFile.parentFile, 'compositeArtifacts.jar'), into: compositeFolder
-                    put from: new File(compositeContentFile.parentFile, 'compositeContent.jar'), into: compositeFolder
-                    put from: p2indexFile, into: compositeFolder
+                    uploadFileWithScp(new File(compositeArtifactsFile.parentFile, 'compositeArtifacts.jar'), compositeFolder)
+                    uploadFileWithScp(new File(compositeContentFile.parentFile, 'compositeContent.jar'), compositeFolder)
+                    uploadFileWithScp(p2indexFile, compositeFolder)
                 }
             }           
         }
@@ -174,7 +174,7 @@ artifact.repository.factory.order=compositeArtifacts.xml,\\!
                     // wipe the previous release and replace it with the new one
                     execute "rm -rf $latestFolder"
                     execute "mkdir -p $latestFolder"
-                    put from: files { file("$buildDir/repository").listFiles() }, into: latestFolder
+                    file("$buildDir/repository").listFiles().each { uploadDirWithScp(it, latestFolder) }
                 }
             }
         }
@@ -247,10 +247,10 @@ private void signByEclipseService(signedFolder, unsignedFolder) {
               println "$remoteFolder/$source.name"
 
               // ssh plugin cannot download artifacts from rojects-storage.eclipse.org. To work around the issue we scp from the command line
-              //get from: "$remoteFolder/$source.name", into: target.path
-              def cmd = "sshpass -p $ECLIPSE_ORG_FTP_PASSWORD scp $ECLIPSE_ORG_FTP_USER@$ECLIPSE_ORG_FTP_HOST:$remoteFolder/$source.name ${target.path}"
+              // get from: "$remoteFolder/$source.name", into: target.path
+              def cmd = "sshpass -p $ECLIPSE_ORG_FTP_PASSWORD scp -o UserKnownHostsFile=${project.rootProject.file('gradle/ssh/known_hosts')} $ECLIPSE_ORG_FTP_USER@$ECLIPSE_ORG_FTP_HOST:$remoteFolder/$source.name ${target.path}"
               def process = cmd.execute()
-              process.in.eachLine { println it }
+              process.waitFor()
           }
       }
 
@@ -258,6 +258,20 @@ private void signByEclipseService(signedFolder, unsignedFolder) {
       execute "rm -rf $remoteFolder"
     }
   }
+}
+
+private void uploadFileWithScp(File source, String targetPath) {
+    def sourcePath = source.absolutePath
+    def cmd = "sshpass -p $ECLIPSE_ORG_FTP_PASSWORD scp -o UserKnownHostsFile=${project.rootProject.file('gradle/ssh/known_hosts')} $source $ECLIPSE_ORG_FTP_USER@$ECLIPSE_ORG_FTP_HOST:${targetPath}/"
+    def process = cmd.execute()
+    process.waitFor()
+}
+
+private void uploadDirWithScp(File source, String targetPath) {
+    def sourcePath = source.absolutePath
+    def cmd = "sshpass -p $ECLIPSE_ORG_FTP_PASSWORD scp -r -o UserKnownHostsFile=${project.rootProject.file('gradle/ssh/known_hosts')} $source $ECLIPSE_ORG_FTP_USER@$ECLIPSE_ORG_FTP_HOST:${targetPath}/"
+    def process = cmd.execute()
+    process.waitFor()
 }
 
 private void signLocally(File unsignedFolder, File signedFolder) {
