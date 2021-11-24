@@ -12,7 +12,7 @@ updateSite {
     extraResources = files('epl-v20.html', 'notice.html', 'p2.index')
     signing { File unsignedFolder, File signedFolder ->
         if (gradle.taskGraph.hasTask(uploadUpdateSite)) {
-            signByEclipseService(signedFolder, unsignedFolder)
+            signWithEclipseService(signedFolder, unsignedFolder)
         } else {
             signLocally(unsignedFolder, signedFolder)
         }
@@ -223,41 +223,25 @@ def releaseStream() {
     "${matcher[0][1]}.x"
 }
 
-private void signByEclipseService(signedFolder, unsignedFolder) {
-  ssh.run {
-    session(remotes.eclipseDotOrg) {
-      // the remote folder where the jars are signed
-      def remoteFolder = "${ECLIPSE_ORG_TEMP_PATH}/${signedFolder.name}"
-
-      // clean up the folder used for signing if the previous build failed
-      execute "rm -rf $remoteFolder"
-      execute "mkdir -p $remoteFolder"
-      
-
-      // upload the jars to the EF build server, sign and download them to the signed folder        
-      file(unsignedFolder).eachFileRecurse(groovy.io.FileType.FILES) { File source ->
-          if(source.name.endsWith('.jar')) { 
-              String sourceRelativePath = source.path.replace(unsignedFolder.path + System.getProperty('file.separator'), '')
-              File target = new File(signedFolder, sourceRelativePath)
-              target.parentFile.mkdirs()
-              target.text = ''
-                            
-              put from: source, into: remoteFolder
-              execute "curl -o $remoteFolder/$source.name -F file=@$remoteFolder/$source.name https://cbi.eclipse.org/jarsigner/sign"
-              println "$remoteFolder/$source.name"
-
-              // ssh plugin cannot download artifacts from rojects-storage.eclipse.org. To work around the issue we scp from the command line
-              // get from: "$remoteFolder/$source.name", into: target.path
-              def cmd = "sshpass -p $ECLIPSE_ORG_FTP_PASSWORD scp -o UserKnownHostsFile=${project.rootProject.file('gradle/ssh/known_hosts')} $ECLIPSE_ORG_FTP_USER@$ECLIPSE_ORG_FTP_HOST:$remoteFolder/$source.name ${target.path}"
-              def process = cmd.execute()
-              process.waitFor()
-          }
-      }
-
-      // clean up the temporary folder on the EF server
-      execute "rm -rf $remoteFolder"
+private void signWithEclipseService(signedFolder, unsignedFolder) {
+    file(unsignedFolder).eachFileRecurse(groovy.io.FileType.FILES) { File source ->
+        if(source.name.endsWith('.jar')) {
+            String sourceRelativePath = source.path.replace(unsignedFolder.path + System.getProperty('file.separator'), '')
+            File target = new File(signedFolder, sourceRelativePath)
+            target.parentFile.mkdirs()
+            def cmd = "${file('sign-jar.sh').absolutePath} $ECLIPSE_ORG_FTP_HOST $ECLIPSE_ORG_FTP_USER $ECLIPSE_ORG_FTP_PASSWORD ${project.rootProject.file('gradle/ssh/known_hosts').absolutePath} ${source.absolutePath} ${target.absolutePath}"
+            def sout = new StringBuilder()
+            def serr = new StringBuilder()
+            def process = cmd.execute()
+            process.consumeProcessOutput(sout, serr)
+            def exitCode = process.waitFor()
+            System.out.println(sout)
+            System.err.println(serr)
+            if (exitCode != 0) {
+                throw new RuntimeException("Signing failed for " + source.name)
+            }
+        }
     }
-  }
 }
 
 private void uploadFileWithScp(File source, String targetPath) {
