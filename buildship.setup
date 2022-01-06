@@ -5,12 +5,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:git="http://www.eclipse.org/oomph/setup/git/1.0"
     xmlns:jdt="http://www.eclipse.org/oomph/setup/jdt/1.0"
+    xmlns:pde="http://www.eclipse.org/oomph/setup/pde/1.0"
     xmlns:predicates="http://www.eclipse.org/oomph/predicates/1.0"
     xmlns:projects="http://www.eclipse.org/oomph/setup/projects/1.0"
     xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
     xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
-    xmlns:setup.targlets="http://www.eclipse.org/oomph/setup/targlets/1.0"
-    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore http://www.eclipse.org/oomph/setup/targlets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupTarglets.ecore"
+    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/setup/pde/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/PDE.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore"
     name="buildship"
     label="Buildship">
   <setupTask
@@ -20,13 +20,13 @@
     <requirement
         name="org.codehaus.groovy.eclipse.feature.feature.group"/>
     <requirement
-        name="org.codehaus.groovy24.feature.feature.group"/>
+        name="org.codehaus.groovy25.feature.feature.group"/>
     <requirement
         name="org.eclipse.oomph.setup.sdk.feature.group"/>
     <requirement
         name="org.eclipse.emf.ecoretools.design.feature.group"/>
     <repository
-        url="https://dist.springsource.org/release/GRECLIPSE/e4.17"/>
+        url="https://dist.springsource.org/release/GRECLIPSE/e4.22"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
@@ -51,50 +51,54 @@
           vm="true">
         <description>Redirect setup model to check for changes in the local file instead in the url</description>
       </setupTask>
-    </setupTask>
-    <setupTask
-        xsi:type="setup:CompoundTask"
-        id="buildship.preferences.compiler"
-        name="Compiler">
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          id="buildship.preferences.compiler.unresolved.extension"
-          key="instance/org.eclipse.pde/compilers.p.unresolved-ex-points"
-          value="1"/>
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          id="buildship.preferences.compiler.source"
-          key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.source"
-          value="1.8"/>
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          id="buildship.preferences.compiler.compilance"
-          key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.compliance"
-          value="1.8"/>
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          id="buildship.preferences.compiler.codegen"
-          key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.targetPlatform"
-          value="1.8"/>
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          id="buildship.preferences.compiler.goovycompilerlevel"
-          key="instance/org.codehaus.groovy.eclipse.compilerResolver/groovy.compiler.level"
-          value="24">
-        <description>Align workspace Groovy compiler level to referenced libs</description>
-      </setupTask>
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          id="buildship.preferences.compiler.unhandledwarning"
-          key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
-          value="ignore">
-        <description>Don't show warnings on unused suppress warnings annotation arguments</description>
-      </setupTask>
       <setupTask
           xsi:type="jdt:JRETask"
-          id="buildship.preferences.compiler.jre"
+          id="buildship.preferences.compiler.jre8"
           version="JavaSE-1.8"
           location="${jre.location-1.8}"/>
+      <setupTask
+          xsi:type="jdt:JRETask"
+          version="JavaSE-11"
+          location="${jre.location-11}"/>
+    </setupTask>
+  </setupTask>
+  <setupTask
+      xsi:type="setup:CompoundTask"
+      id="buildship.preferences.compiler"
+      name="Compiler">
+    <setupTask
+        xsi:type="setup:PreferenceTask"
+        id="buildship.preferences.compiler.unresolved.extension"
+        key="instance/org.eclipse.pde/compilers.p.unresolved-ex-points"
+        value="1"/>
+    <setupTask
+        xsi:type="setup:PreferenceTask"
+        id="buildship.preferences.compiler.source"
+        key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.source"
+        value="1.8"/>
+    <setupTask
+        xsi:type="setup:PreferenceTask"
+        id="buildship.preferences.compiler.compilance"
+        key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.compliance"
+        value="1.8"/>
+    <setupTask
+        xsi:type="setup:PreferenceTask"
+        id="buildship.preferences.compiler.codegen"
+        key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.codegen.targetPlatform"
+        value="1.8"/>
+    <setupTask
+        xsi:type="setup:PreferenceTask"
+        id="buildship.preferences.compiler.goovycompilerlevel"
+        key="instance/org.codehaus.groovy.eclipse.compilerResolver/groovy.compiler.level"
+        value="25">
+      <description>Align workspace Groovy compiler level to referenced libs</description>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:PreferenceTask"
+        id="buildship.preferences.compiler.unhandledwarning"
+        key="instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
+        value="ignore">
+      <description>Don't show warnings on unused suppress warnings annotation arguments</description>
     </setupTask>
     <setupTask
         xsi:type="setup:CompoundTask"
@@ -626,55 +630,47 @@
     </sourceLocator>
   </setupTask>
   <setupTask
-      xsi:type="setup.targlets:TargletTask"
-      id="buildship.targlets">
-    <targlet
-        name="Buildship Main Dependencies"
-        activeRepositoryList="${eclipse.target.platform}">
-      <requirement
-          name="org.eclipse.sdk.ide"/>
-      <requirement
-          name="com.google.gson"
-          versionRange="2.7.0"/>
-      <requirement
-          name="com.google.guava"
-          versionRange="30.1.0"/>
-      <requirement
-          name="org.slf4j.api"
-          versionRange="1.7.2"/>
-      <requirement
-          name="org.eclipse.oomph.setup.feature.group"/>
-      <repositoryList
-          name="${eclipse.target.platform}">
-        <repository
-            url="https://builds.gradle.org:8001/eclipse/update-site/mirror/releases-rolling"/>
-        <repository
-            url="https://builds.gradle.org:8001/eclipse/update-site/mirror/orbit-rolling"/>
-      </repositoryList>
-    </targlet>
-    <targlet
-        name="Buildship Test Dependencies"
-        activeRepositoryList="${eclipse.target.platform}">
-      <requirement
-          name="org.junit"
-          versionRange="4.12.0"/>
-      <requirement
-          name="org.eclipse.swtbot.eclipse.feature.group"
-          versionRange="2.2.1"/>
-      <requirement
-          name="org.eclipse.oomph.setup.feature.group"/>
-      <requirement
-          name="org.eclipse.oomph.version.feature.group"/>
-      <repositoryList
-          name="${eclipse.target.platform}">
-        <repository
-            url="https://builds.gradle.org:8001/eclipse/update-site/mirror/swtbot/release"/>
-        <repository
-            url="https://builds.gradle.org:8001/eclipse/update-site/mirror/orbit-rolling"/>
-      </repositoryList>
-    </targlet>
-    <targlet
-        name="Eclipse Platform"/>
+      xsi:type="setup:ResourceCreationTask"
+      id="buildship.latest.target.platform"
+      force="true"
+      targetURL="${buildship.git.clone.location|uri}/tooling-local.target"
+      encoding="UTF-8">
+    <content>
+      &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?>
+      &lt;target name=&quot;Buildship Local Target Platform&quot; sequenceNumber=&quot;1&quot;>
+          &lt;locations>
+              &lt;location includeAllPlatforms=&quot;false&quot; includeConfigurePhase=&quot;true&quot; includeMode=&quot;planner&quot; includeSource=&quot;true&quot; type=&quot;InstallableUnit&quot;>
+                  &lt;unit id=&quot;org.eclipse.m2e.feature.feature.group&quot; version=&quot;1.19.0.20211116-0804&quot;/>
+                  &lt;unit id=&quot;org.eclipse.oomph.setup.feature.group&quot; version=&quot;1.23.0.v20211116-0849&quot;/>
+                  &lt;unit id=&quot;org.eclipse.sdk.ide&quot; version=&quot;4.22.0.I20211124-1800&quot;/>
+                  &lt;repository location=&quot;https://download.eclipse.org/releases/2021-12&quot;/>
+              &lt;/location>
+              &lt;location includeAllPlatforms=&quot;false&quot; includeConfigurePhase=&quot;true&quot; includeMode=&quot;planner&quot; includeSource=&quot;true&quot; type=&quot;InstallableUnit&quot;>
+                  &lt;unit id=&quot;com.google.gson&quot; version=&quot;2.7.0.v20170129-0911&quot;/>
+                  &lt;unit id=&quot;com.google.guava&quot; version=&quot;30.1.0.v20210127-2300&quot;/>
+                  &lt;unit id=&quot;org.junit&quot; version=&quot;4.13.0.v20200204-1500&quot;/>
+                  &lt;unit id=&quot;org.slf4j.api&quot; version=&quot;1.7.30.v20200204-2150&quot;/>
+                  &lt;repository location=&quot;https://download.eclipse.org/tools/orbit/downloads/drops/R20210602031627/repository&quot;/>
+              &lt;/location>
+              &lt;location includeAllPlatforms=&quot;false&quot; includeConfigurePhase=&quot;true&quot; includeMode=&quot;planner&quot; includeSource=&quot;true&quot; type=&quot;InstallableUnit&quot;>
+                  &lt;unit id=&quot;org.eclipse.swtbot.eclipse.feature.group&quot; version=&quot;2.2.1.201402241301&quot;/>
+                  &lt;unit id=&quot;org.eclipse.swtbot.ide.feature.group&quot; version=&quot;2.2.1.201402241301&quot;/>
+                  &lt;repository location=&quot;https://download.eclipse.org/technology/swtbot/releases/2.2.1&quot;/>
+              &lt;/location>
+          &lt;/locations>
+          &lt;targetJRE path=&quot;org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11&quot;/>
+          &lt;launcherArgs>
+              &lt;vmArgs>-XX:MaxPermSize=128M -Djdk8.location=${jre.location-1.8} -Djdk11.location=${jre.location-11}&lt;/vmArgs>
+          &lt;/launcherArgs>
+      &lt;/target>
+
+    </content>
+  </setupTask>
+  <setupTask
+      xsi:type="pde:TargetPlatformTask"
+      id="buildship.activate.local.target.definition"
+      name="Buildship Local Target Platform">
+    <description></description>
   </setupTask>
   <stream name="master"
       label="master">
