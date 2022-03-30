@@ -29,7 +29,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.internal.configuration.Test;
+import org.eclipse.buildship.core.internal.configuration.TestRunConfiguration;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
 
@@ -80,10 +80,10 @@ public abstract class TestExecutionTarget {
     private static class TestBackedTestExecutionTarget extends TestExecutionTarget {
 
         private final IProject project;
-        private final List<Test> tests;
+        private final TestRunConfiguration tests;
         private final String mode;
 
-        public TestBackedTestExecutionTarget(IProject project, List<Test> tests, String mode) {
+        public TestBackedTestExecutionTarget(IProject project, TestRunConfiguration tests, String mode) {
             this.project = project;
             this.tests = tests;
             this.mode = mode;
@@ -92,9 +92,9 @@ public abstract class TestExecutionTarget {
         @Override
         public Optional<String> validate() {
             Optional<String> result = validateGradleProject(this.project);
-            if (!result.isPresent()) {
-                result = this.tests.isEmpty() ? Optional.of(NLS.bind(LaunchMessages.Validation_Message_NoTests_0, this.project.getName())) : Optional.empty();
-            }
+//            if (!result.isPresent()) {
+//                result = this.tests.getTests() ? Optional.of(NLS.bind(LaunchMessages.Validation_Message_NoTests_0, this.project.getName())) : Optional.empty();
+//            }
             if (!result.isPresent()) {
                 result = "debug".equals(this.mode) ? supportsTestDebugging(this.project) : Optional.empty(); //$NON-NLS-1$
             }
@@ -245,7 +245,7 @@ public abstract class TestExecutionTarget {
         return new SelectionBackedTestExecutionTarget(selection, mode);
     }
 
-    public static TestExecutionTarget from(IProject project, List<Test> tests, String mode) {
+    public static TestExecutionTarget from(IProject project, TestRunConfiguration tests, String mode) {
         return new TestBackedTestExecutionTarget(project, tests, mode);
     }
 }

@@ -17,13 +17,18 @@ import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.TestPatternSpec;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -76,7 +81,24 @@ public abstract class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequest
     protected TestLauncher createLaunch(InternalGradleBuild gradleBuild, GradleProgressAttributes progressAttributes, ProcessDescription processDescription) {
         TestLauncher launcher = gradleBuild.newTestLauncher(this.runConfig, progressAttributes);
         for(Test test : this.runConfig.getTests()) {
-           test.apply(launcher);
+            test.apply(launcher);
+        }
+        if (this.runConfig.getTestTask() != null) {
+            launcher.withTestsFor(testSpec -> {
+                Multimap<String, String> testClassesToMethods = ArrayListMultimap.create();
+                for (String method : this.runConfig.getTestMethods()) {
+                    String[] methodSegments = method.split("#");
+                    testClassesToMethods.put(methodSegments[0],methodSegments[1]);
+                }
+                TestPatternSpec testpPatternSpec = testSpec.forTaskPath(this.runConfig.getTestTask())
+                        .includeClasses(this.runConfig.getTestClasses())
+                        .includePackages(this.runConfig.getTestPackages())
+                        .includePatterns(this.runConfig.getTestPatterns());
+                for (String testClasses: testClassesToMethods.keySet()) {
+                    testpPatternSpec.includeMethods(testClasses, testClassesToMethods.get(testClasses));
+                }
+            }
+         );
         }
         return launcher;
     }
@@ -241,7 +263,7 @@ public abstract class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequest
         File projectDir = runConfig.getProjectConfiguration().getProjectDir();
         IProject project = CorePlugin.workspaceOperations().findProjectByLocation(projectDir).orNull();
 
-        TestExecutionTarget testTarget = TestExecutionTarget.from(project, runConfig.getTests(), mode);
+        TestExecutionTarget testTarget = TestExecutionTarget.from(project, runConfig, mode);
         Optional<String> errorMessage = testTarget.validate();
 
         if (errorMessage.isPresent()) {
@@ -283,6 +305,7 @@ public abstract class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequest
                                                     false,
                                                     false,
                                                     false,
-                                                    tests);
+                                                    tests,
+                                                    null, null, null, null, null);
     }
 }

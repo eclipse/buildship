@@ -117,7 +117,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                 pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project);
             } catch (Exception e) {
                 // fallback to the file IO based preferences store.
-            }   
+            }
         }
         if (pathToRoot == null) {
             pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project.getLocation().toFile());
@@ -214,7 +214,12 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                   attributes.isOverrideBuildSettings(),
                   attributes.isBuildScansEnabled(),
                   attributes.isOffline(),
-                  attributes.getTests());
+                  attributes.getTests(),
+                  attributes.getTestTask(),
+                  attributes.getTestClasses(),
+                  attributes.getTestMethods(),
+                  attributes.getTestPackages(),
+                  attributes.getTestPatterns());
         return new DefaultTestRunConfiguration(projectConfiguration, runConfigProperties);
     }
 
@@ -260,6 +265,11 @@ public class DefaultConfigurationManager implements ConfigurationManager {
                    props.isOverrideBuildSettings(),
                    props.isBuildScansEnabled(),
                    props.isOfflineMode(),
+                   Collections.emptyList(),
+                   null,
+                   Collections.emptyList(),
+                   Collections.emptyList(),
+                   Collections.emptyList(),
                    Collections.emptyList());
            return new DefaultTestRunConfiguration(source.getProjectConfiguration(), properties);
         } else {

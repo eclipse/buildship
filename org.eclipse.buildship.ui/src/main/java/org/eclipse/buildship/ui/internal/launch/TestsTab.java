@@ -26,6 +26,8 @@ import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -36,6 +38,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
@@ -65,6 +68,13 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
     private StringListEditor tests;
     private Text workingDirectoryText;
 
+    private StringListEditor testClasses;
+    private StringListEditor testMethods;
+    private StringListEditor testPackages;
+    private StringListEditor testPatterns;
+
+    private Text testTask;
+
     public TestsTab() {
         this.workingDirValidator = Validators.requiredDirectoryValidator(CoreMessages.RunConfiguration_Label_WorkingDirectory);
     }
@@ -89,6 +99,25 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
         Group group = createGroup(parent, CoreMessages.RunConfiguration_Label_Tests + ":"); //$NON-NLS-1$
         this.tests = createTestsSelectionControl(group);
 
+        Group group2 = createGroup(parent, "More tests" + ":"); //$NON-NLS-1$
+        new Label(group2, SWT.NONE).setText("Test task path");
+        this.testTask = new Text(group2, SWT.NONE);
+        this.testTask.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+        this.testTask.addKeyListener(new DialogUpdater());
+
+        new Label(group2, SWT.NONE).setText("Test classes");
+        this.testClasses = createStringList(group2, "testClasses");
+
+        new Label(group2, SWT.NONE).setText("Test methods");
+        this.testMethods = createStringList(group2, "testMethods");
+
+        new Label(group2, SWT.NONE).setText("Test packages");
+        this.testPackages = createStringList(group2, "testPackages");
+
+        new Label(group2, SWT.NONE).setText("Test patterns");
+        this.testPatterns = createStringList(group2, "testPatterns");
+
+
         Group workingDirectoryGroup = createGroup(parent, CoreMessages.RunConfiguration_Label_WorkingDirectory + ":"); //$NON-NLS-1$
         createWorkingDirectorySelectionControl(workingDirectoryGroup);
     }
@@ -102,7 +131,11 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
     }
 
     private StringListEditor createTestsSelectionControl(Composite container) {
-        StringListEditor editor = new StringListEditor(container, false, "testName");
+        return createStringList(container, "testName");
+    }
+
+    private StringListEditor createStringList(Composite container, String name) {
+        StringListEditor editor = new StringListEditor(container, false, name);
         GridData tasksTextLayoutData = new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1);
         tasksTextLayoutData.heightHint = 50;
         editor.setLayoutData(tasksTextLayoutData);
@@ -189,12 +222,17 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
     public void initializeFrom(ILaunchConfiguration configuration) {
         GradleTestRunConfigurationAttributes attributes = GradleTestRunConfigurationAttributes.from(configuration);
         this.tests.setEntries(attributes.getTestNames());
+        this.testTask.setText(attributes.getTestTask());
+        this.testClasses.setEntries(attributes.getTestClasses());
+        this.testMethods.setEntries(attributes.getTestMethods());
+        this.testPackages.setEntries(attributes.getTestPackages());
+        this.testPatterns.setEntries(attributes.getTestPatterns());
         this.workingDirectoryText.setText(Strings.nullToEmpty(attributes.getWorkingDirExpression()));
     }
 
     @Override
     public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-        GradleTestRunConfigurationAttributes.applyTestNames(this.tests.getEntries(), configuration);
+        GradleTestRunConfigurationAttributes.applyTestNames(this.tests.getEntries(), configuration, this.testTask.getText(), this.testClasses.getEntries(), this.testMethods.getEntries(), this.testPackages.getEntries(), this.testPatterns.getEntries());
         GradleRunConfigurationAttributes.applyWorkingDirExpression(this.workingDirectoryText.getText(), configuration);
     }
 
@@ -225,7 +263,7 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
     /**
      * Listener implementation to update the dialog buttons and messages.
      */
-    private class DialogUpdater extends SelectionAdapter implements ModifyListener, StringListChangeListener {
+    private class DialogUpdater extends SelectionAdapter implements ModifyListener, StringListChangeListener, KeyListener {
         @Override
         public void widgetSelected(SelectionEvent e) {
             updateLaunchConfigurationDialog();
@@ -238,6 +276,15 @@ public final class TestsTab extends AbstractLaunchConfigurationTab {
 
         @Override
         public void onChange() {
+            updateLaunchConfigurationDialog();
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
             updateLaunchConfigurationDialog();
         }
     }

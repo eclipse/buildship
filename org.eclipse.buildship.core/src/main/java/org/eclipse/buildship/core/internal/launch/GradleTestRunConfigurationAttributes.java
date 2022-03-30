@@ -31,19 +31,76 @@ public class GradleTestRunConfigurationAttributes extends BaseRunConfigurationAt
 
     // keys used when setting/getting attributes from an ILaunchConfiguration instance
     private static final String TEST_ClASSES = "tests";
+    private static final String TEST_TASK = "test_task";
+    private static final String TEST_ClASSES2 = "test_classes";
+    private static final String TEST_METHODS = "test_methods";
+    private static final String TEST_PACKAGES = "test_packages";
+    private static final String TEST_PATTERNS = "test_patterns";
 
     private final List<String> testNames;
+    private final String testTask;
+    private final List<String> testClasses;
+    private final List<String> testMethods;
+    private final List<String> testPackages;
+    private final List<String> testPatterns;
 
-    public GradleTestRunConfigurationAttributes(String workingDirExpression, String gradleDistribution, String gradleUserHomeExpression,
-            String javaHomeExpression, List<String> jvmArgumentExpressions, List<String> argumentExpressions,
-            boolean showExecutionView, boolean showConsoleView, boolean overrideWorkspaceSettings,
-            boolean isOffline, boolean isBuildScansEnabled, List<String> testNames) {
+
+    public GradleTestRunConfigurationAttributes(
+            String workingDirExpression,
+            String gradleDistribution,
+            String gradleUserHomeExpression,
+            String javaHomeExpression,
+            List<String> jvmArgumentExpressions,
+            List<String> argumentExpressions,
+            boolean showExecutionView,
+            boolean showConsoleView,
+            boolean overrideWorkspaceSettings,
+            boolean isOffline,
+            boolean isBuildScansEnabled,
+            List<String> testNames, // will run on all tests
+            String testTask, // fields below will run with this specific tests
+            List<String> testClasses,
+            List<String> testMethods,
+            List<String> testPackages,
+            List<String> testPatterns
+            ) {
         super(workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions, showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, isBuildScansEnabled);
         this.testNames = testNames;
+        this.testTask = testTask;
+        this.testClasses = testClasses;
+        this.testMethods = testMethods;
+        this.testPackages = testPackages;
+        this.testPatterns = testPatterns;
+
     }
 
     public List<String> getTestNames() {
         return this.testNames;
+    }
+
+
+    public String getTestTask() {
+        return this.testTask;
+    }
+
+
+    public List<String> getTestClasses() {
+        return this.testClasses;
+    }
+
+
+    public List<String> getTestMethods() {
+        return this.testMethods;
+    }
+
+
+    public List<String> getTestPackages() {
+        return this.testPackages;
+    }
+
+
+    public List<String> getTestPatterns() {
+        return this.testPatterns;
     }
 
     public List<Test> getTests() {
@@ -53,19 +110,31 @@ public class GradleTestRunConfigurationAttributes extends BaseRunConfigurationAt
     public boolean hasSameUniqueAttributes(ILaunchConfiguration launchConfiguration) {
         try {
                 return this.workingDirExpression.equals(launchConfiguration.getAttribute(WORKING_DIR, ""))
-                        && this.testNames.equals(launchConfiguration.getAttribute(TEST_ClASSES, Collections.<String>emptyList()));
+                    && this.testNames.equals(launchConfiguration.getAttribute(TEST_ClASSES, Collections.<String>emptyList()));
+//                    && this.testTask.equals(launchConfiguration.getAttribute(TEST_TASK, ""))
+//                    && this.testClasses.equals(launchConfiguration.getAttribute(TEST_ClASSES, Collections.<String>emptyList()))
+//                    && this.testMethods.equals(launchConfiguration.getAttribute(TEST_METHODS, Collections.<String>emptyList()))
+//                    && this.testPackages.equals(launchConfiguration.getAttribute(TEST_PACKAGES, Collections.<String>emptyList()))
+//                    && this.testPatterns.equals(launchConfiguration.getAttribute(TEST_PATTERNS, Collections.<String>emptyList()));
+
         } catch (CoreException e) {
             throw new GradlePluginsRuntimeException(String.format("Cannot read Gradle launch configuration %s.", launchConfiguration), e);
         }
     }
 
+    @Override
     public void apply(ILaunchConfigurationWorkingCopy launchConfiguration) {
         super.apply(launchConfiguration);
-        applyTestNames(this.testNames, launchConfiguration);
+        applyTestNames(this.testNames, launchConfiguration, this.testTask, this.testClasses, this.testMethods, this.testPackages, this.testPatterns);
     }
 
-    public static void applyTestNames(List<String> testNames, ILaunchConfigurationWorkingCopy launchConfiguration) {
+    public static void applyTestNames(List<String> testNames, ILaunchConfigurationWorkingCopy launchConfiguration, String testTask, List<String> testClasses, List<String> testMethods, List<String> testPackages, List<String> testPatterns) {
         launchConfiguration.setAttribute(TEST_ClASSES, testNames);
+        launchConfiguration.setAttribute(TEST_TASK, testTask);
+        launchConfiguration.setAttribute(TEST_ClASSES2, testClasses);
+        launchConfiguration.setAttribute(TEST_METHODS, testMethods);
+        launchConfiguration.setAttribute(TEST_PACKAGES, testPackages);
+        launchConfiguration.setAttribute(TEST_PATTERNS, testPatterns);
     }
 
     public static GradleTestRunConfigurationAttributes from(ILaunchConfiguration launchConfiguration) {
@@ -84,8 +153,30 @@ public class GradleTestRunConfigurationAttributes extends BaseRunConfigurationAt
         boolean isBuildScansEnabled = getBooleanAttribute(BUILD_SCANS_ENABLED, false, launchConfiguration);
         List<String> testNames = getListAttribute(TEST_ClASSES, launchConfiguration);
 
-        return new GradleTestRunConfigurationAttributes(workingDirExpression, gradleDistribution, gradleUserHomeExpression, javaHomeExpression, jvmArgumentExpressions, argumentExpressions,
-                showExecutionView, showConsoleView, overrideWorkspaceSettings, isOffline, isBuildScansEnabled, testNames);
+        String testTask = getStringAttribute(TEST_TASK, "", launchConfiguration);
+        List<String> testClasses = getListAttribute(TEST_ClASSES2, launchConfiguration);
+        List<String> testMethods = getListAttribute(TEST_METHODS, launchConfiguration);
+        List<String> testPackages = getListAttribute(TEST_PACKAGES, launchConfiguration);
+        List<String> testPatterns = getListAttribute(TEST_PATTERNS, launchConfiguration);
+
+        return new GradleTestRunConfigurationAttributes(
+                workingDirExpression,
+                gradleDistribution,
+                gradleUserHomeExpression,
+                javaHomeExpression,
+                jvmArgumentExpressions,
+                argumentExpressions,
+                showExecutionView,
+                showConsoleView,
+                overrideWorkspaceSettings,
+                isOffline,
+                isBuildScansEnabled,
+                testNames,
+                testTask,
+                testClasses,
+                testMethods,
+                testPackages,
+                testPatterns);
     }
 
     @Override

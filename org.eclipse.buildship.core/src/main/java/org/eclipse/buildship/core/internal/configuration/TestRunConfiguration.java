@@ -19,4 +19,14 @@ import java.util.List;
 public interface TestRunConfiguration extends BaseRunConfiguration {
 
     List<Test> getTests();
+    
+    public String getTestTask();
+    
+    public List<String> getTestClasses();
+    
+    public List<String> getTestMethods();
+    
+    public List<String> getTestPackages();
+
+    public List<String> getTestPatterns();
 }

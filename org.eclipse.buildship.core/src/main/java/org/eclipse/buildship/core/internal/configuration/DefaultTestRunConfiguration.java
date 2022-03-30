@@ -32,4 +32,29 @@ class DefaultTestRunConfiguration extends AbstractRunConfiguration<TestRunConfig
         }
         return false;
     }
+
+    @Override
+    public String getTestTask() {
+        return this.properties.getTestTask();
+    }
+
+    @Override
+    public List<String> getTestClasses() {
+        return this.properties.getTestClasses();
+    }
+
+    @Override
+    public List<String> getTestMethods() {
+        return this.properties.getTestMethods();
+    }
+
+    @Override
+    public List<String> getTestPackages() {
+        return this.properties.getTestPackages();
+    }
+
+    @Override
+    public List<String> getTestPatterns() {
+        return this.properties.getTestPatterns();
+    }
 }
