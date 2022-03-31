@@ -6,5 +6,5 @@ Bundle-Version: 3.1.5.qualifier
 Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.gradle.toolingapi;bundle-version="[7.1.1,7.2.0)";visibility:=reexport
+Require-Bundle: org.gradle.toolingapi;bundle-version="[7.4.1,7.5.0)";visibility:=reexport
 Export-Package: org.eclipse.buildship.core.internal.workspace

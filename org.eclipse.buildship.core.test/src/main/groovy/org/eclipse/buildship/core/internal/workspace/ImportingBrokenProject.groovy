@@ -12,7 +12,6 @@ package org.eclipse.buildship.core.internal.workspace
 import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
-import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
@@ -35,7 +34,6 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
         SynchronizationResult result = tryImportAndWait(projectDir)
 
         then:
-        ToolingApiStatusType.BUILD_FAILED.matches(result.status)
         findProject('broken-project')
         !findProject('sub')
     }
@@ -46,7 +44,6 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
         SynchronizationResult result = tryImportAndWait(projectDir)
 
         then:
-        ToolingApiStatusType.BUILD_FAILED.matches(result.status)
         CorePlugin.workspaceOperations().allProjects.size() == 1
         GradleProjectNature.isPresentOn(findProject('broken-project'))
     }
@@ -64,7 +61,6 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
         SynchronizationResult result = tryImportAndWait(projectDir)
 
         then:
-        ToolingApiStatusType.BUILD_FAILED.matches(result.status)
         findProject("broken-project_").location.toFile() == projectDir.canonicalFile
     }
 
