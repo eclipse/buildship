@@ -68,7 +68,11 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
         runNode.expand()
         SWTBotTreeItem testNode = runNode.getNode(':test')
         testNode.expand()
-        SWTBotTreeItem fileNode = testNode.getNode('LibraryTest')
+        SWTBotTreeItem testNode2 = testNode.getNode('Executing task \':test\'')
+        testNode2.expand()
+        SWTBotTreeItem testNode3 = testNode2.getNode('Execute executeTests for :test')
+        testNode3.expand()
+        SWTBotTreeItem fileNode = testNode3.getNode('LibraryTest')
 
         then:
         bot.editors().size == 0
