@@ -12,18 +12,23 @@ package org.eclipse.buildship.model.internal;
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.buildship.model.ProjectInGradleConfiguration;
+import org.eclipse.buildship.model.SourceSet;
+import org.eclipse.buildship.model.TestTask;
 
 
 public class DefaultProjectInGradleConfiguration implements ProjectInGradleConfiguration, Serializable {
 
     private final File location;
-    private final List<String> sourceSetNames;
+    private final Set<SourceSet> sourceSets;
+    private final Set<TestTask> testTasks;
 
-    public DefaultProjectInGradleConfiguration(File location, List<String> sourceSetNames) {
+    public DefaultProjectInGradleConfiguration(File location, Set<SourceSet> sourceSets, Set<TestTask> testTasks) {
         this.location = location;
-        this.sourceSetNames = sourceSetNames;
+        this.sourceSets = sourceSets;
+        this.testTasks = testTasks;
     }
 
     @Override
@@ -32,7 +37,12 @@ public class DefaultProjectInGradleConfiguration implements ProjectInGradleConfi
     }
 
     @Override
-    public List<String> getSourceSetNames() {
-        return this.sourceSetNames;
+    public Set<SourceSet> getSourceSets() {
+        return this.sourceSets;
+    }
+
+    @Override
+    public Set<TestTask> getTestTasks() {
+        return this.testTasks;
     }
 }

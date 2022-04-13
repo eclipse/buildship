@@ -12,9 +12,9 @@ package org.eclipse.buildship.model;
 import java.io.File;
 import java.util.Set;
 
-public interface ProjectInGradleConfiguration {
-    File getLocation();
-    Set<SourceSet> getSourceSets();
-    Set<TestTask> getTestTasks();
+public interface TestTask {
 
+    String getPath();
+
+    Set<File> getTestClassesDirs();
 }
