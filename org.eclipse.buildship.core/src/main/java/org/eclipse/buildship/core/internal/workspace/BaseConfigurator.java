@@ -10,7 +10,6 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -38,10 +37,12 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.model.ExtendedEclipseModel;
+import org.eclipse.buildship.model.ProjectInGradleConfiguration;
 
 public class BaseConfigurator implements ProjectConfigurator {
 
     private Map<File, EclipseProject> locationToProject;
+    private Map<File, ProjectInGradleConfiguration> locationToNewModel;
     private GradleVersion gradleVersion;
 
     @Override
@@ -49,14 +50,16 @@ public class BaseConfigurator implements ProjectConfigurator {
         // TODO (donat) add required model declarations to the project configurator extension point
         GradleBuild gradleBuild = context.getGradleBuild();
         try {
-            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> {
+            Map<String, ExtendedEclipseModel> rootModels = gradleBuild.withConnection(connection -> {
                 this.gradleVersion = GradleVersion.version(connection.getModel(BuildEnvironment.class).getGradle().getGradleVersion());
                 Map<String, ExtendedEclipseModel> extendedEclipseModels = ExtendedEclipseModelUtils.queryModels(connection);
-                return ExtendedEclipseModelUtils.collectEclipseModels(extendedEclipseModels).values();
+                return extendedEclipseModels;
             }, monitor);
-            this.locationToProject = rootModels.stream()
+            this.locationToProject = ExtendedEclipseModelUtils.collectEclipseModels(rootModels).values().stream()
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
                 .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));
+            this.locationToNewModel = rootModels.values().stream().flatMap(e -> e.getProjects().stream()).collect(Collectors.toMap(p -> p.getLocation(), p -> p));
+
         } catch (Exception e) {
             context.error("Cannot Query Eclipse model", e);
         }
@@ -96,6 +99,10 @@ public class BaseConfigurator implements ProjectConfigurator {
             persistentModel.classpath(ImmutableList.<IClasspathEntry>of());
         }
 
+
+        // save extendedEclipseModel in persistentmodel
+        persistentModel.projectInGradleConfiguration(lookupModel(project));
+
         CorePlugin.modelPersistence().saveModel(persistentModel.build());
         CorePlugin.externalLaunchConfigurationManager().updateClasspathProviders(project); // classpath provider depends on persistent model
     }
@@ -134,6 +141,14 @@ public class BaseConfigurator implements ProjectConfigurator {
             return null;
         }
         return this.locationToProject.get(path.toFile());
+    }
+
+    private ProjectInGradleConfiguration lookupModel(IProject project) {
+        IPath path = project.getLocation();
+        if (path == null) {
+            return null;
+        }
+        return this.locationToNewModel.get(path.toFile());
     }
 
     @Override

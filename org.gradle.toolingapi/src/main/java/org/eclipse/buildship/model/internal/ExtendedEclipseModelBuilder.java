@@ -54,11 +54,11 @@ class ExtendedEclipseModelBuilder implements ToolingModelBuilder {
 
     protected DefaultExtendedEclipseModel build(DefaultEclipseProject eclipseProject, Project modelRoot) {
         List<ProjectInGradleConfiguration> projects = new ArrayList<>();
+        // TODO traverse included builds
         for (Project project : modelRoot.getRootProject().getAllprojects()) {
             File location = project.getProjectDir();
             Set<SourceSet> sourceSets = collectSourceSets(project);
             Set<TestTask> testTasks = collectTestTasks(project);
-
             projects.add(new DefaultProjectInGradleConfiguration(location, sourceSets, testTasks));
         }
         return new DefaultExtendedEclipseModel(projects, eclipseProject);

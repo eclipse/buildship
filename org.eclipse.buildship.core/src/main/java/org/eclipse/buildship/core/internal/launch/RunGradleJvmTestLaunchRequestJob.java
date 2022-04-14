@@ -17,7 +17,6 @@ import java.text.DateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,7 +26,6 @@ import org.gradle.tooling.TestPatternSpec;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import org.eclipse.core.resources.IProject;
@@ -279,7 +277,7 @@ public abstract class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequest
         }
    }
 
-    public static Optional<BaseLaunchRequestJob<TestLauncher>> createJob(JavaElementSelection selection, String mode) {
+    public static Optional<BaseLaunchRequestJob<TestLauncher>> createJob(JavaElementSelection selection, String mode, String testTask) {
         TestExecutionTarget testTarget = TestExecutionTarget.from(selection, mode);
         Optional<String> errorMessage = testTarget.validate();
 
@@ -288,12 +286,12 @@ public abstract class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequest
             return Optional.empty();
         }
 
-        GradleTestRunConfigurationAttributes attributes = createLaunchConfigAttributes(testTarget.getProject(), selection.resolveTests());
+        GradleTestRunConfigurationAttributes attributes = createLaunchConfigAttributes(testTarget.getProject(), selection.resolveTests(), testTask);
         ILaunchConfiguration launchConfiguration = CorePlugin.gradleLaunchConfigurationManager().getOrCreateTestRunConfiguration(attributes);
         return createJob(launchConfiguration, mode);
    }
 
-    private static GradleTestRunConfigurationAttributes createLaunchConfigAttributes(IProject project, List<String> tests) {
+    private static GradleTestRunConfigurationAttributes createLaunchConfigAttributes(IProject project, List<String> tests, String testTask) {
         return new GradleTestRunConfigurationAttributes(ExpressionUtils.encodeWorkspaceLocation(project),
                                                     GradleDistribution.fromBuild().toString(),
                                                     null,
@@ -306,6 +304,6 @@ public abstract class RunGradleJvmTestLaunchRequestJob extends BaseLaunchRequest
                                                     false,
                                                     false,
                                                     tests,
-                                                    null, null, null, null, null);
+                                                    testTask, null, null, null, null);
     }
 }

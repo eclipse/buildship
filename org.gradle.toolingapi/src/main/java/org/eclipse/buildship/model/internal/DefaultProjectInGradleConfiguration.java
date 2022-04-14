@@ -11,7 +11,6 @@ package org.eclipse.buildship.model.internal;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.buildship.model.ProjectInGradleConfiguration;
@@ -37,12 +36,12 @@ public class DefaultProjectInGradleConfiguration implements ProjectInGradleConfi
     }
 
     @Override
-    public Set<SourceSet> getSourceSets() {
+    public Set<? extends SourceSet> getSourceSets() {
         return this.sourceSets;
     }
 
     @Override
-    public Set<TestTask> getTestTasks() {
+    public Set<? extends TestTask> getTestTasks() {
         return this.testTasks;
     }
 }

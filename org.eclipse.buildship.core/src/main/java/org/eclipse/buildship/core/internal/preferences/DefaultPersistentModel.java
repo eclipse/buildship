@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.preferences;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,6 +23,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+import org.eclipse.buildship.model.ProjectInGradleConfiguration;
 
 /**
  * Default PersistentModel implementation.
@@ -41,12 +43,13 @@ public final class DefaultPersistentModel implements PersistentModel {
     private final List<ICommand> managedBuilders;
     private final boolean hasAutoBuildTasks;
     private final GradleVersion gradleVersion;
+    private final ProjectInGradleConfiguration projectInGradleConfiguration;
 
     public DefaultPersistentModel(IProject project, IPath buildDir, IPath buildScriptPath,
                                   Collection<IPath> subprojectPaths, List<IClasspathEntry> classpath,
                                   Collection<IPath> derivedResources, Collection<IPath> linkedResources,
                                   Collection<String> managedNatures, Collection<ICommand> managedBuilders,
-                                  boolean hasAutoBuildTasks, GradleVersion gradleVersion) {
+                                  boolean hasAutoBuildTasks, GradleVersion gradleVersion, ProjectInGradleConfiguration projectInGradleConfiguration) {
         this.project = Preconditions.checkNotNull(project);
         this.buildDir = Preconditions.checkNotNull(buildDir);
         this.buildScriptPath = Preconditions.checkNotNull(buildScriptPath);
@@ -58,6 +61,7 @@ public final class DefaultPersistentModel implements PersistentModel {
         this.managedBuilders = ImmutableList.copyOf(managedBuilders);
         this.hasAutoBuildTasks = hasAutoBuildTasks;
         this.gradleVersion = gradleVersion;
+        this.projectInGradleConfiguration = projectInGradleConfiguration;
     }
 
     @Override
@@ -121,6 +125,11 @@ public final class DefaultPersistentModel implements PersistentModel {
     }
 
     @Override
+    public ProjectInGradleConfiguration getProjectInGradleConfiguration() {
+        return this.projectInGradleConfiguration;
+    }
+
+    @Override
     public boolean equals(final Object obj) {
         if (!(obj instanceof DefaultPersistentModel)) {
             return false;
@@ -135,12 +144,13 @@ public final class DefaultPersistentModel implements PersistentModel {
                 && Objects.equal(this.managedNatures, that.managedNatures)
                 && Objects.equal(this.managedBuilders, that.managedBuilders)
                 && Objects.equal(this.hasAutoBuildTasks, that.hasAutoBuildTasks)
-                && Objects.equal(this.gradleVersion, that.gradleVersion);
+                && Objects.equal(this.gradleVersion, that.gradleVersion)
+                && Objects.equal(this.projectInGradleConfiguration, that.projectInGradleConfiguration);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.project, this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders, this.hasAutoBuildTasks, this.gradleVersion);
+        return Objects.hashCode(this.project, this.buildDir, this.subprojectPaths, this.classpath, this.derivedResources, this.linkedResources, this.managedNatures, this.managedBuilders, this.hasAutoBuildTasks, this.gradleVersion, this.projectInGradleConfiguration);
     }
 
 }

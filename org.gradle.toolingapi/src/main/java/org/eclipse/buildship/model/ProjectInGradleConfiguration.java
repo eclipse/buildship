@@ -14,7 +14,7 @@ import java.util.Set;
 
 public interface ProjectInGradleConfiguration {
     File getLocation();
-    Set<SourceSet> getSourceSets();
-    Set<TestTask> getTestTasks();
+    Set<? extends SourceSet> getSourceSets();
+    Set<? extends TestTask> getTestTasks();
 
 }

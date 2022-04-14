@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+import org.eclipse.buildship.model.ProjectInGradleConfiguration;
 
 /**
  * Contains helper methods for the {@link PersistentModel} <-> {@link Properties} conversion.
@@ -47,6 +48,7 @@ final class PersistentModelConverter {
     private static final String PROPERTY_MANAGED_BUILDERS = "managedBuilders";
     private static final String PROPERTY_HAS_AUTOBUILD_TASKS = "hasAutoBuildTasks";
     private static final String PROPERTY_GRADLE_VERSION = "gradleVersion";
+    private static final String PROPERTY_PROJECT_IN_GRADLE_CONFIGURATION = "projectInGradleConfiguration";
 
     public static Properties toProperties(final PersistentModel model) {
         Properties properties = new Properties();
@@ -118,6 +120,13 @@ final class PersistentModelConverter {
             @Override
             public String apply(GradleVersion gradleVersion) {
                 return gradleVersion.getVersion();
+            }
+        });
+        storeValue(properties, PROPERTY_PROJECT_IN_GRADLE_CONFIGURATION, model.getProjectInGradleConfiguration(), new Function<ProjectInGradleConfiguration, String>() {
+
+            @Override
+            public String apply(ProjectInGradleConfiguration input) {
+                return ProjectInGradleConfigurationConverter.toJson(input);
             }
         });
 
@@ -192,10 +201,19 @@ final class PersistentModelConverter {
                 return GradleVersion.version(version);
             }
         });
-        if (gradleVersion == null) {
+
+        ProjectInGradleConfiguration projectInGradleConfiguration = loadValue(properties, PROPERTY_PROJECT_IN_GRADLE_CONFIGURATION, null, new Function<String, ProjectInGradleConfiguration>(){
+
+            @Override
+            public ProjectInGradleConfiguration apply(String input) {
+                return ProjectInGradleConfigurationConverter.fromJson(input);
+            }
+        });
+
+        if (projectInGradleConfiguration == null) {
             return new AbsentPersistentModel(project);
         } else {
-            return new DefaultPersistentModel(project, buildDir, buildScriptPath, subprojects, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks, gradleVersion);
+            return new DefaultPersistentModel(project, buildDir, buildScriptPath, subprojects, classpath, derivedResources, linkedResources, managedNatures, managedBuilders, hasAutoBuildTasks, gradleVersion, projectInGradleConfiguration);
         }
     }
 
