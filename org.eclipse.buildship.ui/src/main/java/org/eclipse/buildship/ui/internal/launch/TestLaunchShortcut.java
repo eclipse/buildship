@@ -9,15 +9,23 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.launch;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.gradle.tooling.TestLauncher;
 
+import com.google.common.collect.Sets;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
@@ -27,6 +35,8 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.launch.BaseLaunchRequestJob;
 import org.eclipse.buildship.core.internal.launch.JavaElementSelection;
 import org.eclipse.buildship.core.internal.launch.RunGradleJvmTestLaunchRequestJob;
+import org.eclipse.buildship.model.ProjectInGradleConfiguration;
+import org.eclipse.buildship.model.SourceSet;
 import org.eclipse.buildship.model.TestTask;
 
 /**
@@ -49,10 +59,42 @@ public final class TestLaunchShortcut implements ILaunchShortcut {
         String testTask = null;
         com.google.common.base.Optional<IProject> containerProject = selection.findFirstContainerProject();
         if (containerProject.isPresent()) {
-            // TODO only show tasks with matching classes dirs
-            List<String> testTasks = CorePlugin.modelPersistence().loadModel(containerProject.get()).getProjectInGradleConfiguration().getTestTasks().stream()
-                    .map(TestTask::getPath).collect(Collectors.toList());
-            testTask = selectTestTask(testTasks);
+
+            List<IMember> selectedMembers = new ArrayList<>();
+            selectedMembers.addAll(selection.getSelectedTypes());
+            selectedMembers.addAll(selection.getSelectedMethods());
+            IMember iMember = selectedMembers.get(0);
+            ICompilationUnit compilationUnit = iMember.getCompilationUnit();
+            final File selectedFile = containerProject.get().getLocation().append(compilationUnit.getPath().makeRelativeTo(containerProject.get().getFullPath())).toFile();
+
+            // Find all source sets that contain this file
+            ProjectInGradleConfiguration projectInGradleConfiguration = CorePlugin.modelPersistence().loadModel(containerProject.get()).getProjectInGradleConfiguration();
+
+            Set<? extends SourceSet> sourceSets = projectInGradleConfiguration.getSourceSets();
+            Set<SourceSet> selectedSourceSets = new LinkedHashSet<>();
+            for (SourceSet sourceSet : sourceSets) {
+               Set<File> srcDirs = sourceSet.getSrcDirs();
+               for (File srcDir : srcDirs) {
+                   if (selectedFile.toString().startsWith(srcDir.toString())) {
+                       selectedSourceSets.add(sourceSet);
+                   }
+               }
+            }
+
+            // Find all test tasks that contain the source sets
+            Set<? extends TestTask> testTasks = projectInGradleConfiguration.getTestTasks();
+            Set<TestTask> selectedTestTasks = new LinkedHashSet<>();
+            for (TestTask tt : testTasks) {
+                for (SourceSet ss : selectedSourceSets) {
+                    if (!Sets.intersection(tt.getTestClassesDirs(), ss.getRuntimeClasspath()).isEmpty()) {
+                        selectedTestTasks.add(tt);
+                    }
+                }
+
+            }
+            List<String> testTaskPaths = selectedTestTasks.stream().map(TestTask::getPath).collect(Collectors.toList());
+
+            testTask = selectTestTask(testTaskPaths);
         }
 
         Optional<BaseLaunchRequestJob<TestLauncher>> job = RunGradleJvmTestLaunchRequestJob.createJob(selection, mode, testTask);

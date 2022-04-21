@@ -25,57 +25,11 @@ import org.eclipse.buildship.model.TestTask;
 public final class ProjectInGradleConfigurationConverter {
 
     public static ProjectInGradleConfiguration fromJson(String json) {
-        System.out.println(new Gson().fromJson(json, CachedProjectInGradleConfiguration.class));
         return new Gson().fromJson(json, CachedProjectInGradleConfiguration.class);
     }
 
     public static String toJson(ProjectInGradleConfiguration model) {
-        System.out.println(new Gson().toJson(CachedProjectInGradleConfiguration.from(model)));
         return new Gson().toJson(CachedProjectInGradleConfiguration.from(model));
-//        // name
-//        JsonObject json = new JsonObject();
-//        json.addProperty("location", model.getLocation().getAbsolutePath());
-//
-//        // sourceSets
-//        JsonArray jsonSourceSets = new JsonArray();
-//        for (SourceSet sourceSet : model.getSourceSets()) {
-//            JsonObject jsonSourceSet = new JsonObject();
-//            jsonSourceSet.addProperty("name", sourceSet.getName());
-//
-//            JsonArray jsonRuntimClasspath = new JsonArray();
-//            for (File f : sourceSet.getRuntimeClasspath()) {
-//                jsonRuntimClasspath.add(f.getAbsolutePath());
-//            }
-//            jsonSourceSet.add("runtimeClasspath", jsonRuntimClasspath);
-//
-//            JsonArray jsonSrcDirs = new JsonArray();
-//            for (File f : sourceSet.getSrcDirs()) {
-//                jsonSrcDirs.add(f.getAbsolutePath());
-//            }
-//            jsonSourceSet.add("jsonSrcDirs", jsonSrcDirs);
-//
-//            jsonSourceSets.add(jsonSourceSet);
-//        }
-//
-//        // test tasks
-//        JsonArray jsonTestTasks = new JsonArray();
-//        for (TestTask testTask : model.getTestTasks()) {
-//            JsonObject jsonTestTask = new JsonObject();
-//            jsonTestTask.addProperty("path", testTask.getPath());
-//
-//            JsonArray jsonTestClassesDirs = new JsonArray();
-//            for (File f : testTask.getTestClassesDirs()) {
-//                jsonTestClassesDirs.add(f.getAbsolutePath());
-//            }
-//
-//            jsonTestTask.add("testClassesDirs", jsonTestClassesDirs);
-//            jsonTestTasks.add(jsonTestTask);
-//        }
-//
-//        json.add("sourceSets", jsonSourceSets);
-//        json.add("testTasks", jsonTestTasks);
-//
-//        return new Gson().toJson(json);
     }
 
 
@@ -195,7 +149,7 @@ public final class ProjectInGradleConfigurationConverter {
             for (TestTask testTask : testTasks) {
                 CachedTestTask ctt = new CachedTestTask();
                 ctt.setPath(testTask.getPath());
-                ctt.setTestClassesDirs(ctt.getTestClassesDirs());
+                ctt.setTestClassesDirs(testTask.getTestClassesDirs());
                 result.add(ctt);
             }
             return result;
