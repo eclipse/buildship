@@ -57,8 +57,8 @@ abstract class WorkspaceSpecification extends Specification {
 
     def setup() {
         externalTestDir = tempFolderProvider.newFolder('external')
-        EclipseVmUtil.findOrRegisterVM("8", new File(System.getProperty("jdk8.location")))
-        EclipseVmUtil.findOrRegisterVM("11", new File(System.getProperty("jdk11.location")))
+        EclipseVmUtil.findOrRegisterVM("8", new File((String) System.getProperty("jdk8.location")))
+        EclipseVmUtil.findOrRegisterVM("11", new File((String) System.getProperty("jdk11.location")))
     }
 
     def cleanup() {

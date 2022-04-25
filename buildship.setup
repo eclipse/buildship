@@ -564,6 +564,16 @@
         id="installation.id"
         name="installation.id"
         defaultValue="buildship"/>
+    <setupTask
+        xsi:type="setup:VariableTask"
+        id="jre.location-1.8"
+        name="jre.location-1.8"
+        defaultValue="${jre.location-1.8}"/>
+    <setupTask
+        xsi:type="setup:VariableTask"
+        id="jre.location-11"
+        name="jre.location-11"
+        defaultValue="${jre.location-11}"/>
   </setupTask>
   <setupTask
       xsi:type="git:GitCloneTask"
