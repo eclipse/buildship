@@ -1,0 +1,8 @@
+apply plugin: eclipsebuild.TestBundlePlugin
+
+eclipseTest {
+    fragmentHost 'org.eclipse.buildship.core'
+    applicationName 'org.eclipse.pde.junit.runtime.coretestapplication'
+    optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
+}
+
