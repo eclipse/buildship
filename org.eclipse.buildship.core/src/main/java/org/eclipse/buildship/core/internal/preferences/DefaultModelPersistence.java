@@ -51,13 +51,16 @@ import org.eclipse.buildship.core.internal.workspace.WorkbenchShutdownEvent;
 public final class DefaultModelPersistence implements ModelPersistence, EventListener {
 
     private final LoadingCache<IProject, PersistentModel> modelCache;
+    private final Object lock = new Object();
 
     private DefaultModelPersistence() {
         this.modelCache = CacheBuilder.newBuilder().build(new CacheLoader<IProject, PersistentModel>() {
 
             @Override
             public PersistentModel load(IProject project) throws Exception {
-                return doLoadModel(project);
+                synchronized (DefaultModelPersistence.this.lock) {
+                    return doLoadModel(project);
+                }
             }
         });
     }
