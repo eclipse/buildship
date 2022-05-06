@@ -636,6 +636,9 @@
         <operand
             xsi:type="predicates:NamePredicate"
             pattern="org\.eclipse\.buildship\.oomph\.test"/>
+        <operand
+            xsi:type="predicates:NamePredicate"
+            pattern="org\.eclipse\.buildship\.testdependencies"/>
       </predicate>
     </sourceLocator>
   </setupTask>
