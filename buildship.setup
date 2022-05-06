@@ -52,6 +52,14 @@
         <description>Redirect setup model to check for changes in the local file instead in the url</description>
       </setupTask>
       <setupTask
+        xsi:type="setup:EclipseIniTask"
+        option="-Dbuildship.jre.location-1.8"
+        value="=${jre.location-1.8}"/>
+      <setupTask
+        xsi:type="setup:EclipseIniTask"
+        option="-Dbuildship.jre.location-11"
+        value="=${jre.location-11}"/>
+      <setupTask
           xsi:type="jdt:JRETask"
           id="buildship.preferences.compiler.jre8"
           version="JavaSE-1.8"
@@ -564,16 +572,7 @@
         id="installation.id"
         name="installation.id"
         defaultValue="buildship"/>
-    <setupTask
-        xsi:type="setup:VariableTask"
-        id="jre.location-1.8"
-        name="jre.location-1.8"
-        defaultValue="${jre.location-1.8}"/>
-    <setupTask
-        xsi:type="setup:VariableTask"
-        id="jre.location-11"
-        name="jre.location-11"
-        defaultValue="${jre.location-11}"/>
+
   </setupTask>
   <setupTask
       xsi:type="git:GitCloneTask"
