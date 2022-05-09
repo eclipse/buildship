@@ -277,6 +277,10 @@ abstract class WorkspaceSpecification extends Specification {
         GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
     }
 
+    protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern, boolean ignoreJavaConstraint) {
+        GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern, ignoreJavaConstraint)
+    }
+
     protected static String getJcenterRepositoryBlock() {
         // TODO (donat) everything should be converted to Maven Central
         String jcenterMirror = System.getProperty("org.eclipse.buildship.eclipsetest.mirrors.jcenter")

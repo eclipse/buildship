@@ -9,7 +9,12 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import org.eclipse.buildship.core.FixedVersionGradleDistribution
+import org.eclipse.buildship.core.internal.DefaultGradleBuild
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.gradle.api.JavaVersion
+import org.junit.Assert
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Unroll
@@ -21,6 +26,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 
     File multiProjectDir
     File compositeProjectDir
+    File simpleProjectDir
 
     def setup() {
         multiProjectDir = dir('multi-project-build') {
@@ -102,6 +108,81 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
                 '''
             }
         }
+
+        simpleProjectDir = dir('simple-build') {
+            file 'settings.gradle', '''
+                rootProject.name = 'simple-build'
+            '''
+            file 'build.gradle', '''
+                apply plugin: 'java'
+                description = 'a simple project.'
+                task myTask {}
+            '''
+            dir('src/main/java/pkg') {
+                file 'Main.java', '''
+                    package pkg;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            System.out.println("Hello, world!");
+                        }
+                    }
+                '''
+            }
+        }
+    }
+
+
+    @Unroll
+    def "Can import a simple project build and bypass compatibility check with Gradle #distribution.version"(GradleDistribution distribution) {
+        when:
+        System.setProperty(DefaultGradleBuild.BYPASS_COMPATIBILITY_CHECK_KEY, "true")
+        def minimumSupportedVersion = DefaultGradleBuild.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        def importResult = tryImportAndWait(simpleProjectDir, distribution)
+
+        then:
+        distribution instanceof FixedVersionGradleDistribution
+        def currentVersion = GradleVersion.version(((FixedVersionGradleDistribution) distribution).version);
+        if (minimumSupportedVersion == null || currentVersion >= (GradleVersion.version(minimumSupportedVersion))) {
+            Assert.assertTrue(importResult.status.isOK())
+            Assert.assertEquals(allProjects().size(), 1)
+            Assert.assertEquals(numOfGradleErrorMarkers, 0)
+            Assert.assertEquals(getPlatformLogErrors().size(), 0)
+        } else {
+            Assert.assertFalse(importResult.status.isOK())
+            Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
+            Assert.assertNotEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
+        }
+
+        cleanup:
+        System.setProperty(DefaultGradleBuild.BYPASS_COMPATIBILITY_CHECK_KEY, "false")
+
+        where:
+        distribution << getSupportedGradleDistributions('>=1.2', true)
+    }
+
+    @Unroll
+    def "Can import a simple project build with Gradle #distribution.version"(GradleDistribution distribution) {
+        when:
+        def minimumSupportedVersion = DefaultGradleBuild.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        def importResult = tryImportAndWait(simpleProjectDir, distribution)
+
+        then:
+        distribution instanceof FixedVersionGradleDistribution
+        def currentVersion = GradleVersion.version(((FixedVersionGradleDistribution) distribution).version);
+        if (minimumSupportedVersion == null || currentVersion >= (GradleVersion.version(minimumSupportedVersion))) {
+            Assert.assertTrue(importResult.status.isOK())
+            Assert.assertEquals(allProjects().size(), 1)
+            Assert.assertEquals(numOfGradleErrorMarkers, 0)
+            Assert.assertEquals(getPlatformLogErrors().size(), 0)
+        } else {
+            Assert.assertFalse(importResult.status.isOK())
+            Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
+            Assert.assertEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
+        }
+
+        where:
+        distribution << getSupportedGradleDistributions('>=1.2', true)
     }
 
     @Unroll

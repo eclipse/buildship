@@ -154,7 +154,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
 
         // TODO this should be specified when creating the task (to allow override in build script)
         List<String> jvmArgs = new ArrayList<String>();
-
+        jvmArgs.addAll(testTask.getJvmArgs());
         if (!testTask.getJavaLauncher().get().getMetadata().getLanguageVersion().canCompileOrRun(9)) {
             jvmArgs.add("-XX:MaxPermSize=1024m");
         }

@@ -25,11 +25,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+import org.gradle.api.JavaVersion;
 import org.gradle.tooling.BuildLauncher;
 import org.gradle.tooling.CancellationTokenSource;
+import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
@@ -71,10 +74,13 @@ import org.eclipse.buildship.core.internal.workspace.SynchronizationProblem;
 import org.eclipse.buildship.core.internal.workspace.SynchronizeGradleBuildOperation;
 import org.eclipse.buildship.core.internal.workspace.ValidateProjectLocationOperation;
 
+import org.eclipse.jdt.internal.launching.StandardVMType;
+
 public final class DefaultGradleBuild implements InternalGradleBuild {
     private static final String PROPERTIES_FILE = "/org/eclipse/buildship/core/internal/gradle/java-minimum-supported-toolingAPI.properties";
     private static Map<File, SynchronizeOperation> syncOperations = new ConcurrentHashMap<>();
 
+    public static final String BYPASS_COMPATIBILITY_CHECK_KEY = "org.eclipse.buildship.integtest.bypassToolingApiCompatibilityChecks";
     public static final Map<String, String> compatibilityMap = Collections.unmodifiableMap(loadCompatibilityMap());
 
     // TODO (donat) Now, we have two caches: one for the project configurators and that lives within
@@ -92,7 +98,39 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
     @Override
     public SynchronizationResult synchronize(IProgressMonitor monitor) {
+        String bypassCompatibilityCheckProperty = System.getProperty(BYPASS_COMPATIBILITY_CHECK_KEY);
+        if (!"true".equals(bypassCompatibilityCheckProperty)) {
+            IStatus toolingApiCompatibilityStatus = validateToolingApiCompatibility(monitor);
+            if (!toolingApiCompatibilityStatus.isOK()) {
+                return DefaultSynchronizationResult.from(toolingApiCompatibilityStatus);
+            }
+        }
         return synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), monitor);
+    }
+
+    private IStatus validateToolingApiCompatibility(IProgressMonitor monitor) {
+        String gradleVersion;
+        try {
+            BuildEnvironment environment = this.withConnection(connection -> connection.getModel(BuildEnvironment.class), monitor);
+            gradleVersion = environment.getGradle().getGradleVersion();
+        } catch (Exception e) {
+            return ToolingApiStatus.from("Project synchronization", e);
+        }
+        if (gradleVersion == null) {
+            return ToolingApiStatus.from("Project synchronization", new GradleConnectionException("Can't determine Gradle version when synchronizing project."));
+        }
+        File javaHome = this.buildConfig.getJavaHome();
+        String javaVersion = javaHome != null ? new StandardVMType().readReleaseVersion(javaHome) : System.getProperty("java.version");
+        if (javaVersion == null || javaVersion.isEmpty()) {
+            // Skip the compatibility check if java version can't be detected
+            return Status.OK_STATUS;
+        }
+        JavaVersion javaVersionObject = JavaVersion.toVersion(javaVersion);
+        String minGradleVersion = compatibilityMap.get(javaVersionObject.getMajorVersion());
+        if (minGradleVersion != null && GradleVersion.version(gradleVersion).compareTo(GradleVersion.version(minGradleVersion)) < 0) {
+            return ToolingApiStatus.from("Project synchronization", new UnsupportedJavaVersionException(String.format("The current build uses Gradle %s running on Java %s which is not supported. Please consult the Gradle documentation to find the compatible combinations: https://docs.gradle.org/current/userguide/compatibility.html.", gradleVersion, javaVersion)));
+        }
+        return new Status(IStatus.OK, CorePlugin.PLUGIN_ID, "tooling API compatibility check passed");
     }
 
     public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
