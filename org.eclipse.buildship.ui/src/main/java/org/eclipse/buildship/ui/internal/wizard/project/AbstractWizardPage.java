@@ -16,11 +16,11 @@ import com.google.common.base.Strings;
 
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -30,7 +30,6 @@ import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.core.internal.util.binding.ValidationListener;
-import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
 
 /**
@@ -42,7 +41,6 @@ public abstract class AbstractWizardPage extends WizardPage {
     private final List<Property<?>> observedProperties;
     private final String defaultMessage;
 
-    private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
 
     /**
@@ -68,8 +66,7 @@ public abstract class AbstractWizardPage extends WizardPage {
         setImageDescriptor(ImageDescriptor.createFromFile(GradleProjectWizardPage.class, "/icons/full/wizban/wizard.png")); //$NON-NLS-1$
 
         // set up the UI builder
-        this.defaultFont = FontUtils.getDefaultDialogFont();
-        this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
+        this.builderFactory = new UiBuilder.UiBuilderFactory(JFaceResources.getDialogFont());
 
         // create a listener that updates the state and the message if an observed property in the
         // model changes
@@ -228,12 +225,6 @@ public abstract class AbstractWizardPage extends WizardPage {
             }
         }
         return true;
-    }
-
-    @Override
-    public void dispose() {
-        this.defaultFont.dispose();
-        super.dispose();
     }
 
 }

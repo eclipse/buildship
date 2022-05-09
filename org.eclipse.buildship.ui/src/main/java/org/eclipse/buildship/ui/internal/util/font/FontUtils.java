@@ -23,18 +23,6 @@ public final class FontUtils {
     }
 
     /**
-     * Provides the default dialog font.
-     *
-     * @return the default dialog font
-     */
-    public static synchronized Font getDefaultDialogFont() {
-        Font font = JFaceResources.getDialogFont();
-        Device device = font.getDevice();
-        FontData[] fontData = font.getFontData();
-        return new Font(device, fontData);
-    }
-
-    /**
      * Provides a new font derived from {@link JFaceResources#getDialogFont()}, amended with the
      * selected modifiers.
      * <p>
