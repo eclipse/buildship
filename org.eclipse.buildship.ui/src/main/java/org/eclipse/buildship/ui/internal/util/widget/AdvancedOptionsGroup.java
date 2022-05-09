@@ -12,9 +12,9 @@ package org.eclipse.buildship.ui.internal.util.widget;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -29,7 +29,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.ui.internal.i18n.UiMessages;
 import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 
 /**
  * Composite to select advanced options such as the Gradle user home, the Java home, and program/JVM arguments.
@@ -38,7 +37,6 @@ import org.eclipse.buildship.ui.internal.util.font.FontUtils;
  */
 public final class AdvancedOptionsGroup extends Group {
 
-    private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
 
     private Text gradleUserHomeText;
@@ -55,9 +53,7 @@ public final class AdvancedOptionsGroup extends Group {
     public AdvancedOptionsGroup(Composite parent, boolean variableSelector) {
         super(parent, SWT.NONE);
         setText(CoreMessages.Preference_Label_AdvancedOptions);
-
-        this.defaultFont = FontUtils.getDefaultDialogFont();
-        this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
+        this.builderFactory = new UiBuilder.UiBuilderFactory(JFaceResources.getDialogFont());
 
         setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
         setLayout(new GridLayout(4, false));
@@ -197,13 +193,5 @@ public final class AdvancedOptionsGroup extends Group {
 
     public void setJvmArguments(List<String> jvmArguments) {
         this.jvmArgumentsEditor.setEntries(jvmArguments);
-    }
-
-    @Override
-    public void dispose() {
-        if (this.defaultFont != null && !this.defaultFont.isDisposed()) {
-            this.defaultFont.dispose();
-        }
-        super.dispose();
     }
 }

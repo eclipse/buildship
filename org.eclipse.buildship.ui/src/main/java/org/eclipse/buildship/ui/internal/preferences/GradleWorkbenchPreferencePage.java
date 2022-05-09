@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.preference.PreferencePage;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
@@ -25,7 +24,6 @@ import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
-import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.widget.AdvancedOptionsGroup;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
@@ -38,7 +36,6 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
     public static final String PAGE_ID = "org.eclipse.buildship.ui.preferences";
 
-    private final Font defaultFont;
     private final Validator<File> gradleUserHomeValidator;
     private final Validator<File> javaHomeValidator;
     private final Validator<GradleDistributionViewModel> distributionValidator;
@@ -48,7 +45,6 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
 
     public GradleWorkbenchPreferencePage() {
-        this.defaultFont = FontUtils.getDefaultDialogFont();
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Gradle_User_Home);
         this.javaHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Java_Home);
         this.distributionValidator = GradleDistributionViewModel.validator();
@@ -114,12 +110,6 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText("");
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(GradleDistribution.fromBuild()));
         super.performDefaults();
-    }
-
-    @Override
-    public void dispose() {
-        this.defaultFont.dispose();
-        super.dispose();
     }
 
     @Override
