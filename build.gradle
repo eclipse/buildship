@@ -881,7 +881,7 @@ def failWithMissingProjectPropertyMessage(propertyName) {
 
 # required properties for the Buildship build
 jdk8.location=/path/to/jdk-8
-jdk11.location=/path/to/jdk-11")"""
+jdk11.location=/path/to/jdk-11""")
 }
 
 // quotes required on TeamCity to pass property with spaces, e.g. a Windows file path
