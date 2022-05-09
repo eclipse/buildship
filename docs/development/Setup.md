@@ -68,7 +68,7 @@ If your are using Windows, make sure the text file encoding is set to `UTF-8`. T
 
 #### Change the target platform
 
-The target platform selected during the installation can be changed, even if it is a bit hidden. Open one of the `tooling-eXXX.target` files and select `Set as Active Target Platform`
+The target platform selected during the installation can be changed. To do that, open one of the `tooling-eXXX.target` files and select `Set as Active Target Platform`
 
 ![Specify new target platform](oomph/install-5.png)
 
