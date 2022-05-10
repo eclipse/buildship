@@ -167,10 +167,10 @@ artifact.repository.factory.order=compositeArtifacts.xml,\\!
             }           
         }
         
-        if (config.isRelease() && isLatestRelease()) {
+        if ((config.isRelease() || config.isSnapshot()) && isLatestRelease()) {
             ssh.run {
                 session(remotes.eclipseDotOrg) {
-                    def latestFolder = "${ECLIPSE_ORG_FTP_UPDATE_SITES_PATH}/latest"
+                    def latestFolder = "${ECLIPSE_ORG_FTP_UPDATE_SITES_PATH}/latest${config.isSnapshot() ? '-snapshot' : ''}"
                     // wipe the previous release and replace it with the new one
                     execute "rm -rf $latestFolder"
                     execute "mkdir -p $latestFolder"
