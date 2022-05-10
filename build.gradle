@@ -3,13 +3,14 @@ import org.gradle.internal.os.OperatingSystem
 import java.util.regex.*
 
 plugins {
-    id 'com.gradle.build-scan' version '1.8'
+    // id 'com.gradle.build-scan' version '1.8' // TODO re-enable build scan plugin
     id "org.ajoberstar.grgit" version "4.0.2"
 }
 
-buildScan {
-    server = "https://e.grdev.net"
-}
+// TODO re-enable build scan plugin
+//buildScan {
+//    server = "https://e.grdev.net"
+//}
 
 apply plugin: eclipsebuild.BuildDefinitionPlugin
 
