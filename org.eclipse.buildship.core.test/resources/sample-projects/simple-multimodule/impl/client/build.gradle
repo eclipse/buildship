@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
 dependencies {
-     compile project(":api") 
-     compile "org.apache.commons:commons-lang3:3.3.2"
+     implementation project(":api")
+     implementation "org.apache.commons:commons-lang3:3.3.2"
 }

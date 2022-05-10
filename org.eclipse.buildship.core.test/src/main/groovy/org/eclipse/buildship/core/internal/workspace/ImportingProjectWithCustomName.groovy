@@ -60,6 +60,7 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
                     }
                 }
             '''
+            file 'settings.gradle', ''
         }
 
         when:

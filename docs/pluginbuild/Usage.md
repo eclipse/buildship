@@ -53,7 +53,7 @@ The contributed task `installTargetPlatform` creates the target platform. It doe
 Once the 'mavenized' target platform is available, the Gradle build configuration can reference Eclipse plugin dependencies
 like any other dependency. The _groupId_ is always `eclipse`. For example:
 
-    compile 'eclipse:org.eclipse.jdt.ui:+'
+    api 'eclipse:org.eclipse.jdt.ui:+'
 
 By default, the location of the generated target platform is _~/.tooling/eclipse/targetPlatforms_. The location can be
 customized by specifying the `targetPlatformsDir` Gradle project property:
@@ -64,7 +64,7 @@ customized by specifying the `targetPlatformsDir` Gradle project property:
 The `versionMapping` can be used to define exact plugin dependency versions per target platform. A bundle can define a dependency
 through the {@code withEclipseBundle()} method like
 
-    compile withEclipseBundle('org.eclipse.core.runtime')
+    api withEclipseBundle('org.eclipse.core.runtime')
 
 If the active target platform has a version mapped for the dependency then that version is used, otherwise an unbound version range (+) is applied.
 
@@ -81,7 +81,7 @@ achieved by declaring `bundled` dependencies. For example:
     apply plugin: eclipsebuild.BundlePlugin
 
     dependencies {
-        compile 'eclipse:org.eclipse.core.runtime:+'
+        api 'eclipse:org.eclipse.core.runtime:+'
         bundled 'com.google.guava:guava:18.0'
     }
 

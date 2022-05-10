@@ -6,3 +6,7 @@ eclipseTest {
     optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
 }
 
+
+dependencies {
+    api 'junit:junit:4.12'
+}

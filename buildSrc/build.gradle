@@ -9,14 +9,14 @@ repositories {
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'nu.studer:java-ordered-properties:1.0.1'
-    compile 'org.apache.maven:maven-artifact-manager:2.2.1'
-    compile 'org.apache.maven.wagon:wagon-file:3.5.1'
-    compile 'org.apache.bcel:bcel:6.5.0'
-    compile 'com.google.guava:guava:30.1-jre'
-    compile 'commons-io:commons-io:2.11.0'
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'nu.studer:java-ordered-properties:1.0.1'
+    implementation 'org.apache.maven:maven-artifact-manager:2.2.1'
+    implementation 'org.apache.maven.wagon:wagon-file:3.5.1'
+    implementation 'org.apache.bcel:bcel:6.5.0'
+    implementation 'com.google.guava:guava:30.1-jre'
+    implementation 'commons-io:commons-io:2.11.0'
 }
 

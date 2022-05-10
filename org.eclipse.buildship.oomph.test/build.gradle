@@ -2,10 +2,10 @@ apply plugin: eclipsebuild.TestBundlePlugin
 apply plugin: 'groovy'
 
 dependencies {
-    compile project(':org.eclipse.buildship.compat')
-    compile project(':org.eclipse.buildship.core')
-    compile project(':org.eclipse.buildship.oomph')
-    compile project(':org.eclipse.buildship.testdependencies')
+    implementation project(':org.eclipse.buildship.compat')
+    implementation project(':org.eclipse.buildship.core')
+    implementation project(':org.eclipse.buildship.oomph')
+    implementation project(':org.eclipse.buildship.testdependencies')
 }
 
 def javaHome = hasProperty('eclipse.test.java.home') ? getProperty('eclipse.test.java.home') : System.getProperty('java.home')

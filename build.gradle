@@ -3,12 +3,7 @@ import org.gradle.internal.os.OperatingSystem
 import java.util.regex.*
 
 plugins {
-    id 'com.gradle.build-scan' version '1.8'
     id "org.ajoberstar.grgit" version "4.0.2"
-}
-
-buildScan {
-    server = "https://e.grdev.net"
 }
 
 apply plugin: eclipsebuild.BuildDefinitionPlugin
@@ -938,35 +933,30 @@ subprojects {
     plugins.withType(JavaPlugin) {
         def config = Config.on(project)
         if (project.name.endsWith(".compat") || config.targetPlatform.eclipseVersion in ['43', '44', '45', '46', '47', '48', '49', '410', '411', '412', '413', '414', '415', '416']) {
-            sourceCompatibility = 1.8
-            targetCompatibility = 1.8
+            java {
+                toolchain {
+                    languageVersion = JavaLanguageVersion.of(8)
+                }
+            }
         } else {
-            sourceCompatibility = 1.11
-            targetCompatibility = 1.11
+            java {
+                toolchain {
+                    languageVersion = JavaLanguageVersion.of(11)
+                }
+            }
         }
 
         tasks.matching { it instanceof JavaCompile || it instanceof GroovyCompile }.all {
             // enable all warnings except for different sourceCompatibility and targetCompatibility value
             options.compilerArgs << '-Xlint:all'
             options.compilerArgs << '-Xlint:-options'
-// TODO (donat) kotlin compilation currently fails with bad path error
-//            if (targetPlatformVersion >= '46') {
-//                options.compilerArgs << '-Werror'
-//            }
-            options.fork = true
-
-            if (project.name.endsWith(".compat") || config.targetPlatform.eclipseVersion in ['43', '44', '45', '46', '47', '48', '49', '410', '411', '412', '413', '414', '415', '416']) {
-                options.forkOptions.executable = jdk8Location + "/bin/javac"
-            } else {
-                options.forkOptions.executable = jdk11Location + "/bin/javac"
-            }
         }
     }
 
     // use common bundled testing depenendencies for all test plugins
     plugins.withType(eclipsebuild.TestBundlePlugin) {
         dependencies {
-            compile "org.codehaus.groovy:groovy-all:$groovyLibVersion"
+            implementation "org.codehaus.groovy:groovy-all:$groovyLibVersion"
             bundled "org.codehaus.groovy:groovy-all:$groovyLibVersion"
             bundled "org.objenesis:objenesis:$objenesisLibVersion"
             bundled "org.spockframework:spock-core:$spockLibVersion"
@@ -1021,13 +1011,6 @@ subprojects {
     }    
 }
 
-gradle.buildFinished {
-    if (project.hasProperty('build.invoker') && project.property('build.invoker') == 'ci') {
-        killAllGradleDaemons()
-    }
-}
-
-
 // tag the HEAD of the current branch and push the new tag
 task tag {
   doLast {
@@ -1080,54 +1063,6 @@ void replacePatternsInFile(File file, Map<Pattern, String> patternAndReplacement
         fileText = pattern.matcher(fileText).replaceAll(replacement)
     }
     file.text = fileText
-}
-
-void killAllGradleDaemons() {
-    def output = new ByteArrayOutputStream()
-    def queryString
-    if (org.gradle.internal.os.OperatingSystem.current().windows) {
-        queryString = ".*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* ([0-9]+) +\$"
-        exec {
-            commandLine('wmic', 'process', 'get', 'processid,commandline')
-            standardOutput = output
-        }
-    } else {
-        queryString = "([0-9]+).*(?:-cp|-classpath).*gradle-launcher.*.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon.* "
-        exec {
-            commandLine('ps', 'x')
-            standardOutput = output
-        }
-    }
-
-    output.toString().readLines().each { String process ->
-        logger.debug("[PSTABLE]$process")
-        def processMatcher = process =~ queryString
-        if (processMatcher.find()) {
-            def pid = processMatcher.group(1)
-            logger.warn("Killing Gradle daemon process: pid=$pid, cmd=$process")
-            killProcess(pid)
-        }
-    }
-}
-
-void killProcess(String pid) {
-    def killOutput = new ByteArrayOutputStream()
-    def result = exec {
-        if (org.gradle.internal.os.OperatingSystem.current().windows) {
-            commandLine = ["taskkill.exe", "/F", "/T", "/PID", pid]
-        } else {
-            commandLine = ["kill", pid]
-        }
-        standardOutput = killOutput
-        errorOutput = killOutput
-        ignoreExitValue = true
-    }
-    if (result.exitValue != 0) {
-        String out = killOutput.toString()
-        if (!out.contains('No such process')) {
-            logger.warn("""Failed to kill daemon process $pid. Maybe already killed? Output: ${killOutput}""")
-        }
-    }
 }
 
 String getVersionQualifier() {
