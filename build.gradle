@@ -946,6 +946,11 @@ subprojects {
     tasks.withType(Test).all {
         jvmArgs "-Djdk8.location=$jdk8Location"
         jvmArgs "-Djdk11.location=$jdk11Location"
+
+        // TODO re-enable html test reporting on Windows
+        if (org.gradle.internal.os.OperatingSystem.current().windows) {
+            reports.html.enabled = false
+        }
     }
 
     // configure the repositories where the external dependencies can be found
