@@ -110,14 +110,14 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
             group = Constants.gradleTaskGroupName
             dependsOn project.getConfigurations().getByName(PLUGIN_CONFIGURATION_NAME)
 
-            bundleName = project.extensions.bundleInfo.bundleName
-            bundleVersion = project.extensions.bundleInfo.bundleVersion
-            qualifier = project.extensions.bundleInfo.qualifier
-            template = project.extensions.bundleInfo.template
-            packageFilter = project.extensions.bundleInfo.packageFilter
-            resources = project.extensions.bundleInfo.resources
-            target = new File(project.buildDir, "$BUNDLES_STAGING_FOLDER/plugins")
-            pluginConfiguration = getPluginConfiguration(project)
+            bundleName.convention(project.extensions.bundleInfo.bundleName)
+            bundleVersion.convention(project.extensions.bundleInfo.bundleVersion)
+            qualifier.convention(project.extensions.bundleInfo.qualifier)
+            template.convention(project.extensions.bundleInfo.template)
+            packageFilter.convention(project.extensions.bundleInfo.packageFilter)
+            resources.from(project.extensions.bundleInfo.resources)
+            outputDirectory.convention(project.layout.buildDirectory.dir("$BUNDLES_STAGING_FOLDER/plugins"))
+            pluginConfiguration.convention(getPluginConfiguration(project))
         }
     }
 

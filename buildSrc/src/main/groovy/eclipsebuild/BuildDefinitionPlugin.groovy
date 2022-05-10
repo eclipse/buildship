@@ -65,7 +65,7 @@ import java.nio.charset.StandardCharsets
  * The {@code versionMapping} can be used to define exact plugin dependency versions per target platform.
  * A bundle can define a dependency through the {@code withEclipseBundle()} method like
  * <pre>
- * compile withEclipseBundle('org.eclipse.core.runtime')
+ * api withEclipseBundle('org.eclipse.core.runtime')
  * </pre>
  * If the active target platform has a version mapped for the dependency then that version is used,
  * otherwise an unbound version range (+) is applied.
@@ -339,10 +339,6 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             project.afterEvaluate { inputs.dir config.nonMavenizedTargetPlatformDir }
             project.afterEvaluate { outputs.dir config.mavenizedTargetPlatformDir }
             doLast { installTargetPlatform(project, config) }
-            onlyIf {
-                Task t = project.tasks[TASK_NAME_ASSEMBLE_TARGET_PLATFORM]
-                t.state.didWork
-            }
         }
     }
 

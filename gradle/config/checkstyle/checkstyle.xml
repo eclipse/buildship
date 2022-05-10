@@ -11,9 +11,6 @@
         <property name="file" value="${checkstyleConfigDir}/suppressions.xml"/>
     </module>
 
-    <!-- allow checkstyle suppression using the //CHECKSTYLE:ON //CHECKSTYLE:OFF -->
-    <module name="SuppressionCommentFilter"/>
-
     <!-- avoid tabs in the source code -->
     <module name="FileTabCharacter"/>
 
@@ -23,6 +20,9 @@
     </module>
 
     <module name="TreeWalker">
+        <!-- allow checkstyle suppression using the //CHECKSTYLE:ON //CHECKSTYLE:OFF -->
+        <module name="SuppressionCommentFilter"/>
+
         <!-- ensure consistent style of Javadoc -->
         <module name="JavadocStyle"/>
 
@@ -34,9 +34,6 @@
         <!-- Imports -->
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
-
-        <!-- to enable SuppressionCommentFilter -->
-        <module name="FileContentsHolder"/>
 
         <!-- this prefix on non-static fields -->
         <module name="RequireThis">

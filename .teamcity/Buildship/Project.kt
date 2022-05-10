@@ -80,6 +80,7 @@ class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: Ec
         param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(os))
         param("jdk11.location", Jdk.OPEN_JDK_11.getJavaHomePath(os))
         param("repository.mirrors", allMirrors())
+        param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
     }
 
     triggers {
@@ -137,6 +138,7 @@ class PromotionBuildType(promotionName: String, typeName: String, dependency: Bu
         param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(OS.LINUX))
         param("jdk11.location", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
         param("repository.mirrors", allMirrors())
+        param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
     }
 
     // The artifact upload requires uses ssh which requires manual confirmation. to work around that, we use the same
@@ -204,6 +206,7 @@ class SinglePromotionBuildType(promotionName: String, typeName: String, eclipseV
         param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(OS.LINUX))
         param("jdk11.location", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
         param("repository.mirrors", allMirrors())
+        param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
     }
 
     // The artifact upload requires uses ssh which requires manual confirmation. to work around that, we use the same
@@ -296,6 +299,7 @@ object Project : Project({
         password("eclipse.downloadServer.username", "credentialsJSON:23f3947f-45b2-46b8-83f6-9341c9b914f6", label = "Username", display = ParameterDisplay.HIDDEN)
         // Do not allow UI changes in the TeamCity configuration
         param("teamcity.ui.settings.readOnly", "true")
+        param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
     }
 
     cleanup {
