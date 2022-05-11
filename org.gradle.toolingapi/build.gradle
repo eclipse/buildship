@@ -3,7 +3,11 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 dependencies {
-    plugin "org.gradle:gradle-tooling-api:$toolingApiVersion"
+    plugin("org.gradle:gradle-tooling-api:$toolingApiVersion") {
+        attributes {
+            attribute(Attribute.of('org.gradle.category', String), "library")
+        }
+    }
 }
 
 bundleInfo {
