@@ -20,4 +20,7 @@ enum class EclipseVersion(val codeName: String, val versionNumber: String) {
 
     val updateSiteVersion: String
         get() = versionNumber.replace(".", "")
+
+    val isLatest: Boolean
+        get() = this == values().last()
 }
