@@ -11,29 +11,17 @@
 
 package eclipsebuild.testing;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 import eclipsebuild.Config;
 import eclipsebuild.Constants;
 import eclipsebuild.TestBundlePlugin;
+import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
+import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
 import org.gradle.api.GradleException;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.file.FileResolver;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.internal.tasks.testing.*;
 import org.gradle.api.internal.tasks.testing.detection.TestFrameworkDetector;
 import org.gradle.api.internal.tasks.testing.processors.TestMainAction;
@@ -41,16 +29,17 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestOutputEvent;
-import org.gradle.initialization.DefaultBuildCancellationToken;
-import org.gradle.internal.concurrent.DefaultExecutorFactory;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.time.Time;
 import org.gradle.process.ExecResult;
-import org.gradle.process.internal.DefaultJavaExecAction;
+import org.gradle.process.internal.ExecFactory;
 import org.gradle.process.internal.JavaExecAction;
 
-import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
-import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec> {
 
@@ -106,7 +95,8 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         File equinoxLauncherFile = getEquinoxLauncherFile(testEclipseDir);
         LOGGER.info("equinox launcher file {}", equinoxLauncherFile);
 
-        final JavaExecAction javaExecHandleBuilder = new DefaultJavaExecAction(getFileResolver(testTask), new DefaultExecutorFactory().create("Exec process"), new DefaultBuildCancellationToken());
+        ExecFactory execFactory = ((ProjectInternal) project).getServices().get(ExecFactory.class);
+        final JavaExecAction javaExecHandleBuilder = execFactory.newDecoratedJavaExecAction();
         javaExecHandleBuilder.setClasspath(this.project.files(equinoxLauncherFile));
         javaExecHandleBuilder.setMain("org.eclipse.equinox.launcher.Main");
 
