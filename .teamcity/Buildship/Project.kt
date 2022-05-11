@@ -54,6 +54,9 @@ val unsafeSnapshotPromotion = PromotionBuildType("snapshot (from sanity check)",
 val snapshotPromotion = PromotionBuildType("snapshot", "snapshot", tb4_4, Trigger.DAILY_MASTER)
 val milestonePromotion = PromotionBuildType("milestone","milestone", tb4_4)
 val releasePromotion = PromotionBuildType("release","release", tb4_4)
+val individualSnapshotPromotions = EclipseVersion.values().map { SinglePromotionBuildType("Snapshot Eclipse ${it.codeName}", "snapshot", it, tb1_1) } // TODO should depend on tb4_4
+val individualReleasePromotions = EclipseVersion.values().map { SinglePromotionBuildType("Release Eclipse ${it.codeName}", "release", it, tb1_1) } // TODO should depend on tb4_4
+
 
 class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: EclipseVersion, eclipseRuntimeJdk: Jdk) : BuildType({
     createId("Individual", "${type.name.toLowerCase()}_Test_Coverage_${os.name.toLowerCase()}_Eclipse${eclipseVersion.versionNumber}_OnJava${eclipseRuntimeJdk.majorVersion}")
@@ -182,6 +185,63 @@ class PromotionBuildType(promotionName: String, typeName: String, dependency: Bu
     }
 })
 
+class SinglePromotionBuildType(promotionName: String, typeName: String, eclipseVersion: EclipseVersion, dependency: BuildType, trigger: Trigger = Trigger.NONE) : BuildType({
+    createId("Promotion", promotionName.capitalize())
+    artifactRules = "org.eclipse.buildship.site/build/repository/** => .teamcity/update-site"
+    trigger.applyOn(this)
+    addCredentialsLeakFailureCondition()
+
+    params {
+        when(typeName) {
+            "milestone" -> text("Confirm", "NO", label = "Do you want to proceed with the milestone?", description = "Confirm to publish a new milestone.", display = ParameterDisplay.PROMPT,regex = "YES", validationMessage = "Confirm by writing YES in order to proceed.")
+            "release" -> password("github.token", "", label = "GitHub token", description = "Please specify your GitHub auth token to proceed with the release", display = ParameterDisplay.PROMPT)
+        }
+        param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
+        param("eclipse.release.type", typeName)
+        param("build.invoker", "ci")
+        param("env.JAVA_HOME", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
+        param("compiler.location", Jdk.OPEN_JDK_11.getJavaCompilerPath(OS.LINUX))
+        param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(OS.LINUX))
+        param("jdk11.location", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
+        param("repository.mirrors", allMirrors())
+    }
+
+    // The artifact upload requires uses ssh which requires manual confirmation. to work around that, we use the same
+    // machine for the upload.
+    // TODO We should separate the update site generation and the artifact upload into two separate steps.
+    requirements {
+        contains("teamcity.agent.jvm.os.name", "Linux")
+        contains("teamcity.agent.name", "dev")
+    }
+
+    vcs {
+        root(GitHubVcsRoot)
+
+        checkoutMode = CheckoutMode.ON_AGENT
+        cleanCheckout = true
+        showDependenciesChanges = true
+    }
+
+    failureConditions {
+        errorMessage = true
+    }
+
+    dependencies {
+        snapshot(dependency, DefaultFailureCondition)
+    }
+
+    steps {
+        gradle {
+            name = "Build and upload update site for Eclipse ${eclipseVersion.codeName} (${eclipseVersion.versionNumber})"
+            tasks = "clean build uploadUpdateSite"
+            buildFile = ""
+            gradleParams = "-Prepository.mirrors=\"%repository.mirrors%\" --exclude-task eclipseTest -Peclipse.version=${eclipseVersion.updateSiteVersion} -Pcompiler.location='%linux.java8.oracle.64bit%/bin/javac' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=projects-storage.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=downloads/buildship/updates -PECLIPSE_ORG_TEMP_PATH=tmp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates --stacktrace -Declipse.p2.mirror=false -Penable.oomph.plugin=false \"-Dgradle.cache.remote.url=%gradle.cache.remote.url%\" \"-Dgradle.cache.remote.username=%gradle.cache.remote.username%\" \"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\" -Pjdk8.location='%jdk8.location%' -Pjdk11.location='%jdk11.location%'"
+            param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
+        }
+    }
+})
+
+
 class CheckpointBuildType(triggerName: String, scenarios: List<IndividualScenarioBuildType>, previousCheckpoint: CheckpointBuildType?, trigger: Trigger = Trigger.NONE) : BuildType({
     createId("Checkpoint", triggerName)
     trigger.applyOn(this)
@@ -253,7 +313,7 @@ object Checkpoints : Project({
 
 object Promotions : Project({
     createId("Promotions")
-    buildTypesWithOrder(listOf(unsafeSnapshotPromotion, snapshotPromotion, milestonePromotion, releasePromotion))
+    buildTypesWithOrder(listOf(unsafeSnapshotPromotion, snapshotPromotion, milestonePromotion, releasePromotion) + individualSnapshotPromotions + individualReleasePromotions)
 })
 
 
