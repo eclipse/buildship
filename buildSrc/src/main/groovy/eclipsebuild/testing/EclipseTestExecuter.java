@@ -96,7 +96,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         LOGGER.info("equinox launcher file {}", equinoxLauncherFile);
 
         ExecFactory execFactory = ((ProjectInternal) project).getServices().get(ExecFactory.class);
-        final JavaExecAction javaExecHandleBuilder = execFactory.newDecoratedJavaExecAction();
+        final JavaExecAction javaExecHandleBuilder = execFactory.newJavaExecAction();
         javaExecHandleBuilder.setClasspath(this.project.files(equinoxLauncherFile));
         javaExecHandleBuilder.setMain("org.eclipse.equinox.launcher.Main");
 
