@@ -25,7 +25,7 @@ For manual installation use one of the update sites below.
 
 ### Update site with the latest release
 
-There are separate update sites contaiing the latest Buildship versions:
+There are separate update sites containing the latest Buildship versions:
 
 - latest relase: https://download.eclipse.org/buildship/updates/latest/
 - latest snapshot: https://download.eclipse.org/buildship/updates/latest-snapshot/
