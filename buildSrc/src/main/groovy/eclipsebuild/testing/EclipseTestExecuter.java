@@ -280,7 +280,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
             detector = new EclipsePluginTestClassScanner(testClassFiles, processor);
         }
 
-        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), Time.clock(), testTaskOperationId, rootTestSuiteId, String.format("Gradle Eclipse Test Run %s", testTask.getIdentityPath())).run();
+        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), Time.clock(), testTaskOperationId, String.format("Gradle Eclipse Test Run %s", testTask.getIdentityPath())).run();
         LOGGER.info("collected test class names: {}", processor.classNames);
         return processor.classNames;
     }
