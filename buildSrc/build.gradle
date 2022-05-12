@@ -9,12 +9,12 @@ repositories {
 }
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'nu.studer:java-ordered-properties:1.0.1'
-    compile 'org.apache.maven:maven-ant-tasks:2.1.3'
-    compile 'org.apache.bcel:bcel:6.5.0'
-    compile 'com.google.guava:guava:30.1-jre'
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'nu.studer:java-ordered-properties:1.0.1'
+    implementation 'org.apache.maven:maven-ant-tasks:2.1.3'
+    implementation 'org.apache.bcel:bcel:6.5.0'
+    implementation 'com.google.guava:guava:30.1-jre'
 }
 

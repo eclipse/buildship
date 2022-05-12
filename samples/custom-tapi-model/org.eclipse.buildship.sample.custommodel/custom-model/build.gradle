@@ -6,7 +6,7 @@ subprojects {
     version = '1.0'
 
     dependencies {
-        compile gradleApi()
+        implementation gradleApi()
     }    
     
     publishing {

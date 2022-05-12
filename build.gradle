@@ -962,7 +962,7 @@ subprojects {
     // use common bundled testing depenendencies for all test plugins
     plugins.withType(eclipsebuild.TestBundlePlugin) {
         dependencies {
-            compile "org.codehaus.groovy:groovy-all:$groovyLibVersion"
+            implementation "org.codehaus.groovy:groovy-all:$groovyLibVersion"
             bundled "org.codehaus.groovy:groovy-all:$groovyLibVersion"
             bundled "org.objenesis:objenesis:$objenesisLibVersion"
             bundled "org.spockframework:spock-core:$spockLibVersion"

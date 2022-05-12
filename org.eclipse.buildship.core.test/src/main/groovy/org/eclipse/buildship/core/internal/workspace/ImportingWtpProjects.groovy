@@ -168,7 +168,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'war'
                 ${jcenterRepositoryBlock}
                 dependencies {
-                    compile "junit:junit:4.12"
+                    implementation "junit:junit:4.12"
                 }
             """
             file 'settings.gradle', ''

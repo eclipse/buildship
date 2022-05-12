@@ -5,40 +5,43 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
-class ConvertOsgiBundleTask extends DefaultTask {
+abstract class ConvertOsgiBundleTask extends DefaultTask {
 
     @Input
-    Property<String> bundleName
+    abstract Property<String> getBundleName()
 
     @Input
-    Property<String> bundleVersion
+    abstract Property<String> getBundleVersion()
 
     @Input
-    Property<String> packageFilter
+    abstract Property<String> getPackageFilter()
 
     @Input
-    Property<String> qualifier
+    abstract Property<String> getQualifier()
 
     @Input
-    Property<String> template
+    abstract Property<String> getTemplate()
 
-    @Input
-    Configuration pluginConfiguration
+    @Classpath
+    abstract Property<Configuration> getPluginConfiguration()
 
-    @Input
-    ConfigurableFileCollection resources
+    @InputFiles
+    abstract ConfigurableFileCollection getResources()
 
     @OutputDirectory
-    File target
+    abstract DirectoryProperty getOutputDirectory()
 
     @TaskAction
     void convertOsgiBundle() {
-        createNewBundle(project, JarBundleUtils.firstDependencyJar(pluginConfiguration))
+        createNewBundle(project, JarBundleUtils.firstDependencyJar(pluginConfiguration.get()))
     }
 
     void createNewBundle(Project project, File jar) {
@@ -50,7 +53,7 @@ class ConvertOsgiBundleTask extends DefaultTask {
         manifestFile.parentFile.mkdirs()
         manifestFile.text = manifest
 
-        File osgiJar = new File(target, "osgi_${jar.name}")
+        File osgiJar = new File(outputDirectory.get().asFile, "osgi_${jar.name}")
         project.ant.zip(destfile: osgiJar) {
             zipfileset(src: jar, excludes: 'META-INF/MANIFEST.MF')
         }

@@ -52,7 +52,7 @@ import java.nio.charset.StandardCharsets
  * }
  * </pre>
  * If no target platform version is defined for the build then the one matches to the value of the
- * {@link gdefaultEclipseVersion} attribute will be selected. This can be changed by appending the
+ * {@link defaultEclipseVersion} attribute will be selected. This can be changed by appending the
  * the {@code -Peclipse.version=[version-number]} argument to he build. In the context of the
  * example above it would be:
  * <pre>
@@ -65,7 +65,7 @@ import java.nio.charset.StandardCharsets
  * The {@code versionMapping} can be used to define exact plugin dependency versions per target platform.
  * A bundle can define a dependency through the {@code withEclipseBundle()} method like
  * <pre>
- * compile withEclipseBundle('org.eclipse.core.runtime')
+ * api withEclipseBundle('org.eclipse.core.runtime')
  * </pre>
  * If the active target platform has a version mapped for the dependency then that version is used,
  * otherwise an unbound version range (+) is applied.
