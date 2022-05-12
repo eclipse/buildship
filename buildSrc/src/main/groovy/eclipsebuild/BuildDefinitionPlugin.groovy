@@ -52,7 +52,7 @@ import java.nio.charset.StandardCharsets
  * }
  * </pre>
  * If no target platform version is defined for the build then the one matches to the value of the
- * {@link defaultEclipseVersion} attribute will be selected. This can be changed by appending the
+ * {@link gdefaultEclipseVersion} attribute will be selected. This can be changed by appending the
  * the {@code -Peclipse.version=[version-number]} argument to he build. In the context of the
  * example above it would be:
  * <pre>
