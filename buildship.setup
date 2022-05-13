@@ -54,11 +54,13 @@
       <setupTask
         xsi:type="setup:EclipseIniTask"
         option="-Dbuildship.jre.location-1.8"
-        value="=${jre.location-1.8}"/>
+        value="=${jre.location-1.8|path}"
+        vm="true"/>
       <setupTask
         xsi:type="setup:EclipseIniTask"
         option="-Dbuildship.jre.location-11"
-        value="=${jre.location-11}"/>
+        value="=${jre.location-11|path}"
+        vm="true"/>
       <setupTask
           xsi:type="jdt:JRETask"
           id="buildship.preferences.compiler.jre8"
@@ -635,9 +637,6 @@
         <operand
             xsi:type="predicates:NamePredicate"
             pattern="org\.eclipse\.buildship\.oomph\.test"/>
-        <operand
-            xsi:type="predicates:NamePredicate"
-            pattern="org\.eclipse\.buildship\.testdependencies"/>
       </predicate>
     </sourceLocator>
   </setupTask>
