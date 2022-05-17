@@ -335,7 +335,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     static void addTaskInstallTargetPlatform(Project project, Config config) {
         project.task(TASK_NAME_INSTALL_TARGET_PLATFORM, dependsOn: TASK_NAME_ADD_EXISTING_JAR_BUNDLES_TO_TARGET_PLATFORM) {
             group = Constants.gradleTaskGroupName
-            description = "Converts the assembled Eclipse distribution to a Maven repoository."
+            description = "Converts the assembled Eclipse distribution to a Maven repository."
             project.afterEvaluate { inputs.dir config.nonMavenizedTargetPlatformDir }
             project.afterEvaluate { outputs.dir config.mavenizedTargetPlatformDir }
             doLast { installTargetPlatform(project, config) }
