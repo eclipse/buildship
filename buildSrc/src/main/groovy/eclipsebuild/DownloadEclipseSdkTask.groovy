@@ -3,6 +3,7 @@ package eclipsebuild
 
 import com.google.common.hash.Hashing
 import com.google.common.hash.HashingOutputStream
+import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.CacheableTask
@@ -56,6 +57,13 @@ class DownloadEclipseSdkTask extends DefaultTask {
         project.logger.info("Extract 'archive to '$targetDir.absolutePath'")
         if (OperatingSystem.current().isWindows()) {
             project.ant.unzip(src: destination, dest: targetDir, overwrite: true)
+        } else if (OperatingSystem.current().isMacOsX()) {
+            try {
+                project.exec { commandLine 'hdiutil', 'attach', destination.absolutePath }
+                FileUtils.copyDirectory(new File('/Volumes/Eclipse/Eclipse.app'), new File(targetDir, 'Eclipse.app'))
+            } finally {
+                project.exec { commandLine 'hdiutil', 'detach', '/Volumes/Eclipse' }
+            }
         } else {
             project.ant.untar(src: destination, dest: targetDir, compression: "gzip", overwrite: true)
         }

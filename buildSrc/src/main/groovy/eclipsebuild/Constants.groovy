@@ -11,8 +11,7 @@
 
 package eclipsebuild
 
-import org.gradle.api.Project;
-
+import org.gradle.api.Project
 import org.gradle.internal.os.OperatingSystem
 
 /**
@@ -82,7 +81,7 @@ class Constants {
         OperatingSystem os = OperatingSystem.current()
         os.isLinux() ? "eclipse/eclipse" :
                 os.isWindows() ? "eclipse/eclipse.exe" :
-                os.isMacOsX() ? "eclipse/Eclipse.app/Contents/MacOS/eclipse" :
+                os.isMacOsX() ? "Eclipse.app/Contents/MacOS/eclipse" :
                 null
     }
 
@@ -95,11 +94,11 @@ class Constants {
     static String getEclipseSdkDownloadUrl() {
         def classifier = "${getOs()}.${getArch()}"
         switch (classifier) {
-            case "win32.x86":     return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-win32.zip'
-            case "win32.x86_64":  return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-win32-x86_64.zip'
-            case "linux.x86" :    return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-linux-gtk.tar.gz'
-            case "linux.x86_64":  return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-linux-gtk-x86_64.tar.gz'
-                case "macosx.x86_64": return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-macosx-cocoa-x86_64.tar.gz'
+            case "win32.x86":     return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-win32.zip'
+            case "win32.x86_64":  return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-win32-x86_64.zip'
+            case "linux.x86" :    return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-linux-gtk.tar.gz'
+            case "linux.x86_64":  return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-linux-gtk-x86_64.tar.gz'
+            case "macosx.x86_64": return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-macosx-cocoa-x86_64.dmg'
             default: throw new RuntimeException("Unsupported platform: $classifier")
         }
     }
@@ -107,11 +106,11 @@ class Constants {
     static String getEclipseSdkDownloadSha256Hash() {
         def classifier = "${getOs()}.${getArch()}"
         switch (classifier) {
-            case "win32.x86":     return '82f0f7239eb4b638557a439a2af9ba2d6b8c846243043615b16be159ec229da6'
-            case "win32.x86_64":  return 'f4db0f6cbc4e837362dd51daf7cc9662d89f6b37395f3632a19c1a6ddb6d62f3'
-            case "linux.x86" :    return '27124cc182dad0a2cba76aba95788e209776b17cf842df473eb143c8a5f44cc1'
-            case "linux.x86_64":  return '14a5f79fb9362993fb11ca616cde822bcfdd5daa20c3496c9d4ab91e3555003c'
-            case "macosx.x86_64": return 'e49cc9b6379a4eed7613f997b0b4c415f34bb858069a134f8ad46b1585761395'
+            case "win32.x86":     return '5d95ba57d48e48ecce7993645e4416557696beb614ca389f9b4c296696058cf8'
+            case "win32.x86_64":  return '5b2873ee265d53a4cc2b5fd56e6fd3a29cf07f49a6576f4bb29cfb49114774b3'
+            case "linux.x86" :    return '606f74899eb29bb5c6072457c88f08c599cbf3dec3908d8d4bdeadaeb5aeba4e'
+            case "linux.x86_64":  return '8704b5ef20e76f7e0d1c7cd2139f08b909efd0dfca19f44f1b0d5f615606b263'
+            case "macosx.x86_64": return '2d5a377c64b64dc3661b90e66c51141467ed7c7ee6235bab91ae1a569da0b422'
             default: throw new RuntimeException("Unsupported platform: $classifier")
         }
     }

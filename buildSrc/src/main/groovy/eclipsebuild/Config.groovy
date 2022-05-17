@@ -11,11 +11,9 @@
 
 package eclipsebuild
 
+import eclipsebuild.BuildDefinitionPlugin.TargetPlatform
 import org.gradle.api.Project
 import org.gradle.internal.os.OperatingSystem
-
-import eclipsebuild.BuildDefinitionPlugin.TargetPlatform
-
 
 /**
  * Holds configuration-dependent settings for the plug-ins.
@@ -82,15 +80,12 @@ class Config {
         new File(targetPlatformDir, 'mavenized-target-platform')
     }
 
-    File getEclipseSdkArchive() {
-        new File(eclipseSdkDir, OperatingSystem.current().isWindows() ? 'eclipse-sdk.zip' : 'eclipse-sdk.tar.gz')
-    }
-
     File getEclipseSdkExe() {
         new File(eclipseSdkDir, Constants.eclipseExePath)
     }
 
     File getJarProcessorJar() {
-        new File(eclipseSdkDir.path, '/eclipse/plugins').listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
+        String pluginsDir = OperatingSystem.current().isMacOsX() ? 'Eclipse.app/Contents/Eclipse/plugins' : '/eclipse/plugins'
+        new File(eclipseSdkDir.path, pluginsDir).listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
     }
 }
