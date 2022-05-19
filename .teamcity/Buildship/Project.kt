@@ -75,7 +75,7 @@ class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: Ec
         param("compiler.location", Jdk.OPEN_JDK_11.getJavaCompilerPath(os))
         param("eclipse.test.java.home", eclipseRuntimeJdk.getJavaHomePath(os))
         param("env.JAVA_HOME", eclipseRuntimeJdk.getJavaHomePath(os))
-        param("enable.oomph.plugin", "false")
+        param("enable.oomph.plugin", if (type !in setOf(ScenarioType.SANITY_CHECK, ScenarioType.BASIC_COVERAGE)) "false" else "true")
         param("gradle.tasks", type.gradleTasks)
         param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(os))
         param("jdk11.location", Jdk.OPEN_JDK_11.getJavaHomePath(os))
@@ -171,7 +171,7 @@ class PromotionBuildType(promotionName: String, typeName: String, dependency: Bu
                 name = "Build and upload update site for Eclipse ${eclipseVersion.codeName} (${eclipseVersion.versionNumber})"
                 tasks = "clean build uploadUpdateSite"
                 buildFile = ""
-                gradleParams = "-Prepository.mirrors=\"%repository.mirrors%\" --exclude-task eclipseTest -Peclipse.version=${eclipseVersion.updateSiteVersion} -Pcompiler.location='%linux.java8.oracle.64bit%/bin/javac' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=projects-storage.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=downloads/buildship/updates -PECLIPSE_ORG_TEMP_PATH=tmp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates --stacktrace -Declipse.p2.mirror=false -Penable.oomph.plugin=false \"-Dgradle.cache.remote.url=%gradle.cache.remote.url%\" \"-Dgradle.cache.remote.username=%gradle.cache.remote.username%\" \"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\" -Pjdk8.location='%jdk8.location%' -Pjdk11.location='%jdk11.location%'"
+                gradleParams = "-Prepository.mirrors=\"%repository.mirrors%\" --exclude-task eclipseTest -Peclipse.version=${eclipseVersion.updateSiteVersion} -Pcompiler.location='%linux.java8.oracle.64bit%/bin/javac' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=projects-storage.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=downloads/buildship/updates -PECLIPSE_ORG_TEMP_PATH=tmp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates --stacktrace -Declipse.p2.mirror=false -Penable.oomph.plugin=true \"-Dgradle.cache.remote.url=%gradle.cache.remote.url%\" \"-Dgradle.cache.remote.username=%gradle.cache.remote.username%\" \"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\" -Pjdk8.location='%jdk8.location%' -Pjdk11.location='%jdk11.location%'"
                 param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
             }
         }
@@ -238,7 +238,7 @@ class SinglePromotionBuildType(promotionName: String, typeName: String, eclipseV
             name = "Build and upload update site for Eclipse ${eclipseVersion.codeName} (${eclipseVersion.versionNumber})"
             tasks = "clean build uploadUpdateSite"
             buildFile = ""
-            gradleParams = "-Prepository.mirrors=\"%repository.mirrors%\" --exclude-task eclipseTest -Peclipse.version=${eclipseVersion.updateSiteVersion} -Pcompiler.location='%linux.java8.oracle.64bit%/bin/javac' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=projects-storage.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=downloads/buildship/updates -PECLIPSE_ORG_TEMP_PATH=tmp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates --stacktrace -Declipse.p2.mirror=false -Penable.oomph.plugin=false \"-Dgradle.cache.remote.url=%gradle.cache.remote.url%\" \"-Dgradle.cache.remote.username=%gradle.cache.remote.username%\" \"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\" -Pjdk8.location='%jdk8.location%' -Pjdk11.location='%jdk11.location%'"
+            gradleParams = "-Prepository.mirrors=\"%repository.mirrors%\" --exclude-task eclipseTest -Peclipse.version=${eclipseVersion.updateSiteVersion} -Pcompiler.location='%linux.java8.oracle.64bit%/bin/javac' -Pbuild.invoker=%build.invoker% -Prelease.type=%eclipse.release.type% -PECLIPSE_ORG_FTP_HOST=projects-storage.eclipse.org -PECLIPSE_ORG_FTP_USER=%eclipse.downloadServer.username% -PECLIPSE_ORG_FTP_PASSWORD=%eclipse.downloadServer.password% -PECLIPSE_ORG_FTP_UPDATE_SITES_PATH=downloads/buildship/updates -PECLIPSE_ORG_TEMP_PATH=tmp -PECLIPSE_ORG_MIRROR_PATH=/buildship/updates --stacktrace -Declipse.p2.mirror=false -Penable.oomph.plugin=true \"-Dgradle.cache.remote.url=%gradle.cache.remote.url%\" \"-Dgradle.cache.remote.username=%gradle.cache.remote.username%\" \"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\" -Pjdk8.location='%jdk8.location%' -Pjdk11.location='%jdk11.location%'"
             param("org.jfrog.artifactory.selectedDeployableServer.defaultModuleVersionConfiguration", "GLOBAL")
         }
 
