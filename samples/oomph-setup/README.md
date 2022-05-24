@@ -8,19 +8,12 @@ Oomph will import an example gradle project using Buildship.
 
 # Testing against the local checkout
 By default the setup tasks uses the latest released Buildship version from the update site. The eclipse
-installer can be instructed to use the local site and model by the eclipse installer with the following parameters (e.g. via eclipse-inst.ini):
+installer can be instructed to use the local site and model by building it using `gradlew :org.eclipse.buildship.site:build` and
+supplying the eclipse installer with the following parameters (e.g. via eclipse-inst.ini):
 
 ```ini
--Doomph.redirection.buildship=https://raw.githubusercontent.com/eclipse/buildship/master/buildship.setup->file:/<path to buildship checkout>/buildship.setup 
+-Doomph.redirection.bs=https://raw.githubusercontent.com/eclipse/buildship/master/org.eclipse.buildship.oomph/model/GradleImport-1.0.ecore->file:/<path to builship checkout>/org.eclipse.buildship.oomph/model/GradleImport-1.0.ecore
+-Doomph.redirection.p2.buildship=https://download.eclipse.org/buildship/updates/latest->file:/<path to builship checkout>/org.eclipse.buildship.site/build/repository
 ```
 
-Windows has no eclipse-inst.ini, do this instead:
-
-```
-.\eclipse-inst-jre-win64.exe -vmargs '-Doomph.redirection.buildship=https://raw.githubusercontent.com/eclipse/buildship/master/buildship.setup->file:/<path to buildship checkout>/buildship.setup'
-```
-
-Replace `<path to buildship checkout>` with the location of your buildship checkout.
-On the variables page, enter the URL of your fork, `https://github.com/<user>/buildship`, and the branch you want to checkout. This step can be skipped, if you only want to test changes to your `buildship.setup` (the local version will be used). 
-To redirect Eclipse to use the local `buildship.setup`, use `-Dbuildship.oomphtest.enabled=true`. It will add another variable `buildship.oomphtest.setupLocation`. Set it to `<path to buildship checkout>/buildship.setup`. 
-Without this configuration, the new Eclipse installation, will perform the setup tasks using the `buildship.setup` from the update site.
+Replace `<path to builship checkout>` with the location of your buildship checkout.
