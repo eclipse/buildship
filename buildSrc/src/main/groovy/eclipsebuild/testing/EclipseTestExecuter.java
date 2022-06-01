@@ -96,15 +96,8 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         WorkerLeaseService workerLeaseService = ((ProjectInternal) project).getServices().get(WorkerLeaseService.class);
         final JavaExecAction javaExecHandleBuilder = execFactory.newJavaExecAction();
         javaExecHandleBuilder.setClasspath(this.project.files(equinoxLauncherFile));
-        javaExecHandleBuilder.setMain("org.eclipse.equinox.launcher.Main");
-
-        String javaHome = getExtension(testTask).getTestEclipseJavaHome();
-        File executable = new File(javaHome, "bin/java");
-        if (executable.exists()) {
-            javaExecHandleBuilder.setExecutable(executable);
-        } else {
-            LOGGER.warn("Java executable doesn't exist: " + executable.getAbsolutePath());
-        }
+        javaExecHandleBuilder.getMainClass().set("org.eclipse.equinox.launcher.Main");
+        javaExecHandleBuilder.setExecutable(testTask.getJavaLauncher().get().getExecutablePath().getAsFile());
 
         List<String> programArgs = new ArrayList<String>();
 
