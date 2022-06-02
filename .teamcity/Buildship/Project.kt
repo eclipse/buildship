@@ -73,7 +73,7 @@ class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: Ec
         param("build.invoker", "ci")
         param("eclipse.version", eclipseVersion.updateSiteVersion)
         param("eclipse.test.java.version", eclipseRuntimeJdk.majorVersion)
-        param("env.JAVA_HOME", eclipseRuntimeJdk.getJavaHomePath(os))
+        param("env.JAVA_HOME", Jdk.OPEN_JDK_11.getJavaHomePath(os))
         param("enable.oomph.plugin", if (type !in setOf(ScenarioType.SANITY_CHECK, ScenarioType.BASIC_COVERAGE)) "false" else "true")
         param("gradle.tasks", type.gradleTasks)
         param("jdk8.location", Jdk.ORACLE_JDK_8.getJavaHomePath(os))
@@ -130,7 +130,6 @@ class PromotionBuildType(promotionName: String, typeName: String, dependency: Bu
             "milestone" -> text("Confirm", "NO", label = "Do you want to proceed with the milestone?", description = "Confirm to publish a new milestone.", display = ParameterDisplay.PROMPT,regex = "YES", validationMessage = "Confirm by writing YES in order to proceed.")
             "release" -> password("github.token", "", label = "GitHub token", description = "Please specify your GitHub auth token to proceed with the release", display = ParameterDisplay.PROMPT)
         }
-        param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
         param("eclipse.release.type", typeName)
         param("build.invoker", "ci")
         param("env.JAVA_HOME", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
@@ -197,7 +196,6 @@ class SinglePromotionBuildType(promotionName: String, typeName: String, eclipseV
             "milestone" -> text("Confirm", "NO", label = "Do you want to proceed with the milestone?", description = "Confirm to publish a new milestone.", display = ParameterDisplay.PROMPT,regex = "YES", validationMessage = "Confirm by writing YES in order to proceed.")
             "release" -> password("github.token", "", label = "GitHub token", description = "Please specify your GitHub auth token to proceed with the release", display = ParameterDisplay.PROMPT)
         }
-        param("env.JAVA_HOME", "%linux.java8.oracle.64bit%")
         param("eclipse.release.type", typeName)
         param("build.invoker", "ci")
         param("env.JAVA_HOME", Jdk.OPEN_JDK_11.getJavaHomePath(OS.LINUX))
