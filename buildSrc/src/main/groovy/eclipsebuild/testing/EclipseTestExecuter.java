@@ -98,7 +98,6 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         javaExecHandleBuilder.setClasspath(this.project.files(equinoxLauncherFile));
         javaExecHandleBuilder.getMainClass().set("org.eclipse.equinox.launcher.Main");
         javaExecHandleBuilder.setExecutable(testTask.getJavaLauncher().get().getExecutablePath().getAsFile());
-
         List<String> programArgs = new ArrayList<String>();
 
         programArgs.add("-os");
@@ -163,7 +162,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
 
         // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
         // TODO we should remove this option when it is not required by Eclipse
-        if (JavaVersion.current().isJava9Compatible()) {
+        if (testTask.getJavaLauncher().get().getMetadata().getLanguageVersion().canCompileOrRun(9)) {
             jvmArgs.add("--add-modules=ALL-SYSTEM");
         }
         // uncomment to debug spawned Eclipse instance
