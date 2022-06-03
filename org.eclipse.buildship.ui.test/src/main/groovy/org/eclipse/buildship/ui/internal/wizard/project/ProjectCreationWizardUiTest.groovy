@@ -66,7 +66,8 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         bot.button(IDialogConstants.CANCEL_LABEL).click()
     }
 
-    public void "Project files are deleted when cancel button is pressed on the preview page"() {
+    @Ignore // flaky test
+    def "Project files are deleted when cancel button is pressed on the preview page"() {
         setup:
         openGradleCreationWizard()
 
