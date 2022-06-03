@@ -908,24 +908,6 @@ project.assembleTargetPlatform.doLast {
     }
 }
 
-if (!project.hasProperty('jdk8.location')) {
-    failWithMissingProjectPropertyMessage('jdk8.location')
-} else if (!project.hasProperty('jdk11.location')) {
-    failWithMissingProjectPropertyMessage('jdk11.location')
-}
-
-def failWithMissingProjectPropertyMessage(propertyName) {
-    throw new Exception("""Required property '$propertyName' is not defined in the build. Consider declaring all required properties in the Gradle properties file(default location: ~/.gradle/gradle.properties):
-
-# required properties for the Buildship build
-jdk8.location=/path/to/jdk-8
-jdk11.location=/path/to/jdk-11""")
-}
-
-// quotes required on TeamCity to pass property with spaces, e.g. a Windows file path
-def jdk8Location = project.property('jdk8.location').replace('\"', '').replace('\'', '')
-def jdk11Location = project.property('jdk11.location').replace('\"', '').replace('\'', '')
-
 subprojects {
     // set the calculated version on all projects in the hierarchy
     version = rootProject.version
@@ -984,8 +966,10 @@ subprojects {
     }
 
     tasks.withType(Test).all {
-        jvmArgs "-Djdk8.location=$jdk8Location"
-        jvmArgs "-Djdk11.location=$jdk11Location"
+        def java8 = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(8) }
+        def java11 = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(11) }
+        jvmArgs "-Djdk8.location=${java8.get().metadata.installationPath.asFile}"
+        jvmArgs "-Djdk11.location=${java11.get().metadata.installationPath.asFile}"
 
         // TODO re-enable html test reporting on Windows
         if (org.gradle.internal.os.OperatingSystem.current().windows) {
