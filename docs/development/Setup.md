@@ -72,19 +72,6 @@ The target platform selected during the installation can be changed. To do that,
 
 ![Specify new target platform](oomph/install-5.png)
 
-## Gradle setup
-
-The current Gradle wrapper version does not work with Java 17 and also requires locations for JDK 8 and 11. They can be configured in `.gradle/gradle.properties` in your home folder
-
-```
-# Path to your JDK 11 that is used for Gradle.
-org.gradle.java.home=
-# Path to your JDK 8 and 11 installation. Same as in Eclipse.
-jdk8.location=
-jdk11.location=
-```
-
-
 ## Manual setup (deprecated)
 
 ### Getting the source code
