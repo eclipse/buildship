@@ -13,6 +13,9 @@ package eclipsebuild
 
 import eclipsebuild.BuildDefinitionPlugin.TargetPlatform
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Provider
 import org.gradle.internal.os.OperatingSystem
 
 /**
@@ -64,8 +67,13 @@ class Config {
     //    |--37
     //       |--...
 
-    File getEclipseSdkDir() {
-        new File(targetPlatformsDir, 'eclipse-sdk')
+    Provider<Directory> getBaseDirectory() {
+        Provider<Directory> baseDirectory = project.rootProject.eclipseBuild.baseDirectory
+        return baseDirectory != null ? baseDirectory : project.layout.buildDirectory.dir("tooling")
+    }
+
+    Provider<Directory> getEclipseSdkDir() {
+        baseDirectory.map(base -> base.dir('eclipse-sdk'))
     }
 
     File getTargetPlatformDir() {
@@ -81,11 +89,11 @@ class Config {
     }
 
     File getEclipseSdkExe() {
-        new File(eclipseSdkDir, Constants.eclipseExePath)
+        new File(eclipseSdkDir.get().asFile, Constants.eclipseExePath)
     }
 
     File getJarProcessorJar() {
         String pluginsDir = OperatingSystem.current().isMacOsX() ? 'Eclipse.app/Contents/Eclipse/plugins' : '/eclipse/plugins'
-        new File(eclipseSdkDir.path, pluginsDir).listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
+        new File(eclipseSdkDir.get().asFile.path, pluginsDir).listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
     }
 }

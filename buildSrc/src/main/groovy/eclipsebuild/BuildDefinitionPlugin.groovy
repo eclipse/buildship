@@ -18,7 +18,10 @@ import eclipsebuild.mavenize.BundleMavenDeployer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
 import org.gradle.api.logging.LogLevel
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
 
 import java.nio.charset.StandardCharsets
 
@@ -81,6 +84,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         final def targetPlatforms
         def scmRepo
         def commitId
+        Provider<Directory> baseDirectory
 
         EclipseBuild() {
             targetPlatforms = [:]
@@ -180,12 +184,12 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     }
 
     static void addTaskDownloadEclipseSdk(Project project, Config config) {
-        project.task(TASK_NAME_DOWNLOAD_ECLIPSE_SDK, type: DownloadEclipseSdkTask) {
+        TaskProvider<DownloadEclipseSdkTask> task = project.tasks.register(TASK_NAME_DOWNLOAD_ECLIPSE_SDK, DownloadEclipseSdkTask, config)
+        task.configure {
             group = Constants.gradleTaskGroupName
             description = "Downloads an Eclipse SDK to perform P2 operations with."
-            downloadUrl = Constants.eclipseSdkDownloadUrl
-            expectedSha256Sum = Constants.eclipseSdkDownloadSha256Hash
-            targetDir = config.eclipseSdkDir
+            downloadUrl.convention(Constants.eclipseSdkDownloadUrl)
+            expectedSha256Sum.convention(Constants.eclipseSdkDownloadSha256Hash)
         }
     }
 
