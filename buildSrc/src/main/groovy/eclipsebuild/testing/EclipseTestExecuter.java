@@ -216,7 +216,10 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         LOGGER.info("Listening on port " + pdeTestPort + " for test suite " + suiteName + " results ...");
 
         EclipseTestAdapter eclipseTestAdapter = new EclipseTestAdapter(pdeTestListener, new EclipseTestResultProcessor(testResultProcessor, suiteName, testTask, rootTestSuiteId, project.getLogger()));
-        eclipseTestAdapter.processEvents();
+
+        if(!eclipseTestAdapter.processEvents()) {
+            throw new GradleException("Test execution failed");
+        }
 
         try {
             eclipseJob.get(15, TimeUnit.SECONDS);

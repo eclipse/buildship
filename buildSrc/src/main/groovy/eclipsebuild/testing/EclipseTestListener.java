@@ -25,7 +25,7 @@ public final class EclipseTestListener implements ITestRunListener2 {
     static class TestRunStartedEvent implements EclipseTestEvent {
     }
 
-    static class TestRunFinishedEvent implements EclipseTestEvent {
+    static class TestRunEndedEvent implements EclipseTestEvent {
     }
 
     static class TestStartedEvent implements EclipseTestEvent {
@@ -125,7 +125,7 @@ public final class EclipseTestListener implements ITestRunListener2 {
 
     @Override
     public synchronized void testRunEnded(long elapsedTime) {
-        offer(new TestRunFinishedEvent());
+        offer(new TestRunEndedEvent());
     }
 
     @Override

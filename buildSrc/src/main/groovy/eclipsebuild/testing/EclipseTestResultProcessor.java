@@ -34,8 +34,8 @@ public class EclipseTestResultProcessor {
     public void onEvent(EclipseTestListener.EclipseTestEvent event) {
         if (event instanceof EclipseTestListener.TestRunStartedEvent) {
             onTestRunStartedEvent((EclipseTestListener.TestRunStartedEvent) event);
-        } else if (event instanceof EclipseTestListener.TestRunFinishedEvent){
-            onTestRunFinishedEvent((EclipseTestListener.TestRunFinishedEvent) event);
+        } else if (event instanceof EclipseTestListener.TestRunEndedEvent){
+            onTestRunEndedEvent((EclipseTestListener.TestRunEndedEvent) event);
         } else if (event instanceof EclipseTestListener.TestStartedEvent){
             onTestStartedEvent((EclipseTestListener.TestStartedEvent) event);
         } else if (event instanceof EclipseTestListener.TestEndedEvent){
@@ -52,7 +52,7 @@ public class EclipseTestResultProcessor {
         this.resultProcessor.started(this.currentTestSuite, startEvent());
     }
 
-    private void onTestRunFinishedEvent(EclipseTestListener.TestRunFinishedEvent event) {
+    private void onTestRunEndedEvent(EclipseTestListener.TestRunEndedEvent event) {
         if (this.currentTestClass != null) {
             this.resultProcessor.completed(this.currentTestClass.getId(), completeEvent(TestResult.ResultType.SUCCESS));
         }
