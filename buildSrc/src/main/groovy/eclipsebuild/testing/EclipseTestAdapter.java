@@ -13,11 +13,15 @@ public class EclipseTestAdapter {
         this.testResultProcessor = testResultProcessor;
     }
 
-    public void processEvents() {
+    public boolean processEvents() {
+        boolean success = true;
         while (true) {
             try {
-                EclipseTestListener.EclipseTestEvent event = queue.poll(5, TimeUnit.MINUTES);
-                if (event == null || event instanceof EclipseTestListener.TestRunFinishedEvent) {
+                EclipseTestListener.EclipseTestEvent event = queue.poll(1, TimeUnit.MINUTES);
+                if (event instanceof EclipseTestListener.TestFailedEvent) {
+                    success = false;
+                }
+                if (event == null || event instanceof EclipseTestListener.TestRunEndedEvent) {
                     break;
                 } else {
                     testResultProcessor.onEvent(event);
@@ -26,5 +30,6 @@ public class EclipseTestAdapter {
                 // retry
             }
         }
+         return success;
     }
 }
