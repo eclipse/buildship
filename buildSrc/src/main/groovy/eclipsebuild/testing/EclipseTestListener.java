@@ -19,95 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 public final class EclipseTestListener implements ITestRunListener2 {
 
-    interface EclipseTestEvent {
-    } // TODO move to separate file and add implementations as inner clases
-
-    static class TestRunStartedEvent implements EclipseTestEvent {
-    }
-
-    static class TestRunEndedEvent implements EclipseTestEvent {
-    }
-
-    static class TestStartedEvent implements EclipseTestEvent {
-
-        private final String testId;
-        private final String testName;
-
-        public TestStartedEvent(String testId, String testName) {
-            this.testId = testId;
-            this.testName = testName;
-        }
-
-        public String getTestId() {
-            return testId;
-        }
-
-        public String getTestName() {
-            return testName;
-        }
-    }
-
-    static class TestEndedEvent implements EclipseTestEvent {
-
-        private final String testId;
-        private final String testName;
-
-        public TestEndedEvent(String testId, String testName) {
-            this.testId = testId;
-            this.testName = testName;
-        }
-
-        public String getTestId() {
-            return testId;
-        }
-
-        public String getTestName() {
-            return testName;
-        }
-    }
-
-    static class TestFailedEvent implements EclipseTestEvent {
-        private final int status;
-        private final String testId;
-        private final String testName;
-        private final String trace;
-        private final String expected;
-        private final String actual;
-
-        public TestFailedEvent(int status, String testId, String testName, String trace, String expected, String actual) {
-            this.status = status;
-            this.testId = testId;
-            this.testName = testName;
-            this.trace = trace;
-            this.expected = expected;
-            this.actual = actual;
-        }
-
-        public int getStatus() {
-            return status;
-        }
-
-        public String getTestId() {
-            return testId;
-        }
-
-        public String getTestName() {
-            return testName;
-        }
-
-        public String getTrace() {
-            return trace;
-        }
-
-        public String getExpected() {
-            return expected;
-        }
-
-        public String getActual() {
-            return actual;
-        }
-    }
-
     private final BlockingQueue<EclipseTestEvent> queue;
 
     public EclipseTestListener() {
@@ -120,12 +31,12 @@ public final class EclipseTestListener implements ITestRunListener2 {
 
     @Override
     public synchronized void testRunStarted(int testCount) {
-        offer(new TestRunStartedEvent());
+        offer(new EclipseTestEvent.TestRunStarted());
     }
 
     @Override
     public synchronized void testRunEnded(long elapsedTime) {
-        offer(new TestRunEndedEvent());
+        offer(new EclipseTestEvent.TestRunEnded());
     }
 
     @Override
@@ -142,17 +53,17 @@ public final class EclipseTestListener implements ITestRunListener2 {
 
     @Override
     public synchronized void testStarted(String testId, String testName) {
-        offer(new TestStartedEvent(testId, testName));
+        offer(new EclipseTestEvent.TestStarted(testId, testName));
     }
 
     @Override
     public synchronized void testEnded(String testId, String testName) {
-        offer(new TestEndedEvent(testId, testName));
+        offer(new EclipseTestEvent.TestEnded(testId, testName));
     }
 
     @Override
     public synchronized void testFailed(int status, String testId, String testName, String trace, String expected, String actual) {
-        offer(new TestFailedEvent(status, testId, testName, trace, expected, actual));
+        offer(new EclipseTestEvent.TestFailed(status, testId, testName, trace, expected, actual));
     }
 
     @Override

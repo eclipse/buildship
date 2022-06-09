@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 public class EclipseTestAdapter {
 
-    private final BlockingQueue<EclipseTestListener.EclipseTestEvent> queue;
+    private final BlockingQueue<EclipseTestEvent> queue;
     private final EclipseTestResultProcessor testResultProcessor;
 
     public EclipseTestAdapter(EclipseTestListener testListener, EclipseTestResultProcessor testResultProcessor) {
@@ -17,11 +17,11 @@ public class EclipseTestAdapter {
         boolean success = true;
         while (true) {
             try {
-                EclipseTestListener.EclipseTestEvent event = queue.poll(1, TimeUnit.MINUTES);
-                if (event instanceof EclipseTestListener.TestFailedEvent) {
+                EclipseTestEvent event = queue.poll(5, TimeUnit.MINUTES);
+                if (event instanceof EclipseTestEvent.TestFailed) {
                     success = false;
                 }
-                if (event == null || event instanceof EclipseTestListener.TestRunEndedEvent) {
+                if (event == null || event instanceof EclipseTestEvent.TestRunEnded) {
                     break;
                 } else {
                     testResultProcessor.onEvent(event);
