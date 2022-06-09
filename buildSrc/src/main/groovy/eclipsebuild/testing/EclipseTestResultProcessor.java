@@ -31,35 +31,35 @@ public class EclipseTestResultProcessor {
         this.logger = logger;
     }
 
-    public void onEvent(EclipseTestListener.EclipseTestEvent event) {
-        if (event instanceof EclipseTestListener.TestRunStartedEvent) {
-            onTestRunStartedEvent((EclipseTestListener.TestRunStartedEvent) event);
-        } else if (event instanceof EclipseTestListener.TestRunEndedEvent){
-            onTestRunEndedEvent((EclipseTestListener.TestRunEndedEvent) event);
-        } else if (event instanceof EclipseTestListener.TestStartedEvent){
-            onTestStartedEvent((EclipseTestListener.TestStartedEvent) event);
-        } else if (event instanceof EclipseTestListener.TestEndedEvent){
-            onTestEndedEvent((EclipseTestListener.TestEndedEvent) event);
-        } else if (event instanceof EclipseTestListener.TestFailedEvent){
-            onTestFailedEvent((EclipseTestListener.TestFailedEvent) event);
+    public void onEvent(EclipseTestEvent event) {
+        if (event instanceof EclipseTestEvent.TestRunStarted) {
+            onTestRunStartedEvent((EclipseTestEvent.TestRunStarted) event);
+        } else if (event instanceof EclipseTestEvent.TestRunEnded){
+            onTestRunEndedEvent((EclipseTestEvent.TestRunEnded) event);
+        } else if (event instanceof EclipseTestEvent.TestStarted){
+            onTestStartedEvent((EclipseTestEvent.TestStarted) event);
+        } else if (event instanceof EclipseTestEvent.TestEnded){
+            onTestEndedEvent((EclipseTestEvent.TestEnded) event);
+        } else if (event instanceof EclipseTestEvent.TestFailed){
+            onTestFailedEvent((EclipseTestEvent.TestFailed) event);
         } else {
             throw new RuntimeException("Unexpected event [type=" + event.getClass().getName() + "]: " + event);
         }
     }
 
-    private void onTestRunStartedEvent(EclipseTestListener.TestRunStartedEvent event) {
+    private void onTestRunStartedEvent(EclipseTestEvent.TestRunStarted event) {
         this.currentTestSuite = testSuite(this.rootTestSuiteId, this.suiteName, this.testTaskOperationId);
         this.resultProcessor.started(this.currentTestSuite, startEvent());
     }
 
-    private void onTestRunEndedEvent(EclipseTestListener.TestRunEndedEvent event) {
+    private void onTestRunEndedEvent(EclipseTestEvent.TestRunEnded event) {
         if (this.currentTestClass != null) {
             this.resultProcessor.completed(this.currentTestClass.getId(), completeEvent(TestResult.ResultType.SUCCESS));
         }
         this.resultProcessor.completed(this.currentTestSuite.getId(), completeEvent(TestResult.ResultType.SUCCESS));
     }
 
-    private void onTestStartedEvent(EclipseTestListener.TestStartedEvent event) {
+    private void onTestStartedEvent(EclipseTestEvent.TestStarted event) {
         logger.info("Test started: " + event.getTestName());
 
         // TODO need idGenerator
@@ -85,11 +85,11 @@ public class EclipseTestResultProcessor {
         this.resultProcessor.started(this.currentTestMethod, startEvent(this.currentTestClass));
     }
 
-    private void onTestEndedEvent(EclipseTestListener.TestEndedEvent event) {
+    private void onTestEndedEvent(EclipseTestEvent.TestEnded event) {
         this.resultProcessor.completed(event.getTestId(), completeEvent(TestResult.ResultType.SUCCESS));
     }
 
-    private void onTestFailedEvent(EclipseTestListener.TestFailedEvent event) {
+    private void onTestFailedEvent(EclipseTestEvent.TestFailed event) {
         String message = event.getTestName() + " failed";
         if (event.getExpected() != null || event.getActual() != null) {
             message += " (expected=" + event.getExpected() + ", actual=" + event.getActual() + ")";
