@@ -11,12 +11,10 @@
 
 package eclipsebuild.testing;
 
-import eclipsebuild.Config;
 import eclipsebuild.Constants;
 import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
 import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
 import org.gradle.api.GradleException;
-import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.project.ProjectInternal;
@@ -211,29 +209,17 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         });
         // TODO
         final String suiteName = this.project.getName();
-        Future<?> testCollectorJob = threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                EclipseTestListener pdeTestListener = new EclipseTestListener(testResultProcessor, suiteName, this, testTaskOperationId, rootTestSuiteId, project.getLogger());
-                new RemoteTestRunnerClient().startListening(new ITestRunListener2[] { pdeTestListener }, pdeTestPort);
-                LOGGER.info("Listening on port " + pdeTestPort + " for test suite " + suiteName + " results ...");
-                synchronized (this) {
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        throw new RuntimeException(e);
-                    } finally {
-                        latch.countDown();
-                    }
-                }
-            }
-        });
+
+        EclipseTestListener pdeTestListener = new EclipseTestListener();
+        RemoteTestRunnerClient remoteTestRunnerClient = new RemoteTestRunnerClient();
+        remoteTestRunnerClient.startListening(new ITestRunListener2[] { pdeTestListener }, pdeTestPort);
+        LOGGER.info("Listening on port " + pdeTestPort + " for test suite " + suiteName + " results ...");
+
+        EclipseTestAdapter eclipseTestAdapter = new EclipseTestAdapter(pdeTestListener, new EclipseTestResultProcessor(testResultProcessor, suiteName, testTask, rootTestSuiteId, project.getLogger()));
+        eclipseTestAdapter.processEvents();
+
         try {
-            latch.await(getExtension(testTask).getTestTimeoutSeconds(), TimeUnit.SECONDS);
-            // short chance to do cleanup
             eclipseJob.get(15, TimeUnit.SECONDS);
-            testCollectorJob.get(15, TimeUnit.SECONDS);
         } catch (Exception e) {
             throw new GradleException("Test execution failed", e);
         }
