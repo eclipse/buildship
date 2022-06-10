@@ -69,7 +69,7 @@ class Config {
 
     Provider<Directory> getBaseDirectory() {
         Provider<Directory> baseDirectory = project.rootProject.eclipseBuild.baseDirectory
-        return baseDirectory != null ? baseDirectory : project.layout.buildDirectory.dir("tooling")
+        return baseDirectory != null ? baseDirectory : project.rootProject.layout.buildDirectory.dir("tooling")
     }
 
     Provider<Directory> getEclipseSdkDir() {
