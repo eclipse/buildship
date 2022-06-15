@@ -10,18 +10,22 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
-import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
+import org.gradle.api.JavaVersion;
 import org.gradle.tooling.CancellationTokenSource;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Strings;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-
+import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
 import org.eclipse.buildship.core.internal.configuration.RunConfiguration;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
@@ -34,6 +38,7 @@ import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 public class InitializeNewProjectOperation extends BaseToolingApiOperation {
 
     private final BuildConfiguration buildConfiguration;
+    private final static String CURRENT_JAVA_VERSION = JavaVersion.current().getMajorVersion();
 
     public InitializeNewProjectOperation(BuildConfiguration buildConfiguration) {
         super("Initialize project " + buildConfiguration.getRootProjectDirectory().getName());
@@ -50,16 +55,33 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
         File projectDir = buildConfig.getRootProjectDirectory().getAbsoluteFile();
         if (!projectDir.exists()) {
             if (projectDir.mkdir()) {
-                List<String> tasks = ImmutableList.of("init", "--type", "java-library");
                 InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig);
                 RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(buildConfig);
                 GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
                         .forNonInteractiveBackgroundProcess()
                         .withFilteredProgress()
                         .build();
-                gradleBuild.newBuildLauncher(runConfiguration, progressAttributes).forTasks(tasks.toArray(new String[tasks.size()])).run();
+                gradleBuild.newBuildLauncher(runConfiguration, progressAttributes).forTasks(createInitJavaLibraryTask(runConfiguration.getProjectConfiguration())).run();
             }
         }
+    }
+    
+    private static String[] createInitJavaLibraryTask(ProjectConfiguration projectConfiguration) {
+    	String escapedPackageName = Arrays.stream(projectConfiguration.getProjectDir().getName().split("\\."))
+    		.filter(segment -> !Strings.isNullOrEmpty(segment))
+    		.map(InitializeNewProjectOperation::escapePackageNameSegment)
+    		.collect(Collectors.joining("."));
+    		
+    	return new String[]{"init", "--type", "java-library", "--package", escapedPackageName};
+    }
+    
+    private static String escapePackageNameSegment(String packageNameSegment) {
+    	IStatus status = JavaConventions.validatePackageName(packageNameSegment, CURRENT_JAVA_VERSION, CURRENT_JAVA_VERSION);
+		if (status.getCode() == IStatus.OK) {
+			return packageNameSegment;
+		} else {
+			return "_" + packageNameSegment;
+		}
     }
 
     @Override

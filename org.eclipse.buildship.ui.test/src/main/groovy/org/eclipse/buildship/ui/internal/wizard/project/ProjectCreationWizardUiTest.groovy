@@ -29,6 +29,9 @@ import org.eclipse.ui.IWorkingSet
 import org.eclipse.ui.IWorkingSetManager
 import org.eclipse.ui.PlatformUI
 
+import java.nio.file.Files
+import java.nio.file.Path
+
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.ui.internal.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
@@ -72,12 +75,7 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         openGradleCreationWizard()
 
         when:
-        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText("TestProject")
-        bot.button(IDialogConstants.NEXT_LABEL).click()
-        bot.button(IDialogConstants.NEXT_LABEL).click()
-        // wait until the project preview finishes loading and the buttons are enabled again
-        // the preview can trigger a Gradle distribution download, thus we need a long timeout
-        bot.waitUntil(Conditions.widgetIsEnabled(bot.button(IDialogConstants.BACK_LABEL)), 300000)
+        goToProjectPreviewPage("TestProject")
 
         then:
         // after the project preview loaded the test project should be created
@@ -93,6 +91,21 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         then:
         // after the wizard cancelled the test project should be deleted
         !projectFolder.exists()
+    }
+
+    def "Can create project with Java keywords in name"() {
+        setup:
+        openGradleCreationWizard()
+
+        when:
+        goToProjectPreviewPage("new.synchronized.default.project")
+
+        then:
+        // after the project preview loaded the test project should be created
+        File workspaceRootFolder = LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
+        File projectFolder = workspaceRootFolder.listFiles().find{ it.name == "new.synchronized.default.project" }
+        projectFolder != null
+        Files.exists(projectFolder.toPath().resolve(Path.of("lib", "src", "main", "java", "_new", "_synchronized", "_default", "project", "Library.java")))
     }
 
     @Ignore // flaky test
@@ -136,6 +149,15 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         }
     }
 
+    private def goToProjectPreviewPage(String projectName) {
+        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(projectName)
+        bot.button(IDialogConstants.NEXT_LABEL).click()
+        bot.button(IDialogConstants.NEXT_LABEL).click()
+        // wait until the project preview finishes loading and the buttons are enabled again
+        // the preview can trigger a Gradle distribution download, thus we need a long timeout
+        bot.waitUntil(Conditions.widgetIsEnabled(bot.button(IDialogConstants.BACK_LABEL)), 300000)
+    }
+
     private def openGradleCreationWizard() {
         bot.menu("File").menu("New").menu("Other...").click()
         SWTBotShell shell = bot.shells().find { SWTBotShell shell -> ['New', 'Select a wizard'].contains(shell.text) }
@@ -149,18 +171,17 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
     private def waitUntilWorkingSetIsAdded() {
         bot.waitUntil(new DefaultCondition() {
 
-            @Override
-            public boolean test() throws Exception {
-                IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager()
-                IWorkingSet gradleWorkingSet = workingSetManager.getWorkingSet("Gradle")
-                return gradleWorkingSet.getElements().length > 0
-            }
+                    @Override
+                    public boolean test() throws Exception {
+                        IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager()
+                        IWorkingSet gradleWorkingSet = workingSetManager.getWorkingSet("Gradle")
+                        return gradleWorkingSet.getElements().length > 0
+                    }
 
-            @Override
-            public String getFailureMessage() {
-                return "The Gradle workingset has not been added to the IWorkingSetManager, yet."
-            }
-        }, 60000)
+                    @Override
+                    public String getFailureMessage() {
+                        return "The Gradle workingset has not been added to the IWorkingSetManager, yet."
+                    }
+                }, 60000)
     }
-
 }
