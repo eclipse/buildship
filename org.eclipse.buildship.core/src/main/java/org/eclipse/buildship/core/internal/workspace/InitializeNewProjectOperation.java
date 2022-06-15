@@ -31,7 +31,8 @@ import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 
 /**
- * Creates the {@code java-library} Gradle template project in the target directory.
+ * Creates the {@code java-library} Gradle template project in the target
+ * directory.
  *
  * @author Donat Csikos
  */
@@ -51,37 +52,38 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
 
     }
 
-    private static void initProjectIfNotExists(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+    private static void initProjectIfNotExists(BuildConfiguration buildConfig, CancellationTokenSource tokenSource,
+            IProgressMonitor monitor) {
         File projectDir = buildConfig.getRootProjectDirectory().getAbsoluteFile();
         if (!projectDir.exists()) {
             if (projectDir.mkdir()) {
                 InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig);
-                RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(buildConfig);
+                RunConfiguration runConfiguration = CorePlugin.configurationManager()
+                        .createDefaultRunConfiguration(buildConfig);
                 GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
-                        .forNonInteractiveBackgroundProcess()
-                        .withFilteredProgress()
-                        .build();
-                gradleBuild.newBuildLauncher(runConfiguration, progressAttributes).forTasks(createInitJavaLibraryTask(runConfiguration.getProjectConfiguration())).run();
+                        .forNonInteractiveBackgroundProcess().withFilteredProgress().build();
+                gradleBuild.newBuildLauncher(runConfiguration, progressAttributes)
+                        .forTasks(createInitJavaLibraryTask(runConfiguration.getProjectConfiguration())).run();
             }
         }
     }
-    
+
     private static String[] createInitJavaLibraryTask(ProjectConfiguration projectConfiguration) {
-    	String escapedPackageName = Arrays.stream(projectConfiguration.getProjectDir().getName().split("\\."))
-    		.filter(segment -> !Strings.isNullOrEmpty(segment))
-    		.map(InitializeNewProjectOperation::escapePackageNameSegment)
-    		.collect(Collectors.joining("."));
-    		
-    	return new String[]{"init", "--type", "java-library", "--package", escapedPackageName};
+        String escapedPackageName = Arrays.stream(projectConfiguration.getProjectDir().getName().split("\\."))
+                .filter(segment -> !Strings.isNullOrEmpty(segment))
+                .map(InitializeNewProjectOperation::escapePackageNameSegment).collect(Collectors.joining("."));
+
+        return new String[] { "init", "--type", "java-library", "--package", escapedPackageName };
     }
-    
+
     private static String escapePackageNameSegment(String packageNameSegment) {
-    	IStatus status = JavaConventions.validatePackageName(packageNameSegment, CURRENT_JAVA_VERSION, CURRENT_JAVA_VERSION);
-		if (status.getCode() == IStatus.OK) {
-			return packageNameSegment;
-		} else {
-			return "_" + packageNameSegment;
-		}
+        IStatus status = JavaConventions.validatePackageName(packageNameSegment, CURRENT_JAVA_VERSION,
+                CURRENT_JAVA_VERSION);
+        if (status.getCode() == IStatus.OK) {
+            return packageNameSegment;
+        } else {
+            return "_" + packageNameSegment;
+        }
     }
 
     @Override
