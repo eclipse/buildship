@@ -154,9 +154,12 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
 
         // TODO this should be specified when creating the task (to allow override in build script)
         List<String> jvmArgs = new ArrayList<String>();
-        jvmArgs.add("-XX:MaxPermSize=256m");
+
+        if (!testTask.getJavaLauncher().get().getMetadata().getLanguageVersion().canCompileOrRun(9)) {
+            jvmArgs.add("-XX:MaxPermSize=1024m");
+        }
         jvmArgs.add("-Xms40m");
-        jvmArgs.add("-Xmx1024m");
+        jvmArgs.add("-Xmx81920m");
 
         // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
         // TODO we should remove this option when it is not required by Eclipse
