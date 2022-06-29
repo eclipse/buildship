@@ -184,4 +184,5 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
             }
         }, 60000)
     }
+
 }

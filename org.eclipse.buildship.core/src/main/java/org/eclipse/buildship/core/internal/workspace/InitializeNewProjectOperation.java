@@ -52,8 +52,7 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
 
     }
 
-    private static void initProjectIfNotExists(BuildConfiguration buildConfig, CancellationTokenSource tokenSource,
-            IProgressMonitor monitor) {
+    private static void initProjectIfNotExists(BuildConfiguration buildConfig, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         File projectDir = buildConfig.getRootProjectDirectory().getAbsoluteFile();
         if (!projectDir.exists()) {
             if (projectDir.mkdir()) {
