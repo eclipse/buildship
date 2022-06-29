@@ -58,12 +58,12 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
         if (!projectDir.exists()) {
             if (projectDir.mkdir()) {
                 InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig);
-                RunConfiguration runConfiguration = CorePlugin.configurationManager()
-                        .createDefaultRunConfiguration(buildConfig);
+                RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(buildConfig);
                 GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
-                        .forNonInteractiveBackgroundProcess().withFilteredProgress().build();
-                gradleBuild.newBuildLauncher(runConfiguration, progressAttributes)
-                        .forTasks(createInitJavaLibraryTask(runConfiguration.getProjectConfiguration())).run();
+                        .forNonInteractiveBackgroundProcess()
+                        .withFilteredProgress()
+                        .build();
+                gradleBuild.newBuildLauncher(runConfiguration, progressAttributes).forTasks(createInitJavaLibraryTask(runConfiguration.getProjectConfiguration())).run();
             }
         }
     }
@@ -71,14 +71,13 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
     private static String[] createInitJavaLibraryTask(ProjectConfiguration projectConfiguration) {
         String escapedPackageName = Arrays.stream(projectConfiguration.getProjectDir().getName().split("\\."))
                 .filter(segment -> !Strings.isNullOrEmpty(segment))
-                .map(InitializeNewProjectOperation::escapePackageNameSegment).collect(Collectors.joining("."));
-
+                .map(InitializeNewProjectOperation::escapePackageNameSegment)
+                .collect(Collectors.joining("."));
         return new String[] { "init", "--type", "java-library", "--package", escapedPackageName };
     }
 
     private static String escapePackageNameSegment(String packageNameSegment) {
-        IStatus status = JavaConventions.validatePackageName(packageNameSegment, CURRENT_JAVA_VERSION,
-                CURRENT_JAVA_VERSION);
+        IStatus status = JavaConventions.validatePackageName(packageNameSegment, CURRENT_JAVA_VERSION, CURRENT_JAVA_VERSION);
         if (status.getCode() == IStatus.OK) {
             return packageNameSegment;
         } else {

@@ -171,17 +171,17 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
     private def waitUntilWorkingSetIsAdded() {
         bot.waitUntil(new DefaultCondition() {
 
-                    @Override
-                    public boolean test() throws Exception {
-                        IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager()
-                        IWorkingSet gradleWorkingSet = workingSetManager.getWorkingSet("Gradle")
-                        return gradleWorkingSet.getElements().length > 0
-                    }
+            @Override
+            public boolean test() throws Exception {
+                IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager()
+                IWorkingSet gradleWorkingSet = workingSetManager.getWorkingSet("Gradle")
+                return gradleWorkingSet.getElements().length > 0
+            }
 
-                    @Override
-                    public String getFailureMessage() {
-                        return "The Gradle workingset has not been added to the IWorkingSetManager, yet."
-                    }
-                }, 60000)
+            @Override
+            public String getFailureMessage() {
+                return "The Gradle workingset has not been added to the IWorkingSetManager, yet."
+            }
+        }, 60000)
     }
 }
