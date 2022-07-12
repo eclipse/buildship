@@ -159,7 +159,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
             jvmArgs.add("-XX:MaxPermSize=1024m");
         }
         jvmArgs.add("-Xms40m");
-        jvmArgs.add("-Xmx81920m");
+        jvmArgs.add("-Xmx8192m");
 
         // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
         // TODO we should remove this option when it is not required by Eclipse
