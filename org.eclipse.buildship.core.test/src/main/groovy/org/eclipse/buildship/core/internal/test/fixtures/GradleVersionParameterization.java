@@ -25,6 +25,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
@@ -81,6 +82,13 @@ public abstract class GradleVersionParameterization {
         return Combinations.getCombinations(getGradleDistributions(gradleVersionPattern), dataValues);
     }
 
+    public ImmutableList<GradleDistribution> getGradleDistributions(String gradleVersionPattern, boolean negateJavaConstraints) {
+        Preconditions.checkNotNull(gradleVersionPattern);
+
+        ImmutableList<GradleVersion> gradleVersions = getGradleVersions(gradleVersionPattern, negateJavaConstraints);
+        return convertGradleVersionsToGradleDistributions(gradleVersions);
+    }
+
     /**
      * Returns a list of {@code GradleDistribution} that match the given Gradle version pattern,
      * where the matching Gradle versions also fall into the supplied version range.
@@ -89,10 +97,7 @@ public abstract class GradleVersionParameterization {
      * @return the matching Gradle distributions falling into the configured range, never null
      */
     public ImmutableList<GradleDistribution> getGradleDistributions(String gradleVersionPattern) {
-        Preconditions.checkNotNull(gradleVersionPattern);
-
-        ImmutableList<GradleVersion> gradleVersions = getGradleVersions(gradleVersionPattern);
-        return convertGradleVersionsToGradleDistributions(gradleVersions);
+        return getGradleDistributions(gradleVersionPattern, false);
     }
 
     private ImmutableList<GradleDistribution> convertGradleVersionsToGradleDistributions(ImmutableList<GradleVersion> gradleVersions) {
@@ -115,12 +120,20 @@ public abstract class GradleVersionParameterization {
      * @param gradleVersionPattern the pattern of Gradle versions to match, must not be null
      * @return the matching Gradle versions falling into the configured range, never null
      */
-    ImmutableList<GradleVersion> getGradleVersions(String gradleVersionPattern) {
+    ImmutableList<GradleVersion> getGradleVersions(String gradleVersionPattern, boolean negateJavaConstraints) {
         Preconditions.checkNotNull(gradleVersionPattern);
 
         Predicate<GradleVersion> versionConstraint = GradleVersionConstraints.toPredicate(gradleVersionPattern);
         Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.9");
-        Predicate<GradleVersion> javaVersionConstraint = JavaVersion.current().isJava9Compatible() ? GradleVersionConstraints.toPredicate(">=4.3") : Predicates.alwaysTrue();
+        String minimumSupportedVersion = DefaultGradleBuild.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        Predicate<GradleVersion> javaVersionConstraint = null;
+        if (minimumSupportedVersion == null) {
+            javaVersionConstraint = Predicates.alwaysFalse();
+        } else if (!negateJavaConstraints) {
+            javaVersionConstraint = GradleVersionConstraints.toPredicate(">=" + minimumSupportedVersion);
+        } else {
+            javaVersionConstraint = GradleVersionConstraints.toPredicate("<" + minimumSupportedVersion);
+        }
         @SuppressWarnings("unchecked")
         Predicate<GradleVersion> matchingVersions = Predicates.and(versionConstraint, toolingApiConstraint, javaVersionConstraint);
 

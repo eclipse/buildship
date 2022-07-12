@@ -9,15 +9,15 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.jdt.core.IJavaProject
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
-import org.eclipse.buildship.core.GradleDistribution
 
 class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchronizationSpecification {
 
@@ -111,6 +111,7 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
         distribution << getSupportedGradleDistributions('>=4.4')
     }
 
+    @IgnoreIf({ JavaVersion.current().isJava10Compatible() }) // no Gradle versions <4.4 support Java 10 and above
     def "Binary dependencies does not define classpath scopes for #distribution.version"(GradleDistribution distribution) {
         when:
         importAndWait(sampleProject(distribution), distribution, new File(System.getProperty("jdk8.location")))

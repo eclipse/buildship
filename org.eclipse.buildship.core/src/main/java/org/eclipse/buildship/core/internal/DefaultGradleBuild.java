@@ -10,10 +10,17 @@
 package org.eclipse.buildship.core.internal;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -49,6 +56,7 @@ import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 import org.eclipse.buildship.core.internal.marker.GradleMarkerManager;
 import org.eclipse.buildship.core.internal.operation.BaseToolingApiOperation;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.internal.util.gradle.IdeAttachedProjectConnection;
 import org.eclipse.buildship.core.internal.workspace.ConnectionAwareLauncherProxy;
@@ -64,16 +72,17 @@ import org.eclipse.buildship.core.internal.workspace.SynchronizeGradleBuildOpera
 import org.eclipse.buildship.core.internal.workspace.ValidateProjectLocationOperation;
 
 public final class DefaultGradleBuild implements InternalGradleBuild {
-
+    private static final String PROPERTIES_FILE = "/org/eclipse/buildship/core/internal/gradle/java-minimum-supported-toolingAPI.properties";
     private static Map<File, SynchronizeOperation> syncOperations = new ConcurrentHashMap<>();
 
-    private final org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfig;
+    public static final Map<String, String> compatibilityMap = Collections.unmodifiableMap(loadCompatibilityMap());
 
     // TODO (donat) Now, we have two caches: one for the project configurators and that lives within
     // a synchronization (projectConnectionCache field) and one that lives forever (modelProvider).
     // We should revisit this at some point and unify them.
     private final ModelProvider modelProvider;
     private final Cache<Object, Object> projectConnectionCache;
+    private final org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfig;
 
     public DefaultGradleBuild(org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfiguration) {
         this.buildConfig = buildConfiguration;
@@ -265,6 +274,40 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
             result.addAll(HierarchicalElementUtils.getAll(model.getValue()));
         }
         return result.build();
+    }
+
+    private static Map<String, String> loadCompatibilityMap() throws GradlePluginsRuntimeException {
+        Map<String, String> compatibilityMatrix = new HashMap<>();
+        URL resource = GradleVersion.class.getResource(PROPERTIES_FILE);
+        if (resource == null) {
+            throw new GradlePluginsRuntimeException(String.format("Resource '%s' not found.", PROPERTIES_FILE));
+        }
+        InputStream inputStream = null;
+        try {
+            URLConnection connection = resource.openConnection();
+            connection.setUseCaches(false);
+            inputStream = connection.getInputStream();
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            properties.entrySet().forEach(e -> {
+                Object javaVersion = e.getKey();
+                Object minGradleVersion = e.getValue();
+                if (javaVersion instanceof String && minGradleVersion instanceof String) {
+                    compatibilityMatrix.put((String) javaVersion, (String) minGradleVersion);
+                }
+            });
+        } catch (Exception e) {
+            throw new GradlePluginsRuntimeException(String.format("Could not load version details from resource '%s'.", resource), e);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new GradlePluginsRuntimeException(e);
+                }
+            }
+        }
+        return compatibilityMatrix;
     }
 
     private static class DefaultSynchronizationResult implements SynchronizationResult {
