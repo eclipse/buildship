@@ -103,9 +103,9 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         then:
         // after the project preview loaded the test project should be created
         File workspaceRootFolder = LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
-        File projectFolder = workspaceRootFolder.listFiles().find{ it.name == "new.synchronized.default.project" }
+        File projectFolder = workspaceRootFolder.listFiles().find { it.name == "new.synchronized.default.project" }
         projectFolder != null
-        Files.exists(projectFolder.toPath().resolve(Path.of("lib", "src", "main", "java", "_new", "_synchronized", "_default", "project", "Library.java")))
+        new File(projectFolder, 'lib/src/main/java/_new/_synchronized/_default/project/Library.java').exists()
     }
 
     @Ignore // flaky test
