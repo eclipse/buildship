@@ -10,11 +10,13 @@
 package org.eclipse.buildship.core.internal.workspace;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -43,6 +45,8 @@ import org.eclipse.buildship.core.internal.TraceScope;
 import org.eclipse.buildship.core.internal.preferences.ClasspathConverter;
 import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.util.classpath.ClasspathUtils;
+import org.eclipse.buildship.core.internal.util.gradle.Pair;
+import org.eclipse.buildship.model.Project;
 
 /**
  * Updates the classpath container of the target project.
@@ -175,9 +179,10 @@ final class GradleClasspathContainerUpdater {
      * container will be persisted so it does not have to be reloaded after the workbench is
      * restarted.
      */
-    public static void updateFromModel(IJavaProject eclipseProject, EclipseProject gradleProject, Iterable<EclipseProject> allGradleProjects,
+    public static void updateFromModel(IJavaProject eclipseProject, EclipseProject gradleProject, Collection<Pair<EclipseProject,Project>> collection,
             PersistentModelBuilder persistentModel, IProgressMonitor monitor, ProjectContext context) throws JavaModelException {
-        GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, allGradleProjects, context);
+        List<EclipseProject> list = collection.stream().map(e -> e.getFirst()).collect(Collectors.toList());
+        GradleClasspathContainerUpdater updater = new GradleClasspathContainerUpdater(eclipseProject, gradleProject, list, context);
         updater.updateClasspathContainer(persistentModel, monitor);
     }
 

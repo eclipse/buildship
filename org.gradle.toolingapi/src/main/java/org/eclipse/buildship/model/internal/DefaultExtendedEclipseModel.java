@@ -14,20 +14,18 @@ import java.util.List;
 
 import org.gradle.plugins.ide.internal.tooling.eclipse.DefaultEclipseProject;
 
-import org.eclipse.buildship.model.ProjectInGradleConfiguration;
-
 public class DefaultExtendedEclipseModel implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final List<? extends ProjectInGradleConfiguration> projects;
+    private final List<? extends DefaultProject> projects;
     private final DefaultEclipseProject eclipseProject;
 
-    public DefaultExtendedEclipseModel(List<? extends ProjectInGradleConfiguration> projects, DefaultEclipseProject eclipseProject) {
+    public DefaultExtendedEclipseModel(List<? extends DefaultProject> projects, DefaultEclipseProject eclipseProject) {
         this.projects = projects;
         this.eclipseProject = eclipseProject;
     }
 
-    public List<? extends ProjectInGradleConfiguration> getProjects() {
+    public List<? extends DefaultProject> getProjects() {
         return this.projects;
     }
 

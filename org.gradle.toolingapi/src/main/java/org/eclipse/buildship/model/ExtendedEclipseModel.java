@@ -15,7 +15,8 @@ import java.util.List;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 /**
- * Custom root model allowing Buildship to extract any information from a Gradle build apart from the built-in EclipseProject model.
+ * Custom root model allowing Buildship to extract any information from a Gradle build apart from
+ * the built-in EclipseProject model.
  *
  * @author donat
  */
@@ -24,7 +25,7 @@ public interface ExtendedEclipseModel extends Serializable {
     /**
      * @return Structural information about the project in the build.
      */
-    List<? extends ProjectInGradleConfiguration> getProjects();
+    List<? extends Project> getProjects();
 
     /**
      *

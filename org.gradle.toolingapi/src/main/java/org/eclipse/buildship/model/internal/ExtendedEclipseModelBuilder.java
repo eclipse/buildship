@@ -15,15 +15,16 @@ import java.util.Collections;
 import java.util.List;
 
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.plugins.ide.internal.tooling.eclipse.DefaultEclipseProject;
 import org.gradle.tooling.provider.model.ToolingModelBuilder;
 import org.gradle.tooling.provider.model.ToolingModelBuilderRegistry;
 
 import org.eclipse.buildship.model.ExtendedEclipseModel;
-import org.eclipse.buildship.model.ProjectInGradleConfiguration;
 
 class ExtendedEclipseModelBuilder implements ToolingModelBuilder {
 
@@ -47,16 +48,24 @@ class ExtendedEclipseModelBuilder implements ToolingModelBuilder {
 
 
     protected DefaultExtendedEclipseModel build(DefaultEclipseProject eclipseProject, Project modelRoot) {
-        List<ProjectInGradleConfiguration> projects = new ArrayList<>();
+        List<DefaultProject> projects = new ArrayList<>();
         for (Project project : modelRoot.getRootProject().getAllprojects()) {
+            // location
             File location = project.getProjectDir();
+            // source sets
             ArrayList<String> sourceSetNames = new ArrayList<>();
             try {
                 sourceSetNames.addAll(readSourceSetNamesFromJavaExtension(project));
             } catch (Throwable ignore) {
                 sourceSetNames.addAll(readSourceSetNamesFromJavaConvention(project));
             }
-            projects.add(new DefaultProjectInGradleConfiguration(location, sourceSetNames));
+            // encoding // TODO this belongs to the source sets
+            DefaultCompileJavaTaskConfiguration compileJavaTaskConfiguration = null;
+            Task compileJavaTask = project.getTasks().findByName("compileJava");
+            if (compileJavaTask != null && compileJavaTask instanceof JavaCompile) {
+                compileJavaTaskConfiguration = new DefaultCompileJavaTaskConfiguration(((JavaCompile)compileJavaTask).getOptions().getEncoding());
+            }
+            projects.add(new DefaultProject(location, sourceSetNames, compileJavaTaskConfiguration));
         }
 
         return new DefaultExtendedEclipseModel(projects, eclipseProject);

@@ -116,6 +116,7 @@ public final class GradleArguments {
                  this.buildScansEnabled, this.offlineMode, environment));
         operation.setJavaHome(this.javaHome);
         operation.setJvmArguments(this.jvmArguments);
+        operation.addJvmArguments("-Dorg.eclipse.buildship");
     }
 
     public static GradleArguments from(File rootDir, GradleDistribution gradleDistribution,

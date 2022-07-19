@@ -12,7 +12,11 @@ package org.eclipse.buildship.model;
 import java.io.File;
 import java.util.List;
 
-public interface ProjectInGradleConfiguration {
+public interface Project {
+
     File getLocation();
+
     List<String> getSourceSetNames();
+
+    CompileJavaTaskConfiguration getCompileJavaTaskConfiguration();
 }

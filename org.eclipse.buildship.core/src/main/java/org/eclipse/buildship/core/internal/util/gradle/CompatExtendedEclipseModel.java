@@ -14,7 +14,7 @@ import java.util.List;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import org.eclipse.buildship.model.ExtendedEclipseModel;
-import org.eclipse.buildship.model.ProjectInGradleConfiguration;
+import org.eclipse.buildship.model.Project;
 
 public class CompatExtendedEclipseModel implements ExtendedEclipseModel {
 
@@ -30,7 +30,7 @@ public class CompatExtendedEclipseModel implements ExtendedEclipseModel {
     }
 
     @Override
-    public List<? extends ProjectInGradleConfiguration> getProjects() {
+    public List<? extends Project> getProjects() {
         return this.delegate.getProjects();
     }
 

@@ -13,26 +13,31 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
-import org.eclipse.buildship.model.ProjectInGradleConfiguration;
 
+public class DefaultProject implements Serializable {
 
-public class DefaultProjectInGradleConfiguration implements ProjectInGradleConfiguration, Serializable {
-
+    private static final long serialVersionUID = 1L;
     private final File location;
     private final List<String> sourceSetNames;
+    private final DefaultCompileJavaTaskConfiguration compileJavaTaskConfiguration;
 
-    public DefaultProjectInGradleConfiguration(File location, List<String> sourceSetNames) {
+    public DefaultProject(File location,
+                          List<String> sourceSetNames,
+                          DefaultCompileJavaTaskConfiguration compileJavaTaskConfiguration) {
         this.location = location;
         this.sourceSetNames = sourceSetNames;
+        this.compileJavaTaskConfiguration = compileJavaTaskConfiguration;
     }
 
-    @Override
     public File getLocation() {
         return this.location;
     }
 
-    @Override
     public List<String> getSourceSetNames() {
         return this.sourceSetNames;
+    }
+
+    public DefaultCompileJavaTaskConfiguration getCompileJavaTaskConfiguration() {
+        return this.compileJavaTaskConfiguration;
     }
 }
