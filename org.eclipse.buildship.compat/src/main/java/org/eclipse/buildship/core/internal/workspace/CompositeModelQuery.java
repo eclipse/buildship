@@ -64,7 +64,7 @@ public final class CompositeModelQuery<T, U> implements BuildAction<Map<String, 
             models.put(buildPath, controller.getModel(build.getRootProject(), this.modelType));
         }
 
-        for (GradleBuild includedBuild : build.getIncludedBuilds()) {
+        for (GradleBuild includedBuild : build.getEditableBuilds()) { // TODO add cross-version coverage
             String includedBuildRootProjectName = includedBuild.getRootProject().getName();
             if (!includedBuildRootProjectName.equals(rootBuildRootProjectName)) {
                 collectRootModels(controller, includedBuild, models, includedBuildRootProjectName, rootBuildRootProjectName);

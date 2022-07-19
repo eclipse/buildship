@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="output" path="bin/default"/>
 	<classpathentry output="bin/main" kind="src" path="src/main/java">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="output" path="bin/default"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
 	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/dev.gradleplugins/gradle-api/7.4.1/a3ea65227df2ec94b63913b763d6cdf99ea68cf7/gradle-api-7.4.1-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/dev.gradleplugins/gradle-api/7.4.1/6fbc3dec48d74054f51e55ccb22b3b5623f9239c/gradle-api-7.4.1.jar">
 		<attributes>

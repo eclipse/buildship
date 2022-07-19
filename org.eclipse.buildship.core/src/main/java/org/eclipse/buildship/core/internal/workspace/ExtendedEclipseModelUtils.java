@@ -9,28 +9,19 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.gradle.tooling.BuildAction;
 import org.gradle.tooling.BuildActionFailureException;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
-import org.gradle.tooling.model.eclipse.EclipseRuntime;
-import org.gradle.tooling.model.eclipse.EclipseWorkspaceProject;
 import org.gradle.tooling.model.eclipse.RunClosedProjectBuildDependencies;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-
-import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.IdeFriendlyClassLoading;
@@ -78,27 +69,27 @@ public final class ExtendedEclipseModelUtils {
         }
     }
 
-    public static EclipseRuntimeConfigurer buildEclipseRuntimeConfigurer() {
-        ImmutableList<IProject> allWorkspaceProjects = CorePlugin.workspaceOperations().getAllProjects();
-        List<EclipseWorkspaceProject> projects = allWorkspaceProjects.stream().map(p -> new DefaultEclipseWorkspaceProject(p.getName(), p.getLocation().toFile(), p.isOpen()))
-                .collect(Collectors.toList());
-        return new EclipseRuntimeConfigurer(new DefaultEclipseWorkspace(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), projects));
-    }
+//    public static EclipseRuntimeConfigurer buildEclipseRuntimeConfigurer() {
+//        ImmutableList<IProject> allWorkspaceProjects = CorePlugin.workspaceOperations().getAllProjects();
+//        List<EclipseWorkspaceProject> projects = allWorkspaceProjects.stream().map(p -> new DefaultEclipseWorkspaceProject(p.getName(), p.getLocation().toFile(), p.isOpen()))
+//                .collect(Collectors.toList());
+//        return new EclipseRuntimeConfigurer(new DefaultEclipseWorkspace(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), projects));
+//    }
 
 
     private static Map<String, ExtendedEclipseModel> runTasksAndQueryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
-        EclipseRuntimeConfigurer buildEclipseRuntimeConfigurer = buildEclipseRuntimeConfigurer();
+//        EclipseRuntimeConfigurer buildEclipseRuntimeConfigurer = buildEclipseRuntimeConfigurer();
         try {
             BuildAction<Void> runSyncTasksAction = IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class);
             if (gradleVersion.supportsClosedProjectDependencySubstitution()) {
                 // use a composite query to run substitute tasks in included builds too
-                BuildAction<?> runClosedProjectTasksAction = new CompositeModelQuery<>(RunClosedProjectBuildDependencies.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer);
+                BuildAction<?> runClosedProjectTasksAction = new CompositeModelQuery<>(RunClosedProjectBuildDependencies.class/*, EclipseRuntime.class, buildEclipseRuntimeConfigurer*/);
                 BuildActionSequence projectsLoadedAction = new BuildActionSequence(runSyncTasksAction, runClosedProjectTasksAction);
                 return runPhasedModelQuery(connection, gradleVersion, projectsLoadedAction, IdeFriendlyClassLoading
-                        .loadCompositeModelQuery(ExtendedEclipseModel.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer));
+                        .loadCompositeModelQuery(ExtendedEclipseModel.class/*, EclipseRuntime.class, buildEclipseRuntimeConfigurer*/));
             }
             return runPhasedModelQuery(connection, gradleVersion, runSyncTasksAction, IdeFriendlyClassLoading
-                    .loadCompositeModelQuery(ExtendedEclipseModel.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer));
+                    .loadCompositeModelQuery(ExtendedEclipseModel.class/*, EclipseRuntime.class, buildEclipseRuntimeConfigurer*/));
         } catch (BuildActionFailureException e) {
             // For gradle >= 5.5 project name deduplication happens in gradle. In case gradle can't deduplicate then create an UnsupportedConfigurationException
             // to match the behaviour with previous gradle versions.
@@ -124,7 +115,7 @@ public final class ExtendedEclipseModelUtils {
     }
 
     private static Map<String, ExtendedEclipseModel> queryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
-        BuildAction<Map<String, ExtendedEclipseModel>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(ExtendedEclipseModel.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer());
+        BuildAction<Map<String, ExtendedEclipseModel>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(ExtendedEclipseModel.class/*, EclipseRuntime.class, buildEclipseRuntimeConfigurer()*/);
         return connection.action(query).run();
     }
 

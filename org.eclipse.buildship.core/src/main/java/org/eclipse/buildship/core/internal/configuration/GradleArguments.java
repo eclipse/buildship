@@ -126,7 +126,7 @@ public final class GradleArguments {
         return new GradleArguments(rootDir, gradleDistribution, gradleUserHome, javaHome, buildScansEnabled, offlineMode, arguments, jvmArguments);
     }
 
-    private static List<String> collectArguments(List<String> baseArgs, boolean buildScansEnabled, boolean offlineMode, BuildEnvironment buildEnvironment) {
+    private List<String> collectArguments(List<String> baseArgs, boolean buildScansEnabled, boolean offlineMode, BuildEnvironment buildEnvironment) {
         List<String> arguments = Lists.newArrayList(baseArgs);
         if (buildScansEnabled) {
             String buildScanArgument = buildScanArgumentFor(buildEnvironment);
@@ -138,7 +138,7 @@ public final class GradleArguments {
             arguments.add("--offline");
         }
         arguments.addAll(CorePlugin.invocationCustomizer().getExtraArguments());
-        arguments.addAll(getInitScriptArguments());
+        arguments.addAll(getInitScriptArguments(buildEnvironment));
         return arguments;
     }
 
@@ -150,13 +150,13 @@ public final class GradleArguments {
         }
     }
 
-    private static List<String> getInitScriptArguments() {
-        File initScriptLocation = getEclipsePluginInitScriptLocation();
+    private List<String> getInitScriptArguments(BuildEnvironment buildEnvironment) {
+        File initScriptLocation = getEclipsePluginInitScriptLocation(buildEnvironment);
         try {
             String existingInitScriptText = readInitScriptContent(initScriptLocation);
-            String newInitScriptContent = createInitScriptContent();
+            String newInitScriptContent = createInitScriptContent(buildEnvironment);
             if (existingInitScriptText == null || !existingInitScriptText.equals(newInitScriptContent)) {
-                writeInitScript(initScriptLocation, createInitScriptContent());
+                writeInitScript(initScriptLocation, createInitScriptContent(buildEnvironment));
             }
             return Arrays.asList("--init-script", initScriptLocation.getAbsolutePath());
         } catch (IOException e) {
@@ -188,7 +188,7 @@ public final class GradleArguments {
         }
     }
 
-    private static String createInitScriptContent() throws IOException {
+    private static String createInitScriptContent(BuildEnvironment buildEnvironment) throws IOException {
         URL resource = GradleVersion.class.getResource(INITSCRIPT_LOCATION);
         if (resource == null) {
             throw new GradlePluginsRuntimeException(String.format("Resource '%s' not found.", INITSCRIPT_LOCATION));
@@ -201,8 +201,12 @@ public final class GradleArguments {
         }
     }
 
-    private static File getEclipsePluginInitScriptLocation() {
-        return CorePlugin.getInstance().getStateLocation().append("init.d").append(INITSCRIPT_NAME).toFile();
+    private File getEclipsePluginInitScriptLocation(BuildEnvironment buildEnvironment) {
+        File userHome = getGradleUserHome(buildEnvironment.getGradle());
+        if (userHome == null) {
+            throw new GradlePluginsRuntimeException("Gradle user home is not available"); // TODO add test coverage as all supported Gradle version should have this
+        }
+        return new File(userHome, "init.d/buildship.gradle");
     }
 
 }

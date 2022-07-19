@@ -1,3 +1,4 @@
+// TODO only inject the init script if the org.eclipse.buildship system property is present
 /*******************************************************************************
  * Copyright (c) 2019 Gradle Inc.
  *
