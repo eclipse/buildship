@@ -75,19 +75,11 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
             project.tasks[EclipsePlugin.ECLIPSE_CP_TASK_NAME].doLast {
                 // copy jar file into project
                 File depJar = JarBundleUtils.firstDependencyJar(getPluginConfiguration(project))
-                File localJar = (project.tasks[TASK_NAME_CONVERT_TO_BUNDLE].target as File).listFiles()[0]
+                File localJar = (project.tasks[TASK_NAME_CONVERT_TO_BUNDLE].outputDirectory.get().asFile).listFiles()[0]
                 project.copy {
                     from localJar
                     into project.file('.')
                     rename { jarName(project) }
-                }
-
-                // copy the source jar file into project
-                project.copy {
-                    File sourceJar = JarBundleUtils.firstDependencySourceJar(project, getPluginConfiguration(project))
-                    from(sourceJar)
-                    into project.file('.')
-                    rename { sourceJarName(project) }
                 }
 
                 // update manifest file

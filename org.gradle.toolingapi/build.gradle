@@ -9,6 +9,7 @@ dependencies {
             attribute(Attribute.of('org.gradle.category', String), "library")
         }
     }
+    implementation gradleApi()
 }
 
 bundleInfo {
@@ -23,9 +24,6 @@ bundleInfo {
 eclipse.classpath.file.whenMerged {
     entries.removeAll { it.path.endsWith('.pom') }
 }
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
 
 // Note: due to a classloading issue, Eclipse won't be able to query a Custom tooling API model in development mode (i.e. when you use Run -> Eclipse Application)
 // if the custom model classes are not loaded from jars. To work around the problem, project descriptors are configured such that org.gradle.toolingapi.jar is 

@@ -1,237 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="output" path="bin/default"/>
 	<classpathentry output="bin/main" kind="src" path="src/main/java">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="bin/default"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/dev.gradleplugins/gradle-api/7.4.1/a3ea65227df2ec94b63913b763d6cdf99ea68cf7/gradle-api-7.4.1-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/dev.gradleplugins/gradle-api/7.4.1/6fbc3dec48d74054f51e55ccb22b3b5623f9239c/gradle-api-7.4.1.jar">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11/"/>
+	<classpathentry kind="lib" path="/Users/donat/.gradle/caches/7.4.2/generated-gradle-jars/gradle-api-7.4.2.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-ant/3.0.9/ca9d3b3fa830afab28959ef144d01df8248f7659/groovy-ant-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-ant/3.0.9/9d04ed718a430e4f12b2da0203f8362ca0693004/groovy-ant-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy/3.0.9/946bdbf4165a6e623dbd9f127aec6b8e9ad8aab7/groovy-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-astbuilder/3.0.9/2d7b7b3d622a333a0f2f899caf2779e5c9218b74/groovy-astbuilder-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-astbuilder/3.0.9/775b07b2a85714e0706c126f28f1b007c55548e5/groovy-astbuilder-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-ant/3.0.9/ca9d3b3fa830afab28959ef144d01df8248f7659/groovy-ant-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-ant-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-cli-picocli/3.0.9/bb1de24eb1007b626b683350fe5424a72a8f8448/groovy-cli-picocli-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-cli-picocli/3.0.9/e55e967c7fadbf47a705b1b8eaf7a54657cad8af/groovy-cli-picocli-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-astbuilder/3.0.9/2d7b7b3d622a333a0f2f899caf2779e5c9218b74/groovy-astbuilder-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-astbuilder-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-groovysh/3.0.9/c1ab21258a4cffdcf45da90ba6203339ee830db5/groovy-groovysh-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-groovysh/3.0.9/ebb85b80650e32dbf13a6e16c8485cd4ee4bc0f6/groovy-groovysh-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-console/3.0.9/411c4cf564e94d30f7c4a295d7f7ff9aa7f3a4fd/groovy-console-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-console-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-console/3.0.9/411c4cf564e94d30f7c4a295d7f7ff9aa7f3a4fd/groovy-console-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-console/3.0.9/b822a9b2a2336135d1f2519b7d9264d2b2b9681d/groovy-console-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-datetime/3.0.9/f04b2f19a61de1685717a2f772162b3bdcf840b1/groovy-datetime-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-datetime-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-datetime/3.0.9/f04b2f19a61de1685717a2f772162b3bdcf840b1/groovy-datetime-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-datetime/3.0.9/40523a2691c0d8ceceb8ce7cddb0c31066acc480/groovy-datetime-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-dateutil/3.0.9/aaa000ac40272883f31ac3d5e684c8e47b354f9/groovy-dateutil-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-dateutil-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-groovydoc/3.0.9/e48fc9db5659564aee3d91598c3866a52ac88bc8/groovy-groovydoc-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-groovydoc/3.0.9/7dd1b49754477e5d9e20eab42c0fe1714245304e/groovy-groovydoc-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-groovydoc/3.0.9/e48fc9db5659564aee3d91598c3866a52ac88bc8/groovy-groovydoc-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-groovydoc-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-docgenerator/3.0.9/192c58098f2f99aa7d73e45f96b965e204deb85f/groovy-docgenerator-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-docgenerator/3.0.9/52a4132f3abc7c0b55d0c6169247b6f04be14dfc/groovy-docgenerator-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-json/3.0.9/3028203a733780b8e9b962e93ec919472eeb4b2a/groovy-json-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-json-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-jmx/3.0.9/7500a4a104978bd40e4bc0fdc2369d959285fd90/groovy-jmx-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-jmx/3.0.9/6d056917755fe026a503ea83b220649682563fb8/groovy-jmx-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-nio/3.0.9/9946815455919a0d260b1bbf6a90331b5ea3a818/groovy-nio-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-nio-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-json/3.0.9/3028203a733780b8e9b962e93ec919472eeb4b2a/groovy-json-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-json/3.0.9/b99a364b9f2231b6829b12e10f6c4c69d47add87/groovy-json-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-sql/3.0.9/78431bf8931c522016a7d93de2d74edea1c703dd/groovy-sql-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-sql-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-jsr223/3.0.9/a9657046ab003293de331397a31ce047011c2146/groovy-jsr223-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-jsr223/3.0.9/2d6506b77007e921ddfa79139c3ce18dad7b13e0/groovy-jsr223-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-templates/3.0.9/1ed4c5d7dac69cb41b50742c895302e2894d9b3f/groovy-templates-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-templates-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-macro/3.0.9/e890f73afe012e5daf9b0b85e81e88bc039c8533/groovy-macro-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-macro/3.0.9/2e87eb0f6af7853d05ab6199d43bdd371c33f558/groovy-macro-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-test/3.0.9/2ab55f0b0d51be4414ffe934dfa964defc698e16/groovy-test-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-test-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-nio/3.0.9/9946815455919a0d260b1bbf6a90331b5ea3a818/groovy-nio-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-nio/3.0.9/bf53959629f875d773e5190360af531b4679ba02/groovy-nio-3.0.9.jar">
+	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-xml/3.0.9/e4e2a257e6c28bc2df5e6c117032229cf8562c95/groovy-xml-3.0.9-sources.jar" kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/groovy-xml-3.0.9.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-servlet/3.0.9/ec8ddda01a81ecaf58af06bf8fee432e6021ee45/groovy-servlet-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-servlet/3.0.9/5d3f200da01b11aec9aa2e9e05bdbe8ff30b3fc/groovy-servlet-3.0.9.jar">
+	<classpathentry kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/javaparser-core-3.17.0.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-sql/3.0.9/78431bf8931c522016a7d93de2d74edea1c703dd/groovy-sql-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-sql/3.0.9/a70eef193799ed892958ca00c6eda4f8710f656f/groovy-sql-3.0.9.jar">
+	<classpathentry kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/kotlin-stdlib-1.5.31.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-swing/3.0.9/6288db74837a99d4457af30b0a72924ba6842690/groovy-swing-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-swing/3.0.9/dc482daaf7161314fb1ea79d1e437ca872b27eac/groovy-swing-3.0.9.jar">
+	<classpathentry kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/kotlin-stdlib-common-1.5.31.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-templates/3.0.9/1ed4c5d7dac69cb41b50742c895302e2894d9b3f/groovy-templates-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-templates/3.0.9/801759b1cc0fbff67f0f5f37ad691f00faff0027/groovy-templates-3.0.9.jar">
+	<classpathentry kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/kotlin-stdlib-jdk7-1.5.31.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-test/3.0.9/2ab55f0b0d51be4414ffe934dfa964defc698e16/groovy-test-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-test/3.0.9/d84b0a638fea001f0368131c69d38753dfb33b20/groovy-test-3.0.9.jar">
+	<classpathentry kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/kotlin-stdlib-jdk8-1.5.31.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-test-junit5/3.0.9/2fbfc26f7f37b07cf57628b193c899931b905ee5/groovy-test-junit5-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-test-junit5/3.0.9/ccf58458883abe5d358952ffec121132d638b221/groovy-test-junit5-3.0.9.jar">
+	<classpathentry kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/kotlin-reflect-1.5.31.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-testng/3.0.9/6aeba6683f284696c1eae197360605e48e4753fd/groovy-testng-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-testng/3.0.9/239fa6922fc293cd7f516746d1b6dc50ebdba669/groovy-testng-3.0.9.jar">
+	<classpathentry kind="lib" path="/Users/donat/.sdkman/candidates/gradle/7.4.2/lib/gradle-installation-beacon-7.4.2.jar">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-xml/3.0.9/e4e2a257e6c28bc2df5e6c117032229cf8562c95/groovy-xml-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy-xml/3.0.9/dae68f2e9f5e12dc5cc0a27ee7003f18702a2bcd/groovy-xml-3.0.9.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy/3.0.9/946bdbf4165a6e623dbd9f127aec6b8e9ad8aab7/groovy-3.0.9-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.codehaus.groovy/groovy/3.0.9/bd159803bedc434e7af0f714693fb5578a719e95/groovy-3.0.9.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.5.31/70f4e47092d0158a39aafc634ad60b6320c3d6ce/kotlin-stdlib-1.5.31-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.5.31/6628d61d0f5603568e72d2d5915d2c034b4f1c55/kotlin-stdlib-1.5.31.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/5991ca87ef1fb5544943d9abc5a9a37583fabe03/annotations-13.0-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.5.31/ee22598c6d20e94e0fd08cc696f09f83e41b3935/kotlin-stdlib-common-1.5.31-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.5.31/43331609c7de811fed085e0dfd150874b157c32/kotlin-stdlib-common-1.5.31.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant-junit/1.10.11/86a2162f62174a382a7e695f3085c3e30c84940/ant-junit-1.10.11-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant-junit/1.10.11/b978a57787b3a359ba7a3a5c3b4fd9199072b516/ant-junit-1.10.11.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant/1.10.11/434fb452f2c73e48926e4bac5e9de87cabc7176d/ant-1.10.11-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant/1.10.11/b875cd48a0bc955ae9c5c477ad991e1f26fb24d2/ant-1.10.11.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant-launcher/1.10.11/fb6d3907096c56455fa18abae24f944372d65b63/ant-launcher-1.10.11-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant-launcher/1.10.11/ea0a0475fb6dfcdcf48b30410fd9d4f5c80df07e/ant-launcher-1.10.11.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant-antlr/1.10.11/fc195409890975fa6af3e71e9d28ac25fbb76209/ant-antlr-1.10.11-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.apache.ant/ant-antlr/1.10.11/c08fdea900fc655ba8c2d031b8527bd479ce06ba/ant-antlr-1.10.11.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/info.picocli/picocli/4.6.1/70229b3bde6d7543c713af8880fb7cc8f2d15bf3/picocli-4.6.1-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/info.picocli/picocli/4.6.1/49a67ee4b4d9722fa60f3f9ffaffa72861c32966/picocli-4.6.1.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/com.thoughtworks.qdox/qdox/1.12.1/a284148a118e10bb84598dfb83f19d1ff128afad/qdox-1.12.1-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/com.thoughtworks.qdox/qdox/1.12.1/f7122f6ab1f64bdf9f5970b0e89bfb355e036897/qdox-1.12.1.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/com.github.javaparser/javaparser-core/3.23.0/9b8eb806254226df3d418d6f20ad203f2cff4ed9/javaparser-core-3.23.0-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/com.github.javaparser/javaparser-core/3.23.0/b59758325ad693854c242b391c608c95419cbacb/javaparser-core-3.23.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/jline/jline/2.14.6/e93dc55cf5b6f201e850ed339fa52e50d51105d5/jline-2.14.6-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/jline/jline/2.14.6/c3aeac59c022bdc497c8c48ed86fa50450e4896a/jline-2.14.6.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/junit/junit/4.13.2/33987872a811fe4d4001ed494b07854822257f42/junit-4.13.2-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/5.7.2/7c0d81d9af26a35e3f552eaaad2aa6867218d534/junit-jupiter-engine-5.7.2-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/5.7.2/9415680a889f00b8205a094c5c487bc69dc7077d/junit-jupiter-engine-5.7.2.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/5.7.2/ebca04edd1975a8fd42846c4f6d0b8fec3d6efc1/junit-jupiter-api-5.7.2-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/5.7.2/f4b4079732a9c537983324cfa4e46655f21d2c56/junit-jupiter-api-5.7.2.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/1.7.2/503b02634a84790ed5c8152c6bb57449af4bac9c/junit-platform-launcher-1.7.2-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/1.7.2/9bcb72e95d291c9ff45c3f8c0a054abc764b4205/junit-platform-launcher-1.7.2.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.testng/testng/7.4.0/a7cafb3160352d21601161412bb2005bbe0f0e40/testng-7.4.0-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.testng/testng/7.4.0/b6becc0a058e272473ac3ba983966ff507ca0300/testng-7.4.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/1dc37250fbc78e23a65a67fbbaf71d2e9cbc3c0b/hamcrest-core-1.3-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/1.7.2/4d160bb45611331ab4feba5dde85ebceb05a824e/junit-platform-engine-1.7.2-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/1.7.2/2573770b46b8a199ed5f6b0f96fb99e468bfe891/junit-platform-engine-1.7.2.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.2.0/41d55b3c2254de9837b4ec8923cbd371b8a7eab5/opentest4j-1.2.0-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.opentest4j/opentest4j/1.2.0/28c11eb91f9b6d8e200631d46e20a7f407f2a046/opentest4j-1.2.0.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/com.beust/jcommander/1.78/3b3dc3730f4d623904afc62a463ae18710a889d3/jcommander-1.78-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/com.beust/jcommander/1.78/a3927de9bd6f351429bcf763712c9890629d8f51/jcommander-1.78.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.webjars/jquery/3.5.1/67e674e2c5c16e92e66971c2bee2739f0b833723/jquery-3.5.1-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.webjars/jquery/3.5.1/2392938e374f561c27c53872bdc9b6b351b6ba34/jquery-3.5.1.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.7.2/1ff6be63f8bb2ef0d8c20b771a1d9160b6077a81/junit-platform-commons-1.7.2-sources.jar" kind="lib" path="/Users/donat/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/1.7.2/34adfea6c13fc4a996cf38cdad80800ce850d198/junit-platform-commons-1.7.2.jar">
-		<attributes>
-			<attribute name="gradle_used_by_scope" value="main,test"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry sourcepath="org.gradle.toolingapi.source_7.4.1.jar" kind="lib" path="org.gradle.toolingapi_7.4.1.jar" exported="true"/>
+	<classpathentry sourcepath="org.gradle.toolingapi.source_7.4.2.jar" kind="lib" path="org.gradle.toolingapi_7.4.2.jar" exported="true"/>
 </classpath>
