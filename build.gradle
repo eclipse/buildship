@@ -1,4 +1,5 @@
 import eclipsebuild.*
+import eclipsebuild.testing.EclipseTestTask
 import org.gradle.internal.os.OperatingSystem
 import java.util.regex.*
 
@@ -946,7 +947,7 @@ subprojects {
             bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
         }
         if (project.hasProperty('eclipse.test.java.version')) {
-            tasks.named('eclipseTest') {
+            tasks.withType(EclipseTestTask) {
                 javaLauncher = javaToolchains.launcherFor {
                     languageVersion = JavaLanguageVersion.of(project.getProperty('eclipse.test.java.version') as Integer)
                 }
