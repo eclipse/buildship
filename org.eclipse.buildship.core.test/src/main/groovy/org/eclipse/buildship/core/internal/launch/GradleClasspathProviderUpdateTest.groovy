@@ -9,6 +9,9 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.launch
 
+import static org.gradle.api.JavaVersion.VERSION_13
+
+import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
@@ -50,6 +53,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         !hasGradleClasspathProvider(launchConfiguration)
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Classpath provider added when referenced project is a new Java project"() {
         setup:
         File projectDir = dir('project-name') {
@@ -101,6 +105,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         hasGradleClasspathProvider(launchConfiguration)
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Classpath provider injected when project using old Gradle version is moved under target name"() {
         setup:
         File settingsFile
@@ -144,6 +149,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         !hasGradleClasspathProvider(launchConfiguration)
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Classpath provider removed when project using old Gradle version deleted"() {
         setup:
         File projectDir = dir('project-name') {
@@ -193,6 +199,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         !hasGradleClasspathProvider(launchConfiguration)
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Classpath provider removed when Gradle nature removed from project using Old Gradle version"() {
         setup:
         File projectDir = dir('project-name') {

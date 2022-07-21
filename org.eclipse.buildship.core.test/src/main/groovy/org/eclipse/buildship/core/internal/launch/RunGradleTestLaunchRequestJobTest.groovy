@@ -9,8 +9,13 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.launch
 
+import static org.gradle.api.JavaVersion.VERSION_13
+
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
 
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.DebugPlugin
@@ -172,6 +177,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         assertTestNotExecuted('MyTest3#test3_3')
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Cannot do test debugging with old Gradle version"() {
         setup:
         importAndWait(projectDir, GradleDistribution.forVersion('5.5'))

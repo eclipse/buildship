@@ -1,5 +1,10 @@
 package org.eclipse.buildship.core.internal.workspace
 
+import static org.gradle.api.JavaVersion.VERSION_13
+
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
+
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.launching.IRuntimeClasspathEntry
@@ -22,6 +27,7 @@ class DuplicateRuntimeClasspathEntryTest extends ProjectSynchronizationSpecifica
         importAndWait(sampleDir, GradleDistribution.forVersion("5.5.1"))
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Duplicate runtime classpath entries are removed"() {
         setup:
         ILaunchConfiguration launchConfig = createLaunchConfig(SupportedLaunchConfigType.JDT_JAVA_APPLICATION.id)

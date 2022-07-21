@@ -249,21 +249,37 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
         def isOffline
         def buildScansEnabled
 
+        static Attributes from(Attributes from) {
+            Attributes attributes = new Attributes()
+            attributes.tasks = from.tasks
+            attributes.workingDir = from.workingDir
+            attributes.gradleDistr = from.gradleDistr
+            attributes.gradleUserHome = from.gradleUserHome
+            attributes.javaHome = from.javaHome
+            attributes.arguments  = from.arguments
+            attributes.jvmArguments = from.jvmArguments
+            attributes.showExecutionView = from.showExecutionView
+            attributes.showConsoleView = from.showConsoleView
+            attributes.overrideBuildSettings  = from.overrideBuildSettings
+            attributes.isOffline = from.isOffline
+            attributes.buildScansEnabled = from.buildScansEnabled
+            attributes
+        }
+
         def GradleRunConfigurationAttributes toConfiguration() {
             new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, gradleUserHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
         }
 
-        def Attributes copy(@DelegatesTo(value = Attributes, strategy = Closure.DELEGATE_FIRST) Closure closure) {
-            def clone = clone()
-            def Closure clonedClosure =  closure.clone()
-            clonedClosure.setResolveStrategy(Closure.DELEGATE_FIRST)
-            clonedClosure.setDelegate(clone)
-            clonedClosure.call(clone)
+        def Attributes copy(@DelegatesTo(value = Attributes, strategy = Closure.DELEGATE_ONLY) Closure closure) {
+            Attributes clone = Attributes.from(this)
+            closure.setResolveStrategy(Closure.DELEGATE_ONLY)
+            closure.setDelegate(clone)
+            closure.call(clone)
             return clone
         }
 
         def int size() {
-            Attributes.declaredFields.findAll { it.synthetic == false }.size
+            12 // the number of fields in the Attribute class
         }
     }
 

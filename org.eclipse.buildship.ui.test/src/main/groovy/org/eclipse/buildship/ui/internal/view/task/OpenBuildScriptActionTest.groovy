@@ -11,8 +11,13 @@ package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.buildship.ui.internal.UiPluginConstants
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection
+
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
+
 import org.eclipse.jface.viewers.StructuredSelection
 
+@IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // TODO update cglib and re-enable the test
 class OpenBuildScriptActionTest extends ViewSpecification {
 
   OpenBuildScriptAction openAction
