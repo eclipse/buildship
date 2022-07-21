@@ -75,7 +75,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
         SWTBotTreeItem fileNode = testNode3.getNode('LibraryTest')
 
         then:
-        bot.editors().size == 0
+        bot.editors().size() == 0
 
         when:
         fileNode.doubleClick()
@@ -90,7 +90,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
         SWTBotTreeItem methodNode = fileNode.getNode('testSomeLibraryMethod')
 
         then:
-        bot.editors().size == 0
+        bot.editors().size() == 0
 
         when:
         methodNode.doubleClick()

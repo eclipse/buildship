@@ -9,9 +9,11 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import org.gradle.api.JavaVersion
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency
+import spock.lang.IgnoreIf
 
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -24,6 +26,7 @@ import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils
 import org.eclipse.buildship.core.internal.util.gradle.ModelUtils
 
+@IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // TODO update cglib and re-enable the test
 class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     IJavaProject project

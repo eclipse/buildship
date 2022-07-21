@@ -9,6 +9,11 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import static org.gradle.api.JavaVersion.VERSION_13
+
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
+
 import org.eclipse.core.runtime.IStatus
 
 import org.eclipse.buildship.core.GradleDistribution
@@ -35,6 +40,7 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
 
     // TODO (donat) the test randomly imports subprojects from project 'second'
     // ensure that the project synchronization is ordered
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Same subproject names in different builds interrupt the project synchronization on gradle < 5.5"() {
         setup:
         def firstProject = dir('first') {

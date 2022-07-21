@@ -9,6 +9,11 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import static org.gradle.api.JavaVersion.VERSION_13
+
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
+
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException
@@ -34,6 +39,7 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
         findProject('custom-sample')
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Project name is not updated if it conflicts with unrelated workspace project prior to 5.5"() {
         setup:
         def sample = dir('sample')
