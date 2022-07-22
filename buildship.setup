@@ -1272,8 +1272,7 @@
   <setupTask
       xsi:type="setup:CompoundTask"
       id="buildship.preferences.formatter"
-      name="Formatter"
-      excludedTriggers="MANUAL">
+      name="Formatter">
       <setupTask
           xsi:type="setup:PreferenceTask"
           key="instance/org.eclipse.jdt.ui/formatter_profile"
