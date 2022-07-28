@@ -30,6 +30,12 @@
   <!-- See https://github.com/groovy/groovy-eclipse/wiki#releases -->
   <setupTask
       xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2022-09)">
+    <repository
+        url="https://dist.springsource.org/snapshot/GRECLIPSE/e4.25"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
       filter="(scope.product.version.name=2022-06)">
     <repository
         url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.24"/>
