@@ -273,7 +273,7 @@ abstract class WorkspaceSpecification extends Specification {
         }
     }
 
-    protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern = '>=1.2') {
+    protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern = '>=2.6') {
         GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
     }
 

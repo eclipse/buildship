@@ -25,7 +25,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.internal.DefaultGradleBuild;
+import org.eclipse.buildship.core.internal.CompatibilityChecker;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
@@ -126,7 +126,7 @@ public abstract class GradleVersionParameterization {
 
         Predicate<GradleVersion> versionConstraint = GradleVersionConstraints.toPredicate(gradleVersionPattern);
         Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.6");
-        String minimumSupportedVersion = DefaultGradleBuild.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        String minimumSupportedVersion = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
         Predicate<GradleVersion> javaVersionConstraint = (ignoreJavaConstraint || minimumSupportedVersion == null) ? Predicates.alwaysTrue() : GradleVersionConstraints.toPredicate(">=" + minimumSupportedVersion);
         @SuppressWarnings("unchecked")
         Predicate<GradleVersion> matchingVersions = Predicates.and(versionConstraint, toolingApiConstraint, javaVersionConstraint);

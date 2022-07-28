@@ -9,10 +9,8 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
-import org.eclipse.buildship.core.FixedVersionGradleDistribution
-import org.eclipse.buildship.core.internal.DefaultGradleBuild
+import org.eclipse.buildship.core.internal.CompatibilityChecker
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
-import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.gradle.api.JavaVersion
 import org.junit.Assert
 import spock.lang.Ignore
@@ -134,55 +132,47 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 
 
     @Unroll
-    def "Can import a simple project build and bypass compatibility check with Gradle #distribution.version"(GradleDistribution distribution) {
+    def "Can return correct import result and bypass compatibility check with Gradle #distribution.version"(GradleDistribution distribution) {
         when:
-        System.setProperty(DefaultGradleBuild.BYPASS_COMPATIBILITY_CHECK_KEY, "true")
-        def minimumSupportedVersion = DefaultGradleBuild.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        System.setProperty(CompatibilityChecker.BYPASS_COMPATIBILITY_CHECK_KEY, "true")
+        def minimumSupportedVersion = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
         def importResult = tryImportAndWait(simpleProjectDir, distribution)
 
         then:
-        distribution instanceof FixedVersionGradleDistribution
-        def currentVersion = GradleVersion.version(((FixedVersionGradleDistribution) distribution).version);
-        if (minimumSupportedVersion == null || currentVersion >= (GradleVersion.version(minimumSupportedVersion))) {
-            Assert.assertTrue(importResult.status.isOK())
+        if (minimumSupportedVersion == null || importResult.status.isOK()) {
             Assert.assertEquals(allProjects().size(), 1)
             Assert.assertEquals(numOfGradleErrorMarkers, 0)
             Assert.assertEquals(getPlatformLogErrors().size(), 0)
         } else {
-            Assert.assertFalse(importResult.status.isOK())
             Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
             Assert.assertNotEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
         }
 
         cleanup:
-        System.setProperty(DefaultGradleBuild.BYPASS_COMPATIBILITY_CHECK_KEY, "false")
+        System.setProperty(CompatibilityChecker.BYPASS_COMPATIBILITY_CHECK_KEY, "false")
 
         where:
-        distribution << getSupportedGradleDistributions('>=1.2', true)
+        distribution << getSupportedGradleDistributions('>=2.6', true)
     }
 
     @Unroll
-    def "Can import a simple project build with Gradle #distribution.version"(GradleDistribution distribution) {
+    def "Can return correct import result with Gradle #distribution.version"(GradleDistribution distribution) {
         when:
-        def minimumSupportedVersion = DefaultGradleBuild.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        def minimumSupportedVersion = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
         def importResult = tryImportAndWait(simpleProjectDir, distribution)
 
         then:
-        distribution instanceof FixedVersionGradleDistribution
-        def currentVersion = GradleVersion.version(((FixedVersionGradleDistribution) distribution).version);
-        if (minimumSupportedVersion == null || currentVersion >= (GradleVersion.version(minimumSupportedVersion))) {
-            Assert.assertTrue(importResult.status.isOK())
+        if (minimumSupportedVersion == null || importResult.status.isOK()) {
             Assert.assertEquals(allProjects().size(), 1)
             Assert.assertEquals(numOfGradleErrorMarkers, 0)
             Assert.assertEquals(getPlatformLogErrors().size(), 0)
         } else {
-            Assert.assertFalse(importResult.status.isOK())
             Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
             Assert.assertEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
         }
 
         where:
-        distribution << getSupportedGradleDistributions('>=1.2', true)
+        distribution << getSupportedGradleDistributions('>=2.6', true)
     }
 
     @Unroll

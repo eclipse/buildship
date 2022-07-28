@@ -9,8 +9,12 @@
  ******************************************************************************/
 package org.eclipse.buildship.oomph.internal.test
 
-import static org.eclipse.buildship.oomph.DistributionType.*
+import spock.lang.IgnoreIf
 
+import static org.eclipse.buildship.oomph.DistributionType.*
+import static org.gradle.api.JavaVersion.VERSION_13
+
+import org.gradle.api.JavaVersion
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.model.build.BuildEnvironment
 import spock.lang.Unroll
@@ -171,6 +175,7 @@ class GradleImportTaskTest extends ProjectSynchronizationSpecification {
         !findProject("presentChanged")
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.4.1 can run on Java 12 and below
     @Unroll
     def "new build configuration can override workspace settings (#distributionType)"() {
         setup:
