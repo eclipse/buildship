@@ -26,7 +26,7 @@
     <requirement
         name="org.eclipse.emf.ecoretools.design.feature.group"/>
     <repository
-        url="https://dist.springsource.org/snapshot/GRECLIPSE/e4.23"/>
+        url="https://dist.springsource.org/release/GRECLIPSE/e4.24"/>
     <description>Installs the required plugins to the IDE.</description>
   </setupTask>
   <setupTask
@@ -45,36 +45,34 @@
           vm="true"/>
       <setupTask
           xsi:type="setup:EclipseIniTask"
+          filter="(!(buildship.oomphtest.enabled=true))"
           option="-Doomph.redirection.buildship"
           value="=https://raw.githubusercontent.com/eclipse/buildship/master/buildship.setup->${buildship.git.clone.location|uri}/buildship.setup"
-          filter="(!(buildship.oomphtest.enabled=true))"
           vm="true">
         <description>Redirect setup model to check for changes in the local file instead in the url</description>
       </setupTask>
       <setupTask
           xsi:type="setup:EclipseIniTask"
+          filter="(buildship.oomphtest.enabled=true)"
           option="-Doomph.redirection.buildship"
           value="=https://raw.githubusercontent.com/eclipse/buildship/master/buildship.setup->${buildship.oomphtest.setupLocation|uri}"
-          filter="(buildship.oomphtest.enabled=true)"
-          vm="true">
-      </setupTask>
+          vm="true"/>
       <setupTask
           xsi:type="setup:EclipseIniTask"
+          filter="(buildship.oomphtest.enabled=true)"
           option="-Dbuildship.oomphtest.enabled"
           value="=true"
-          filter="(buildship.oomphtest.enabled=true)"
-          vm="true">
-      </setupTask>
+          vm="true"/>
       <setupTask
-        xsi:type="setup:EclipseIniTask"
-        option="-Dbuildship.jre.location-1.8"
-        value="=${jre.location-1.8|path}"
-        vm="true"/>
+          xsi:type="setup:EclipseIniTask"
+          option="-Dbuildship.jre.location-1.8"
+          value="=${jre.location-1.8|path}"
+          vm="true"/>
       <setupTask
-        xsi:type="setup:EclipseIniTask"
-        option="-Dbuildship.jre.location-11"
-        value="=${jre.location-11|path}"
-        vm="true"/>
+          xsi:type="setup:EclipseIniTask"
+          option="-Dbuildship.jre.location-11"
+          value="=${jre.location-11|path}"
+          vm="true"/>
       <setupTask
           xsi:type="jdt:JRETask"
           id="buildship.preferences.compiler.jre8"
