@@ -12,7 +12,6 @@ package org.eclipse.buildship.core.internal;
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
-import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -26,16 +25,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 public class CompatibilityChecker {
     public static final String BYPASS_COMPATIBILITY_CHECK_KEY = "org.eclipse.buildship.integtest.bypassToolingApiCompatibilityChecks";
-    public static final Map<String, String> compatibilityMap = Collections.unmodifiableMap(loadCompatibilityMap());
+    // <JDK, unsupported Gradle versions>
+    public static final Map<String, Set<String>> compatibilityMap = Collections.unmodifiableMap(loadCompatibilityMap());
 
-    private static final String PROPERTIES_FILE = "/org/eclipse/buildship/core/internal/gradle/java-minimum-supported-toolingAPI.properties";
+    private static final String PROPERTIES_FILE = "/org/eclipse/buildship/core/internal/gradle/java-unsupported-gradle.properties";
     private static final String UNSUPPORTED_BUILD_ENVIRONMENT_MESSAGE = "Could not create an instance of Tooling API implementation using the specified Gradle distribution";
 
     public static IStatus validateToolingApiCompatibility(GradleBuild gradleBuild, BuildConfiguration buildConfig, IProgressMonitor monitor) {
@@ -61,17 +64,17 @@ public class CompatibilityChecker {
                 return ToolingApiStatus.from("Project synchronization", new GradleConnectionException("Can't determine Gradle version when synchronizing project."));
             }
             JavaVersion javaVersionObject = JavaVersion.toVersion(javaVersion);
-            String minGradleVersion = compatibilityMap.get(javaVersionObject.getMajorVersion());
-            if (minGradleVersion != null && GradleVersion.version(gradleVersion).compareTo(GradleVersion.version(minGradleVersion)) < 0) {
+            Set<String> unsupportedGradleVersions = compatibilityMap.get(javaVersionObject.getMajorVersion());
+            if (unsupportedGradleVersions != null && unsupportedGradleVersions.contains(gradleVersion)) {
                 return ToolingApiStatus.from("Project synchronization", new UnsupportedJavaVersionException(String.format("The current build uses Gradle %s running on Java %s which is not supported. Please consult the Gradle documentation to find the compatible combinations: https://docs.gradle.org/current/userguide/compatibility.html.", gradleVersion, javaVersion)));
             }
         }
         return new Status(IStatus.OK, CorePlugin.PLUGIN_ID, "tooling API compatibility check passed");
     }
 
-    private static Map<String, String> loadCompatibilityMap() throws GradlePluginsRuntimeException {
-        Map<String, String> compatibilityMatrix = new HashMap<>();
-        URL resource = GradleVersion.class.getResource(PROPERTIES_FILE);
+    private static Map<String, Set<String>> loadCompatibilityMap() throws GradlePluginsRuntimeException {
+        Map<String, Set<String>> compatibilityMatrix = new HashMap<>();
+        URL resource = CompatibilityChecker.class.getResource(PROPERTIES_FILE);
         if (resource == null) {
             throw new GradlePluginsRuntimeException(String.format("Resource '%s' not found.", PROPERTIES_FILE));
         }
@@ -84,9 +87,9 @@ public class CompatibilityChecker {
             properties.load(inputStream);
             properties.entrySet().forEach(e -> {
                 Object javaVersion = e.getKey();
-                Object minGradleVersion = e.getValue();
-                if (javaVersion instanceof String && minGradleVersion instanceof String) {
-                    compatibilityMatrix.put((String) javaVersion, (String) minGradleVersion);
+                Object gradleVersions = e.getValue();
+                if (javaVersion instanceof String && gradleVersions instanceof String) {
+                    compatibilityMatrix.put((String) javaVersion, new HashSet<>(Arrays.asList(((String) gradleVersions).split(","))));
                 }
             });
         } catch (Exception e) {

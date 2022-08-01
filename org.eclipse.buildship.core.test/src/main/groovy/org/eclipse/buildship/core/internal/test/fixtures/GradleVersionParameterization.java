@@ -12,6 +12,8 @@ package org.eclipse.buildship.core.internal.test.fixtures;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.gradle.api.JavaVersion;
 
@@ -126,8 +128,8 @@ public abstract class GradleVersionParameterization {
 
         Predicate<GradleVersion> versionConstraint = GradleVersionConstraints.toPredicate(gradleVersionPattern);
         Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.6");
-        String minimumSupportedVersion = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
-        Predicate<GradleVersion> javaVersionConstraint = (ignoreJavaConstraint || minimumSupportedVersion == null) ? Predicates.alwaysTrue() : GradleVersionConstraints.toPredicate(">=" + minimumSupportedVersion);
+        Set<String> unsupportedVersions = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        Predicate<GradleVersion> javaVersionConstraint = (ignoreJavaConstraint || unsupportedVersions == null || unsupportedVersions.size() == 0) ? Predicates.alwaysTrue() : GradleVersionConstraints.toPredicate("!=" + unsupportedVersions.stream().collect(Collectors.joining(" !=")));
         @SuppressWarnings("unchecked")
         Predicate<GradleVersion> matchingVersions = Predicates.and(versionConstraint, toolingApiConstraint, javaVersionConstraint);
 

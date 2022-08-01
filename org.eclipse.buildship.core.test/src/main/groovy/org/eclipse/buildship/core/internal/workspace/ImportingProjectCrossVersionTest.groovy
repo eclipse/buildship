@@ -9,8 +9,10 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import org.eclipse.buildship.core.FixedVersionGradleDistribution
 import org.eclipse.buildship.core.internal.CompatibilityChecker
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.gradle.api.JavaVersion
 import org.junit.Assert
 import spock.lang.Ignore
@@ -135,15 +137,19 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
     def "Can return correct import result and bypass compatibility check with Gradle #distribution.version"(GradleDistribution distribution) {
         when:
         System.setProperty(CompatibilityChecker.BYPASS_COMPATIBILITY_CHECK_KEY, "true")
-        def minimumSupportedVersion = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        def unsupportedGradleVersions = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion())
         def importResult = tryImportAndWait(simpleProjectDir, distribution)
 
         then:
-        if (minimumSupportedVersion == null || importResult.status.isOK()) {
+        distribution instanceof FixedVersionGradleDistribution
+        def currentVersion = GradleVersion.version(((FixedVersionGradleDistribution) distribution).version)
+        if (unsupportedGradleVersions == null || !unsupportedGradleVersions.contains(currentVersion.getVersion())) {
+            Assert.assertTrue(importResult.status.isOK())
             Assert.assertEquals(allProjects().size(), 1)
             Assert.assertEquals(numOfGradleErrorMarkers, 0)
             Assert.assertEquals(getPlatformLogErrors().size(), 0)
         } else {
+            Assert.assertFalse(importResult.status.isOK())
             Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
             Assert.assertNotEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
         }
@@ -158,15 +164,19 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
     @Unroll
     def "Can return correct import result with Gradle #distribution.version"(GradleDistribution distribution) {
         when:
-        def minimumSupportedVersion = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        def unsupportedGradleVersions = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion())
         def importResult = tryImportAndWait(simpleProjectDir, distribution)
 
         then:
-        if (minimumSupportedVersion == null || importResult.status.isOK()) {
+        distribution instanceof FixedVersionGradleDistribution
+        def currentVersion = GradleVersion.version(((FixedVersionGradleDistribution) distribution).version)
+        if (unsupportedGradleVersions == null || !unsupportedGradleVersions.contains(currentVersion.getVersion())) {
+            Assert.assertTrue(importResult.status.isOK())
             Assert.assertEquals(allProjects().size(), 1)
             Assert.assertEquals(numOfGradleErrorMarkers, 0)
             Assert.assertEquals(getPlatformLogErrors().size(), 0)
         } else {
+            Assert.assertFalse(importResult.status.isOK())
             Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
             Assert.assertEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
         }

@@ -78,16 +78,6 @@ public abstract class GradleVersionConstraints {
                 }
             };
         }
-        if (trimmed.startsWith(NOT_EQUALS)) {
-            final GradleVersion target = GradleVersion.version(trimmed.substring(2)).getBaseVersion();
-            return new Predicate<GradleVersion>() {
-
-                @Override
-                public boolean apply(GradleVersion element) {
-                    return !element.getBaseVersion().equals(target);
-                }
-            };
-        }
 
         // AND-combined patterns
         final List<Predicate<GradleVersion>> predicates = new ArrayList<Predicate<GradleVersion>>();
