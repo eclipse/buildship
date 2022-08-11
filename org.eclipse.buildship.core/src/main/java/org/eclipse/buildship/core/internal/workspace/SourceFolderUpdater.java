@@ -135,13 +135,21 @@ final class SourceFolderUpdater {
     }
 
     private boolean existsInSameLocation(IResource directory, EclipseSourceDirectory sourceFolder) {
-        if (!directory.exists()) {
+        if (!directory.exists() && !isOptional(sourceFolder)) {
             return false;
         }
         if (directory.isLinked()) {
             return hasSameLocationAs(directory, sourceFolder);
         }
         return true;
+    }
+    
+    private boolean isOptional(EclipseSourceDirectory sourceFolder) {
+    	for (ClasspathAttribute attribute : sourceFolder.getClasspathAttributes()) {
+    		if (IClasspathAttribute.OPTIONAL.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
+				return true;
+    	}
+    	return false;
     }
 
     private boolean hasSameLocationAs(IResource directory, EclipseSourceDirectory sourceFolder) {
