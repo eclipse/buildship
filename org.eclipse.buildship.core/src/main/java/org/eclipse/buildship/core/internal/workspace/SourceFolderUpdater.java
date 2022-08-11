@@ -145,11 +145,12 @@ final class SourceFolderUpdater {
     }
     
     private boolean isOptional(EclipseSourceDirectory sourceFolder) {
-    	for (ClasspathAttribute attribute : sourceFolder.getClasspathAttributes()) {
-    		if (IClasspathAttribute.OPTIONAL.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
-				return true;
-    	}
-    	return false;
+        for (ClasspathAttribute attribute : sourceFolder.getClasspathAttributes()) {
+            if (IClasspathAttribute.OPTIONAL.equals(attribute.getName()) && "true".equals(attribute.getValue())) { //$NON-NLS-1$
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean hasSameLocationAs(IResource directory, EclipseSourceDirectory sourceFolder) {
