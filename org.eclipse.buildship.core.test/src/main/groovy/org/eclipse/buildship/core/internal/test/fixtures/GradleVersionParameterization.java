@@ -124,7 +124,7 @@ public abstract class GradleVersionParameterization {
         Preconditions.checkNotNull(gradleVersionPattern);
 
         Predicate<GradleVersion> versionConstraint = GradleVersionConstraints.toPredicate(gradleVersionPattern);
-        Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.9");
+        Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.6");
         String minimumSupportedVersion = DefaultGradleBuild.compatibilityMap.get(JavaVersion.current().getMajorVersion());
         Predicate<GradleVersion> javaVersionConstraint = null;
         if (minimumSupportedVersion == null) {
