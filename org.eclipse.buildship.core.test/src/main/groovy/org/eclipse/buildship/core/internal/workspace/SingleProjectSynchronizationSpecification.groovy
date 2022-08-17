@@ -75,7 +75,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         project.description.buildSpec.find { it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
 
         where:
-        distribution << supportedGradleDistributions
+        distribution << getSupportedGradleDistributions('>=2.9')
     }
 
     def "The Gradle settings file is written"() {
@@ -423,9 +423,8 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         distribution << getSupportedGradleDistributions('>=3.0')
     }
 
-    @Unroll
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Custom project output location is not updated for #distribution.version"(GradleDistribution distribution) {
+    def "Custom project output location is not updated for older Gradle distribution"() {
         setup:
         prepareProject('sample-project')
         def projectDir = dir('sample-project') {
@@ -441,14 +440,11 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         }
 
         when:
-        importAndWait(projectDir, distribution)
+        importAndWait(projectDir, GradleDistribution.forVersion('2.14'))
         String outputLocation = findJavaProject('sample-project').outputLocation?.toPortableString()
 
         then:
         outputLocation == '/sample-project/bin'
-
-        where:
-        distribution << getSupportedGradleDistributions('<3.0')
     }
 
     @Unroll
