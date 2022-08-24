@@ -77,6 +77,20 @@ class SourceFolderUpdaterTest extends WorkspaceSpecification {
         then:
         javaProject.rawClasspath.length == 0
     }
+    
+    def "Optional source folders that don't physically exist are allowed"() {
+        given:
+        def newModelSourceFolders = gradleSourceFolders(['src-not-there'], [], [], ["optional" : "true"], null)
+
+        when:
+        SourceFolderUpdater.update(javaProject, newModelSourceFolders, null)
+
+        then:
+        javaProject.rawClasspath.length == 1
+        javaProject.rawClasspath[0].entryKind == IClasspathEntry.CPE_SOURCE
+        javaProject.rawClasspath[0].path.toPortableString() == "/project-name/src-not-there"
+        javaProject.rawClasspath[0].extraAttributes as List == attributes(['optional': 'true']) as List
+    }
 
     def "Previous source folders are removed if they no longer exist in the Gradle model"() {
         given:
