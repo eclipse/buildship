@@ -26,14 +26,14 @@ class SynchronizationProgressTest extends ProjectSynchronizationSpecification {
        SynchronizationResult result = gradleBuild.synchronize(null)
 
        then:
-       result.status.isOK()
+       assertResultOkStatus(result)
 
        when:
        gradleBuild = gradleBuildFor(findProject('SynchronizationProgressTest'))
        result = gradleBuild.synchronize(null)
 
        then:
-       result.status.isOK()
+       assertResultOkStatus(result)
    }
 
    def "Progress reported to the monitor"() {

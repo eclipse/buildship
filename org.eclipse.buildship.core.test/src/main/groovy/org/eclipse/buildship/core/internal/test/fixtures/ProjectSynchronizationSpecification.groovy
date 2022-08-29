@@ -9,27 +9,22 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.test.fixtures
 
-import org.gradle.tooling.BuildAction
-import org.gradle.tooling.ProjectConnection
-
 import com.google.common.base.Optional
 import com.google.common.base.Preconditions
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.resources.IWorkspaceRunnable
-import org.eclipse.core.runtime.FileLocator
+import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.core.runtime.jobs.Job
 
 import org.eclipse.buildship.core.BuildConfiguration
 import org.eclipse.buildship.core.GradleBuild
-import org.eclipse.buildship.core.GradleBuildConnectionTest
 import org.eclipse.buildship.core.GradleCore
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.CorePlugin
-import org.eclipse.buildship.core.internal.workspace.CompositeModelQuery
 
 
 abstract class ProjectSynchronizationSpecification extends WorkspaceSpecification {
@@ -51,12 +46,12 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected void synchronizeAndWait(File location) {
         SynchronizationResult result = trySynchronizeAndWait(location)
-        assert result.status.isOK()
+        assertResultOkStatus(result)
     }
 
     protected void synchronizeAndWait(IProject project) {
         SynchronizationResult result = trySynchronizeAndWait(project)
-        assert result.status.isOK()
+        assertResultOkStatus(result)
     }
 
     protected SynchronizationResult tryImportAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild(), File javaHome = null) {
@@ -69,10 +64,34 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
 
     protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild(), File javaHome = null) {
         SynchronizationResult result = tryImportAndWait(location, gradleDistribution, javaHome)
-        if (!result.status.isOK()) {
-            result.status.getException().printStackTrace();
+        assertResultOkStatus(result)
+    }
+
+    protected void assertResultOkStatus(SynchronizationResult result) {
+        assertStatus(result.status, IStatus.OK)
+    }
+
+    private void assertStatus(IStatus status, int expected) {
+        int actual = status.code
+        if (actual != expected) {
+            throw new AssertionError("Status check failed. Expected: ${severityToString(expected)}, actual:  ${severityToString(actual)}, message: ${status.message}, stacktrace: ${status.exception}")
         }
-        assert result.status.isOK()
+    }
+
+    private static String severityToString(int severity) {
+        if (severity == IStatus.OK) {
+            return "OK"
+        } else if (severity == IStatus.ERROR) {
+            return "ERROR"
+        } else if (severity == IStatus.WARNING) {
+            return "WARNING"
+        } else if (severity == IStatus.INFO) {
+            return "INFO"
+        } else if (severity == IStatus.CANCEL) {
+            return "CANCEL"
+        } else {
+            return String.valueOf(severity);
+        }
     }
 
     protected static GradleBuild gradleBuildFor(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild(), File javaHome = null) {

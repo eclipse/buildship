@@ -94,6 +94,8 @@ public class EclipseTestResultProcessor {
         if (event.getExpected() != null || event.getActual() != null) {
             message += " (expected=" + event.getExpected() + ", actual=" + event.getActual() + ")";
         }
+
+        message += ". Stacktrace: " + event.getTrace();
         this.resultProcessor.output(this.currentTestMethod.getId(), new DefaultTestOutputEvent(TestOutputEvent.Destination.StdOut, message));
         this.resultProcessor.failure(this.currentTestMethod.getId(), new EclipseTestFailure(message, event.getTrace()));
     }
