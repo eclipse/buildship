@@ -1,9 +1,12 @@
 pipeline {
-    agent any
+    agent linux
+    tools {
+        jdk 'temurin-jdk17-latest'
+    }
     stages {
         stage('build') {
             steps {
-                sh 'mvn --version'
+                sh 'java -version'
             }
         }
     }
