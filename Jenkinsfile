@@ -1,5 +1,5 @@
 pipeline {
-    agent linux
+    agent any
     tools {
         jdk 'temurin-jdk17-latest'
     }
