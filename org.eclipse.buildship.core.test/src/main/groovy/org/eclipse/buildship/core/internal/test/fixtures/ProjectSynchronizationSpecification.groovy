@@ -74,7 +74,9 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
     private void assertStatus(IStatus status, int expected) {
         int actual = status.code
         if (actual != expected) {
-            throw new AssertionError("Status check failed. Expected: ${severityToString(expected)}, actual:  ${severityToString(actual)}, message: ${status.message}, stacktrace: ${status.exception}")
+            StringWriter stacktrace = new StringWriter()
+            status.exception.printStackTrace(new PrintWriter(stacktrace))
+            throw new AssertionError("Status check failed. Expected: ${severityToString(expected)}, actual:  ${severityToString(actual)}, message: ${stacktrace}, stacktrace: ${status.exception}")
         }
     }
 
@@ -90,7 +92,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         } else if (severity == IStatus.CANCEL) {
             return "CANCEL"
         } else {
-            return String.valueOf(severity);
+            return "UNKNOWN (code=" + String.valueOf(severity) + ")";
         }
     }
 
