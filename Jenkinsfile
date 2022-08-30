@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh 'echo $JAVA_HOME'
+                sh './gradlew clean'
             }
         }
     }
