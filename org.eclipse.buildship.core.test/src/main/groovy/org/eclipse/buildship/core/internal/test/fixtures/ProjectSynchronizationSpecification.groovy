@@ -76,7 +76,7 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         if (actual != expected) {
             StringWriter stacktrace = new StringWriter()
             status.exception.printStackTrace(new PrintWriter(stacktrace))
-            throw new AssertionError("Status check failed. Expected: ${severityToString(expected)}, actual:  ${severityToString(actual)}, message: ${stacktrace}, stacktrace: ${status.exception}")
+            throw new AssertionError("Status check failed. Expected: ${severityToString(expected)}, actual:  ${severityToString(actual)}, message: ${status.message}, stacktrace: ${stacktrace}", status.exception)
         }
     }
 
