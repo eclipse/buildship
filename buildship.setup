@@ -25,9 +25,44 @@
         name="org.eclipse.oomph.setup.sdk.feature.group"/>
     <requirement
         name="org.eclipse.emf.ecoretools.design.feature.group"/>
-    <repository
-        url="https://dist.springsource.org/release/GRECLIPSE/e4.24"/>
     <description>Installs the required plugins to the IDE.</description>
+  </setupTask>
+  <!-- See https://github.com/groovy/groovy-eclipse/wiki#releases -->
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2022-09)">
+    <repository
+        url="https://dist.springsource.org/snapshot/GRECLIPSE/e4.25"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2022-06)">
+    <repository
+        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.24"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2022-03)">
+    <repository
+        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.23"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2021-12)">
+    <repository
+        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.22"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2021-09)">
+    <repository
+        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.21"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2021-06)">
+    <repository
+        url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.20"/>
   </setupTask>
   <setupTask
       xsi:type="setup:CompoundTask"
