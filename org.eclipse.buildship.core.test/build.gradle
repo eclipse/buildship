@@ -16,7 +16,7 @@ eclipseTest {
 }
 
 def compatibilityCheckClassName = 'org.eclipse.buildship.core.internal.workspace.ImportingProjectCrossVersionTest'
-def compatibilityCheckDescriptorPrefix = 'Can return correct import result and bypass compatibility check with Gradle'
+def compatibilityCheckDescriptorPrefix = 'Can return correct import result with Gradle'
 
 tasks.getByName("crossVersionEclipseTest") {
     afterTest { TestDescriptor descriptor, TestResult result ->
