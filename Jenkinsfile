@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        GRADLE_ENTERPRISE_ACCESS_KEY = credentials('gradle-enterprise-key')
+        BAR_ENV_VAR = 'foo'
     }
     tools {
         jdk 'temurin-jdk17-latest'
@@ -9,7 +9,12 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh './gradlew clean'
+                configFileProvider([configFile(fileId: '16a3af82-68ea-4c6f-8985-1d20d86e3e06', variable: 'GE_ACCESS_KEY')]) {
+                    sh """
+                        cat ${env.GE_ACCESS_KEY} >> settings.gradle
+                        ./gradlew clean
+                    """
+                }
             }
         }
     }
