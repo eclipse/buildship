@@ -1,10 +1,7 @@
 pipeline {
     agent any
-    environment {
-        BAR_ENV_VAR = 'foo'
-    }
     tools {
-        jdk 'temurin-jdk17-latest'
+        jdk 'adoptopenjdk-hotspot-jdk11-latest'
     }
     stages {
         stage('build') {
