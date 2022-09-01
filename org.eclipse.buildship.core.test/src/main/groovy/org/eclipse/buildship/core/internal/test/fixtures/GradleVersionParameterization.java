@@ -12,6 +12,8 @@ package org.eclipse.buildship.core.internal.test.fixtures;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.gradle.api.JavaVersion;
 
@@ -25,7 +27,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.buildship.core.GradleDistribution;
-import org.eclipse.buildship.core.internal.DefaultGradleBuild;
+import org.eclipse.buildship.core.internal.CompatibilityChecker;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
@@ -82,10 +84,10 @@ public abstract class GradleVersionParameterization {
         return Combinations.getCombinations(getGradleDistributions(gradleVersionPattern), dataValues);
     }
 
-    public ImmutableList<GradleDistribution> getGradleDistributions(String gradleVersionPattern, boolean negateJavaConstraints) {
+    public ImmutableList<GradleDistribution> getGradleDistributions(String gradleVersionPattern, boolean ignoreJavaConstraint) {
         Preconditions.checkNotNull(gradleVersionPattern);
 
-        ImmutableList<GradleVersion> gradleVersions = getGradleVersions(gradleVersionPattern, negateJavaConstraints);
+        ImmutableList<GradleVersion> gradleVersions = getGradleVersions(gradleVersionPattern, ignoreJavaConstraint);
         return convertGradleVersionsToGradleDistributions(gradleVersions);
     }
 
@@ -118,22 +120,16 @@ public abstract class GradleVersionParameterization {
      * is returned that matches the pattern.
      *
      * @param gradleVersionPattern the pattern of Gradle versions to match, must not be null
+     * @param ignoreJavaConstraint whether to ignore the java version constraint or not
      * @return the matching Gradle versions falling into the configured range, never null
      */
-    ImmutableList<GradleVersion> getGradleVersions(String gradleVersionPattern, boolean negateJavaConstraints) {
+    ImmutableList<GradleVersion> getGradleVersions(String gradleVersionPattern, boolean ignoreJavaConstraint) {
         Preconditions.checkNotNull(gradleVersionPattern);
 
         Predicate<GradleVersion> versionConstraint = GradleVersionConstraints.toPredicate(gradleVersionPattern);
         Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.6");
-        String minimumSupportedVersion = DefaultGradleBuild.compatibilityMap.get(JavaVersion.current().getMajorVersion());
-        Predicate<GradleVersion> javaVersionConstraint = null;
-        if (minimumSupportedVersion == null) {
-            javaVersionConstraint = Predicates.alwaysFalse();
-        } else if (!negateJavaConstraints) {
-            javaVersionConstraint = GradleVersionConstraints.toPredicate(">=" + minimumSupportedVersion);
-        } else {
-            javaVersionConstraint = GradleVersionConstraints.toPredicate("<" + minimumSupportedVersion);
-        }
+        Set<String> unsupportedVersions = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        Predicate<GradleVersion> javaVersionConstraint = (ignoreJavaConstraint || unsupportedVersions == null || unsupportedVersions.size() == 0) ? Predicates.alwaysTrue() : GradleVersionConstraints.toPredicate("!=" + unsupportedVersions.stream().collect(Collectors.joining(" !=")));
         @SuppressWarnings("unchecked")
         Predicate<GradleVersion> matchingVersions = Predicates.and(versionConstraint, toolingApiConstraint, javaVersionConstraint);
 

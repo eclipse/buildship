@@ -9,7 +9,10 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import org.eclipse.buildship.core.internal.CompatibilityChecker
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
 import org.gradle.api.JavaVersion
+import org.junit.Assert
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Unroll
@@ -21,6 +24,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 
     File multiProjectDir
     File compositeProjectDir
+    File simpleProjectDir
 
     def setup() {
         multiProjectDir = dir('multi-project-build') {
@@ -102,6 +106,71 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
                 '''
             }
         }
+
+        simpleProjectDir = dir('simple-build') {
+            file 'settings.gradle', '''
+                rootProject.name = 'simple-build'
+            '''
+            file 'build.gradle', '''
+                apply plugin: 'java'
+                description = 'a simple project.'
+                task myTask {}
+            '''
+            dir('src/main/java/pkg') {
+                file 'Main.java', '''
+                    package pkg;
+
+                    public class Main {
+                        public static void main(String[] args) {
+                            System.out.println("Hello, world!");
+                        }
+                    }
+                '''
+            }
+        }
+    }
+
+
+    @Unroll
+    def "Can return correct import result and bypass compatibility check with Gradle #distribution.version"(GradleDistribution distribution) {
+        when:
+        System.setProperty(CompatibilityChecker.BYPASS_COMPATIBILITY_CHECK_KEY, "true")
+        def importResult = tryImportAndWait(simpleProjectDir, distribution)
+
+        then:
+        if (importResult.status.isOK()) {
+            Assert.assertEquals(allProjects().size(), 1)
+            Assert.assertEquals(numOfGradleErrorMarkers, 0)
+            Assert.assertEquals(getPlatformLogErrors().size(), 0)
+        } else {
+            Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
+            Assert.assertNotEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
+        }
+
+        cleanup:
+        System.setProperty(CompatibilityChecker.BYPASS_COMPATIBILITY_CHECK_KEY, "false")
+
+        where:
+        distribution << getSupportedGradleDistributions('>=2.6', true)
+    }
+
+    @Unroll
+    def "Can return correct import result with Gradle #distribution.version"(GradleDistribution distribution) {
+        when:
+        def importResult = tryImportAndWait(simpleProjectDir, distribution)
+
+        then:
+        if (importResult.status.isOK()) {
+            Assert.assertEquals(allProjects().size(), 1)
+            Assert.assertEquals(numOfGradleErrorMarkers, 0)
+            Assert.assertEquals(getPlatformLogErrors().size(), 0)
+        } else {
+            Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
+            Assert.assertEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
+        }
+
+        where:
+        distribution << getSupportedGradleDistributions('>=2.6', true)
     }
 
     @Unroll
