@@ -12,6 +12,7 @@ package org.eclipse.buildship.core.internal;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.osgi.framework.Bundle;
@@ -95,7 +96,6 @@ public final class CorePlugin extends Plugin {
     // service tracker for each service to allow to register other service implementations of the
     // same type but with higher prioritization, useful for testing
     private ServiceTracker loggerServiceTracker;
-    private ServiceTracker publishedGradleVersionsServiceTracker;
     private ServiceTracker workspaceOperationsServiceTracker;
     private ServiceTracker internalGradleWorkspaceServiceTracker;
     private ServiceTracker processStreamsProviderServiceTracker;
@@ -110,6 +110,9 @@ public final class CorePlugin extends Plugin {
     private DefaultExternalLaunchConfigurationManager externalLaunchConfigurationManager;
     private ToolingApiOperationManager operationManager;
     private ExtensionManager extensionManager;
+    
+    private static Map<Class<?>, ServiceTracker<?, ?>> trackers = new ConcurrentHashMap<>();
+
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -141,7 +144,6 @@ public final class CorePlugin extends Plugin {
 
         // initialize service trackers before the services are created
         this.loggerServiceTracker = createServiceTracker(context, Logger.class);
-        this.publishedGradleVersionsServiceTracker = createServiceTracker(context, PublishedGradleVersionsWrapper.class);
         this.workspaceOperationsServiceTracker = createServiceTracker(context, WorkspaceOperations.class);
         this.internalGradleWorkspaceServiceTracker = createServiceTracker(context, InternalGradleWorkspace.class);
         this.processStreamsProviderServiceTracker = createServiceTracker(context, ProcessStreamsProvider.class);
@@ -250,7 +252,6 @@ public final class CorePlugin extends Plugin {
         this.processStreamsProviderServiceTracker.close();
         this.internalGradleWorkspaceServiceTracker.close();
         this.workspaceOperationsServiceTracker.close();
-        this.publishedGradleVersionsServiceTracker.close();
         this.loggerServiceTracker.close();
     }
 
@@ -263,7 +264,7 @@ public final class CorePlugin extends Plugin {
     }
 
     public static PublishedGradleVersionsWrapper publishedGradleVersions() {
-        return (PublishedGradleVersionsWrapper) getInstance().publishedGradleVersionsServiceTracker.getService();
+    	return getService(PublishedGradleVersionsWrapper.class);
     }
 
     public static WorkspaceOperations workspaceOperations() {
@@ -309,4 +310,20 @@ public final class CorePlugin extends Plugin {
     public static ExtensionManager extensionManager() {
         return getInstance().extensionManager;
     }
+
+    private static <T> T getService(Class<T> service) {
+        BundleContext context = plugin.getBundle().getBundleContext();
+        if(context == null) {
+          return null;
+        }
+        return service.cast(trackers.computeIfAbsent(service, key -> {
+          ServiceTracker<?, ?> tracker = new ServiceTracker<>(context, key, null);
+          tracker.open();
+          return tracker;
+        }).getService());
+      }
+
+
 }
+
+
