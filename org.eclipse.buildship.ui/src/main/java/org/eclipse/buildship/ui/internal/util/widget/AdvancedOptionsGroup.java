@@ -70,7 +70,7 @@ public final class AdvancedOptionsGroup extends Group {
         this.javaHomeBrowseButton = this.builderFactory.newButton(this).alignLeft().text(UiMessages.Button_Label_Browse).control();
         this.javaHomeWarningLabel = this.builderFactory.newLabel(this).alignLeft().control();
         this.javaHomeWarningLabel.setImage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK));
-        HoverText.createAndAttach(this.gradleUserHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Java home"));
+        HoverText.createAndAttach(this.javaHomeWarningLabel, NLS.bind(CoreMessages.WarningMessage_Using_0_NonPortable, "Java home"));
 
         this.builderFactory.newLabel(this).alignLeft().text(CoreMessages.RunConfiguration_Label_Arguments);
         this.argumentsEditor = new StringListEditor(this, variableSelector, "arg");
