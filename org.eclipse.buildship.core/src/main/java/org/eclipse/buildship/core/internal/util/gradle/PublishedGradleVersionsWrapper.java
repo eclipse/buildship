@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
@@ -52,6 +53,18 @@ public final class PublishedGradleVersionsWrapper {
         public LoadVersionsJob() {
             super("Loading available Gradle versions");
             setSystem(true);
+            setRule(new ISchedulingRule() {
+
+                @Override
+                public boolean isConflicting(ISchedulingRule rule) {
+                    return rule == this;
+                }
+
+                @Override
+                public boolean contains(ISchedulingRule rule) {
+                    return rule == this;
+                }
+            });
         }
 
         @Override
