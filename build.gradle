@@ -111,7 +111,7 @@ eclipseBuild {
 
     targetPlatform {
         eclipseVersion = '46'
-        targetDefinition = file('tooling-e46.target')        
+        targetDefinition = file('tooling-e46.target')
         versionMapping = [
             "$swtPluginId"                          : '3.105.0',
             'com.ibm.icu'                           : '56.1.0',
@@ -165,7 +165,7 @@ eclipseBuild {
             'org.eclipse.oomph.setup.edit'          : '1.8.0',
             'org.eclipse.oomph.base'                : '1.8.0',
             'org.eclipse.oomph.base.edit'           : '1.8.0'
-            ] + eclipseVersionAgnosticDependencies
+        ] + eclipseVersionAgnosticDependencies
     }
 
     targetPlatform {
@@ -339,7 +339,7 @@ eclipseBuild {
             'org.eclipse.oomph.base.edit'           : '1.10.0'
         ] + eclipseVersionAgnosticDependencies
     }
-    
+
     targetPlatform {
         eclipseVersion = '412'
         targetDefinition = file('tooling-e412.target')
@@ -382,7 +382,7 @@ eclipseBuild {
             'org.eclipse.oomph.base.edit'           : '1.11.0'
         ] + eclipseVersionAgnosticDependencies
     }
-    
+
     targetPlatform {
         eclipseVersion = '413'
         targetDefinition = file('tooling-e413.target')
@@ -425,7 +425,7 @@ eclipseBuild {
             'org.eclipse.oomph.base.edit'           : '1.12.0'
         ] + eclipseVersionAgnosticDependencies
     }
-    
+
     targetPlatform {
         eclipseVersion = '414'
         targetDefinition = file('tooling-e414.target')
@@ -468,7 +468,7 @@ eclipseBuild {
             'org.eclipse.oomph.base.edit'           : '1.12.0'
         ] + eclipseVersionAgnosticDependencies
     }
-    
+
     targetPlatform {
         eclipseVersion = '415'
         targetDefinition = file('tooling-e415.target')
@@ -511,7 +511,7 @@ eclipseBuild {
             'org.eclipse.oomph.base.edit'           : '1.12.0'
         ]
     }
-    
+
     targetPlatform {
         eclipseVersion = '416'
         targetDefinition = file('tooling-e416.target')
@@ -552,9 +552,9 @@ eclipseBuild {
             'org.eclipse.oomph.setup.edit'          : '1.14.0',
             'org.eclipse.oomph.base'                : '1.13.0',
             'org.eclipse.oomph.base.edit'           : '1.12.0'
-         ]
+        ]
     }
-    
+
     targetPlatform {
         eclipseVersion = '417'
         targetDefinition = file('tooling-e417.target')
@@ -961,9 +961,9 @@ subprojects {
     // share checkstyle config across all sub-projects
     def checkstyleConfigDir = "$rootDir/gradle/config/checkstyle"
     tasks.withType(Checkstyle).all {
-      configFile = "$checkstyleConfigDir/checkstyle.xml" as File
-      configProperties = ['checkstyleConfigDir': checkstyleConfigDir]
-      inputs.file "$checkstyleConfigDir/suppressions.xml" as File
+        configFile = "$checkstyleConfigDir/checkstyle.xml" as File
+        configProperties = ['checkstyleConfigDir': checkstyleConfigDir]
+        inputs.file "$checkstyleConfigDir/suppressions.xml" as File
     }
 
     tasks.withType(Test).all {
@@ -1000,28 +1000,28 @@ subprojects {
             url gradleRemoteRepositoryUrl
         }
         mavenCentral()
-    }    
+    }
 }
 
 // tag the HEAD of the current branch and push the new tag
 task tag {
-  doLast {
-     def githubAccessKey = findProperty("githubAccessKey")
-     if (!githubAccessKey) {
-         throw new IllegalStateException("Cannot tag commit: define GitHub access key with -PgithubAccessKey=<access_key> project property")
-     } else {
-         // set access token
-         System.setProperty("org.ajoberstar.grgit.auth.username", githubAccessKey)
-         // tag current state
-         grgit.tag.add {
-           def tagVersion = file('version.txt').text.trim()
-           name =  "REL_$tagVersion"
-           message = "Create tag REL_$tagVersion"
-         }
-         // push changes
-         grgit.push(tags: true)
-     }
-  }
+    doLast {
+        def githubAccessKey = findProperty("githubAccessKey")
+        if (!githubAccessKey) {
+            throw new IllegalStateException("Cannot tag commit: define GitHub access key with -PgithubAccessKey=<access_key> project property")
+        } else {
+            // set access token
+            System.setProperty("org.ajoberstar.grgit.auth.username", githubAccessKey)
+            // tag current state
+            grgit.tag.add {
+                def tagVersion = file('version.txt').text.trim()
+                name =  "REL_$tagVersion"
+                message = "Create tag REL_$tagVersion"
+            }
+            // push changes
+            grgit.push(tags: true)
+        }
+    }
 }
 
 // increment the service segment in the version number and push it to master
@@ -1034,7 +1034,7 @@ task incrementVersion {
             def serviceSegment = Integer.parseInt(matcher.group(3)) + 1
             newVersion = matcher.group(1) + "." + matcher.group(2) + "." + serviceSegment
             file('version.txt').text = newVersion
-    
+
             Pattern bundleVersionPattern = Pattern.compile('(?<=Bundle-Version: )\\d+\\.\\d+\\.\\d+(?=\\.qualifier)')
             file('.').eachFileRecurse { file ->
                 if(file.name == 'MANIFEST.MF') {
@@ -1082,15 +1082,15 @@ String getVersionQualifier() {
 }
 
 String getBundleVersion(String version) {
-  def matcher = version =~ /(\d+)\.(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
-  if (matcher.matches()) {
-    def major = matcher.group(1)
-    def minor = matcher.group(2)
-    def service = matcher.group(3) ?: '0'
-    return "$major.$minor.$service"
-  } else {
-    throw new IllegalArgumentException("Invalid bundle version: $version")
-  }
+    def matcher = version =~ /(\d+)\.(\d+)(?:-.*|\.(\d+)(?:-.*)?)?/
+    if (matcher.matches()) {
+        def major = matcher.group(1)
+        def minor = matcher.group(2)
+        def service = matcher.group(3) ?: '0'
+        return "$major.$minor.$service"
+    } else {
+        throw new IllegalArgumentException("Invalid bundle version: $version")
+    }
 }
 
 def currentCommitId() {
