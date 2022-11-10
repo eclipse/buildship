@@ -1,6 +1,7 @@
-apply plugin: eclipsebuild.jar.ExistingJarBundlePlugin
-apply plugin: 'java'
+// TODO rename project to org.eclipse.buildship.idemodel
+// TODO assembleTargetPlatform should not be up-to-date when custom model project changes
 apply plugin: 'eclipse'
+apply plugin: eclipsebuild.jar.ExistingJarBundlePlugin
 
 dependencies {
     plugin("org.gradle:gradle-tooling-api:$toolingApiVersion") {
@@ -8,6 +9,7 @@ dependencies {
             attribute(Attribute.of('org.gradle.category', String), "library")
         }
     }
+    implementation gradleApi()
 }
 
 bundleInfo {
@@ -18,3 +20,13 @@ bundleInfo {
     packageFilter = ".c*jarjar.*|.*impldep.*|.*internal.*|org.gradle(|.concurrent.*|.groovy.*|.initialization.*|.api.+|.wrapper|.util)"
     resources = files('resources/extra_resources')
 }
+
+eclipse.classpath.file.whenMerged {
+    entries.removeAll { it.path.endsWith('.pom') }
+}
+
+// Note: due to a classloading issue, Eclipse won't be able to query a Custom tooling API model in development mode (i.e. when you use Run -> Eclipse Application)
+// if the custom model classes are not loaded from jars. To work around the problem, project descriptors are configured such that org.gradle.toolingapi.jar is 
+// used in development mode. This means you have to call the eclipse task after changing the the sources in this project.
+//
+// tl;dr before clicking Run -> Eclipse Application run :org.gradle.toolingapi:jar if you changed the sources.

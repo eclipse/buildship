@@ -26,14 +26,17 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
 import org.eclipse.buildship.core.internal.util.gradle.JavaVersionUtil;
+import org.eclipse.buildship.core.internal.util.gradle.Pair;
+import org.eclipse.buildship.model.CompileJavaTaskConfiguration;
+import org.eclipse.buildship.model.Project;
 
 /**
  * Updates the Java source settings on the target project.
  */
 final class JavaSourceSettingsUpdater {
 
-    public static void update(IJavaProject project, EclipseProject modelProject, IProgressMonitor monitor) throws CoreException {
-        EclipseJavaSourceSettings sourceSettings = modelProject.getJavaSourceSettings();
+    public static void update(IJavaProject project, Pair<EclipseProject,Project> model2, IProgressMonitor monitor) throws CoreException {
+        EclipseJavaSourceSettings sourceSettings = model2.getFirst().getJavaSourceSettings();
         String sourceVersion = JavaVersionUtil.adaptVersionToEclipseNamingConversions(sourceSettings.getSourceLanguageLevel());
         String targetVersion = JavaVersionUtil.adaptVersionToEclipseNamingConversions(sourceSettings.getTargetBytecodeVersion());
 
@@ -44,6 +47,11 @@ final class JavaSourceSettingsUpdater {
 
         if (compilerOptionChanged && isProjectAutoBuildingEnabled()) {
             scheduleJdtBuild(project.getProject());
+        }
+
+        CompileJavaTaskConfiguration compileJavaTaskConfiguration = model2.getSecond().getCompileJavaTaskConfiguration();
+        if (compileJavaTaskConfiguration != null) {
+            String encoding = compileJavaTaskConfiguration.getEncoding();
         }
     }
 

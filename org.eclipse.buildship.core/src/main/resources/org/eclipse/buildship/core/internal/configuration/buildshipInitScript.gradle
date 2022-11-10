@@ -7,8 +7,18 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ******************************************************************************/
+
 initscript {
-    allprojects {
+    if (System.getProperty('org.eclipse.buildship') != null) {
+        dependencies {
+            classpath files('IDEMODEL_CLASSPATH')
+        }
+    }
+}
+
+if (System.getProperty('org.eclipse.buildship') != null) {
+    rootProject {   
         apply plugin: "eclipse"
+        apply plugin: org.eclipse.buildship.model.internal.ExtendedEclipseModelPlugin
     }
 }

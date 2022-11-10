@@ -71,6 +71,5 @@ public class HierarchicalElementUtils {
             Path p2 = Path.from(o2.getGradleProject().getPath());
             return p1.compareTo(p2);
         }
-
     }
 }
