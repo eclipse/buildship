@@ -39,23 +39,30 @@ abstract class ConvertOsgiBundleTask extends DefaultTask {
     @OutputDirectory
     abstract DirectoryProperty getOutputDirectory()
 
+    @OutputDirectory
+    abstract DirectoryProperty getOutputSourceDirectory()
+
     @TaskAction
     void convertOsgiBundle() {
-        createNewBundle(project, JarBundleUtils.firstDependencyJar(pluginConfiguration.get()))
+        createNewBundle(project, JarBundleUtils.firstDependencyJar(pluginConfiguration.get()), JarBundleUtils.firstDependencySourceJar(project, pluginConfiguration.get()))
     }
 
-    void createNewBundle(Project project, File jar) {
+    void createNewBundle(Project project, File dependencyJar, File dependencySourceJar) {
+        println dependencySourceJar.absolutePath
         String sourceReference = PluginUtils.sourceReference(project)
-        String manifest = JarBundleUtils.manifestContent(jar, template.get(), packageFilter.get(), bundleVersion.get(), qualifier.get(), sourceReference)
+        File jarTaskOutput = project.tasks['jar'].outputs.files.asFileTree.files.first()
+        String manifest = JarBundleUtils.manifestContent([dependencyJar] + jarTaskOutput, template.get(), packageFilter.get(), bundleVersion.get(), qualifier.get(), sourceReference)
 
         File extraResources = project.file("${project.buildDir}/tmp/bundle-resources")
         File manifestFile = new File(extraResources, '/META-INF/MANIFEST.MF')
         manifestFile.parentFile.mkdirs()
         manifestFile.text = manifest
 
-        File osgiJar = new File(outputDirectory.get().asFile, "osgi_${jar.name}")
+        // binary jar
+        File osgiJar = new File(outputDirectory.get().asFile, "osgi_${project.name}.jar")
         project.ant.zip(destfile: osgiJar) {
-            zipfileset(src: jar, excludes: 'META-INF/MANIFEST.MF')
+            zipfileset(src: jarTaskOutput, excludes: 'META-INF/MANIFEST.MF')
+            zipfileset(src: dependencyJar, excludes: 'META-INF/MANIFEST.MF')
         }
 
         project.ant.zip(update: 'true', destfile: osgiJar) {
@@ -64,6 +71,28 @@ abstract class ConvertOsgiBundleTask extends DefaultTask {
 
         resources.files.each { File resource ->
             project.ant.zip(update: 'true', destfile: osgiJar) {
+                fileset(dir: resource)
+            }
+        }
+
+        // source jar
+        File osgiSourceJar = new File(outputSourceDirectory.get().asFile, "osgi_${project.name}.source.jar")
+        project.ant.zip(destfile: osgiSourceJar) {
+            project.sourceSets.main.allSource.srcDirs.forEach { File srcDir ->
+                println srcDir
+                if (srcDir.exists()) {
+                    fileset(dir: srcDir.absolutePath, excludes: 'META-INF/MANIFEST.MF')
+                }
+            }
+            zipfileset(src: dependencySourceJar, excludes: 'META-INF/MANIFEST.MF')
+        }
+
+        project.ant.zip(update: 'true', destfile: osgiSourceJar) {
+            fileset(dir: extraResources)
+        }
+
+        resources.files.each { File resource ->
+            project.ant.zip(update: 'true', destfile: osgiSourceJar) {
                 fileset(dir: resource)
             }
         }

@@ -3,9 +3,9 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 
 repositories {
+    mavenCentral()
     maven {
         url gradleRemoteRepositoryUrl
-        mavenCentral()
     }
 }
 
