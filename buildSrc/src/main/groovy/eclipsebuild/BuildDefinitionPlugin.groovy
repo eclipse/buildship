@@ -321,6 +321,31 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             commandLine(config.eclipseSdkExe.path,
                     '-application', 'org.eclipse.equinox.p2.director',
                     '-repository', repositoryUrl,
+                    '-uninstallIU', installIU,
+                    '-tag', 'target-platform',
+                    '-destination', config.nonMavenizedTargetPlatformDir.path,
+                    '-profile', 'SDKProfile',
+                    '-bundlepool', config.nonMavenizedTargetPlatformDir.path,
+                    '-p2.os', Constants.os,
+                    '-p2.ws', Constants.ws,
+                    '-p2.arch', Constants.arch,
+                    '-roaming',
+                    '-nosplash',
+                    '-consoleLog',
+                    '-vmargs', '-Declipse.p2.mirror=false')
+
+            ignoreExitValue = true
+        }
+
+        project.exec {
+
+            // redirect the external process output to the logging
+            standardOutput = new LogOutputStream(project.logger, LogLevel.INFO)
+            errorOutput = new LogOutputStream(project.logger, LogLevel.INFO)
+
+            commandLine(config.eclipseSdkExe.path,
+                    '-application', 'org.eclipse.equinox.p2.director',
+                    '-repository', repositoryUrl,
                     '-installIU', installIU,
                     '-tag', 'target-platform',
                     '-destination', config.nonMavenizedTargetPlatformDir.path,
