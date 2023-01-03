@@ -7,16 +7,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ******************************************************************************/
-initscript {
-    dependencies {
-        classpath files('BUILDSHIP_MODEL_CLASSPATH')
+package org.eclipse.buildship.model.internal;
+
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+
+public class ExtendedEclipseModelPlugin implements Plugin<Project> {
+
+    @Override
+    public void apply(Project project) {
     }
-}
-
-allprojects {
-    apply plugin: 'eclipse'
-}
-
-rootProject {
-    apply plugin: org.eclipse.buildship.model.internal.ExtendedEclipseModelPlugin
 }

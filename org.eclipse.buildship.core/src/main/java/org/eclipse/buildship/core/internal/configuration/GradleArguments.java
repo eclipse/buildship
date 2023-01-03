@@ -11,6 +11,7 @@ package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +26,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
+
+import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
@@ -152,16 +156,16 @@ public final class GradleArguments {
 
     private static void maybeUpdateInitScript(File scriptFile) {
         try {
-            byte[] scriptContent = initScriptContent();
+            String scriptContent = initScriptContent();
             if (!scriptFile.exists()) {
                 Files.createParentDirs(scriptFile);
-                Files.asByteSink(scriptFile).write(scriptContent);
+                Files.asByteSink(scriptFile).write(scriptContent.getBytes());
             } else {
                 // don't touch the file if no changes needed
-                byte[] existingContent = Files.asByteSource(scriptFile).read();
-                boolean scriptUpToDate = Arrays.equals(scriptContent, existingContent);
+                String existingContent = new String(Files.asByteSource(scriptFile).read());
+                boolean scriptUpToDate = existingContent.equals(scriptContent);
                 if (!scriptUpToDate) {
-                    Files.asByteSink(scriptFile).write(scriptContent);
+                    Files.asByteSink(scriptFile).write(scriptContent.getBytes());
                 }
             }
         } catch (IOException e) {
@@ -169,13 +173,15 @@ public final class GradleArguments {
         }
     }
 
-    private static byte[] initScriptContent() {
+    private static String initScriptContent() {
         URL resource = GradleVersion.class.getResource(INITSCRIPT_LOCATION);
         if (resource == null) {
             throw new GradlePluginsRuntimeException(String.format("Resource '%s' not found.", INITSCRIPT_LOCATION));
         }
         try {
-            return resource.openConnection().getInputStream().readAllBytes();
+            String content = CharStreams.toString(new InputStreamReader(resource.openConnection().getInputStream()));
+            String buildshipModelClasspath = CorePlugin.pluginLocation("org.gradle.toolingapi").getAbsolutePath() + (Platform.inDevelopmentMode() ? "/bin/main" : "");
+            return content.replace("BUILDSHIP_MODEL_CLASSPATH", buildshipModelClasspath.replaceAll("\\\\", "/"));
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException("Failed to read init script", e);
         }
