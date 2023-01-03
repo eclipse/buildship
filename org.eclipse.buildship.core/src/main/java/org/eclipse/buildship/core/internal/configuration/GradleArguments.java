@@ -11,9 +11,7 @@ package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.List;
 
@@ -147,29 +145,44 @@ public final class GradleArguments {
 
     private static List<String> getInitScriptArguments() {
         File initScript = getEclipsePluginInitScriptLocation();
+        maybeUpdateInitScript(initScript);
+        return Arrays.asList("--init-script", initScript.getAbsolutePath());
+    }
+
+
+    private static void maybeUpdateInitScript(File scriptFile) {
         try {
-            if (!initScript.exists()) {
-                Files.createParentDirs(initScript);
-                Files.touch(initScript);
-                URL resource = GradleVersion.class.getResource(INITSCRIPT_LOCATION);
-                if (resource == null) {
-                    throw new GradlePluginsRuntimeException(String.format("Resource '%s' not found.", INITSCRIPT_LOCATION));
+            byte[] scriptContent = initScriptContent();
+            if (!scriptFile.exists()) {
+                Files.createParentDirs(scriptFile);
+                Files.asByteSink(scriptFile).write(scriptContent);
+            } else {
+                // don't touch the file if no changes needed
+                byte[] existingContent = Files.asByteSource(scriptFile).read();
+                boolean scriptUpToDate = Arrays.equals(scriptContent, existingContent);
+                if (!scriptUpToDate) {
+                    Files.asByteSink(scriptFile).write(scriptContent);
                 }
-
-                URLConnection connection = resource.openConnection();
-                try (InputStream inputStream = connection.getInputStream()) {
-                    Files.asByteSink(initScript).writeFrom(inputStream);
-                }
-
             }
-            return Arrays.asList("--init-script", initScript.getAbsolutePath());
         } catch (IOException e) {
             throw new GradlePluginsRuntimeException("Failed to create init script", e);
         }
     }
 
+    private static byte[] initScriptContent() {
+        URL resource = GradleVersion.class.getResource(INITSCRIPT_LOCATION);
+        if (resource == null) {
+            throw new GradlePluginsRuntimeException(String.format("Resource '%s' not found.", INITSCRIPT_LOCATION));
+        }
+        try {
+            return resource.openConnection().getInputStream().readAllBytes();
+        } catch (Exception e) {
+            throw new GradlePluginsRuntimeException("Failed to read init script", e);
+        }
+    }
+
     private static File getEclipsePluginInitScriptLocation() {
-        return CorePlugin.getInstance().getStateLocation().append("init.d").append("eclipsePlugin.gradle").toFile();
+        return CorePlugin.getInstance().getStateLocation().append("init.d").append("buildshipInit.gradle").toFile();
     }
 
 }
