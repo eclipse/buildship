@@ -101,7 +101,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
                 String bundleVersion = project.extensions.bundleInfo.bundleVersion.get()
                 String qualifier = 'qualifier'
                 project.file('META-INF').mkdirs()
-                project.file('META-INF/MANIFEST.MF').text = JarBundleUtils.manifestContent([depJar, osgiJar], template, packageFilter, bundleVersion, qualifier).replace("Bundle-ClassPath: .", "Bundle-ClassPath: ${jarName(project)}")
+                project.file('META-INF/MANIFEST.MF').text = JarBundleUtils.manifestContent([depJar, osgiJar], template, packageFilter, bundleVersion, qualifier)
             }
         }
     }
