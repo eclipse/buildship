@@ -18,6 +18,7 @@ import com.google.common.collect.Iterables;
 
 import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.IVMInstall2;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.VMStandin;
@@ -35,7 +36,7 @@ public final class EclipseVmUtil {
      * Finds a Java VM in the Eclipse VM registry or registers a new one if none was available with
      * the selected version.
      *
-     * @param version  the VM's supported Java version
+     * @param version the VM's supported Java version
      * @param location the location of the VM
      * @return the reference of an existing or newly created VM
      */
@@ -46,9 +47,25 @@ public final class EclipseVmUtil {
         return findOrRegisterVM(version, location);
     }
 
+    /**
+     * Finds a Java VM in the Eclipse VM registry or registers a new one.
+     *
+     * @param location the location of the VM
+     * @return the reference of an existing or newly created VM
+     */
+    public static IVMInstall findOrRegisterStandardVM(File location) {
+        Preconditions.checkNotNull(location);
+        return findOrRegisterVM(location);
+    }
+
     private static IVMInstall findOrRegisterVM(String version, File location) {
         Optional<IVMInstall> vm = findRegisteredVM(version);
-        return vm.isPresent() ? vm.get() : registerNewVM("Java SE " + version, location);
+        return vm.isPresent() ? vm.get() : registerNewVM(location);
+    }
+
+    private static IVMInstall findOrRegisterVM(File location) {
+        Optional<IVMInstall> vm = findRegisteredVM(location);
+        return vm.isPresent() ? vm.get() : registerNewVM(location);
     }
 
     private static Optional<IVMInstall> findRegisteredVM(String version) {
@@ -67,8 +84,20 @@ public final class EclipseVmUtil {
         }
     }
 
+    private static Optional<IVMInstall> findRegisteredVM(File location) {
+        for (IExecutionEnvironment executionEnvironment : JavaRuntime.getExecutionEnvironmentsManager().getExecutionEnvironments()) {
+            for (IVMInstall vm : executionEnvironment.getCompatibleVMs()) {
+                if (location.equals(vm.getInstallLocation())) {
+                    return Optional.fromNullable(vm);
+                }
+            }
+        }
+        return Optional.absent();
+    }
+
     /**
-     * Finds the execution environment for the given compliance version, e.g. 'JavaSE-1.6' for version '1.6'.
+     * Finds the execution environment for the given compliance version, e.g. 'JavaSE-1.6' for
+     * version '1.6'.
      *
      * @param version the Java version
      * @return the execution environment or {@link Optional#absent()} if none was found
@@ -95,7 +124,7 @@ public final class EclipseVmUtil {
         }
     }
 
-    private static IVMInstall registerNewVM(String name, File location) {
+    private static IVMInstall registerNewVM(File location) {
         // use the 'Standard VM' type to register a new VM
         IVMInstallType installType = JavaRuntime.getVMInstallType(StandardVMType.ID_STANDARD_VM_TYPE);
 
@@ -104,9 +133,14 @@ public final class EclipseVmUtil {
 
         // create the VM without firing events on individual method calls
         VMStandin vm = new VMStandin(installType, vmId);
-        vm.setName(name);
+        vm.setName("Java (unknown version)");
         vm.setInstallLocation(location);
-        return vm.convertToRealVM();
+        IVMInstall realVm = vm.convertToRealVM();
+        if (realVm instanceof IVMInstall2) {
+            realVm.setName("Java " + ((IVMInstall2) realVm).getJavaVersion());
+        }
+        return realVm;
+
     }
 
     private static String generateUniqueVMId(IVMInstallType type) {

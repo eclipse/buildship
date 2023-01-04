@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
+import org.gradle.api.JavaVersion;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.model.build.BuildEnvironment;
@@ -25,7 +26,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
+
+import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.IVMInstall2;
 
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
@@ -35,6 +40,7 @@ import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.collections.CollectionsUtils;
 import org.eclipse.buildship.core.internal.util.file.FileUtils;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
+import org.eclipse.buildship.core.internal.workspace.EclipseVmUtil;
 
 /**
  * Holds configuration values to apply on Tooling API objects.
@@ -43,7 +49,7 @@ import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
  */
 public final class GradleArguments {
 
-    private static final String INITSCRIPT_LOCATION="/org/eclipse/buildship/core/internal/configuration/eclipsePlugin.gradle";
+    private static final String INITSCRIPT_LOCATION = "/org/eclipse/buildship/core/internal/configuration/eclipsePlugin.gradle";
 
     private final File rootDir;
     private final GradleDistribution gradleDistribution;
@@ -54,7 +60,8 @@ public final class GradleArguments {
     private final List<String> arguments;
     private final List<String> jvmArguments;
 
-    private GradleArguments(File rootDir, GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, boolean buildScansEnabled, boolean offlineMode, List<String> arguments, List<String> jvmArguments) {
+    private GradleArguments(File rootDir, GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, boolean buildScansEnabled, boolean offlineMode,
+            List<String> arguments, List<String> jvmArguments) {
         this.rootDir = Preconditions.checkNotNull(rootDir);
         this.gradleDistribution = Preconditions.checkNotNull(gradleDistribution);
         this.gradleUserHome = gradleUserHome;
@@ -70,10 +77,12 @@ public final class GradleArguments {
         JavaEnvironment javaEnv = buildEnvironment.getJava();
 
         progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_WorkingDirectory, this.rootDir));
-        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.Preference_Label_Gradle_User_Home, toNonEmpty(this.gradleUserHome != null ? this.gradleUserHome : getGradleUserHome(gradleEnv), CoreMessages.Value_UseGradleDefault)));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.Preference_Label_Gradle_User_Home, toNonEmpty(this.gradleUserHome != null ? this.gradleUserHome
+                : getGradleUserHome(gradleEnv), CoreMessages.Value_UseGradleDefault)));
         progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_GradleDistribution, this.gradleDistribution.getDisplayName()));
         progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_GradleVersion, gradleEnv.getGradleVersion()));
-        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(this.javaHome != null ? this.javaHome :  javaEnv.getJavaHome(), CoreMessages.Value_UseGradleDefault)));
+        progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_JavaHome, toNonEmpty(this.javaHome != null ? this.javaHome
+                : javaEnv.getJavaHome(), CoreMessages.Value_UseGradleDefault)));
         progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_JvmArguments, toNonEmpty(this.jvmArguments, CoreMessages.Value_None)));
         progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_Arguments, toNonEmpty(this.arguments, CoreMessages.Value_None)));
         progressAttributes.writeConfig(String.format("%s: %s", CoreMessages.RunConfiguration_Label_BuildScansEnabled, this.buildScansEnabled));
@@ -105,21 +114,17 @@ public final class GradleArguments {
     }
 
     public void applyTo(LongRunningOperation operation, BuildEnvironment environment) {
-        operation.withArguments(collectArguments(this.arguments,
-                 this.buildScansEnabled, this.offlineMode, environment));
+        operation.withArguments(collectArguments(this.arguments, this.buildScansEnabled, this.offlineMode, environment, this.javaHome));
         operation.setJavaHome(this.javaHome);
         operation.setJvmArguments(this.jvmArguments);
     }
 
-    public static GradleArguments from(File rootDir, GradleDistribution gradleDistribution,
-                                       File gradleUserHome, File javaHome,
-                                       boolean buildScansEnabled,
-                                       boolean offlineMode, List<String> arguments,
-                                       List<String> jvmArguments) {
+    public static GradleArguments from(File rootDir, GradleDistribution gradleDistribution, File gradleUserHome, File javaHome, boolean buildScansEnabled, boolean offlineMode,
+            List<String> arguments, List<String> jvmArguments) {
         return new GradleArguments(rootDir, gradleDistribution, gradleUserHome, javaHome, buildScansEnabled, offlineMode, arguments, jvmArguments);
     }
 
-    private static List<String> collectArguments(List<String> baseArgs, boolean buildScansEnabled, boolean offlineMode, BuildEnvironment buildEnvironment) {
+    private static List<String> collectArguments(List<String> baseArgs, boolean buildScansEnabled, boolean offlineMode, BuildEnvironment buildEnvironment, File javaHome) {
         List<String> arguments = Lists.newArrayList(baseArgs);
         if (buildScansEnabled) {
             String buildScanArgument = buildScanArgumentFor(buildEnvironment);
@@ -131,7 +136,7 @@ public final class GradleArguments {
             arguments.add("--offline");
         }
         arguments.addAll(CorePlugin.invocationCustomizer().getExtraArguments());
-        arguments.addAll(getInitScriptArguments());
+        arguments.addAll(getInitScriptArguments(javaHome));
         return arguments;
     }
 
@@ -143,12 +148,14 @@ public final class GradleArguments {
         }
     }
 
-    private static List<String> getInitScriptArguments() {
-        File initScript = getEclipsePluginInitScriptLocation();
+    private static List<String> getInitScriptArguments(File javaHome) {
+        if (javaHome == null) {
+            javaHome = new File(System.getProperty("java.home"));
+        }
+        File initScript = getEclipsePluginInitScriptLocation(javaHome);
         maybeUpdateInitScript(initScript);
         return Arrays.asList("--init-script", initScript.getAbsolutePath());
     }
-
 
     private static void maybeUpdateInitScript(File scriptFile) {
         try {
@@ -175,14 +182,24 @@ public final class GradleArguments {
             throw new GradlePluginsRuntimeException(String.format("Resource '%s' not found.", INITSCRIPT_LOCATION));
         }
         try {
-            return resource.openConnection().getInputStream().readAllBytes();
+            return ByteStreams.toByteArray(resource.openConnection().getInputStream());
         } catch (Exception e) {
             throw new GradlePluginsRuntimeException("Failed to read init script", e);
         }
     }
 
-    private static File getEclipsePluginInitScriptLocation() {
-        return CorePlugin.getInstance().getStateLocation().append("init.d").append("buildshipInit.gradle").toFile();
+    private static File getEclipsePluginInitScriptLocation(File javaHome) {
+        // Old Gradle versions might return the binary init script from the cache compiled with a
+        // wrong Java version. To work around that we add the java version to the init script file
+        // name.
+        IVMInstall vm = EclipseVmUtil.findOrRegisterStandardVM(javaHome);
+        String suffix = "";
+        if (vm instanceof IVMInstall2) {
+            String javaVersion = ((IVMInstall2) vm).getJavaVersion();
+            suffix = "Java" + JavaVersion.toVersion(javaVersion).getMajorVersion();
+        }
+
+        return CorePlugin.getInstance().getStateLocation().append("init.d").append("buildshipInit" + suffix + ".gradle").toFile();
     }
 
 }
