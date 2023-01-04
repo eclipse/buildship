@@ -26,7 +26,7 @@ class GradleArgumentsTest extends Specification {
         gradleEnvironment.gradleVersion >> gradleVersion
         BuildEnvironment buildEnvironment = Mock(BuildEnvironment)
         buildEnvironment.gradle >> gradleEnvironment
-        def initScriptArgs = ['--init-script', GradleArguments.eclipsePluginInitScriptLocation.absolutePath]
+        def initScriptArgs = ['--init-script', GradleArguments.getEclipsePluginInitScriptLocation(new File(System.getProperty('java.home'))).absolutePath]
         expected += initScriptArgs
 
         when:
@@ -55,7 +55,7 @@ class GradleArgumentsTest extends Specification {
         GradleEnvironment gradleEnvironment = Mock(GradleEnvironment)
         BuildEnvironment buildEnvironment = Mock(BuildEnvironment)
         buildEnvironment.gradle >> gradleEnvironment
-        def expected = ['--init-script', GradleArguments.eclipsePluginInitScriptLocation.absolutePath]
+        def expected = ['--init-script', GradleArguments.getEclipsePluginInitScriptLocation(new File(System.getProperty('java.home'))).absolutePath]
 
         when:
         gradleArguments.applyTo(operation, buildEnvironment)

@@ -45,7 +45,7 @@ class EclipseVmUtilTest extends Specification {
         and:
         with(vm) {
             id.startsWith EclipseVmUtil.VM_ID_PREFIX
-            name == 'Java SE 0.3'
+            name == 'Java 0.3'
             VMInstallType.id == StandardVMType.ID_STANDARD_VM_TYPE
             installLocation == vmLocation
         }

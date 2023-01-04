@@ -60,7 +60,7 @@ public final class EclipseVmUtil {
 
     private static IVMInstall findOrRegisterVM(String version, File location) {
         Optional<IVMInstall> vm = findRegisteredVM(version);
-        return vm.isPresent() ? vm.get() : registerNewVM(location);
+        return vm.isPresent() ? vm.get() : registerNewVM("Java " + version, location);
     }
 
     private static IVMInstall findOrRegisterVM(File location) {
@@ -141,6 +141,20 @@ public final class EclipseVmUtil {
         }
         return realVm;
 
+    }
+
+    private static IVMInstall registerNewVM(String name, File location) {
+        // use the 'Standard VM' type to register a new VM
+        IVMInstallType installType = JavaRuntime.getVMInstallType(StandardVMType.ID_STANDARD_VM_TYPE);
+
+        // both the id and the name have to be unique for the registration
+        String vmId = generateUniqueVMId(installType);
+
+        // create the VM without firing events on individual method calls
+        VMStandin vm = new VMStandin(installType, vmId);
+        vm.setName(name);
+        vm.setInstallLocation(location);
+        return vm.convertToRealVM();
     }
 
     private static String generateUniqueVMId(IVMInstallType type) {
