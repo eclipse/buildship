@@ -81,14 +81,15 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
 
     @Override
     public SynchronizationResult synchronize(IProgressMonitor monitor) {
-        IStatus toolingApiCompatibilityStatus = CompatibilityChecker.validateToolingApiCompatibility(this, this.buildConfig, monitor);
-        if (!toolingApiCompatibilityStatus.isOK()) {
-            return DefaultSynchronizationResult.from(toolingApiCompatibilityStatus);
-        }
         return synchronize(NewProjectHandler.IMPORT_AND_MERGE, GradleConnector.newCancellationTokenSource(), monitor);
     }
 
     public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        IStatus toolingApiCompatibilityStatus = CompatibilityChecker.validateToolingApiCompatibility(this, this.buildConfig, monitor);
+        if (!toolingApiCompatibilityStatus.isOK()) {
+            return DefaultSynchronizationResult.from(toolingApiCompatibilityStatus);
+        }
+
         monitor = monitor != null ? monitor : new NullProgressMonitor();
 
         SynchronizeOperation operation = new SynchronizeOperation(this, newProjectHandler);
