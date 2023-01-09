@@ -8,8 +8,6 @@ buildscript {
     }
 }
 
-ssh.runtime.logback level: 'DEBUG'
-
 updateSite {
     extraResources = files('epl-v20.html', 'notice.html', 'p2.index')
     signing { File unsignedFolder, File signedFolder ->
