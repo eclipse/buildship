@@ -27,6 +27,7 @@ final class CacheKey {
     private final File javaHome;
     private final List<String> arguments;
     private final List<String> jvmArguments;
+    private final Map<String, String> systemProperties;
 
     private CacheKey(Builder cacheKeyBuilder) {
         this.invalid = cacheKeyBuilder.invalid;
@@ -37,6 +38,7 @@ final class CacheKey {
         this.javaHome = cacheKeyBuilder.javaHome;
         this.arguments = cacheKeyBuilder.arguments;
         this.jvmArguments = cacheKeyBuilder.jvmArguments;
+        this.systemProperties = cacheKeyBuilder.systemProperties;
     }
 
     public boolean isInvalid() {
@@ -49,10 +51,17 @@ final class CacheKey {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.buildAction, this.modelType,
-                this.invalid, this.tasks,
-                this.envVariables, this.javaHome,
-                this.arguments, this.jvmArguments);
+        return Objects.hash(
+                this.buildAction,
+                this.modelType,
+                this.invalid,
+                this.tasks,
+                this.envVariables,
+                this.javaHome,
+                this.arguments,
+                this.jvmArguments,
+                this.systemProperties
+            );
     }
 
     @Override
@@ -74,7 +83,8 @@ final class CacheKey {
                 && Objects.equals(this.envVariables, other.envVariables)
                 && Objects.equals(this.javaHome, other.javaHome)
                 && Objects.equals(this.arguments, other.arguments)
-                && Objects.equals(this.jvmArguments, other.jvmArguments);
+                && Objects.equals(this.jvmArguments, other.jvmArguments)
+                && Objects.equals(this.systemProperties, other.systemProperties);
     }
 
     static final class Builder {
@@ -87,6 +97,7 @@ final class CacheKey {
         private File javaHome;
         private List<String> arguments;
         private List<String> jvmArguments;
+        private Map<String, String> systemProperties;
 
         private Builder() {
         }
@@ -141,6 +152,11 @@ final class CacheKey {
             List<String> newJvmArguments = this.jvmArguments == null ? new ArrayList<>() : new ArrayList<>(this.jvmArguments);
             newJvmArguments.addAll(jvmArguments);
             this.jvmArguments = newJvmArguments;
+            return this;
+        }
+
+        public Builder withSystemPrperties(Map<String, String> systemProperties) {
+            this.systemProperties = systemProperties;
             return this;
         }
 

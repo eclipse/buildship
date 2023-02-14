@@ -276,6 +276,12 @@ public class CompatProjectConnection implements ProjectConnection {
         public void get(ResultHandler<? super T> handler) throws IllegalStateException {
             this.delegate.get(new CompatResultHandler<>(handler));
         }
+
+        @Override
+        public ModelBuilder<T> withSystemProperties(Map<String, String> systemProperties) {
+            this.delegate.withSystemProperties(systemProperties);
+            return this;
+        }
     }
 
     private static class CompatBuildActionExecuter<T> implements BuildActionExecuter<T> {
@@ -420,6 +426,12 @@ public class CompatProjectConnection implements ProjectConnection {
         @Override
         public void run(ResultHandler<? super T> handler) throws IllegalStateException {
             this.delegate.run(new CompatResultHandler<>(handler));
+        }
+
+        @Override
+        public BuildActionExecuter<T> withSystemProperties(Map<String, String> systemProperties) {
+            this.delegate.withSystemProperties(systemProperties);
+            return this;
         }
     }
 

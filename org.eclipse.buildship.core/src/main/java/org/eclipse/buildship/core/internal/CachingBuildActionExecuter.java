@@ -215,4 +215,11 @@ public class CachingBuildActionExecuter<T> implements BuildActionExecuter<T> {
             inspectableResultHandler.forwardResults(handler);
         }
     }
+
+    @Override
+    public BuildActionExecuter<T> withSystemProperties(Map<String, String> systemProperties) {
+        this.cacheKeyBuilder.withSystemPrperties(systemProperties);
+        this.delegate.withSystemProperties(systemProperties);
+        return this;
+    }
 }
