@@ -216,4 +216,11 @@ final class CachingModelBuilder<T> implements ModelBuilder<T> {
             inspectableResultHandler.forwardResults(handler);
         }
     }
+
+    @Override
+    public CachingModelBuilder<T> withSystemProperties(Map<String, String> systemProperties) {
+        this.cacheKeyBuilder.withSystemPrperties(systemProperties);
+        this.delegate.withSystemProperties(systemProperties);
+        return this;
+    }
 }
