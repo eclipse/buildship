@@ -74,14 +74,14 @@ class SynchronizingClosedProjectsTest extends ProjectSynchronizationSpecificatio
                         testArtifacts
                     }
                     task testJar(type: Jar) {
-                        classifier 'tests'
+                        archiveClassifier = 'tests'
                         from sourceSets.test.output.classesDirs
                     }
                     artifacts {
                         testArtifacts testJar
                     }
                     task sourceJar(type: Jar, dependsOn: classes) {
-                        classifier = 'sources'
+                        archiveClassifier = 'sources'
                         from sourceSets.main.allSource
                     }
                 }
