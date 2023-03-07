@@ -4,3 +4,13 @@ dependencies {
     api withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
 }
 
+// use java-e48 source dir for all Eclipse 4.8+ builds
+if (eclipsebuild.Config.on(project).targetPlatform.eclipseVersion =~ /48|49|41[0-9]|4[2-9][0-9]|[5-9][0-9][0-9]?/) {
+    sourceSets {
+        main {
+            java {
+                srcDirs += 'java-e48'
+            }
+        }
+    }
+}

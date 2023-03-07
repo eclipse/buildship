@@ -642,4 +642,32 @@
           </themeid>
        </stylesheet>
     </extension>
+
+    <!-- Contribute synchronization shortcut to Gradle editor -->
+    <extension
+          point="org.eclipse.ui.workbench.texteditor.codeMiningProviders">
+       <codeMiningProvider
+             class="org.eclipse.buildship.ui.internal.editor.GradleEditorCodeMiningProvider"
+             id="org.eclipse.buildship.ui.editor.codemining.synchronization">
+          <enabledWhen>
+             <with
+                   variable="editorInput">
+                <adapt
+                    type="org.eclipse.core.resources.IResource">
+                    <and>
+                        <test
+                            forcePluginActivation="true"
+                            property="org.eclipse.core.resources.projectNature"
+                            value="org.eclipse.buildship.core.gradleprojectnature">
+                        </test>
+                        <test
+                            forcePluginActivation="true"
+                            property="org.eclipse.buildship.core.isGradleResource">
+                        </test>
+                    </and>
+                </adapt>
+             </with>
+          </enabledWhen>
+       </codeMiningProvider>
+    </extension>
 </plugin>
