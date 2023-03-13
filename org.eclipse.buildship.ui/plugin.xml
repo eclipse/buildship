@@ -642,4 +642,18 @@
           </themeid>
        </stylesheet>
     </extension>
+    <extension
+          point="org.eclipse.ui.ide.projectConfigurators">
+       <projectConfigurator
+               class="org.eclipse.buildship.ui.internal.project.GradleProjectConfigurator"
+               label="Gradle">
+       <activeWhen>
+           <or>
+               <hasFileRecursively filename="gradle.properties"/>
+               <hasFileRecursively filename="settings.gradle"/>
+               <hasFileRecursively filename="settings.gradle.kts"/>
+           </or>
+       </activeWhen>
+       </projectConfigurator>
+    </extension>
 </plugin>
