@@ -650,7 +650,7 @@
        <activeWhen>
            <or>
                <hasFileRecursively filename="gradle.properties"/>
-               <hasFileRecursively filename="settings.gradles"/>
+               <hasFileRecursively filename="settings.gradle"/>
                <hasFileRecursively filename="settings.gradle.kts"/>
            </or>
        </activeWhen>
