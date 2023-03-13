@@ -68,7 +68,7 @@ If your are using Windows, make sure the text file encoding is set to `UTF-8`. T
 
 #### Change the target platform
 
-The target platform selected during the installation can be changed. To do that, open one of the `tooling-eXXX.target` files and select `Set as Active Target Platform`
+The target platform selected during the installation can be changed. To do that, open one of the `target-platforms/4XX.target` files and select `Set as Active Target Platform`
 
 ![Specify new target platform](oomph/install-5.png)
 
@@ -116,7 +116,7 @@ can then press _Finish_.
 ### Setting the target platform
 
 After importing all the projects into Eclipse, there will be some build errors due to code references to missing
-plugins. To add these missing plugins to Eclipse, open the _tooling-e45.target_ file (or the one matching your
+plugins. To add these missing plugins to Eclipse, open the _target-platforms/423.target_ file (or the one matching your
 desired target platform version) located in the project root folder and click _Set as Target Platform_
 in the top-right corner. This will fix all compilation issues. Note that this might take a while since the entire
 SDK for the specified Eclipse version will be downloaded.

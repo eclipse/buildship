@@ -19,7 +19,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.internal.file.FileResolver
-import org.gradle.api.tasks.compile.GroovyCompile
 import org.gradle.api.tasks.testing.Test
 import org.gradle.internal.operations.BuildOperationExecutor
 
@@ -166,6 +165,7 @@ class TestBundlePlugin implements Plugin<Project> {
         // copy the target platform to the test distribution folder
         project.logger.info("Copy target platform from '${config.nonMavenizedTargetPlatformDir.absolutePath}' into the build folder '${testDistributionDir.absolutePath}'")
         copyTargetPlatformToBuildFolder(project, config, testDistributionDir)
+        fixEclipseIni(testDistributionDir)
 
         // publish the dependencies' output jars into a P2 repository in the additions folder
         project.logger.info("Create mini-update site from the test plug-in and its dependencies at '${additionalPluginsDir.absolutePath}'")
@@ -181,6 +181,30 @@ class TestBundlePlugin implements Plugin<Project> {
         project.copy {
             from config.nonMavenizedTargetPlatformDir
             into distro
+        }
+    }
+
+    static void fixEclipseIni(File eclipseDir) {
+        File eclipseIni = new File(eclipseDir, "eclipse.ini")
+        List<String> lines = eclipseIni.readLines()
+        List<String> updateLines = []
+
+        int lineNum = 0
+        lines.each { line ->
+            if (lineNum == 1 && line.startsWith("../target-platform/plugins/org.eclipse.equinox.launcher")) {
+                updateLines.add(line.replace("../target-platform/", "../eclipse/"))
+            } else if (lineNum == 3 && line.startsWith("../target-platform/plugins/org.eclipse.equinox.launcher")) {
+                updateLines.add(line.replace("../target-platform/", "../eclipse/"))
+            } else {
+                updateLines.add(line)
+            }
+            lineNum++
+        }
+
+        eclipseIni.withWriter { writer ->
+            updateLines.each {line ->
+                writer.writeLine(line)
+            }
         }
     }
 
