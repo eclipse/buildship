@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 Gradle Inc.
+ * Copyright (c) 2020 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -19,7 +19,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
 /**
  * Sorts the test output mesages in the Executions view.
  * <p>
- * The messages printed on standard error will come after the ones on standard out.  
+ * The messages printed on standard error will come after the ones on standard out.
  */
 public class ExecutionPageSorter extends ViewerComparator {
 
