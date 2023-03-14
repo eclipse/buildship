@@ -4,9 +4,8 @@
   <name>Tooling_Buildship Config DSL Script</name>
 
   <properties>
-    <kotlin.version>1.4.21</kotlin.version>
+    <kotlin.version>1.6.21</kotlin.version>
   </properties>
-
 
   <groupId>Tooling_Buildship</groupId>
   <artifactId>Tooling_Buildship_dsl</artifactId>
