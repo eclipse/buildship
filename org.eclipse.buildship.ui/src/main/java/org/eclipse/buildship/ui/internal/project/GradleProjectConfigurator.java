@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+
 import org.eclipse.buildship.core.BuildConfiguration;
 import org.eclipse.buildship.core.GradleBuild;
 import org.eclipse.buildship.core.GradleCore;
@@ -37,9 +40,9 @@ public class GradleProjectConfigurator implements ProjectConfigurator {
   @Override
   public Set<File> findConfigurableLocations(File root, IProgressMonitor monitor) {
     if(isGradleRoot(root)) {
-      return Set.of(root);
+      ImmutableSet.of(root);
     }
-    return Set.of();
+    return ImmutableSet.of();
   }
 
   @Override
@@ -80,7 +83,7 @@ public class GradleProjectConfigurator implements ProjectConfigurator {
 
   @Override
   public Set<IFolder> getFoldersToIgnore(IProject project, IProgressMonitor monitor) {
-    return Set.of();
+    return ImmutableSet.of();
   }
 
   @Override
@@ -94,11 +97,11 @@ public class GradleProjectConfigurator implements ProjectConfigurator {
 
   @Override
   public void configure(IProject project, Set<IPath> ignoredPaths, IProgressMonitor monitor) {
-	  if (!GradleProjectNature.isPresentOn(project)) {
-		  BuildConfiguration buildConfig = BuildConfiguration.forRootProjectDirectory(project.getLocation().toFile()).build();
-		  GradleBuild build = GradleCore.getWorkspace().createBuild(buildConfig);
-		  new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, List.of(build)).schedule();
-	  }
+      if (!GradleProjectNature.isPresentOn(project)) {
+          BuildConfiguration buildConfig = BuildConfiguration.forRootProjectDirectory(project.getLocation().toFile()).build();
+          GradleBuild build = GradleCore.getWorkspace().createBuild(buildConfig);
+          new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, ImmutableList.of(build)).schedule();
+      }
   }
 
 }
