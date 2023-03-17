@@ -90,6 +90,8 @@ class Constants {
                 null
     }
 
+    static final String commonUrl = "https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.27/eclipse-SDK-4.27-"
+
     /**
      * Returns the URL from where the Eclipse SDK (4.4.2) can be downloaded. The URL always redirects to a mirror from
      * where the Eclipse SDK can be downloaded.
@@ -100,26 +102,24 @@ class Constants {
         def classifier = "${getOs()}.${getArch()}"
         switch (classifier) {
             // TODO update SDK for Linux and Windows builds
-            case "win32.x86":      return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-win32.zip'
-            case "win32.x86_64":   return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-win32-x86_64.zip'
-            case "linux.x86" :     return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-linux-gtk.tar.gz'
-            case "linux.x86_64":   return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-linux-gtk-x86_64.tar.gz'
-            case "macosx.x86_64":  return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.8.0/eclipse-SDK-4.8-macosx-cocoa-x86_64.dmg'
-            case "macosx.aarch64": return 'https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.24/eclipse-SDK-4.24-macosx-cocoa-aarch64.dmg'
-            default: throw new RuntimeException("Unsupported platform: $classifier")
+            case "win32.x86_64":   return "${commonUrl}win32-x86_64.zip"
+            case "linux.x86_64":   return "${commonUrl}linux-gtk-x86_64.tar.gz"
+            case "linux.aarch64":  return "${commonUrl}linux-gtk-aarch64.tar.gz"
+            case "macosx.x86_64":  return "${commonUrl}macosx-cocoa-x86_64.dmg"
+            case "macosx.aarch64": return "${commonUrl}macosx-cocoa-aarch64.dmg"
+            default: throw new RuntimeException("Unsupported platform (SDK download): $classifier")
         }
     }
 
     static String getEclipseSdkDownloadSha256Hash() {
         def classifier = "${getOs()}.${getArch()}"
         switch (classifier) {
-            case "win32.x86":      return '5d95ba57d48e48ecce7993645e4416557696beb614ca389f9b4c296696058cf8'
-            case "win32.x86_64":   return '5b2873ee265d53a4cc2b5fd56e6fd3a29cf07f49a6576f4bb29cfb49114774b3'
-            case "linux.x86" :     return '606f74899eb29bb5c6072457c88f08c599cbf3dec3908d8d4bdeadaeb5aeba4e'
-            case "linux.x86_64":   return '8704b5ef20e76f7e0d1c7cd2139f08b909efd0dfca19f44f1b0d5f615606b263'
-            case "macosx.x86_64":  return '2d5a377c64b64dc3661b90e66c51141467ed7c7ee6235bab91ae1a569da0b422'
-            case "macosx.aarch64": return 'dd8988a3d60aedc8bc21de79bc5ef299037c0da8d23bdc367ecaf9f3799340d5'
-            default: throw new RuntimeException("Unsupported platform: $classifier")
+            case "win32.x86_64":   return '7ea771854d990556a8c0568fe20f115d7b15432fd14eec85cff7db589581b38b'
+            case "linux.aarch64" : return 'ec6c0a18d1d63d9dee385cb3423d5d7ed145cffde86b68fc5d69119f4c279656'
+            case "linux.x86_64":   return 'dfd0d753bc08b1dc6452934a9d83d3efea8f2760eb17b1bb509a8f7e1103186b'
+            case "macosx.x86_64":  return '7b7d1315528331141a024737e7af9e2d1b12505be813de14776cce7c88ae8832'
+            case "macosx.aarch64": return '22409543fed3086203445aa285f2658639f2b8b715e54cb57d00fc4c618bbff2'
+            default: throw new RuntimeException("Unsupported platform (SHA256): $classifier")
         }
     }
 
