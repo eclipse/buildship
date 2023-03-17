@@ -10,7 +10,7 @@ enum class Trigger(val func: (BuildType) -> Unit) {
     GIT({ buildType ->
         buildType.triggers {
             vcs {
-                quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_DEFAULT
+                quietPeriodMode = VcsTrigger.QuietPeriodMode.DO_NOT_USE
                 triggerRules = """
                     -:**.md
                 """.trimIndent()
