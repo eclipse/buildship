@@ -5,18 +5,12 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.schedule
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.vcs
 
-enum class Trigger(val func: (BuildType) -> Unit) {
-    NONE({ buildType -> }),
+enum class Trigger(private val func: (BuildType) -> Unit) {
+    NONE({ }),
     GIT({ buildType ->
         buildType.triggers {
             vcs {
                 quietPeriodMode = VcsTrigger.QuietPeriodMode.DO_NOT_USE
-                triggerRules = """
-                    -:**.md
-                """.trimIndent()
-                branchFilter = """
-                    -:teamcity-versioned-settings
-                """.trimIndent()
                 perCheckinTriggering = true
                 groupCheckinsByCommitter = true
                 enableQueueOptimization = false
