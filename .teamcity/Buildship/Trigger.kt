@@ -12,11 +12,9 @@ enum class Trigger(val func: (BuildType) -> Unit) {
             vcs {
                 quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_DEFAULT
                 triggerRules = """
-                    +:*
                     -:**.md
                 """.trimIndent()
                 branchFilter = """
-                    +:*
                     -:teamcity-versioned-settings
                 """.trimIndent()
                 perCheckinTriggering = true
@@ -33,8 +31,7 @@ enum class Trigger(val func: (BuildType) -> Unit) {
                     timezone = "Europe/Budapest"
                 }
                 branchFilter = """
-                    +:*
-                    -:teamcity-versioned-settings
+                    +:master
                 """.trimIndent()
                 triggerBuild = always()
                 param("revisionRule", "lastFinished")
