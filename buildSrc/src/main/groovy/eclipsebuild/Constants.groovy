@@ -63,10 +63,20 @@ class Constants {
         def arch = System.getProperty("os.arch")
         if (arch == 'aarch64') {
             return arch
-        } else {
-            return arch.contains("64") ? "x86_64" : "x86"
         }
+        return arch.contains("64") ? "x86_64" : "x86"
     }
+
+    /**
+     * Returns the eclipse-sdk dependency type specific for the current OS.
+     *
+     * @return the dependency type: 'tar.gz', 'zip', 'dmg', or null
+     */
+    static String getType() {
+        def os = OperatingSystem.current()
+        os.isLinux() ? 'tar.gz' : os.isWindows() ? 'zip' : os.isMacOsX() ? 'dmg' : null
+    }
+
 
     /**
      * Returns the group ID of the mavenized Eclipse plugins.
@@ -90,29 +100,23 @@ class Constants {
                 null
     }
 
-    static final String commonUrl = "https://repo.gradle.org/artifactory/ext-releases-local/org/eclipse/eclipse-sdk/4.27/eclipse-SDK-4.27-"
-
     /**
      * Returns the URL from where the Eclipse SDK (4.4.2) can be downloaded. The URL always redirects to a mirror from
      * where the Eclipse SDK can be downloaded.
      *
      * @return the URL from where the Eclipse SDK can be downloaded
      */
-    static String getEclipseSdkDownloadUrl() {
-        def classifier = "${getOs()}.${getArch()}"
-        switch (classifier) {
-            // TODO update SDK for Linux and Windows builds
-            case "win32.x86_64":   return "${commonUrl}win32-x86_64.zip"
-            case "linux.x86_64":   return "${commonUrl}linux-gtk-x86_64.tar.gz"
-            case "linux.aarch64":  return "${commonUrl}linux-gtk-aarch64.tar.gz"
-            case "macosx.x86_64":  return "${commonUrl}macosx-cocoa-x86_64.dmg"
-            case "macosx.aarch64": return "${commonUrl}macosx-cocoa-aarch64.dmg"
-            default: throw new RuntimeException("Unsupported platform (SDK download): $classifier")
+
+    static String getEclipseSdkDownloadClassifier() {
+        def os = getOs()
+        if(os == 'win32') {
+            return 'win32-x86_64'
         }
+        return "$os-$ws-$arch"
     }
 
     static String getEclipseSdkDownloadSha256Hash() {
-        def classifier = "${getOs()}.${getArch()}"
+        def classifier = "$os.$arch"
         switch (classifier) {
             case "win32.x86_64":   return '7ea771854d990556a8c0568fe20f115d7b15432fd14eec85cff7db589581b38b'
             case "linux.aarch64" : return 'ec6c0a18d1d63d9dee385cb3423d5d7ed145cffde86b68fc5d69119f4c279656'

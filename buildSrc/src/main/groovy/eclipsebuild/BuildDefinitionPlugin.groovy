@@ -18,12 +18,15 @@ import eclipsebuild.mavenize.BundleMavenDeployer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.Directory
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.TaskProvider
 
 import java.nio.charset.StandardCharsets
+
+import static eclipsebuild.Constants.eclipseSdkDownloadClassifier
+import static eclipsebuild.UnPack.ARTIFACT_TYPE_NAME
 
 /**
  * Gradle plugin for the root project of the Eclipse plugin build.
@@ -73,11 +76,13 @@ import java.nio.charset.StandardCharsets
  * If the active target platform has a version mapped for the dependency then that version is used,
  * otherwise an unbound version range (+) is applied.
  */
+
 class BuildDefinitionPlugin implements Plugin<Project> {
 
     /**
      *  Extension class providing top-level content of the DSL definition for the plug-in.
      */
+
     static class EclipseBuild {
 
         def defaultEclipseVersion
@@ -85,6 +90,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         def scmRepo
         def commitId
         Provider<Directory> baseDirectory
+        File eclipseSdkDir
 
         EclipseBuild() {
             targetPlatforms = [:]
@@ -110,12 +116,12 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             this.versionMapping = [:]
         }
 
-        def apply (Closure closure) {
+        def apply(Closure closure) {
             closure.resolveStrategy = Closure.DELEGATE_FIRST
             closure.delegate = this
             closure.call()
             // convert GStrings to Strings in the versionMapping key to avoid lookup misses
-            versionMapping = versionMapping.collectEntries { k, v -> [k.toString(), v]}
+            versionMapping = versionMapping.collectEntries { k, v -> [k.toString(), v] }
         }
     }
 
@@ -124,24 +130,65 @@ class BuildDefinitionPlugin implements Plugin<Project> {
 
     // task names
     static final String TASK_NAME_DOWNLOAD_ECLIPSE_SDK = "downloadEclipseSdk"
+    static final String TASK_NAME_VALIDATE_ECLIPSE_SDK = "validateEclipseSdk"
     static final String TASK_NAME_ASSEMBLE_TARGET_PLATFORM = "assembleTargetPlatform"
     static final String TASK_NAME_ADD_EXISTING_JAR_BUNDLES_TO_TARGET_PLATFORM = "addExistingJarBundlesToTargetPlatform"
     static final String TASK_NAME_INSTALL_TARGET_PLATFORM = "installTargetPlatform"
     static final String TASK_NAME_UNINSTALL_TARGET_PLATFORM = "uninstallTargetPlatform"
     static final String TASK_NAME_UNINSTALL_ALL_TARGET_PLATFORMS = "uninstallAllTargetPlatforms"
 
+    static final Attribute artifactType = Attribute.of('artifactType', String)
+
     @Override
-    public void apply(Project project) {
+    void apply(Project project) {
         configureProject(project)
 
         Config config = Config.on(project)
+        createEclipseSdkDependencies(project)
         validateDslBeforeBuildStarts(project, config)
-        addTaskDownloadEclipseSdk(project, config)
+        validateEclipseDownLoad(project, config)
         addTaskAssembleTargetPlatform(project, config)
         addTaskAddExistingJarsToTargetPlatform(project, config)
         addTaskInstallTargetPlatform(project, config)
         addTaskUninstallTargetPlatform(project, config)
         addTaskUninstallAllTargetPlatforms(project, config)
+    }
+
+    private static createEclipseSdkDependencies(Project project) {
+        project.repositories {
+            maven {
+                name = "Gradle public repository"
+                url = "https://repo.gradle.org/artifactory/ext-releases-local"
+                metadataSources {
+                    artifact()
+                }
+            }
+        }
+        project.configurations {
+            eclipseSdks
+        }
+        project.dependencies {
+            eclipseSdks(group: 'org.eclipse', name: 'eclipse-sdk', version: '4.27') {
+                artifact {
+                    type = Constants.type
+                    classifier = eclipseSdkDownloadClassifier
+                }
+            }
+
+            registerTransform(UnZip) {
+                from.attribute(artifactType, "zip")
+                to.attribute(artifactType, ARTIFACT_TYPE_NAME)
+            }
+            registerTransform(UnTarGz) {
+                from.attribute(artifactType, "tar.gz")
+                to.attribute(artifactType, ARTIFACT_TYPE_NAME)
+            }
+
+            registerTransform(UnDmg) {
+                from.attribute(artifactType, "dmg")
+                to.attribute(artifactType, ARTIFACT_TYPE_NAME)
+            }
+        }
     }
 
     static void configureProject(Project project) {
@@ -177,25 +224,36 @@ class BuildDefinitionPlugin implements Plugin<Project> {
             // check if target definition file is a valid XML
             try {
                 new XmlSlurper().parseText(targetDefinition.text)
-            } catch(Exception e) {
+            } catch (Exception e) {
                 throw new RuntimeException("Target definition file '$targetDefinition' must be a valid XML document.", e)
             }
         }
     }
 
-    static void addTaskDownloadEclipseSdk(Project project, Config config) {
-        TaskProvider<DownloadEclipseSdkTask> task = project.tasks.register(TASK_NAME_DOWNLOAD_ECLIPSE_SDK, DownloadEclipseSdkTask, config)
-        task.configure {
-            group = Constants.gradleTaskGroupName
-            description = "Downloads an Eclipse SDK to perform P2 operations with."
-            downloadUrl.convention(Constants.eclipseSdkDownloadUrl)
-            expectedSha256Sum.convention(Constants.eclipseSdkDownloadSha256Hash)
+    def static validateEclipseDownLoad(Project project, Config config) {
+        project.task(TASK_NAME_VALIDATE_ECLIPSE_SDK) {
+            description = "Validates the Eclipse SDK download."
+            def sdkFiles = project.configurations.eclipseSdks.incoming.artifactView {
+                attributes.attribute(artifactType, ARTIFACT_TYPE_NAME)
+            }.files
+            inputs.dir sdkFiles.singleFile
+
+            doLast {
+                def sdk = sdkFiles.singleFile
+                if (sdk == null) {
+                    throw new RuntimeException("Eclipse SDK download failed. Please check the log for details.")
+                }
+                if (!sdk.exists()) {
+                    throw new RuntimeException("Eclipse SDK download failed. File '${sdk}' does not exist.")
+                }
+                project.rootProject.eclipseBuild.eclipseSdkDir = sdk
+            }
         }
     }
 
     static void addTaskAssembleTargetPlatform(Project project, Config config) {
         project.task(TASK_NAME_ASSEMBLE_TARGET_PLATFORM, dependsOn: [
-            TASK_NAME_DOWNLOAD_ECLIPSE_SDK,
+                TASK_NAME_VALIDATE_ECLIPSE_SDK,
         ]) {
             group = Constants.gradleTaskGroupName
             description = "Assembles an Eclipse distribution based on the target platform definition."
@@ -253,7 +311,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         try {
             lock.lock()
             assembleTargetPlatformUnprotected(project, config)
-        } finally  {
+        } finally {
             lock.unlock()
         }
     }
@@ -292,12 +350,12 @@ class BuildDefinitionPlugin implements Plugin<Project> {
         def features = []
         def rootNode = new XmlSlurper().parseText(config.targetPlatform.targetDefinition.text)
         rootNode.locations.location.each { location ->
-            String siteUrl = location.repository.@location.text().replace('\${project_loc}', 'file://' +  project.projectDir.absolutePath)
+            String siteUrl = location.repository.@location.text().replace('\${project_loc}', 'file://' + project.projectDir.absolutePath)
             if (mirrors[siteUrl]) {
                 updateSites.add(mirrors[siteUrl])
             }
             updateSites.add(siteUrl)
-            location.unit.each {unit -> features.add("${unit.@id}/${unit.@version}") }
+            location.unit.each { unit -> features.add("${unit.@id}/${unit.@version}") }
         }
 
         // invoke the P2 director application to assemble install all features from the target
@@ -396,8 +454,7 @@ class BuildDefinitionPlugin implements Plugin<Project> {
     static void deleteFolder(Project project, File folder) {
         if (!folder.exists()) {
             project.logger.info("'$folder' doesn't exist")
-        }
-        else {
+        } else {
             project.logger.info("Delete '$folder'")
             def success = folder.deleteDir()
             if (!success) {
