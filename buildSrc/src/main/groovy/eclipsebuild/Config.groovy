@@ -72,8 +72,8 @@ class Config {
         return baseDirectory != null ? baseDirectory : project.rootProject.layout.buildDirectory.dir("tooling")
     }
 
-    Provider<Directory> getEclipseSdkDir() {
-        baseDirectory.map(base -> base.dir('eclipse-sdk'))
+    File getEclipseSdkDir() {
+        project.rootProject.eclipseBuild.eclipseSdkDir
     }
 
     File getTargetPlatformDir() {
@@ -89,11 +89,11 @@ class Config {
     }
 
     File getEclipseSdkExe() {
-        new File(eclipseSdkDir.get().asFile, Constants.eclipseExePath)
+        new File(eclipseSdkDir, Constants.eclipseExePath)
     }
 
     File getJarProcessorJar() {
         String pluginsDir = OperatingSystem.current().isMacOsX() ? 'Eclipse.app/Contents/Eclipse/plugins' : '/eclipse/plugins'
-        new File(eclipseSdkDir.get().asFile.path, pluginsDir).listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
+        new File(eclipseSdkDir.path, pluginsDir).listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
     }
 }

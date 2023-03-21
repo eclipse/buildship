@@ -126,7 +126,7 @@ class ExistingJarBundlePlugin implements Plugin<Project> {
     private void addCreateP2RepositoryTask(Project project) {
          def task = project.tasks.create(TASK_NAME_CREATE_P2_REPOSITORY, CreateP2RepositoryTask) {
             group = Constants.gradleTaskGroupName
-            dependsOn ":${BuildDefinitionPlugin.TASK_NAME_DOWNLOAD_ECLIPSE_SDK}"
+            dependsOn ":${BuildDefinitionPlugin.TASK_NAME_VALIDATE_ECLIPSE_SDK}"
             dependsOn TASK_NAME_CONVERT_TO_BUNDLE
 
             bundleSourceDir = new File(project.buildDir, BUNDLES_STAGING_FOLDER)
