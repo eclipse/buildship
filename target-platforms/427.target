@@ -2,9 +2,9 @@
 <target name="Buildship Eclipse 2023-03 Target Platform" sequenceNumber="1">
     <locations>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-            <unit id="org.eclipse.m2e.feature.feature.group" version="2.2.0.20230228-2348"/>
-            <unit id="org.eclipse.oomph.setup.feature.group" version="1.27.0.v20230214-0752"/>
-            <unit id="org.eclipse.sdk.ide" version="4.27.0.I20230222-1800"/>
+            <unit id="org.eclipse.m2e.feature.feature.group" version="2.2.1.20230307-1553"/>
+            <unit id="org.eclipse.oomph.setup.feature.group" version="1.27.0.v20230304-1248"/>
+            <unit id="org.eclipse.sdk.ide" version="4.27.0.I20230302-0300"/>
             <repository location="https://download.eclipse.org/releases/2023-03"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
