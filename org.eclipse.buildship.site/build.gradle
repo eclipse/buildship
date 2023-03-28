@@ -145,12 +145,12 @@ artifact.repository.factory.order=compositeArtifacts.xml,\\!
 """
             project.exec {
                 workingDir "$buildDir/composite-repository"
-                commandLine 'jar', 'cvMf', 'compositeArtifacts.jar', 'compositeArtifacts.xml'
+                commandLine "${System.getProperty('java.home')}/bin/jar", 'cvMf', 'compositeArtifacts.jar', 'compositeArtifacts.xml'
             }
 
             project.exec {
                 workingDir "$buildDir/composite-repository"
-                commandLine 'jar', 'cvMf', 'compositeContent.jar', 'compositeContent.xml'
+                commandLine "${System.getProperty('java.home')}/bin/jar", 'cvMf', 'compositeContent.jar', 'compositeContent.xml'
             }
 
             ssh.run {
