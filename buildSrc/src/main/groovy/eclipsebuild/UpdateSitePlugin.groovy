@@ -63,13 +63,11 @@ class UpdateSitePlugin implements Plugin<Project> {
 
     // task names defined in the plug-in
     static final String COPY_BUNDLES_TASK_NAME = 'copyBundles'
-    static final String NORMALIZE_BUNDLES_TASK_NAME = 'normalizeBundles'
     static final String SIGN_BUNDLES_TASK_NAME = 'signBundles'
     static final String COMPRESS_BUNDLES_TASK_NAME = 'compressBundles'
     static final String CREATE_P2_REPOSITORY_TASK_NAME = 'createP2Repository'
 
     // temporary folder names during build
-    static final String PRE_NORMALIZED_BUNDLES_DIR_NAME = 'unconditioned-bundles'
     static final String UNSIGNED_BUNDLES_DIR_NAME = 'unsigned-bundles'
     static final String SIGNED_BUNDLES_DIR_NAME = 'signed-bundles'
     static final String COMPRESSED_BUNDLES_DIR_NAME = 'compressed-bundles'
@@ -78,10 +76,9 @@ class UpdateSitePlugin implements Plugin<Project> {
     static final String REPOSITORY_DIR_NAME = 'repository'
 
     @Override
-    public void apply(Project project) {
+    void apply(Project project) {
         configureProject(project)
         addTaskCopyBundles(project)
-        addTaskNormalizeBundles(project)
         addTaskSignBundles(project)
         addTaskCompressBundles(project)
         addTaskCreateP2Repository(project)
@@ -112,7 +109,7 @@ class UpdateSitePlugin implements Plugin<Project> {
         def copyBundlesTask = project.task(COPY_BUNDLES_TASK_NAME) {
             group = Constants.gradleTaskGroupName
             description = 'Collects the bundles that make up the update site.'
-            outputs.dir new File(project.buildDir, PRE_NORMALIZED_BUNDLES_DIR_NAME)
+            outputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
             doLast { copyBundles(project) }
         }
 
@@ -154,7 +151,7 @@ class UpdateSitePlugin implements Plugin<Project> {
     }
 
     static void copyBundles(Project project) {
-        def rootDir = new File(project.buildDir, PRE_NORMALIZED_BUNDLES_DIR_NAME)
+        def rootDir = new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
         def pluginsDir = new File(rootDir, PLUGINS_DIR_NAME)
         def featuresDir = new File(rootDir, FEATURES_DIR_NAME)
 
@@ -240,30 +237,8 @@ class UpdateSitePlugin implements Plugin<Project> {
         input.text = output.toString()
     }
 
-    static void addTaskNormalizeBundles(Project project) {
-        project.task(NORMALIZE_BUNDLES_TASK_NAME, dependsOn: [COPY_BUNDLES_TASK_NAME, ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"]) {
-            group = Constants.gradleTaskGroupName
-            description = 'Repacks the bundles that make up the update site using the pack200 tool.'
-            inputs.dir new File(project.buildDir, PRE_NORMALIZED_BUNDLES_DIR_NAME)
-            outputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
-            doLast { normalizeBundles(project) }
-        }
-    }
-
-    static void normalizeBundles(Project project) {
-        project.javaexec {
-            main = 'org.eclipse.equinox.internal.p2.jarprocessor.Main'
-            classpath Config.on(project).jarProcessorJar
-            args = ['-processAll',
-                    '-repack',
-                    '-outputDir', new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME),
-                    new File(project.buildDir, PRE_NORMALIZED_BUNDLES_DIR_NAME)
-            ]
-        }
-    }
-
     static void addTaskSignBundles(Project project) {
-        project.task(SIGN_BUNDLES_TASK_NAME, dependsOn: NORMALIZE_BUNDLES_TASK_NAME) {
+        project.task(SIGN_BUNDLES_TASK_NAME, dependsOn: COPY_BUNDLES_TASK_NAME) {
             group = Constants.gradleTaskGroupName
             description = 'Signs the bundles that make up the update site.'
             inputs.dir new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME)
@@ -283,7 +258,7 @@ class UpdateSitePlugin implements Plugin<Project> {
 
     static void addTaskCompressBundles(Project project) {
         project.task(COMPRESS_BUNDLES_TASK_NAME, dependsOn: [
-            NORMALIZE_BUNDLES_TASK_NAME, SIGN_BUNDLES_TASK_NAME, ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"]) {
+            COPY_BUNDLES_TASK_NAME, SIGN_BUNDLES_TASK_NAME, ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"]) {
                 group = Constants.gradleTaskGroupName
                 description = 'Compresses the bundles that make up the update using the pack200 tool.'
                 project.afterEvaluate { inputs.dir project.updateSite.signing != null ? new File(project.buildDir, SIGNED_BUNDLES_DIR_NAME) : new File(project.buildDir, UNSIGNED_BUNDLES_DIR_NAME) }
