@@ -23,13 +23,10 @@ include ':org.eclipse.buildship.core.test'
 include ':org.eclipse.buildship.ui.test'
 include ':org.eclipse.buildship.testdependencies'
 
-// Oomph is only bundled with eclipse mars (45) and up. Allow for disabling it on older targets.
-if (properties['enable.oomph.plugin'] == "true") {
-    include ':org.eclipse.buildship.oomph'
-    include ':org.eclipse.buildship.oomph.edit'
-    include ':org.eclipse.buildship.oomph.feature'
-    include ':org.eclipse.buildship.oomph.test'
-}
+include ':org.eclipse.buildship.oomph'
+include ':org.eclipse.buildship.oomph.edit'
+include ':org.eclipse.buildship.oomph.feature'
+include ':org.eclipse.buildship.oomph.test'
 
 // Use local build cache on developer machine and remote cache on CI
 String cacheUrl = System.getProperty('gradle.cache.remote.url', '')

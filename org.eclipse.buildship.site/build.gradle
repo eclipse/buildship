@@ -38,11 +38,9 @@ dependencies {
     localPlugin project(':org.eclipse.buildship.ui')
     localPlugin project(':org.eclipse.buildship.branding')
     localFeature project(':org.eclipse.buildship.feature')
-    if (findProperty('enable.oomph.plugin') == "true") {
-        localPlugin project(':org.eclipse.buildship.oomph')
-        localPlugin project(':org.eclipse.buildship.oomph.edit')
-        localFeature project(':org.eclipse.buildship.oomph.feature')
-    }
+    localPlugin project(':org.eclipse.buildship.oomph')
+    localPlugin project(':org.eclipse.buildship.oomph.edit')
+    localFeature project(':org.eclipse.buildship.oomph.feature')
 
    if (findProperty('include.experimental.features') == 'true') {
         localPlugin project(':org.eclipse.buildship.kotlin')
