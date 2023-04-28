@@ -176,7 +176,7 @@ class PromotionBuildType(promotionName: String, typeName: String, dependency: Bu
     }
 
     steps {
-        for (eclipseVersion in EclipseVersion.values()) {
+        for (eclipseVersion in EclipseVersion.values().reversed()) {
             gradle {
                 name = "Build and upload update site for Eclipse ${eclipseVersion.codeName} (${eclipseVersion.versionNumber})"
                 tasks = "clean build uploadUpdateSite"
