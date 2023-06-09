@@ -10,7 +10,9 @@
 package org.eclipse.buildship.ui.internal.view.task;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.gradle.tooling.CancellationTokenSource;
@@ -18,16 +20,13 @@ import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJob;
 import org.eclipse.buildship.core.internal.operation.ToolingApiJobResultHandler;
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus;
@@ -58,27 +57,24 @@ final class ReloadTaskViewJob extends ToolingApiJob<TaskViewContent> {
     private TaskViewContent loadContent(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         Map<File, Map<String, EclipseProject>> allModels = new LinkedHashMap<>();
         Map<File, BuildEnvironment> environments = new LinkedHashMap<>();
+        List<InternalGradleBuild> faultyBuilds = new ArrayList<>();
         for (InternalGradleBuild gradleBuild : CorePlugin.internalGradleWorkspace().getGradleBuilds()) {
             try {
                 BuildEnvironment buildEnvironment = gradleBuild.getModelProvider().fetchModel(BuildEnvironment.class, this.modelFetchStrategy, tokenSource, monitor);
                 Map<String, EclipseProject> models = gradleBuild.getModelProvider().fetchModels(EclipseProject.class, this.modelFetchStrategy, tokenSource, monitor);
-                allModels.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), models);
-                environments.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), buildEnvironment);
+                if (buildEnvironment != null && models != null) {
+                    allModels.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), models);
+                    environments.put(gradleBuild.getBuildConfig().getRootProjectDirectory(), buildEnvironment);
+                } else {
+                    faultyBuilds.add(gradleBuild);
+                }
             } catch (RuntimeException e) {
                 CorePlugin.logger().warn("Tasks can't be loaded for project located at " + gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath(), e);
+                faultyBuilds.add(gradleBuild);
             }
         }
-        return TaskViewContent.from(allModels, environments, allGradleWorkspaceProjects());
-    }
 
-    private Map<String, IProject> allGradleWorkspaceProjects() {
-        Map<String, IProject> result = Maps.newLinkedHashMap();
-        for (IProject project : CorePlugin.workspaceOperations().getAllProjects()) {
-            if (GradleProjectNature.isPresentOn(project)) {
-                result.put(project.getName(), project);
-            }
-        }
-        return result;
+        return TaskViewContent.from(allModels, environments, faultyBuilds);
     }
 
     private void refreshTaskView(final TaskViewContent content) {

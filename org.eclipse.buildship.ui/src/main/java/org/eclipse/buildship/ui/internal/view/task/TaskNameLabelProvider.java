@@ -49,8 +49,8 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
             return getProjectText((ProjectNode) element);
         } else if (element instanceof TaskGroupNode) {
             return getGroupText((TaskGroupNode) element);
-        } else if (element instanceof FaultyProjectNode) {
-            return new StyledString(((FaultyProjectNode)element).getWorkspaceProject().get().getName());
+        } else if (element instanceof FaultyBuildTreeNode) {
+            return new StyledString(((FaultyBuildTreeNode)element).getBuildName());
         } else {
             throw new IllegalStateException(String.format("Unknown element type of element %s.", element));
         }
@@ -65,8 +65,8 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
             return getTaskSelectorImage((TaskSelectorNode) element);
         } else if (element instanceof ProjectNode) {
             return getProjectImage((ProjectNode) element);
-        } else if (element instanceof FaultyProjectNode) {
-            return getFaultyProjectImage((FaultyProjectNode) element);
+        } else if (element instanceof FaultyBuildTreeNode) {
+            return getFaultyBuildTreeImage();
         } else if (element instanceof TaskGroupNode) {
             return getGroupImage((TaskGroupNode) element);
         } else {
@@ -111,7 +111,7 @@ public final class TaskNameLabelProvider extends LabelProvider implements IStyle
         }
     }
 
-    private Image getFaultyProjectImage(FaultyProjectNode node) {
+    private Image getFaultyBuildTreeImage() {
         return PluginImages.FAULTY_PROJECT.withState(ImageState.ENABLED).getImage();
     }
 

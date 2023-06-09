@@ -26,7 +26,7 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
 
     private final Ordering<ProjectNode> projectNodeOrdering;
     private final Ordering<TaskNode> taskNodeOrdering;
-    private final Ordering<FaultyProjectNode> faultyProjectOrdering;
+    private final Ordering<FaultyBuildTreeNode> faultyProjectOrdering;
 
     private TaskNodeViewerSorter(Ordering<ProjectNode> projectNodeOrdering, Ordering<TaskNode> taskNodeOrdering) {
         this.projectNodeOrdering = projectNodeOrdering;
@@ -52,13 +52,13 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
             TaskNode left = (TaskNode) leftNode;
             TaskNode right = (TaskNode) rightNode;
             return this.taskNodeOrdering.compare(left, right);
-        } else if (leftNode instanceof FaultyProjectNode && rightNode instanceof ProjectNode) {
+        } else if (leftNode instanceof FaultyBuildTreeNode && rightNode instanceof ProjectNode) {
             return 1;
-        } else if (leftNode instanceof ProjectNode && rightNode instanceof FaultyProjectNode) {
+        } else if (leftNode instanceof ProjectNode && rightNode instanceof FaultyBuildTreeNode) {
             return -1;
-        } else  if (leftNode instanceof FaultyProjectNode && rightNode instanceof FaultyProjectNode) {
-            FaultyProjectNode left = (FaultyProjectNode) leftNode;
-            FaultyProjectNode right = (FaultyProjectNode) rightNode;
+        } else  if (leftNode instanceof FaultyBuildTreeNode && rightNode instanceof FaultyBuildTreeNode) {
+            FaultyBuildTreeNode left = (FaultyBuildTreeNode) leftNode;
+            FaultyBuildTreeNode right = (FaultyBuildTreeNode) rightNode;
             return this.faultyProjectOrdering.compare(left, right);
         } else {
             return super.compare(viewer, leftNode, rightNode);
@@ -132,12 +132,12 @@ public final class TaskNodeViewerSorter extends ViewerComparator {
         };
     }
 
-    private static Ordering<FaultyProjectNode> createLexicographicalFaultyProjectOrdering() {
-        return new Ordering<FaultyProjectNode>() {
+    private static Ordering<FaultyBuildTreeNode> createLexicographicalFaultyProjectOrdering() {
+        return new Ordering<FaultyBuildTreeNode>() {
 
             @Override
-            public int compare(FaultyProjectNode left, FaultyProjectNode right) {
-                return left.getWorkspaceProject().get().getName().compareTo(right.getWorkspaceProject().get().getName());
+            public int compare(FaultyBuildTreeNode left, FaultyBuildTreeNode right) {
+                return left.getProjectPath().compareTo(right.getProjectPath());
             }
         };
     }
