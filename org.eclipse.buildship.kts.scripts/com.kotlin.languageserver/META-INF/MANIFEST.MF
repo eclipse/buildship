@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Languageserver
+Bundle-SymbolicName: com.kotlin.languageserver
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: KOTLIN
+Automatic-Module-Name: com.kotlin.languageserver
+Bundle-RequiredExecutionEnvironment: JavaSE-17
