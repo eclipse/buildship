@@ -31,5 +31,12 @@
             id="com.kotlin.languageserver.server">
       </contentTypeMapping>
    </extension>
+   <extension
+         point="org.eclipse.tm4e.registry.grammars">
+      <scopeNameContentTypeBinding
+            contentTypeId="com.kotlin.languageserver.scopeNameContentTypeBinding1"
+            scopeName="com.kotlin.languageserver.scopeNameContentTypeBinding1">
+      </scopeNameContentTypeBinding>
+   </extension>
 
 </plugin>
