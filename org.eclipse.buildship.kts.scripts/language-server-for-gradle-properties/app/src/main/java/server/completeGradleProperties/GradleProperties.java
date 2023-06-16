@@ -34,7 +34,7 @@ public class GradleProperties {
 
   static public List<String> matchedProperties(String input) {
     List<String> result = new ArrayList<>();
-    if (input == null) {
+    if (input.isEmpty()) {
       return result;
     }
     for (var property : properties) {

@@ -34,7 +34,6 @@ public class ClientLogger {
     if (!isInitialized) {
       return;
     }
-    System.err.println(message);
     client.logMessage(new MessageParams(MessageType.Info, message));
   }
 }

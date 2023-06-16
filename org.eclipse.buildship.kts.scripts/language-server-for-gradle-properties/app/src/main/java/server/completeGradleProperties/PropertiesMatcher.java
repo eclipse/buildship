@@ -9,9 +9,14 @@ public class PropertiesMatcher {
 
   private static String getCompletionWord(String content, Position position) {
     var lines = content.split("\n");
+    if (position.getCharacter() == 0) {
+      return "";
+    }
     var workLine = lines[position.getLine()].substring(0, position.getCharacter());
-    System.err.println(workLine);
     var wordsOnLine = workLine.split("\\s+");
+    if (wordsOnLine.length == 0) {
+      return "";
+    }
     return wordsOnLine[wordsOnLine.length - 1];
   }
 
