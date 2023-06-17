@@ -1,4 +1,4 @@
-package server.file;
+package server.fileSync;
 
 public class ContentInFile {
 

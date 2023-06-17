@@ -1,4 +1,4 @@
-package server.file;
+package server.fileSync;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 
-public class SourceManager {
+public class FileSync {
 
   final private Map<String, ContentInFile> contentByUri;
 
-  public SourceManager() {
+  public FileSync() {
     contentByUri = new HashMap<>();
   }
 

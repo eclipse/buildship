@@ -15,17 +15,17 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import server.completeGradleProperties.PropertiesMatcher;
-import server.file.SourceManager;
+import server.fileSync.FileSync;
 
 public class GradlePropertiesTextDocumentService implements TextDocumentService {
 
   final private ClientLogger clientLogger;
-  private final SourceManager sources;
+  private final FileSync sources;
 
   public GradlePropertiesTextDocumentService() {
 
     clientLogger = ClientLogger.getInstance();
-    sources = new SourceManager();
+    sources = new FileSync();
   }
 
   @Override
