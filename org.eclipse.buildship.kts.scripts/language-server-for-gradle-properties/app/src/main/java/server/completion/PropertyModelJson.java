@@ -1,4 +1,4 @@
-package server.completeGradleProperties;
+package server.completion;
 
 import java.util.ArrayList;
 

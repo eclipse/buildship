@@ -1,4 +1,4 @@
-package server.completeGradleProperties;
+package server.completion;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class StorageGradleProperties {
+public class PropertiesStorage {
 
   private static List<Property> initializeFromFile() {
     List<Property> propertiesFromFile = new ArrayList<>();

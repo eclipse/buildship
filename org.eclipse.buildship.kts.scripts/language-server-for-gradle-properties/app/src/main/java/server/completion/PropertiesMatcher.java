@@ -1,4 +1,4 @@
-package server.completeGradleProperties;
+package server.completion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class PropertiesMatcher {
 
     if (onlyValues) {
       List<CompletionItem> result = new ArrayList<>();
-      for (var property : StorageGradleProperties.getProperties()) {
+      for (var property : PropertiesStorage.getProperties()) {
         if (property.getName().equals(completionWord)) {
           for (var value : property.getValues()) {
             result.add(new CompletionItem(value));
@@ -64,7 +64,7 @@ public class PropertiesMatcher {
     if (input.isEmpty()) {
       return result;
     }
-    var properties = StorageGradleProperties.getProperties();
+    var properties = PropertiesStorage.getProperties();
 
     for (var property : properties) {
       if (property.getName().startsWith(input)) {

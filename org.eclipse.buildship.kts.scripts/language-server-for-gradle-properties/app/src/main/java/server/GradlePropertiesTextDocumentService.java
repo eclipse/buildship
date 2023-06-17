@@ -14,7 +14,7 @@ import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import server.completeGradleProperties.PropertiesMatcher;
+import server.completion.PropertiesMatcher;
 import server.fileSync.FileSync;
 
 public class GradlePropertiesTextDocumentService implements TextDocumentService {
