@@ -15,8 +15,8 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 
 public class GradlePropertiesLanguageServer implements LanguageServer, LanguageClientAware {
 
-  private TextDocumentService textDocumentService;
-  private WorkspaceService workspaceService;
+  private final TextDocumentService textDocumentService;
+  private final WorkspaceService workspaceService;
   //    private ClientCapabilities clientCapabilities;
   LanguageClient languageClient;
   private int shutdown = 1;
@@ -41,6 +41,7 @@ public class GradlePropertiesLanguageServer implements LanguageServer, LanguageC
 
     var triggerCharacters = new ArrayList<String>();
     triggerCharacters.add(".");
+    triggerCharacters.add("=");
 
     CompletionOptions options = new CompletionOptions(false, triggerCharacters);
     capabilities.setCompletionProvider(options);

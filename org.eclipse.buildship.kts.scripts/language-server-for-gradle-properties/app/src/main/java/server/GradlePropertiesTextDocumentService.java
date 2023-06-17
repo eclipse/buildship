@@ -1,6 +1,7 @@
 package server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionItem;
@@ -19,7 +20,7 @@ import server.file.SourceManager;
 public class GradlePropertiesTextDocumentService implements TextDocumentService {
 
   final private ClientLogger clientLogger;
-  final private SourceManager sources;
+  private final SourceManager sources;
 
   public GradlePropertiesTextDocumentService() {
 
@@ -65,12 +66,18 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
   @JsonRequest
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
       CompletionParams position) {
-
     var uri = position.getTextDocument().getUri();
-    var content = sources.getContentByUri(uri).getContent();
+    var contentInFile = sources.getContentByUri(uri);
 
+    // first update always is lost -> on first update program doesn't know about new symbol
+    // and last word is taken wrong
+    if (contentInFile.getVersion() < 2) {
+      System.err.println("version < 2");
+      return CompletableFuture.supplyAsync(() -> Either.forLeft(new ArrayList<>()));
+    }
     // match with properties and make the list of completions
-    var completions = PropertiesMatcher.getCompletions(content, position.getPosition());
+    var completions = PropertiesMatcher.getCompletions(contentInFile.getContent(),
+        position.getPosition());
     return CompletableFuture.supplyAsync(() -> Either.forLeft(completions));
   }
 

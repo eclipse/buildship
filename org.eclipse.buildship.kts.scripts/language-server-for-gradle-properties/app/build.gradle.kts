@@ -32,6 +32,7 @@ dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
 
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.0.1")
 
     //    implementation
     implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.21.0")
