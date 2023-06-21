@@ -1,10 +1,17 @@
 package server;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.DiagnosticRegistrationOptions;
+import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -16,25 +23,26 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 public class GradlePropertiesLanguageServer implements LanguageServer, LanguageClientAware {
 
   private final TextDocumentService textDocumentService;
+  private final GradlePropertiesTextDocumentService gradleTextDocumentService;
   private final WorkspaceService workspaceService;
-  //    private ClientCapabilities clientCapabilities;
   LanguageClient languageClient;
   private int shutdown = 1;
 
   public GradlePropertiesLanguageServer() {
-    this.textDocumentService = new GradlePropertiesTextDocumentService();
+    gradleTextDocumentService = new GradlePropertiesTextDocumentService();
+    this.textDocumentService = gradleTextDocumentService;
     this.workspaceService = new GradlePropertiesWorkSpaceService();
   }
 
   @Override
   public void connect(LanguageClient client) {
     languageClient = client;
+    gradleTextDocumentService.connect(client);
     ClientLogger.getInstance().initialize(languageClient);
   }
 
   @Override
   public CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
-    System.err.println("[LS]: initializing");
     var capabilities = new ServerCapabilities();
     //Set the document synchronization capabilities to full.
     capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);

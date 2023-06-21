@@ -7,14 +7,23 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
+import org.eclipse.lsp4j.DocumentHighlight;
+import org.eclipse.lsp4j.DocumentHighlightKind;
+import org.eclipse.lsp4j.DocumentHighlightParams;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import server.completion.PropertiesMatcher;
+import server.diagnostic.DiagnosticManager;
 import server.fileSync.FileSync;
 
 public class GradlePropertiesTextDocumentService implements TextDocumentService {
@@ -22,10 +31,26 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
   final private ClientLogger clientLogger;
   private final FileSync sources;
 
-  public GradlePropertiesTextDocumentService() {
+  private LanguageClient languageClient;
 
+  private void publishDiagnostic(String uri) {
+    if (languageClient != null) {
+      var diagnosticList = DiagnosticManager.getDiagnosticList(sources.getContentByUri(uri));
+//      if (diagnosticList.isEmpty()) {
+//        return;
+//      }
+
+      languageClient.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnosticList));
+    }
+  }
+
+  public GradlePropertiesTextDocumentService() {
     clientLogger = ClientLogger.getInstance();
     sources = new FileSync();
+  }
+
+  public void connect(LanguageClient client) {
+    languageClient = client;
   }
 
   @Override
@@ -33,6 +58,8 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
     clientLogger.logMessage("Operation '" + "text/didOpen");
     var uri = params.getTextDocument().getUri();
     sources.openFile(uri);
+
+    publishDiagnostic(uri);
   }
 
   @Override
@@ -47,6 +74,8 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
     } catch (IOException e) {
       System.err.println("did change exception");
     }
+
+    publishDiagnostic(uri);
   }
 
   @Override
@@ -72,7 +101,6 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
     // first update always is lost -> on first update program doesn't know about new symbol
     // and last word is taken wrong
     if (contentInFile.getVersion() < 2) {
-      System.err.println("version < 2");
       return CompletableFuture.supplyAsync(() -> Either.forLeft(new ArrayList<>()));
     }
     // match with properties and make the list of completions
@@ -80,5 +108,4 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
         position.getPosition());
     return CompletableFuture.supplyAsync(() -> Either.forLeft(completions));
   }
-
 }
