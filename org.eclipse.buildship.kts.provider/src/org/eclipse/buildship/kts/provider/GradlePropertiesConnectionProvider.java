@@ -1,4 +1,4 @@
-package com.kotlin.languageserver;
+package org.eclipse.buildship.kts.provider;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -7,7 +7,7 @@
             base-type="org.eclipse.core.runtime.text"
             file-extensions="properties"
             file-names="gradle"
-            id="com.kotlin.languageserver.content"
+            id="org.eclipse.buildship.kts.provider.content"
             name="KTS Language Server"
             priority="normal">
       </content-type>
@@ -15,28 +15,21 @@
    <extension
          point="org.eclipse.ui.editors">
       <editorContentTypeBinding
-            contentTypeId="com.kotlin.languageserver.content"
+            contentTypeId="org.eclipse.buildship.kts.provider.content"
             editorId="org.eclipse.ui.genericeditor.GenericEditor">
       </editorContentTypeBinding>
    </extension>
    <extension
          point="org.eclipse.lsp4e.languageServer">
       <server
-            class="com.kotlin.languageserver.GradlePropertiesConnectionProvider"
-            id="com.kotlin.languageserver.server"
-            label="com.kotlin.languageserver.server">
+            class="org.eclipse.buildship.kts.provider.GradlePropertiesConnectionProvider"
+            id="org.eclipse.buildship.kts.provider.server"
+            label="org.eclipse.buildship.kts.provider.server">
       </server>
       <contentTypeMapping
-            contentType="com.kotlin.languageserver.content"
-            id="com.kotlin.languageserver.server">
+            contentType="org.eclipse.buildship.kts.provider.content"
+            id="org.eclipse.buildship.kts.provider.server">
       </contentTypeMapping>
-   </extension>
-   <extension
-         point="org.eclipse.tm4e.registry.grammars">
-      <scopeNameContentTypeBinding
-            contentTypeId="com.kotlin.languageserver.scopeNameContentTypeBinding1"
-            scopeName="com.kotlin.languageserver.scopeNameContentTypeBinding1">
-      </scopeNameContentTypeBinding>
    </extension>
 
 </plugin>
