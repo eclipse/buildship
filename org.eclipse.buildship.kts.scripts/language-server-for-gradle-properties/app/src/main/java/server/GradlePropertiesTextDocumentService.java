@@ -2,6 +2,7 @@ package server;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionItem;
@@ -12,12 +13,16 @@ import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
+import org.eclipse.lsp4j.DocumentDiagnosticParams;
+import org.eclipse.lsp4j.DocumentDiagnosticReport;
 import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.DocumentHighlightKind;
 import org.eclipse.lsp4j.DocumentHighlightParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.adapters.DocumentDiagnosticReportTypeAdapter;
+import org.eclipse.lsp4j.jsonrpc.json.ResponseJsonAdapter;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -36,9 +41,6 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
   private void publishDiagnostic(String uri) {
     if (languageClient != null) {
       var diagnosticList = DiagnosticManager.getDiagnosticList(sources.getContentByUri(uri));
-//      if (diagnosticList.isEmpty()) {
-//        return;
-//      }
 
       languageClient.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnosticList));
     }
@@ -74,7 +76,6 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
     } catch (IOException e) {
       System.err.println("did change exception");
     }
-
     publishDiagnostic(uri);
   }
 
@@ -90,6 +91,7 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
     clientLogger.logMessage("Operation '" + "text/didSave");
     var uri = params.getTextDocument().getUri();
     sources.saveFile(uri);
+    publishDiagnostic(uri);
   }
 
   @JsonRequest
