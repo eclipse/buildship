@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Languageserver
-Bundle-SymbolicName: com.kotlin.languageserver;singleton:=true
+Bundle-SymbolicName: org.eclipse.buildship.kts.provider;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.ui,
