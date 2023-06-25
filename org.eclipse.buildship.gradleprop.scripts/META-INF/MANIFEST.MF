@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Scripts
+Bundle-SymbolicName: org.eclipse.buildship.gradleprop.scripts
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.eclipse.buildship.gradleprop.scripts
