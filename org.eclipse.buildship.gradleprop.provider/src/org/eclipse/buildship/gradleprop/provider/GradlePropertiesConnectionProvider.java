@@ -1,4 +1,4 @@
-package org.eclipse.buildship.kts.provider;
+package org.eclipse.buildship.gradleprop.provider;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -22,7 +22,7 @@
    <extension
          point="org.eclipse.lsp4e.languageServer">
       <server
-            class="org.eclipse.buildship.kts.provider.GradlePropertiesConnectionProvider"
+            class="org.eclipse.buildship.gradleprop.provider.GradlePropertiesConnectionProvider"
             id="org.eclipse.buildship.kts.provider.server"
             label="org.eclipse.buildship.kts.provider.server">
       </server>

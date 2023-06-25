@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Languageserver
-Bundle-SymbolicName: org.eclipse.buildship.kts.languageserver;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: KOTLIN
-Automatic-Module-Name: com.kotlin.languageserver
-Bundle-RequiredExecutionEnvironment: JavaSE-17

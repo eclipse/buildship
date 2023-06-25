@@ -1,14 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Languageserver
-Bundle-SymbolicName: org.eclipse.buildship.kts.provider;singleton:=true
+Bundle-Name: provider for gradle properties
+Bundle-SymbolicName: org.eclipse.buildship.gradleprop.provider;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.ui,
  org.eclipse.lsp4e,
  org.eclipse.lsp4j;bundle-version="0.21.0",
- org.eclipse.lsp4j.jsonrpc;bundle-version="0.21.0",
- org.eclipse.tm4e.registry
+ org.eclipse.lsp4j.jsonrpc;bundle-version="0.21.0"
 Bundle-Vendor: KOTLIN
 Automatic-Module-Name: com.kotlin.languageserver
 Bundle-RequiredExecutionEnvironment: JavaSE-17
