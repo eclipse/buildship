@@ -13,4 +13,3 @@ plugins {
 }
 
 rootProject.name = "server"
-include("app")
