@@ -22,6 +22,8 @@ include ':org.eclipse.buildship.branding'
 include ':org.eclipse.buildship.core.test'
 include ':org.eclipse.buildship.ui.test'
 include ':org.eclipse.buildship.testdependencies'
+include ':org.eclipse.buildship.gradleprop.provider'
+include ':org.eclipse.buildship.gradleprop.languageserver'
 
 include ':org.eclipse.buildship.oomph'
 include ':org.eclipse.buildship.oomph.edit'
