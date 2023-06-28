@@ -3,7 +3,7 @@ package server.completion;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,10 +12,11 @@ public class PropertiesStorage {
 
   private static List<Property> initializeFromFile() {
     List<Property> propertiesFromFile = new ArrayList<>();
-    var pathToFile = Paths.get(System.getProperty("user.dir"), "configs/properties.json");
     ObjectMapper mapper = new ObjectMapper();
     try {
-      propertiesFromFile = mapper.readValue(pathToFile.toFile(),
+      InputStream resource = PropertiesStorage.class.getClassLoader()
+          .getResourceAsStream("properties.json");
+      propertiesFromFile = mapper.readValue(resource,
           new TypeReference<List<Property>>() {
           });
     } catch (IOException e) {
