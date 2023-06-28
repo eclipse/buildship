@@ -46,6 +46,5 @@ tasks.named<Test>("test") {
 }
 
 tasks.named<Jar>("shadowJar") {
-    archiveFileName.set("server.jar")
-    destinationDirectory.set(layout.projectDirectory.dir("jars"))
+    archiveFileName.set("language-server.jar")
 }
