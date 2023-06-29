@@ -16,22 +16,25 @@
       [Enter License Description here.]
    </license>
 
-   <plugin
-         id="org.eclipse.buildship.gradleprop.scripts"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+   <requires>
+      <import plugin="org.eclipse.core.contenttype"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.lsp4e"/>
+      <import plugin="org.eclipse.lsp4j"/>
+      <import plugin="org.eclipse.lsp4j.jsonrpc"/>
+      <import plugin="org.eclipse.core.runtime"/>
+   </requires>
 
    <plugin
          id="org.eclipse.buildship.gradleprop.languageserver"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.0.0.qualifier"/>
 
    <plugin
          id="org.eclipse.buildship.gradleprop.provider"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="1.0.0.qualifier"/>
 
 </feature>
