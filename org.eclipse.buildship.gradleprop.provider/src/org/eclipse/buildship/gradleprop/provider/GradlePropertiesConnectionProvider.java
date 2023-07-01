@@ -38,7 +38,6 @@ public class GradlePropertiesConnectionProvider extends ProcessStreamConnectionP
 			setWorkingDirectory(p.toString());
 
 		} catch (IOException | URISyntaxException e) {
-			// TODO Auto-generated catch block
 			System.err.println("[GradlePropertiesConnectionProvider]:" + e.toString());
 			e.printStackTrace();
 		}

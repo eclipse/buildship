@@ -11,4 +11,5 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.core.runtime;bundle-version="3.26.100"
 Bundle-Vendor: KOTLIN
 Automatic-Module-Name: com.kotlin.languageserver
+Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17
