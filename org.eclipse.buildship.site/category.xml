@@ -15,5 +15,5 @@
    <category-def name="Buildship" label="Buildship: Eclipse Plug-ins for Gradle"/>
    <category-def name="BuildshipExtras" label="Buildship Extras"/>
    <category-def name="Oomph" label="Buildship project import support for Oomph"/>
-   <category-def name="GradleProp" label="Gradle Properties Support"/>
+   <category-def name="GradleProp" label="Gradle properties support"/>
 </site>
