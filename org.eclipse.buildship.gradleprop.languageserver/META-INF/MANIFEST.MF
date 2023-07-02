@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Languageserver
-Bundle-SymbolicName: org.eclipse.buildship.gradleprop.languageserver
+Bundle-Name: Language Server
+Bundle-SymbolicName: org.eclipse.buildship.gradleprop.languageserver;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.eclipse.buildship.gradleprop.languageserver

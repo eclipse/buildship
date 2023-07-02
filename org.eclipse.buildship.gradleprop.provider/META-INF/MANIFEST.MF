@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: provider for gradle properties
+Bundle-Name: Provider
 Bundle-SymbolicName: org.eclipse.buildship.gradleprop.provider;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.core.contenttype,
@@ -9,7 +9,5 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.lsp4j;bundle-version="0.21.0",
  org.eclipse.lsp4j.jsonrpc;bundle-version="0.21.0",
  org.eclipse.core.runtime;bundle-version="3.26.100"
-Bundle-Vendor: KOTLIN
 Automatic-Module-Name: com.kotlin.languageserver
-Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-17

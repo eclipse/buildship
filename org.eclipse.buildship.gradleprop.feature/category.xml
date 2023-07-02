@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="org.eclipse.buildship.gradleprop.languageserver">
+      <category name="gradlePropPlugins"/>
+   </bundle>
+   <bundle id="org.eclipse.buildship.gradleprop.provider">
+      <category name="gradlePropPlugins"/>
+   </bundle>
+   <category-def name="gradlePropPlugins" label="Plugins for gradle property support"/>
+</site>
