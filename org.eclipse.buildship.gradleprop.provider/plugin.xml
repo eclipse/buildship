@@ -13,6 +13,17 @@
       </content-type>
    </extension>
    <extension
+         point="org.eclipse.tm4e.registry.grammars">
+      <grammar
+            path="src/syntax/gradleprop.tmLanguage.json"
+            scopeName="source.gradleprop">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.buildship.kts.provider.content"
+            scopeName="source.gradleprop">
+      </scopeNameContentTypeBinding>
+   </extension>
+   <extension
          point="org.eclipse.ui.editors">
       <editorContentTypeBinding
             contentTypeId="org.eclipse.buildship.kts.provider.content"
