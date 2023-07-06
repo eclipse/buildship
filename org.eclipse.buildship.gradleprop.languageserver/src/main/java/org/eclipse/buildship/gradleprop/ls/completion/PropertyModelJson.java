@@ -1,4 +1,4 @@
-package server.completion;
+package org.eclipse.buildship.gradleprop.ls.completion;
 
 import java.util.ArrayList;
 

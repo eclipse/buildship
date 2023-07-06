@@ -1,4 +1,4 @@
-package server;
+package org.eclipse.buildship.gradleprop.ls;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;

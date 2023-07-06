@@ -1,4 +1,4 @@
-package server;
+package org.eclipse.buildship.gradleprop.ls;
 
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;

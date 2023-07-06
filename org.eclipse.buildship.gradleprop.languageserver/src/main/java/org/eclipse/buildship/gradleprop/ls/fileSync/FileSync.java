@@ -20,7 +20,7 @@ public class FileSync {
     contentByUri = new HashMap<>();
   }
 
-  public ContentInFile getContentByUri(String uri) {
+  public server.fileSync.ContentInFile getContentByUri(String uri) {
     return contentByUri.get(uri);
   }
 

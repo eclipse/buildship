@@ -1,4 +1,4 @@
-package server;
+package org.eclipse.buildship.gradleprop.ls;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,8 +16,8 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
-import server.completion.PropertiesMatcher;
-import server.diagnostic.DiagnosticManager;
+import org.eclipse.buildship.gradleprop.ls.completion.PropertiesMatcher;
+import org.eclipse.buildship.gradleprop.ls.diagnostic.DiagnosticManager;
 import server.fileSync.FileSync;
 
 public class GradlePropertiesTextDocumentService implements TextDocumentService {

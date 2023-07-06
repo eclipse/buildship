@@ -1,4 +1,4 @@
-package server;
+package org.eclipse.buildship.gradleprop.ls;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;

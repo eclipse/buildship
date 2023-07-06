@@ -1,4 +1,4 @@
-package server.completion;
+package org.eclipse.buildship.gradleprop.ls.completion;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

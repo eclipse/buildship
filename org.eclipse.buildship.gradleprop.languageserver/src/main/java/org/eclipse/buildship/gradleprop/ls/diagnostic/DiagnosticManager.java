@@ -1,11 +1,11 @@
-package server.diagnostic;
+package org.eclipse.buildship.gradleprop.ls.diagnostic;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import server.completion.PropertiesStorage;
+import org.eclipse.buildship.gradleprop.ls.completion.PropertiesStorage;
 import server.fileSync.ContentInFile;
 
 public class DiagnosticManager {
@@ -36,7 +36,7 @@ public class DiagnosticManager {
     var value = line.substring(occasionOfEqual + 1).trim();
 
     var allProperties = PropertiesStorage.getProperties();
-    for (server.completion.Property curProperty : allProperties) {
+    for (org.eclipse.buildship.gradleprop.ls.completion.Property curProperty : allProperties) {
       if (potentialProperty.equals(curProperty.getName())) {
         if (curProperty.getValues().isEmpty()) {
           return null;
