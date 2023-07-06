@@ -7,8 +7,8 @@
             base-type="org.eclipse.core.runtime.text"
             file-extensions="properties"
             file-names="gradle"
-            id="org.eclipse.buildship.kts.provider.content"
-            name="KTS Language Server"
+            id="org.eclipse.buildship.gradleprop.provider.content"
+            name="Language server for gradle.properties files"
             priority="normal">
       </content-type>
    </extension>
@@ -19,14 +19,14 @@
             scopeName="source.gradleprop">
       </grammar>
       <scopeNameContentTypeBinding
-            contentTypeId="org.eclipse.buildship.kts.provider.content"
+            contentTypeId="org.eclipse.buildship.gradleprop.provider.content"
             scopeName="source.gradleprop">
       </scopeNameContentTypeBinding>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
       <editorContentTypeBinding
-            contentTypeId="org.eclipse.buildship.kts.provider.content"
+            contentTypeId="org.eclipse.buildship.gradleprop.provider.content"
             editorId="org.eclipse.ui.genericeditor.GenericEditor">
       </editorContentTypeBinding>
    </extension>
@@ -34,12 +34,12 @@
          point="org.eclipse.lsp4e.languageServer">
       <server
             class="org.eclipse.buildship.gradleprop.provider.GradlePropertiesConnectionProvider"
-            id="org.eclipse.buildship.kts.provider.server"
-            label="org.eclipse.buildship.kts.provider.server">
+            id="org.eclipse.buildship.gradleprop.provider.server"
+            label="language server for gradle properties">
       </server>
       <contentTypeMapping
-            contentType="org.eclipse.buildship.kts.provider.content"
-            id="org.eclipse.buildship.kts.provider.server">
+            contentType="org.eclipse.buildship.gradleprop.provider.content"
+            id="org.eclipse.buildship.gradleprop.provider.server">
       </contentTypeMapping>
    </extension>
 

@@ -11,4 +11,4 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.core.runtime;bundle-version="3.26.100",
  org.eclipse.tm4e.registry
 Automatic-Module-Name: com.kotlin.languageserver
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-11
