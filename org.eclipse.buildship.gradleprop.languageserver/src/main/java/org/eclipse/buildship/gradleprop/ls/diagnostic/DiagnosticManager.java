@@ -49,7 +49,7 @@ public class DiagnosticManager {
         return new Diagnostic(
             new Range(new Position(strNumber, 0),
                 new Position(strNumber, line.length() - 1)),
-            "wrong value, list of correct values:" + curProperty.getValues().toString());
+            "invalid value, use one of the following items" + curProperty.getValues().toString());
       }
     }
     return null;

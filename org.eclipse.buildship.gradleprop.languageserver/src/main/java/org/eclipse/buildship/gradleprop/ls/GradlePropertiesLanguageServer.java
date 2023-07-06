@@ -37,7 +37,6 @@ public class GradlePropertiesLanguageServer implements LanguageServer, LanguageC
   @Override
   public CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
     var capabilities = new ServerCapabilities();
-    //Set the document synchronization capabilities to full.
     capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
 
     var triggerCharacters = new ArrayList<String>();

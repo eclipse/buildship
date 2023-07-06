@@ -14,4 +14,3 @@ public class PropertyModelJson {
     this.properties = properties;
   }
 }
-

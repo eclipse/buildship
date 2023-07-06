@@ -5,7 +5,7 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.services.LanguageClient;
 
 /**
- * Use this class to send log messages to the client.
+ * This class is used for logging and will be removed later.
  */
 public class ClientLogger {
 
