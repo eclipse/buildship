@@ -10,4 +10,3 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.lsp4j.jsonrpc,
  org.eclipse.core.runtime,
  org.eclipse.tm4e.registry
-Automatic-Module-Name: com.kotlin.languageserver
