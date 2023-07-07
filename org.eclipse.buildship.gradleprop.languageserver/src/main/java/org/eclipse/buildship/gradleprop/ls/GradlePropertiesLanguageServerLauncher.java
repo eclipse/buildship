@@ -1,16 +1,21 @@
 package org.eclipse.buildship.gradleprop.ls;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
-import java.io.InputStream;
-import java.io.OutputStream;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GradlePropertiesLanguageServerLauncher {
 
+  private static Logger LOGGER = LoggerFactory.getLogger(
+      GradlePropertiesLanguageServerLauncher.class);
+
   public static void main(String[] args) throws InterruptedException, ExecutionException {
-    System.err.println("server is running");
+    LOGGER.info("server is running");
     startServer(System.in, System.out);
   }
 

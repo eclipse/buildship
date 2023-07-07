@@ -3,22 +3,25 @@ package org.eclipse.buildship.gradleprop.ls;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GradlePropertiesWorkSpaceService implements WorkspaceService {
 
-  private final ClientLogger clientLogger;
+  private static Logger LOGGER = LoggerFactory.getLogger(GradlePropertiesWorkSpaceService.class);
+
 
   public GradlePropertiesWorkSpaceService() {
-    clientLogger = ClientLogger.getInstance();
+
   }
 
   @Override
   public void didChangeConfiguration(DidChangeConfigurationParams params) {
-    clientLogger.logMessage("Operation 'workspace/didChangeConfiguration' Ack");
+    LOGGER.info("Operation 'workspace/didChangeConfiguration'");
   }
 
   @Override
   public void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
-    clientLogger.logMessage("Operation 'workspace/didChangeWatchedFiles' Ack");
+    LOGGER.info("Operation 'workspace/didChangeWatchedFiles'");
   }
 }

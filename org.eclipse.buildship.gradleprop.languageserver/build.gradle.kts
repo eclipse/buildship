@@ -8,6 +8,8 @@ repositories {
 }
 
 dependencies {
+    implementation("org.slf4j:slf4j-api:2.0.5")
+    implementation("org.slf4j:slf4j-simple:2.0.7")
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
     implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.21.0")

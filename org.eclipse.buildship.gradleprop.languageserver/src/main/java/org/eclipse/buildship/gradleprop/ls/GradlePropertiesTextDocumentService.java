@@ -4,39 +4,44 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.eclipse.buildship.gradleprop.ls.fileSync.ContentInFile;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.buildship.gradleprop.ls.completion.PropertiesMatcher;
 import org.eclipse.buildship.gradleprop.ls.diagnostic.DiagnosticManager;
-import server.fileSync.FileSync;
+import org.eclipse.buildship.gradleprop.ls.fileSync.FileSync;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GradlePropertiesTextDocumentService implements TextDocumentService {
 
-  final private ClientLogger clientLogger;
+  private static Logger LOGGER = LoggerFactory.getLogger(GradlePropertiesTextDocumentService.class);
   private final FileSync sources;
 
   private LanguageClient languageClient;
 
   private void publishDiagnostic(String uri) {
-    if (languageClient != null) {
-      var diagnosticList = DiagnosticManager.getDiagnosticList(sources.getContentByUri(uri));
+    ContentInFile content = sources.getContentByUri(uri);
+    if (languageClient != null && content != null) {
+      List<Diagnostic> diagnosticList = DiagnosticManager.getDiagnosticList(content);
 
       languageClient.publishDiagnostics(new PublishDiagnosticsParams(uri, diagnosticList));
     }
   }
 
   public GradlePropertiesTextDocumentService() {
-    clientLogger = ClientLogger.getInstance();
     sources = new FileSync();
   }
 
@@ -46,39 +51,43 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
 
   @Override
   public void didOpen(DidOpenTextDocumentParams params) {
-    clientLogger.logMessage("Operation '" + "text/didOpen");
-    var uri = params.getTextDocument().getUri();
-    sources.openFile(uri);
+    LOGGER.info("operation /didOpen");
+    String uri = params.getTextDocument().getUri();
+
+    if (!sources.openFile(uri)) {
+      return;
+    }
 
     publishDiagnostic(uri);
   }
 
   @Override
   public void didChange(DidChangeTextDocumentParams params) {
-    clientLogger.logMessage("Operation '" + "text/didChange");
-    var uri = params.getTextDocument().getUri();
-    var changes = params.getContentChanges();
-    var version = params.getTextDocument().getVersion();
+    LOGGER.info("operation /didChange");
+    String uri = params.getTextDocument().getUri();
+    List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
+    Integer version = params.getTextDocument().getVersion();
 
     try {
       sources.editFile(uri, version, changes);
     } catch (IOException e) {
-      System.err.println("did change exception");
+      LOGGER.error(e.getMessage());
+      return;
     }
     publishDiagnostic(uri);
   }
 
   @Override
   public void didClose(DidCloseTextDocumentParams params) {
-    clientLogger.logMessage("Operation '" + "text/didClose");
-    var uri = params.getTextDocument().getUri();
+    LOGGER.info("operation /didClose");
+    String uri = params.getTextDocument().getUri();
     sources.closeFile(uri);
   }
 
   @Override
   public void didSave(DidSaveTextDocumentParams params) {
-    clientLogger.logMessage("Operation '" + "text/didSave");
-    var uri = params.getTextDocument().getUri();
+    LOGGER.info("operation /didSave");
+    String uri = params.getTextDocument().getUri();
     sources.saveFile(uri);
     publishDiagnostic(uri);
   }
@@ -86,16 +95,16 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
   @JsonRequest
   public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(
       CompletionParams position) {
-    var uri = position.getTextDocument().getUri();
-    var contentInFile = sources.getContentByUri(uri);
+    String uri = position.getTextDocument().getUri();
+    ContentInFile content = sources.getContentByUri(uri);
 
     // first update always is lost -> on first update program doesn't know about new symbol
     // and last word is taken wrong
-    if (contentInFile.getVersion() < 2) {
+    if (content.getVersion() < 2) {
       return CompletableFuture.supplyAsync(() -> Either.forLeft(new ArrayList<>()));
     }
     // match with properties and make the list of completions
-    var completions = PropertiesMatcher.getCompletions(contentInFile.getContent(),
+    List<CompletionItem> completions = PropertiesMatcher.getCompletions(content.getContent(),
         position.getPosition());
     return CompletableFuture.supplyAsync(() -> Either.forLeft(completions));
   }

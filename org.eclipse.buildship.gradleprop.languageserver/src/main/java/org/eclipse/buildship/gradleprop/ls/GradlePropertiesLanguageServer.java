@@ -1,6 +1,7 @@
 package org.eclipse.buildship.gradleprop.ls;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
@@ -31,15 +32,14 @@ public class GradlePropertiesLanguageServer implements LanguageServer, LanguageC
   public void connect(LanguageClient client) {
     languageClient = client;
     gradleTextDocumentService.connect(client);
-    ClientLogger.getInstance().initialize(languageClient);
   }
 
   @Override
   public CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
-    var capabilities = new ServerCapabilities();
+    ServerCapabilities capabilities = new ServerCapabilities();
     capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
 
-    var triggerCharacters = new ArrayList<String>();
+    List<String> triggerCharacters = new ArrayList<String>();
     triggerCharacters.add(".");
     triggerCharacters.add("=");
 

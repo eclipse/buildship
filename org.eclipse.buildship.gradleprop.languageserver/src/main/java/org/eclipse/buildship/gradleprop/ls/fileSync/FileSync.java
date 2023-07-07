@@ -1,4 +1,4 @@
-package server.fileSync;
+package org.eclipse.buildship.gradleprop.ls.fileSync;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,9 +10,15 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
+import org.eclipse.buildship.gradleprop.ls.fileSync.ContentInFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileSync {
+
+  private static Logger LOGGER = LoggerFactory.getLogger(FileSync.class);
 
   final private Map<String, ContentInFile> contentByUri;
 
@@ -20,38 +26,46 @@ public class FileSync {
     contentByUri = new HashMap<>();
   }
 
-  public server.fileSync.ContentInFile getContentByUri(String uri) {
+  public ContentInFile getContentByUri(String uri) {
     return contentByUri.get(uri);
   }
 
-  public void openFile(String uri) {
+  public boolean openFile(String uri) {
     Path path = getPathFromUri(uri);
     try {
       String content = Files.readString(path);
       contentByUri.put(uri, new ContentInFile(content, 0));
     } catch (IOException e) {
-      System.err.println("file isn't found, uri:" + uri);
-      throw new RuntimeException(e);
+      LOGGER.error("File with uri:" + uri + " isn't found");
+      return false;
     }
-
+    return true;
   }
 
   public void editFile(String uri, int version, List<TextDocumentContentChangeEvent> changes)
       throws IOException {
-    var contentInFile = contentByUri.get(uri);
-    var content = contentInFile.getContent();
-    var existingVersion = contentInFile.getVersion();
+    ContentInFile content = contentByUri.get(uri);
+    if (content == null) {
+      if (!openFile(uri)) {
+        LOGGER.error("File with uri:" + uri + " isn't found");
+        return;
+      }
+    }
+    assert content != null;
+    String textInFile = content.getContent();
+    int existingVersion = content.getVersion();
 
     if (existingVersion > version) {
+      LOGGER.error("existing version is more than version from edit request");
       return;
     }
 
-    for (var change : changes) {
+    for (TextDocumentContentChangeEvent change : changes) {
       String newContent = change.getText();
       if (change.getRange() != null) {
-        newContent = applyChange(content, change);
+        newContent = applyChange(textInFile, change);
       }
-      contentInFile.updateFile(newContent, version);
+      content.updateFile(newContent, version);
     }
   }
 
@@ -66,17 +80,17 @@ public class FileSync {
 
 
   private Path getPathFromUri(String uri) {
-    var trimmedUri = uri.substring("file://".length());
+    String trimmedUri = uri.substring("file://".length());
     return Paths.get(trimmedUri);
   }
 
   private String applyChange(String content, TextDocumentContentChangeEvent change)
       throws IOException {
-    var range = change.getRange();
-    var reader = new BufferedReader(new StringReader(content));
-    var writer = new StringWriter();
+    Range range = change.getRange();
+    BufferedReader reader = new BufferedReader(new StringReader(content));
+    StringWriter writer = new StringWriter();
 
-    var curLine = 0;
+    int curLine = 0;
     // skip unchanged part
     while (curLine < range.getStart().getLine()) {
       writer.write(reader.readLine() + '\n');
@@ -86,7 +100,7 @@ public class FileSync {
     writer.write(change.getText());
 
     // skip replaced text
-    var cntReplacedLines = range.getEnd().getLine() - range.getStart().getLine();
+    int cntReplacedLines = range.getEnd().getLine() - range.getStart().getLine();
     for (int i = 0; i < cntReplacedLines; i++) {
       reader.readLine();
     }
@@ -98,7 +112,7 @@ public class FileSync {
 
     // write remaining text
     while (true) {
-      var next = reader.read();
+      int next = reader.read();
       if (next == -1) {
         return writer.toString();
       } else {

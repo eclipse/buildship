@@ -9,12 +9,12 @@ import org.eclipse.lsp4j.Position;
 public class PropertiesMatcher {
 
   public static List<CompletionItem> getCompletions(String content, Position position) {
-    var completionWord = getCompletionWord(content, position);
+    String completionWord = getCompletionWord(content, position);
     char lastSymbol = '\0';
     if (!completionWord.isEmpty()) {
       lastSymbol = completionWord.charAt(completionWord.length() - 1);
     }
-    var onlyValues = false;
+    boolean onlyValues = false;
 
     // if it's true, we consider only values
     if (lastSymbol == '=') {
@@ -24,9 +24,9 @@ public class PropertiesMatcher {
 
     if (onlyValues) {
       List<CompletionItem> result = new ArrayList<>();
-      for (var property : PropertiesStorage.getProperties()) {
+      for (Property property : PropertiesStorage.getProperties()) {
         if (property.getName().equals(completionWord)) {
-          for (var value : property.getValues()) {
+          for (String value : property.getValues()) {
             result.add(new CompletionItem(value));
           }
         }
@@ -34,7 +34,7 @@ public class PropertiesMatcher {
       return result;
     }
 
-    var matchedProperties = getMatchedProperties(completionWord);
+    List<Property> matchedProperties = getMatchedProperties(completionWord);
 
     return matchedProperties.stream()
         .map(property -> {
@@ -47,12 +47,12 @@ public class PropertiesMatcher {
   }
 
   private static String getCompletionWord(String content, Position position) {
-    var lines = content.split("\n");
+    String[] lines = content.split("\n");
     if (position.getCharacter() == 0) {
       return "";
     }
-    var workLine = lines[position.getLine()].substring(0, position.getCharacter());
-    var wordsOnLine = workLine.split("\\s+");
+    String workLine = lines[position.getLine()].substring(0, position.getCharacter());
+    String[] wordsOnLine = workLine.split("\\s+");
     if (wordsOnLine.length == 0) {
       return "";
     }
@@ -64,9 +64,9 @@ public class PropertiesMatcher {
     if (input.isEmpty()) {
       return result;
     }
-    var properties = PropertiesStorage.getProperties();
+    List<Property> properties = PropertiesStorage.getProperties();
 
-    for (var property : properties) {
+    for (Property property : properties) {
       if (property.getName().startsWith(input)) {
         result.add(property);
       }

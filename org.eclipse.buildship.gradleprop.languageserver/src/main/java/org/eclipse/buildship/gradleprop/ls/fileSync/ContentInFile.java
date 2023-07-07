@@ -1,4 +1,4 @@
-package server.fileSync;
+package org.eclipse.buildship.gradleprop.ls.fileSync;
 
 public class ContentInFile {
 
