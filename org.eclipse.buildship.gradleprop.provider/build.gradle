@@ -1,0 +1,31 @@
+plugins {
+    id 'application'
+}
+apply plugin: eclipsebuild.BundlePlugin
+repositories {
+    mavenCentral()
+}
+
+// The shadow plugin declares a custom project publication which we get via a custom libs dependency configuration
+configurations {
+    libs
+}
+dependencies {
+    libs project(path : ':org.eclipse.buildship.gradleprop.languageserver', configuration : 'shadow')
+}
+
+// The shadow jar should be on the compile and runtime classpath
+dependencies {
+    implementation files('libs/server.jar')
+}
+
+// Copy all dependencies from the libs configuration to a local directory
+task copyShadowJar(type: Copy) {
+    from configurations.libs
+    into file("${projectDir}/libs")
+}
+
+compileJava.mustRunAfter copyShadowJar
+
+// Automatically update the libs directory before compilation starts
+processResources.dependsOn copyShadowJar
