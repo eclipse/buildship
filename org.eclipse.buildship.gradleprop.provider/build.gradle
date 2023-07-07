@@ -11,7 +11,7 @@ configurations {
     libs
 }
 dependencies {
-    libs project(path : ':org.eclipse.buildship.gradleprop.languageserver', configuration : 'shadow')
+    libs project(path : ':org.eclipse.buildship.gradleprop.ls', configuration : 'shadow')
 }
 
 // The shadow jar should be on the compile and runtime classpath

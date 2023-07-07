@@ -25,7 +25,7 @@ java {
 
 tasks.withType(Jar::class) {
     manifest {
-        attributes["Main-Class"] = "server.GradlePropertiesLanguageServerLauncher";
+        attributes["Main-Class"] = "org.eclipse.buildship.gradleprop.ls.GradlePropertiesLanguageServerLauncher";
     }
 }
 
