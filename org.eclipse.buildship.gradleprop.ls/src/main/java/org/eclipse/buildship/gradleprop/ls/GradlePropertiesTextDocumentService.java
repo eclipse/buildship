@@ -10,7 +10,6 @@
 package org.eclipse.buildship.gradleprop.ls;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.eclipse.buildship.gradleprop.ls.fileSync.ContentInFile;
