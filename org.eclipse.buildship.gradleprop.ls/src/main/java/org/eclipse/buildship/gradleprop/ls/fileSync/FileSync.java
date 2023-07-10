@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
-import org.eclipse.buildship.gradleprop.ls.fileSync.ContentInFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
