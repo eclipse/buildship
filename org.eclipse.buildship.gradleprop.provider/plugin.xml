@@ -8,7 +8,14 @@
             file-extensions="properties"
             file-names="gradle"
             id="org.eclipse.buildship.gradleprop.provider.content"
-            name="Language server for gradle.properties files"
+            name="content for gradle.properties files"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="kts"
+            id="kts.content"
+            name="kts content"
             priority="normal">
       </content-type>
    </extension>
@@ -21,6 +28,14 @@
       <scopeNameContentTypeBinding
             contentTypeId="org.eclipse.buildship.gradleprop.provider.content"
             scopeName="source.gradleprop">
+      </scopeNameContentTypeBinding>
+      <grammar
+            path="src/syntax/Kotlin.tmLanguage.json"
+            scopeName="source.kotlin">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.buildship.gradleprop.provider.content-type1"
+            scopeName="source.kotlin">
       </scopeNameContentTypeBinding>
    </extension>
    <extension
