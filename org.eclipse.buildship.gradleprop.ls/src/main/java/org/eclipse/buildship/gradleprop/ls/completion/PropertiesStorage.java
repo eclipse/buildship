@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Gradle Inc. and others
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 package org.eclipse.buildship.gradleprop.ls.completion;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -8,6 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+/**
+ * Initialises and gives the list of gradle properties.
+ *
+ * @author Nikolai Vladimirov
+ */
 
 public class PropertiesStorage {
 

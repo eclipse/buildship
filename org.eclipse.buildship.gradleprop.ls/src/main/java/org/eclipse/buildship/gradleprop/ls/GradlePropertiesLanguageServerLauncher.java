@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Gradle Inc. and others
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 package org.eclipse.buildship.gradleprop.ls;
 
 import java.io.InputStream;
@@ -8,6 +17,12 @@ import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+/**
+ * Launches the language server. Is invoked by the org.eclipse.buildship.gradleprop.provider.
+ *
+ * @author Nikolai Vladimirov
+ */
 
 public class GradlePropertiesLanguageServerLauncher {
 

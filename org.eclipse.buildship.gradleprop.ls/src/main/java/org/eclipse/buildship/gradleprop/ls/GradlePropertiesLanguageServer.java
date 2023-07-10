@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Gradle Inc. and others
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 package org.eclipse.buildship.gradleprop.ls;
 
 import java.util.ArrayList;
@@ -13,6 +22,12 @@ import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
+
+/**
+ * Implements a language server.
+ *
+ * @author Nikolai Vladimirov
+ */
 
 public class GradlePropertiesLanguageServer implements LanguageServer, LanguageClientAware {
 

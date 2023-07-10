@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Gradle Inc. and others
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 package org.eclipse.buildship.gradleprop.ls.diagnostic;
 
 import java.util.ArrayList;
@@ -8,6 +17,12 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.buildship.gradleprop.ls.completion.PropertiesStorage;
 import org.eclipse.buildship.gradleprop.ls.fileSync.ContentInFile;
+
+/**
+ * Is responsible for the validation of a file.
+ *
+ * @author Nikolai Vladimirov
+ */
 
 public class DiagnosticManager {
 

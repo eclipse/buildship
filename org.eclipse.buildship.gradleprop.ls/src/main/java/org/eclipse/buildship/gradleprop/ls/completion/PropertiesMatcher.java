@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Gradle Inc. and others
+ *
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ ******************************************************************************/
 package org.eclipse.buildship.gradleprop.ls.completion;
 
 import java.util.ArrayList;
@@ -6,8 +15,20 @@ import java.util.stream.Collectors;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 
+/**
+ * Gives completion items by content and position in a file.
+ *
+ * @author Nikolai Vladimirov
+ */
 public class PropertiesMatcher {
 
+
+  /**
+   * The common function that is invoked from outside.
+   *
+   * @param content is the text in a file and position in the file.
+   * @return list of completion items.
+   */
   public static List<CompletionItem> getCompletions(String content, Position position) {
     String completionWord = getCompletionWord(content, position);
     char lastSymbol = '\0';
@@ -46,6 +67,9 @@ public class PropertiesMatcher {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Gives word which is placed to the left of the work cursor.
+   */
   private static String getCompletionWord(String content, Position position) {
     String[] lines = content.split("\n");
     if (position.getCharacter() == 0) {
@@ -58,6 +82,7 @@ public class PropertiesMatcher {
     }
     return wordsOnLine[wordsOnLine.length - 1];
   }
+
 
   static private List<Property> getMatchedProperties(String input) {
     List<Property> result = new ArrayList<>();
