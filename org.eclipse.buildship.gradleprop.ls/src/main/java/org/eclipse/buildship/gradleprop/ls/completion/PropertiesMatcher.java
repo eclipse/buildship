@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Gives completion items by content and position in a file.
@@ -22,6 +24,7 @@ import org.eclipse.lsp4j.Position;
  */
 public class PropertiesMatcher {
 
+  private static Logger LOGGER = LoggerFactory.getLogger(PropertiesMatcher.class);
 
   /**
    * The common function that is invoked from outside.
@@ -30,6 +33,11 @@ public class PropertiesMatcher {
    * @return list of completion items.
    */
   public static List<CompletionItem> getCompletions(String content, Position position) {
+    if (!positionInsideContent(content, position)) {
+      LOGGER.error("Position of cursor isn't placed inside the content");
+      return new ArrayList<>();
+    }
+
     String completionWord = getCompletionWord(content, position);
     char lastSymbol = '\0';
     if (!completionWord.isEmpty()) {
@@ -99,4 +107,11 @@ public class PropertiesMatcher {
 
     return result;
   }
+
+  static private boolean positionInsideContent(String content, Position position) {
+    String[] lines = content.split("\n");
+    return lines.length > position.getLine()
+        && lines[position.getLine()].length() >= position.getCharacter();
+  }
+
 }

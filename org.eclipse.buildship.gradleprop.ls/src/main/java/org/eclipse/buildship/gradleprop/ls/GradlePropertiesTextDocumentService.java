@@ -112,13 +112,6 @@ public class GradlePropertiesTextDocumentService implements TextDocumentService 
       CompletionParams position) {
     String uri = position.getTextDocument().getUri();
     ContentInFile content = sources.getContentByUri(uri);
-
-    // first update always is lost -> on first update program doesn't know about new symbol
-    // and last word is taken wrong
-    if (content.getVersion() < 2) {
-      return CompletableFuture.supplyAsync(() -> Either.forLeft(new ArrayList<>()));
-    }
-    // match with properties and make the list of completions
     List<CompletionItem> completions = PropertiesMatcher.getCompletions(content.getContent(),
         position.getPosition());
     return CompletableFuture.supplyAsync(() -> Either.forLeft(completions));
