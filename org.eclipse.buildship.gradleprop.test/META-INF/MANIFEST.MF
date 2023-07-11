@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Gradle Properties - Integration Test
-Bundle-SymbolicName: org.eclipse.buildship.gradleprop.test;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Automatic-Module-Name: org.eclipse.buildship.gradleprop.test
-Bundle-RequiredExecutionEnvironment: JavaSE-17
