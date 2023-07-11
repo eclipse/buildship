@@ -10,5 +10,5 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.lsp4j.jsonrpc,
  org.eclipse.core.runtime,
  org.eclipse.tm4e.registry,
- org.eclipse.jdt.launching;bundle-version="3.19.900",
+ org.eclipse.jdt.launching,
  org.eclipse.swt
