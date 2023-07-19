@@ -25,8 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GradlePropertiesLanguageServerLauncher {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(
-      GradlePropertiesLanguageServerLauncher.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(GradlePropertiesLanguageServerLauncher.class);
 
   public static void main(String[] args) throws InterruptedException, ExecutionException {
     LOGGER.info("server is running");
