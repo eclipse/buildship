@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import org.eclipse.lsp4e.server.ProcessStreamConnectionProvider;
 import org.eclipse.lsp4e.server.StreamConnectionProvider;
@@ -21,6 +22,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Bundle;
 import java.net.URI;
@@ -52,29 +54,43 @@ public class GradlePropertiesConnectionProvider extends ProcessStreamConnectionP
 
       String pathToServer = pathToPlugin.resolve("libs/language-server.jar").toString();
 
-      IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
-      String javaExecutable = null;
-      if (defaultVMInstall != null) {
-        javaExecutable = defaultVMInstall.getInstallLocation().toPath().resolve("bin")
-            .resolve("java").toString();
-      } else {
-        IVMInstallType[] types = JavaRuntime.getVMInstallTypes();
-        for (int i = 0, find = 0; i < types.length && find == 0; i++) {
-          IVMInstallType type = types[i];
-          IVMInstall[] jres = type.getVMInstalls();
-          for (IVMInstall jre : jres) {
-            javaExecutable = jre.getInstallLocation().toPath().resolve("bin").resolve("java")
-                .toString();
-            find = 1;
-            break;
-          }
+      IExecutionEnvironment[] executionEnvironments = JavaRuntime.getExecutionEnvironmentsManager()
+          .getExecutionEnvironments();
+
+      IExecutionEnvironment java11Environment = null;
+
+      for (IExecutionEnvironment environment : executionEnvironments) {
+        if (environment.getId().equals("JavaSE-11")) {
+          java11Environment = environment;
+          break;
         }
       }
 
-      List<String> commands = new ArrayList<>();
-      
-      if (javaExecutable == null) {
-    	  PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+      ArrayList<IVMInstall> compatibleJVMs = new ArrayList<>(
+          Arrays.asList(java11Environment.getCompatibleVMs()));
+      IVMInstall defaultVMInstall = JavaRuntime.getDefaultVMInstall();
+      IVMInstall javaExecutable = null;
+
+      if (!compatibleJVMs.isEmpty()) {
+        if (compatibleJVMs.contains(defaultVMInstall)) {
+          javaExecutable = defaultVMInstall;
+        } else {
+          javaExecutable = compatibleJVMs.get(0);
+        }
+
+        String pathToJavaExecutable = javaExecutable.getInstallLocation().toPath().resolve("bin")
+            .resolve("java")
+            .toString();
+
+        List<String> commands = new ArrayList<>(
+            Arrays.asList(pathToJavaExecutable, "-jar", pathToServer));
+
+        // add in commands path to bin application of language server
+        setCommands(commands);
+        setWorkingDirectory(pathToPlugin.toString());
+        
+      } else {
+        PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
           public void run() {
             Shell shell = new Shell();
             MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
@@ -85,17 +101,8 @@ public class GradlePropertiesConnectionProvider extends ProcessStreamConnectionP
             shell.dispose();
           }
         });
-
-      } else {
-        commands.add(javaExecutable);
-        commands.add("-jar");
-        commands.add(pathToServer);
       }
 
-      // add in commands path to bin application of language server
-      setCommands(commands);
-
-      setWorkingDirectory(pathToPlugin.toString());
 
     } catch (IOException | URISyntaxException e) {
       System.err.println("[GradlePropertiesConnectionProvider]:" + e.toString());
