@@ -34,7 +34,7 @@ public class GradlePropertiesLanguageServer implements LanguageServer, LanguageC
   private final TextDocumentService textDocumentService;
   private final GradlePropertiesTextDocumentService gradleTextDocumentService;
   private final WorkspaceService workspaceService;
-  LanguageClient languageClient;
+  private LanguageClient languageClient;
   private int shutdown = 1;
 
   public GradlePropertiesLanguageServer() {
