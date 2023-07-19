@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.ui.externaltools.ProgramLaunchConfigurationType">
+    <booleanAttribute key="org.eclipse.debug.core.capture_output" value="true"/>
+    <booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="true"/>
+    <booleanAttribute key="org.eclipse.ui.externaltools.ATTR_BUILDER_ENABLED" value="false"/>
+    <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LAUNCH_CONFIGURATION_BUILD_SCOPE" value="${none}"/>
+    <stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="/Users/kolavladimirov/.p2/pool/plugins/org.eclipse.justj.openjdk.hotspot.jre.full.macosx.aarch64_17.0.7.v20230425-1502/jre/bin/java"/>
+    <booleanAttribute key="org.eclipse.ui.externaltools.ATTR_SHOW_CONSOLE" value="false"/>
+    <stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="-cp /Users/kolavladimirov/eclipse/dsl-2023-03/Eclipse.app/Contents/Eclipse/../../../../../.p2/pool/plugins/com.google.gson_2.10.1.v20230109-0753.jar:/Users/kolavladimirov/eclipse/dsl-2023-03/Eclipse.app/Contents/Eclipse/../../../../../.p2/pool/plugins/org.eclipse.lsp4j_0.21.0.v20230517-2120.jar:/Users/kolavladimirov/eclipse/dsl-2023-03/Eclipse.app/Contents/Eclipse/../../../../../.p2/pool/plugins/org.eclipse.lsp4e.tests.mock_0.16.3.202305241157.jar:/Users/kolavladimirov/eclipse/dsl-2023-03/Eclipse.app/Contents/Eclipse/../../../../../.p2/pool/plugins/org.eclipse.lsp4j.jsonrpc_0.21.0.v20230517-2120.jar org.eclipse.lsp4e.tests.mock.MockLanguageServer"/>
+</launchConfiguration>
