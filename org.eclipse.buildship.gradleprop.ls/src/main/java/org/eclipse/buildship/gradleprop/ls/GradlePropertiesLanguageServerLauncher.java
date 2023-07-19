@@ -28,7 +28,7 @@ public class GradlePropertiesLanguageServerLauncher {
   private static Logger LOGGER = LoggerFactory.getLogger(GradlePropertiesLanguageServerLauncher.class);
 
   public static void main(String[] args) throws InterruptedException, ExecutionException {
-    LOGGER.info("server is running");
+    LOGGER.info("Gradle properties language server started");
     startServer(System.in, System.out);
   }
 
