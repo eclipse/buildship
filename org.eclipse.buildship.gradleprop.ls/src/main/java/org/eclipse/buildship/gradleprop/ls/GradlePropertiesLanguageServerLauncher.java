@@ -35,8 +35,7 @@ public class GradlePropertiesLanguageServerLauncher {
   public static void startServer(InputStream in, OutputStream out)
       throws InterruptedException, ExecutionException {
     GradlePropertiesLanguageServer server = new GradlePropertiesLanguageServer();
-    Launcher<LanguageClient> launcher = Launcher.createLauncher(server, LanguageClient.class, in,
-        out);
+    Launcher<LanguageClient> launcher = Launcher.createLauncher(server, LanguageClient.class, in, out);
     LanguageClient client = launcher.getRemoteProxy();
     server.connect(client);
     Future<?> startListening = launcher.startListening();
