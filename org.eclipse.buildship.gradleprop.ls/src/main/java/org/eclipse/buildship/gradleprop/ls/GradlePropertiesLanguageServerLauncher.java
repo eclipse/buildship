@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Nikolai Vladimirov
  */
-
 public class GradlePropertiesLanguageServerLauncher {
 
   private static Logger LOGGER = LoggerFactory.getLogger(
