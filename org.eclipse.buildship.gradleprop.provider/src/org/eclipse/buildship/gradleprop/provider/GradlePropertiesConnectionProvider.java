@@ -72,9 +72,9 @@ public class GradlePropertiesConnectionProvider extends ProcessStreamConnectionP
       }
 
       List<String> commands = new ArrayList<>();
-
+      
       if (javaExecutable == null) {
-        Display.getDefault().syncExec(new Runnable() {
+    	  PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
           public void run() {
             Shell shell = new Shell();
             MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
