@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Nikolai Vladimirov
  */
-
 public class GradlePropertiesTextDocumentService implements TextDocumentService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GradlePropertiesTextDocumentService.class);

@@ -23,7 +23,6 @@ import org.eclipse.buildship.gradleprop.ls.fileSync.ContentInFile;
  *
  * @author Nikolai Vladimirov
  */
-
 public class DiagnosticManager {
 
   static public List<Diagnostic> getDiagnosticList(ContentInFile content) {
