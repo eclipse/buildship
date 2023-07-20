@@ -1,4 +1,0 @@
-dsld
-gradle
-groovy
-java
