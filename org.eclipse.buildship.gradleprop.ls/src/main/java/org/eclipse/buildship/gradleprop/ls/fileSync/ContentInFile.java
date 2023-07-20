@@ -14,7 +14,6 @@ package org.eclipse.buildship.gradleprop.ls.fileSync;
  *
  * @author Nikolai Vladimirov
  */
-
 public class ContentInFile {
 
   private String content;

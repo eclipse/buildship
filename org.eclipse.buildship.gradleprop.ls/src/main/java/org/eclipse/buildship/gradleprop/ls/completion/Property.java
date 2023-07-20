@@ -17,7 +17,6 @@ import java.util.List;
  *
  * @author Nikolai Vladimirov
  */
-
 public class Property {
 
   private String name;
