@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Nikolai Vladimirov
  */
+
 public class FileSync {
 
   private static Logger LOGGER = LoggerFactory.getLogger(FileSync.class);

@@ -17,6 +17,7 @@ import java.util.ArrayList;
  *
  * @author Nikolai Vladimirov
  */
+
 public class PropertyModelJson {
 
   private ArrayList<Property> properties;

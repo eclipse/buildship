@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Nikolai Vladimirov
  */
+
 public class GradlePropertiesWorkSpaceService implements WorkspaceService {
 
   private static Logger LOGGER = LoggerFactory.getLogger(GradlePropertiesWorkSpaceService.class);

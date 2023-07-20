@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PropertiesMatcher {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesMatcher.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(PropertiesMatcher.class);
 
   /**
    * The common function that is invoked from outside.

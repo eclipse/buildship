@@ -23,9 +23,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Nikolai Vladimirov
  */
+
 public class PropertiesStorage {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesStorage.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(PropertiesStorage.class);
 
   private static List<Property> initializeFromFile() {
     List<Property> propertiesFromFile = new ArrayList<>();

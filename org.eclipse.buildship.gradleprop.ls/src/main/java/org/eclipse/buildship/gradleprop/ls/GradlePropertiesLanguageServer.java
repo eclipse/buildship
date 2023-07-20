@@ -28,12 +28,14 @@ import org.eclipse.lsp4j.services.WorkspaceService;
  *
  * @author Nikolai Vladimirov
  */
+
 public class GradlePropertiesLanguageServer implements LanguageServer, LanguageClientAware {
 
   private final TextDocumentService textDocumentService;
   private final GradlePropertiesTextDocumentService gradleTextDocumentService;
   private final WorkspaceService workspaceService;
   private LanguageClient languageClient;
+  private int shutdown = 1;
 
   public GradlePropertiesLanguageServer() {
     gradleTextDocumentService = new GradlePropertiesTextDocumentService();
@@ -64,11 +66,13 @@ public class GradlePropertiesLanguageServer implements LanguageServer, LanguageC
 
   @Override
   public CompletableFuture<Object> shutdown() {
-    return CompletableFuture.supplyAsync(null);
+    shutdown = 0;
+    return CompletableFuture.supplyAsync(Object::new);
   }
 
   @Override
   public void exit() {
+    System.exit(shutdown);
   }
 
   @Override
