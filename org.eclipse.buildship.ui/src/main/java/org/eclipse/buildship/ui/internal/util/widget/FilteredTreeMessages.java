@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc. and others
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,7 @@ import org.eclipse.osgi.util.NLS;
  * Based on org.eclipse.ui.internal.WorkbenchMessages.
  *
 /*******************************************************************************
- * Copyright (c) 2014 vogella GmbH and others.
+ * Copyright (c) 2023 vogella GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
