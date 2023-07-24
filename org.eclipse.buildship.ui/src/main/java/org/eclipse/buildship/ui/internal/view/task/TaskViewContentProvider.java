@@ -54,6 +54,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         if (input instanceof TaskViewContent) {
             TaskViewContent taskViewContent = (TaskViewContent) input;
             result.addAll(createTopLevelProjectNodes(taskViewContent));
+            result.addAll(taskViewContent.getFaultyBuilds());
         }
         return result.build().toArray();
     }
@@ -78,10 +79,6 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
                 Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(rootEclipseProject.getName());
                 allProjectNodes.add(new ProjectNode(null, build, workspaceProject, rootEclipseProject));
             }
-        }
-
-        for (IProject faultyProject : taskViewContent.getFaultyWorkspaceProjects()) {
-            allProjectNodes.add(new FaultyProjectNode(faultyProject));
         }
 
         return allProjectNodes;
@@ -138,7 +135,7 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         EclipseProject eclipseProject = projectNode.getEclipseProject();
 
         for (EclipseProject childProject : eclipseProject.getChildren()) {
-            Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(childProject.getName());
+            Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(childProject.getProjectDirectory());
             ProjectNode childProjectNode = new ProjectNode(projectNode, projectNode.getBuildNode(), workspaceProject, childProject);
             result.add(childProjectNode);
         }
