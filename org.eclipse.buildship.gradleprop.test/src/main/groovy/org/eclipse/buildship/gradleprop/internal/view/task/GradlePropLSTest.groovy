@@ -23,7 +23,7 @@ class GradlePropLSTest extends BaseTaskViewTest {
         tree.setFocus()
     }
 
-    def "autocompletion is working in gradle.properties file"() {
+    def "Autocompletion is working in Gradle Properties file"() {
         setup:
         // Find and open the Package Explorer view
         SWTBotView packageExplorerView = bot.viewByTitle('Package Explorer')
@@ -33,34 +33,34 @@ class GradlePropLSTest extends BaseTaskViewTest {
         SWTBotTreeItem rootNode = packageExplorerView.bot().tree().getTreeItem('root_dir')
         rootNode.doubleClick()
 
-		SWTBotTreeItem gradlePropertiesItem = packageExplorerView.bot().tree().getTreeItem('root_dir').expand().getNode('gradle.properties')
-		gradlePropertiesItem.contextMenu("Open With").menu("Generic Text Editor").click()
-		
-		SWTBotEclipseEditor editor = bot.activeEditor().toTextEditor()
-		
-		when:
-		List<String> allAvailableProposals = editor.getAutoCompleteProposals('org.')
-		editor.typeText('\n')
-		
-		then:
-		allAvailableProposals.size() == 23
-		
-		when:
-		editor.typeText('org.gradle.console=')
-		List<String> values = editor.getAutoCompleteProposals('')
-		editor.typeText('\n')
-		
-		then:
-		def correctValues = ["auto", "plain", "rich", "verbose"]
-		values.equals(new ArrayList<String>(correctValues))
-		
-		when:
-		editor.autoCompleteProposal('org.gradle.debug', 'org.gradle.debug.host')
+        SWTBotTreeItem gradlePropertiesItem = packageExplorerView.bot().tree().getTreeItem('root_dir').expand().getNode('gradle.properties')
+        gradlePropertiesItem.contextMenu("Open With").menu("Generic Text Editor").click()
 
-		then:
-		// if previous line throws exception then we get fallen test
-		true
-		
+        SWTBotEclipseEditor editor = bot.activeEditor().toTextEditor()
+
+        when:
+        List<String> allAvailableProposals = editor.getAutoCompleteProposals('org.')
+        editor.typeText('\n')
+
+        then:
+        allAvailableProposals.size() == 23
+
+        when:
+        editor.typeText('org.gradle.console=')
+        List<String> values = editor.getAutoCompleteProposals('')
+        editor.typeText('\n')
+
+        then:
+        def correctValues = ["auto", "plain", "rich", "verbose"]
+        values == new ArrayList<String>(correctValues)
+
+        when:
+        editor.autoCompleteProposal('org.gradle.debug', 'org.gradle.debug.host')
+
+        then:
+        // if previous line throws exception then we get fallen test
+        true
+
     }
 
     private File sampleProject() {
