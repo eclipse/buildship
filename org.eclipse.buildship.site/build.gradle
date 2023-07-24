@@ -41,7 +41,8 @@ dependencies {
     localPlugin project(':org.eclipse.buildship.oomph')
     localPlugin project(':org.eclipse.buildship.oomph.edit')
     localFeature project(':org.eclipse.buildship.oomph.feature')
-
+	localFeature project(':org.eclipse.buildship.gradleprop.feature')
+    localPlugin project(':org.eclipse.buildship.gradleprop.provider')
    if (findProperty('include.experimental.features') == 'true') {
         localPlugin project(':org.eclipse.buildship.kotlin')
         localFeature project(':org.eclipse.buildship.kotlin.feature')

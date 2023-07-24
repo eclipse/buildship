@@ -1,0 +1,28 @@
+{
+  "name": "Gradle Properties Grammar",
+  "scopeName": "source.gradleprop",
+  "fileTypes": ["example"],
+  "patterns": [
+    {
+      "name": "value",
+      "match": "=\\s*([^\\s=]+)",
+      "captures": {
+        "1": {
+          "name": "constant.numeric.value"
+        }
+      }
+    },
+    {
+      "name": "gradle property",
+      "match": "([\\w.]+)(?=\\s*=)",
+      "captures": {
+        "1": {
+          "name": "constant.numeric.value"
+        },
+        "2": {
+          "name": "constant.numeric.value"
+        }
+      }
+    }
+  ]
+}
