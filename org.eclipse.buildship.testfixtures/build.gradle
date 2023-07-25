@@ -1,0 +1,11 @@
+apply plugin: eclipsebuild.BundlePlugin
+
+dependencies {
+    bundled platform('org.apache.groovy:groovy-bom:4.0.5')
+    bundled 'org.apache.groovy:groovy'
+    bundled platform("org.spockframework:spock-bom:2.3-groovy-4.0")
+    bundled("org.spockframework:spock-core") {
+        exclude group: 'org.junit'
+        exclude group: 'org.junit.platform'
+    }
+}

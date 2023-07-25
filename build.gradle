@@ -145,14 +145,6 @@ subprojects {
 
     // use common bundled testing depenendencies for all test plugins
     plugins.withType(eclipsebuild.TestBundlePlugin) {
-        dependencies {
-            implementation "org.codehaus.groovy:groovy-all:$groovyLibVersion"
-            bundled "org.codehaus.groovy:groovy-all:$groovyLibVersion"
-            bundled "org.objenesis:objenesis:$objenesisLibVersion"
-            bundled "org.spockframework:spock-core:$spockLibVersion"
-            bundled "cglib:cglib-nodep:$cglibLibVersion"
-            bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
-        }
         if (project.hasProperty('eclipse.test.java.version')) {
             tasks.withType(EclipseTestTask) {
                 javaLauncher = javaToolchains.launcherFor {
