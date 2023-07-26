@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Junit5-plugin with integtests
+Bundle-SymbolicName: integtests
+Fragment-Host: org.eclipse.buildship.core
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: junit5.plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Import-Package: org.junit,
+ org.junit.jupiter.api,
+ org.junit.jupiter.api.io
+Require-Bundle: org.eclipse.buildship.testfixtures
+

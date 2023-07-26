@@ -10,16 +10,15 @@
 package org.eclipse.buildship.core.internal.util.binding
 
 import org.gradle.api.JavaVersion
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
 import spock.lang.IgnoreIf
 import spock.lang.Specification
 
 
 class ValidatorsTest extends Specification {
 
-    @Rule
-    TemporaryFolder tempFolder
+    @TempDir
+    File tempFolder
 
     def "noOp never invalidates a value"() {
         setup:

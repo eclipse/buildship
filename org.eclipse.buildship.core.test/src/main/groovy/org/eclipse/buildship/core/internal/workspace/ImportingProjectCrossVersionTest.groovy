@@ -12,7 +12,8 @@ package org.eclipse.buildship.core.internal.workspace
 import org.eclipse.buildship.core.internal.CompatibilityChecker
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
 import org.gradle.api.JavaVersion
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions
+
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Unroll
@@ -139,12 +140,12 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 
         then:
         if (importResult.status.isOK()) {
-            Assert.assertEquals(allProjects().size(), 1)
-            Assert.assertEquals(numOfGradleErrorMarkers, 0)
-            Assert.assertEquals(getPlatformLogErrors().size(), 0)
+            Assertions.assertEquals(allProjects().size(), 1)
+            Assertions.assertEquals(numOfGradleErrorMarkers, 0)
+            Assertions.assertEquals(getPlatformLogErrors().size(), 0)
         } else {
-            Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
-            Assert.assertNotEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
+            Assertions.assertTrue(importResult.status instanceof ToolingApiStatus)
+            Assertions.assertNotEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
         }
 
         cleanup:
@@ -161,12 +162,12 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
 
         then:
         if (importResult.status.isOK()) {
-            Assert.assertEquals(allProjects().size(), 1)
-            Assert.assertEquals(numOfGradleErrorMarkers, 0)
-            Assert.assertEquals(getPlatformLogErrors().size(), 0)
+            Assertions.assertEquals(allProjects().size(), 1)
+            Assertions.assertEquals(numOfGradleErrorMarkers, 0)
+            Assertions.assertEquals(getPlatformLogErrors().size(), 0)
         } else {
-            Assert.assertTrue(importResult.status instanceof ToolingApiStatus)
-            Assert.assertEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
+            Assertions.assertTrue(importResult.status instanceof ToolingApiStatus)
+            Assertions.assertEquals(importResult.status.getCode(), ToolingApiStatus.ToolingApiStatusType.INCOMPATIBILITY_JAVA.ordinal())
         }
 
         where:

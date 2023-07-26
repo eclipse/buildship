@@ -9,15 +9,15 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.gradle;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.junit.Test;
 
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.Pair;
+import org.junit.jupiter.api.Test;
 
 /**
  * MissingFeatures test.
