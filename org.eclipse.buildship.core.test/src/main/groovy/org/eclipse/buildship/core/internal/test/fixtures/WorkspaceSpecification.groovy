@@ -42,7 +42,6 @@ import org.eclipse.buildship.core.internal.preferences.PersistentModel
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.EclipseVmUtil
-import org.eclipse.buildship.core.internal.workspace.EclipseVmUtilTest
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 
