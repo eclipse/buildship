@@ -82,13 +82,11 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
         def root = dir('root') {
             dir 'a'
             dir 'b'
-            file 'settings.gradle', "include 'a', 'b'"
+            file('settings.gradle').text = "include 'a', 'b'"
         }
         importAndWait(root)
-        fileTree(root) {
-            renameInGradle(dir('a'), "b")
-            renameInGradle(dir('b'), "a")
-        }
+        renameInGradle(dir('root/a'), "b")
+        renameInGradle(dir('root/b'), "a")
 
         when:
         synchronizeAndWait(root)
@@ -104,12 +102,13 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
             file 'settings.gradle', "include 'a'"
         }
         importAndWait(root)
-        fileTree(root) {
+        dir('root') {
             dir 'b'
             file('settings.gradle').text = "include 'a', 'b'"
-            renameInGradle(dir('a'), "b")
-            renameInGradle(dir('b'), "a")
+
         }
+        renameInGradle(dir('root/a'), "b")
+        renameInGradle(dir('root/b'), "a")
 
         when:
         synchronizeAndWait(root)
@@ -120,7 +119,7 @@ class SynchronizingRenamedProject extends ProjectSynchronizationSpecification {
     }
 
     private void renameInGradle(File project, String newName) {
-        fileTree(project) {
+        this.fileTree(project) {
             file 'build.gradle', """
                 apply plugin: 'eclipse'
                 eclipse.project.name = '${newName}'
