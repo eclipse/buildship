@@ -12,7 +12,7 @@ Bundle-ClassPath: .,
 Require-Bundle: org.junit.jupiter.api;visibility:=reexport,
  org.junit.platform.engine,
  org.opentest4j,
- org.junit.platform.commons,
+ org.junit.platform.commons;visibility:=reexport,
  org.slf4j.api;visibility:=reexport
 Export-Package: groovy.beans,
  groovy.cli,
