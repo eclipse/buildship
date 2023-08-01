@@ -1,4 +1,1 @@
-plugins {
-    id 'application'
-}
 apply plugin: eclipsebuild.BundlePlugin
