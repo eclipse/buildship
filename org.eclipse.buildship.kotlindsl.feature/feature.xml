@@ -8,7 +8,7 @@
  
 -->
 <feature
-      id="org.eclipse.buildship.kotlinDSL"
+      id="org.eclipse.buildship.kotlindsl"
       label="Kotlin DSL Support"
       version="1.0.0.qualifier"
       provider-name="%providerName"
@@ -18,7 +18,7 @@
       %description
    </description>
 
-    <copyright>
+   <copyright>
       %copyright
    </copyright>
 
@@ -27,7 +27,7 @@
    </license>
 
    <plugin
-         id="org.eclipse.buildship.kotlinDSL.provider"
+         id="org.eclipse.buildship.kotlindsl.provider"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
