@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <bundle id="org.eclipse.buildship.kotlinDSL.provider">
+   <bundle id="org.eclipse.buildship.kotlindsl.provider">
       <category name="Kotlin DSL support"/>
    </bundle>
    <category-def name="Kotlin DSL" label="Features for Kotlin DSL support"/>
