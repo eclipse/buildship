@@ -10,7 +10,6 @@
 package org.eclipse.buildship.ui.internal.test.fixtures
 
 import org.junit.Rule
-import org.junit.rules.ExternalResource
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.CoreException
@@ -35,7 +34,7 @@ import org.eclipse.buildship.ui.internal.console.GradleConsole
 
 abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
 
-    @Rule
+
     TestConsoleHandler consoles = new TestConsoleHandler()
 
     protected static SWTWorkbenchBot bot = new SWTWorkbenchBot()
@@ -46,6 +45,11 @@ abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
 
     def setup() {
         closeAllShellsExceptTheApplicationShellAndForceShellActivation()
+        consoles.before()
+    }
+
+    def cleanup() {
+        consoles.after()
     }
 
     protected void deleteAllProjects(boolean includingContent) {
@@ -101,7 +105,7 @@ abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
         })
     }
 
-    class TestConsoleHandler extends ExternalResource implements IConsoleListener {
+    class TestConsoleHandler implements IConsoleListener {
         IConsole activeConsole
 
         @Override
@@ -113,12 +117,11 @@ abstract class SwtBotSpecification extends ProjectSynchronizationSpecification {
         public void consolesRemoved(IConsole[] consoles) {
         }
 
-        @Override
+
         protected void before() throws Throwable {
             ConsolePlugin.default.consoleManager.addConsoleListener(this)
         }
 
-        @Override
         protected void after() {
             ConsolePlugin.default.consoleManager.removeConsoleListener(this)
             removeConsoles()

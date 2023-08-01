@@ -10,7 +10,7 @@ Bundle-ClassPath: .,
  lib/hamcrest-2.2.jar,
  lib/spock-core-2.3-groovy-4.0.jar
 Require-Bundle: org.junit.jupiter.api;visibility:=reexport,
- org.junit.platform.engine,
+ org.junit.platform.engine;visibility:=reexport,
  org.opentest4j,
  org.junit.platform.commons;visibility:=reexport,
  org.slf4j.api;visibility:=reexport

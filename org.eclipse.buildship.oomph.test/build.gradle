@@ -2,8 +2,8 @@ apply plugin: eclipsebuild.TestBundlePlugin
 apply plugin: 'groovy'
 
 dependencies {
+    api project(':org.eclipse.buildship.core')
     implementation project(':org.eclipse.buildship.compat')
-    implementation project(':org.eclipse.buildship.core')
     implementation project(':org.eclipse.buildship.oomph')
     implementation project(':org.eclipse.buildship.testfixtures')
 }

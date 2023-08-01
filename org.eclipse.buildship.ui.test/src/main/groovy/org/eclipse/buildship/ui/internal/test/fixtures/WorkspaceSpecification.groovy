@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.test.fixtures
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
 import spock.lang.Specification
 import spock.lang.TempDir

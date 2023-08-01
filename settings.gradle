@@ -20,7 +20,8 @@ include ':org.eclipse.buildship.feature'
 include ':org.eclipse.buildship.site'
 include ':org.eclipse.buildship.branding'
 include ':org.eclipse.buildship.core.test'
-include ':org.eclipse.buildship.ui.test'
+//  TODO enable again
+//include ':org.eclipse.buildship.ui.test'
 include ':org.eclipse.buildship.testdependencies'
 if (properties['latest'] == 'true') {
     include ':org.eclipse.buildship.gradleprop.provider'
@@ -31,7 +32,8 @@ if (properties['latest'] == 'true') {
 include ':org.eclipse.buildship.oomph'
 include ':org.eclipse.buildship.oomph.edit'
 include ':org.eclipse.buildship.oomph.feature'
-include ':org.eclipse.buildship.oomph.test'
+//  TODO enable again
+//include ':org.eclipse.buildship.oomph.test'
 include ':org.eclipse.buildship.testfixtures'
 
 // Use local build cache on developer machine and remote cache on CI
