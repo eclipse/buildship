@@ -6,7 +6,7 @@
       <content-type
             base-type="org.eclipse.core.runtime.text"
             file-extensions="kts"
-            id="org.eclipse.buildship.kotlinDSL.content"
+            id="org.eclipse.buildship.kotlindsl.content"
             name="kotlin DSL content type"
             priority="normal">
       </content-type>
@@ -14,18 +14,18 @@
    <extension
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
-            path="src/syntax/Kotlin.tmLanguage.json"
+            path="src/main/resources/Kotlin.tmLanguage.json"
             scopeName="source.kotlin">
       </grammar>
       <scopeNameContentTypeBinding
-            contentTypeId="org.eclipse.buildship.kotlinDSL.content"
+            contentTypeId="org.eclipse.buildship.kotlindsl.content"
             scopeName="source.kotlin">
       </scopeNameContentTypeBinding>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
       <editorContentTypeBinding
-            contentTypeId="org.eclipse.buildship.kotlinDSL.content"
+            contentTypeId="org.eclipse.buildship.kotlindsl.content"
             editorId="org.eclipse.ui.genericeditor.GenericEditor">
       </editorContentTypeBinding>
    </extension>
