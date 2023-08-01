@@ -47,7 +47,7 @@ import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView
 abstract class WorkspaceSpecification extends Specification {
 
     @TempDir
-    File tempFolderProvider
+    File tempDir
 
     @AutoCleanup
     TestEnvironment environment = TestEnvironment.INSTANCE
@@ -55,7 +55,7 @@ abstract class WorkspaceSpecification extends Specification {
     private File externalTestDir
 
     def setup() {
-        externalTestDir = new File(tempFolderProvider, 'external')
+        externalTestDir = new File(tempDir, 'external')
         EclipseVmUtil.findOrRegisterVM("8", new File((String) System.getProperty("jdk8.location")))
         EclipseVmUtil.findOrRegisterVM("11", new File((String) System.getProperty("jdk11.location")))
     }
@@ -92,7 +92,7 @@ abstract class WorkspaceSpecification extends Specification {
         new FileTreeBuilder(baseDir)
     }
 
-    protected File fileTree(File baseDir, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
+    protected File fileTree(File baseDir, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_ONLY) Closure config) {
         fileTree(baseDir).call(config)
     }
 
@@ -102,7 +102,7 @@ abstract class WorkspaceSpecification extends Specification {
         return dir
     }
 
-    protected File dir(String location, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
+    protected File dir(String location, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_ONLY) Closure config) {
         return fileTree(dir(location), config)
     }
 
@@ -131,7 +131,7 @@ abstract class WorkspaceSpecification extends Specification {
         return dir
     }
 
-    protected File workspaceDir(String location, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_FIRST) Closure config) {
+    protected File workspaceDir(String location, @DelegatesTo(value = FileTreeBuilder, strategy = Closure.DELEGATE_ONLY) Closure config) {
         return fileTree(workspaceDir(location), config)
     }
 

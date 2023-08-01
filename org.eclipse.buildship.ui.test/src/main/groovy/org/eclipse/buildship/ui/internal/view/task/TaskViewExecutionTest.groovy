@@ -109,7 +109,16 @@ class TaskViewExecutionTest extends BaseTaskViewTest {
                 include 'sub', 'sub:ss1', 'sub:ss2'
             """
 
-            file 'build.gradle', sampleTaskScript()
+            file 'build.gradle',  """
+                allprojects {
+	                task foo() {
+	                    group = 'custom'
+	                     doLast {
+	                        println "Running task on project \$project.name"
+	                     }
+	                 }
+	             }
+             """
 
             dir ('sub') {
                 dir('ss1')
@@ -122,24 +131,20 @@ class TaskViewExecutionTest extends BaseTaskViewTest {
         dir('ss1')
         dir('ss2')
         dir('root') {
-            file 'build.gradle', sampleTaskScript()
+            file 'build.gradle',  """
+                allprojects {
+	                task foo() {
+	                    group = 'custom'
+	                     doLast {
+	                        println "Running task on project \$project.name"
+	                     }
+	                 }
+	             }
+            """
             file 'settings.gradle', """
                     includeFlat 'ss1'
                     includeFlat 'ss2'
                 """
         }
-    }
-
-    private String sampleTaskScript() {
-        return """
-            allprojects {
-                task foo() {
-                    group = 'custom'
-                     doLast {
-                        println "Running task on project \$project.name"
-                     }
-                 }
-             }
-             """
     }
 }
