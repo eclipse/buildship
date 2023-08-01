@@ -2,16 +2,10 @@ apply plugin: eclipsebuild.TestBundlePlugin
 apply plugin: 'groovy'
 
 dependencies {
-    implementation "org.codehaus.groovy:groovy-all:$groovyLibVersion"
-    bundled "org.codehaus.groovy:groovy-all:$groovyLibVersion"
-    bundled "org.objenesis:objenesis:$objenesisLibVersion"
-    bundled "org.spockframework:spock-core:$spockLibVersion"
-    bundled "cglib:cglib-nodep:$cglibLibVersion"
-    bundled "org.slf4j:slf4j-simple:$slf4jLibVersion"
-    bundled 'org.spockframework:spock-core:1.3-groovy-2.5'
     implementation project(':org.eclipse.buildship.compat')
     implementation project(':org.eclipse.buildship.core')
     implementation project(':org.eclipse.buildship.oomph')
+    implementation project(':org.eclipse.buildship.testfixtures')
 }
 
 eclipseTest {
