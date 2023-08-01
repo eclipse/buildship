@@ -30,55 +30,55 @@ import org.eclipse.lsp4j.services.WorkspaceService;
  */
 public class GradlePropertiesLanguageServer implements LanguageServer, LanguageClientAware {
 
-	private final TextDocumentService textDocumentService;
-	private final GradlePropertiesTextDocumentService gradleTextDocumentService;
-	private final WorkspaceService workspaceService;
-	private LanguageClient languageClient;
+    private final TextDocumentService textDocumentService;
+    private final GradlePropertiesTextDocumentService gradleTextDocumentService;
+    private final WorkspaceService workspaceService;
+    private LanguageClient languageClient;
 
-	public GradlePropertiesLanguageServer() {
-		gradleTextDocumentService = new GradlePropertiesTextDocumentService();
-		this.textDocumentService = gradleTextDocumentService;
-		this.workspaceService = new GradlePropertiesWorkSpaceService();
-	}
+    public GradlePropertiesLanguageServer() {
+        gradleTextDocumentService = new GradlePropertiesTextDocumentService();
+        this.textDocumentService = gradleTextDocumentService;
+        this.workspaceService = new GradlePropertiesWorkSpaceService();
+    }
 
-	@Override
-	public void connect(LanguageClient client) {
-		languageClient = client;
-		gradleTextDocumentService.connect(client);
-	}
+    @Override
+    public void connect(LanguageClient client) {
+        languageClient = client;
+        gradleTextDocumentService.connect(client);
+    }
 
-	@Override
-	public CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
-		ServerCapabilities capabilities = new ServerCapabilities();
-		capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
+    @Override
+    public CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
+        ServerCapabilities capabilities = new ServerCapabilities();
+        capabilities.setTextDocumentSync(TextDocumentSyncKind.Full);
 
-		List<String> triggerCharacters = new ArrayList<String>();
-		triggerCharacters.add(".");
-		triggerCharacters.add("=");
+        List<String> triggerCharacters = new ArrayList<String>();
+        triggerCharacters.add(".");
+        triggerCharacters.add("=");
 
-		CompletionOptions options = new CompletionOptions(false, triggerCharacters);
-		capabilities.setCompletionProvider(options);
+        CompletionOptions options = new CompletionOptions(false, triggerCharacters);
+        capabilities.setCompletionProvider(options);
 
-		return CompletableFuture.supplyAsync(() -> new InitializeResult(capabilities));
-	}
+        return CompletableFuture.supplyAsync(() -> new InitializeResult(capabilities));
+    }
 
-	@Override
-	public CompletableFuture<Object> shutdown() {
-		return CompletableFuture.supplyAsync(Object::new);
-	}
+    @Override
+    public CompletableFuture<Object> shutdown() {
+        return CompletableFuture.supplyAsync(Object::new);
+    }
 
-	@Override
-	public void exit() {
-	}
+    @Override
+    public void exit() {
+    }
 
-	@Override
-	public TextDocumentService getTextDocumentService() {
-		return textDocumentService;
-	}
+    @Override
+    public TextDocumentService getTextDocumentService() {
+        return textDocumentService;
+    }
 
-	@Override
-	public WorkspaceService getWorkspaceService() {
-		return workspaceService;
-	}
+    @Override
+    public WorkspaceService getWorkspaceService() {
+        return workspaceService;
+    }
 
 }
