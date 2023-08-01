@@ -11,8 +11,6 @@ package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
-import groovy.sql.ExpandedVariable
-
 class TaskViewExpandAndCollapseAllTest extends BaseTaskViewTest {
 
     def setup() {

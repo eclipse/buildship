@@ -13,6 +13,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import com.google.common.io.Files
 
@@ -47,8 +48,8 @@ import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView
  */
 abstract class WorkspaceSpecification extends Specification {
 
-    @Rule
-    TemporaryFolder tempFolderProvider
+    @TempDir
+    File tempFolderProvider
 
     @AutoCleanup
     TestEnvironment environment = TestEnvironment.INSTANCE
@@ -56,7 +57,7 @@ abstract class WorkspaceSpecification extends Specification {
     private File externalTestDir
 
     def setup() {
-        externalTestDir = tempFolderProvider.newFolder('external')
+        externalTestDir = new File(tempFolderProvider, 'external')
         EclipseVmUtil.findOrRegisterVM("8", new File((String) System.getProperty("jdk8.location")))
         EclipseVmUtil.findOrRegisterVM("11", new File((String) System.getProperty("jdk11.location")))
     }
