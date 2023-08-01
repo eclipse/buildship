@@ -32,8 +32,7 @@ if (properties['latest'] == 'true') {
 include ':org.eclipse.buildship.oomph'
 include ':org.eclipse.buildship.oomph.edit'
 include ':org.eclipse.buildship.oomph.feature'
-//  TODO enable again
-//include ':org.eclipse.buildship.oomph.test'
+include ':org.eclipse.buildship.oomph.test'
 include ':org.eclipse.buildship.testfixtures'
 
 // Use local build cache on developer machine and remote cache on CI
