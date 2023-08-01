@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="kts"
+            id="org.eclipse.buildship.kotlinDSL.content"
+            name="kotlin DSL content type"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.tm4e.registry.grammars">
+      <grammar
+            path="src/syntax/Kotlin.tmLanguage.json"
+            scopeName="source.kotlin">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.buildship.kotlinDSL.content"
+            scopeName="source.kotlin">
+      </scopeNameContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editorContentTypeBinding
+            contentTypeId="org.eclipse.buildship.kotlinDSL.content"
+            editorId="org.eclipse.ui.genericeditor.GenericEditor">
+      </editorContentTypeBinding>
+   </extension>
+
+</plugin>

@@ -1,0 +1,7 @@
+plugins {
+    id 'application'
+}
+apply plugin: eclipsebuild.BundlePlugin
+repositories {
+    mavenCentral()
+}
