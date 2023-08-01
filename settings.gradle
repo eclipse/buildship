@@ -20,8 +20,7 @@ include ':org.eclipse.buildship.feature'
 include ':org.eclipse.buildship.site'
 include ':org.eclipse.buildship.branding'
 include ':org.eclipse.buildship.core.test'
-//  TODO enable again
-//include ':org.eclipse.buildship.ui.test'
+include ':org.eclipse.buildship.ui.test'
 include ':org.eclipse.buildship.testdependencies'
 if (properties['latest'] == 'true') {
     include ':org.eclipse.buildship.gradleprop.provider'

@@ -9,10 +9,9 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.util.gradle
 
-import org.junit.ClassRule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import com.google.common.base.Strings
 
@@ -26,9 +25,9 @@ import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel
 
 class GradleDistributionViewModelTest extends Specification {
 
-    @ClassRule
     @Shared
-    TemporaryFolder tempFolder
+    @TempDir
+    File tempFolder
 
     def "Validation passes for valid objects"(GradleDistributionViewModel.Type type, String configuration) {
         setup:
@@ -41,7 +40,7 @@ class GradleDistributionViewModelTest extends Specification {
         where:
         type                     | configuration
         Type.WRAPPER             | null
-        Type.LOCAL_INSTALLATION  | tempFolder.newFolder().absolutePath
+        Type.LOCAL_INSTALLATION  | new File(tempFolder, "dir").absolutePath
         Type.REMOTE_DISTRIBUTION | 'http://remote.distribution'
         Type.VERSION             | '2.4'
     }

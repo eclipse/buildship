@@ -10,8 +10,6 @@
 package org.eclipse.buildship.ui.internal.view.task
 
 import org.gradle.api.JavaVersion
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
 import spock.lang.AutoCleanup;
 import spock.lang.IgnoreIf
 
