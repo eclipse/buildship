@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc. and others
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,7 @@ import java.util.Vector;
  * Based on org.eclipse.ui.internal.misc.StringMatcher.
  *
  /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others. All rights reserved. This program and
+ * Copyright (c) 2000, 2023 IBM Corporation and others. All rights reserved. This program and
  * the accompanying materials are made available under the terms of the Eclipse Public License
  * v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
