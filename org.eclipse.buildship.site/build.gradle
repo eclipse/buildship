@@ -46,6 +46,7 @@ dependencies {
         localFeature project(':org.eclipse.buildship.gradleprop.feature')
 
         localPlugin project('org.eclipse.buildship.kotlinDSL.provider')
+        localFeature project(':org.eclipse.buildship.kotlinDSL.feature')
     }
     if (findProperty('include.experimental.features') == 'true') {
         localPlugin project(':org.eclipse.buildship.kotlin')

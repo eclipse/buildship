@@ -28,6 +28,7 @@ if (properties['latest'] == 'true') {
     include ':org.eclipse.buildship.gradleprop.feature'
 
     include ':org.eclipse.buildship.kotlinDSL.provider'
+    include ':org.eclipse.buildship.kotlinDSL.feature'
 }
 
 include ':org.eclipse.buildship.oomph'
