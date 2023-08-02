@@ -12,6 +12,7 @@ configurations {
 }
 dependencies {
     libs project(path : ':org.eclipse.buildship.gradleprop.ls', configuration : 'shadow')
+    api withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
 }
 
 // The shadow jar should be on the compile and runtime classpath

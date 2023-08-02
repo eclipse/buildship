@@ -6,14 +6,13 @@
    <feature url="features/org.eclipse.buildship.kotlin_0.0.0.jar" id="org.eclipse.buildship.kotlin" version="0.0.0">
       <category name="BuildshipExtras"/>
    </feature>
-   <feature url="features/org.eclipse.buildship.oomph_0.0.0.jar" id="org.eclipse.buildship.oomph" version="0.0.0">
-      <category name="Oomph"/>
+   <feature url="features/org.eclipse.buildship.gradleprop_0.0.0.jar" id="org.eclipse.buildship.gradleprop" version="0.0.0">
+      <category name="BuildshipExtrasIncubating"/>
    </feature>
-   <feature id="org.eclipse.buildship.gradleprop.feature">
-      <category name="GradleProp"/>
+   <feature url="features/org.eclipse.buildship.oomph_0.0.0.jar" id="org.eclipse.buildship.oomph" version="0.0.0">
+      <category name="BuildshipExtras"/>
    </feature>
    <category-def name="Buildship" label="Buildship: Eclipse Plug-ins for Gradle"/>
    <category-def name="BuildshipExtras" label="Buildship Extras"/>
-   <category-def name="Oomph" label="Buildship project import support for Oomph"/>
-   <category-def name="GradleProp" label="Gradle properties support"/>
+   <category-def name="BuildshipExtrasIncubating" label="Buildship Extras - Incubating"/>
 </site>
