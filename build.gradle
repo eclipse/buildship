@@ -128,16 +128,10 @@ subprojects {
                     languageVersion = JavaLanguageVersion.of(8)
                 }
             }
-        } else if (config.targetPlatform.eclipseVersion in ['417', '418', '419', '420', '421', '422', '423', '424']) {
-            java {
-                toolchain {
-                    languageVersion = JavaLanguageVersion.of(11)
-                }
-            }
         } else {
             java {
                 toolchain {
-                    languageVersion = JavaLanguageVersion.of(17)
+                    languageVersion = JavaLanguageVersion.of(11)
                 }
             }
         }
