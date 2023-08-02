@@ -15,7 +15,7 @@
    <extension
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
-            path="src/syntax/gradleprop.tmLanguage.json"
+            path="gradleprop.tmLanguage.json"
             scopeName="source.gradleprop">
       </grammar>
       <scopeNameContentTypeBinding

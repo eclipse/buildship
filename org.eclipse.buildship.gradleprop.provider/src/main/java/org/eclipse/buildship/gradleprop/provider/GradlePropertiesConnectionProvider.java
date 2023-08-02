@@ -9,28 +9,26 @@
  ******************************************************************************/
 package org.eclipse.buildship.gradleprop.provider;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-
-import org.eclipse.lsp4e.server.ProcessStreamConnectionProvider;
-import org.eclipse.lsp4e.server.StreamConnectionProvider;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.jdt.launching.IVMInstall;
-import org.eclipse.jdt.launching.IVMInstallType;
-import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.Bundle;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
+import org.eclipse.lsp4e.server.ProcessStreamConnectionProvider;
+import org.eclipse.lsp4e.server.StreamConnectionProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -88,10 +86,11 @@ public class GradlePropertiesConnectionProvider extends ProcessStreamConnectionP
         // add in commands path to bin application of language server
         setCommands(commands);
         setWorkingDirectory(pathToPlugin.toString());
-        
+
       } else {
         PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
-          public void run() {
+          @Override
+        public void run() {
             Shell shell = new Shell();
             MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
             messageBox.setText("Error");
