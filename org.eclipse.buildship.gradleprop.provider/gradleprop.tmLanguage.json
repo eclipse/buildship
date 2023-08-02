@@ -1,7 +1,8 @@
 {
-  "name": "Gradle Properties Grammar",
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "gradleprop",
   "scopeName": "source.gradleprop",
-  "fileTypes": ["example"],
+  "fileTypes": ["properties"],
   "patterns": [
     {
       "name": "value",
@@ -13,7 +14,7 @@
       }
     },
     {
-      "name": "gradle property",
+      "name": "gradle_property",
       "match": "([\\w.]+)(?=\\s*=)",
       "captures": {
         "1": {
