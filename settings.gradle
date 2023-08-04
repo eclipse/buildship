@@ -26,6 +26,7 @@ if (properties['latest'] == 'true') {
     include ':org.eclipse.buildship.gradleprop.provider'
     include ':org.eclipse.buildship.gradleprop.ls'
     include ':org.eclipse.buildship.gradleprop.feature'
+    include ':org.eclipse.buildship.gradleprop.test'
 }
 
 include ':org.eclipse.buildship.oomph'
