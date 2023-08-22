@@ -14,7 +14,7 @@
    <extension
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
-            path="src/main/resources/Kotlin.tmLanguage.json"
+            path="kotlin.tmLanguage.json"
             scopeName="source.kotlin">
       </grammar>
       <scopeNameContentTypeBinding
