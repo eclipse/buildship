@@ -5,7 +5,7 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"
-            file-extensions="kts"
+            file-patterns="*.gradle.kts"
             id="org.eclipse.buildship.kotlindsl.content"
             name="kotlin DSL content type"
             priority="normal">
@@ -28,6 +28,19 @@
             contentTypeId="org.eclipse.buildship.kotlindsl.content"
             editorId="org.eclipse.ui.genericeditor.GenericEditor">
       </editorContentTypeBinding>
+   </extension>
+
+   <extension
+         point="org.eclipse.lsp4e.languageServer">
+      <contentTypeMapping
+            contentType="org.eclipse.buildship.kotlindsl.content"
+            id="org.eclipse.buildship.kotlindsl.provider.server">
+      </contentTypeMapping>
+      <server
+            class="org.eclipse.buildship.kotlindsl.provider.KotlinDSLConnectionProvider"
+            id="org.eclipse.buildship.kotlindsl.provider.server"
+            label="Kotlin DSL language server">
+      </server>
    </extension>
 
 </plugin>

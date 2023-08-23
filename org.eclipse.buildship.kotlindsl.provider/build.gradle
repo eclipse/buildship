@@ -1,1 +1,16 @@
+plugins{
+	id 'de.undercouch.download' version '5.4.0'
+}
+
 apply plugin: eclipsebuild.BundlePlugin
+dependencies {
+	api withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
+}
+
+def copyLibs = tasks.register('downloadLibs', Download) {
+	src 'https://maven.pkg.github.com/D0zee/language-server-for-KTS-scripts/kts-language-server/server/1.0.0/server-1.0.0-all.jar'
+	dest file('libs')
+	// type here own an username and key (classic token from github which allows read packages)
+	username project.findProperty('gpr.user')
+	password project.findProperty('gpr.key')
+}
