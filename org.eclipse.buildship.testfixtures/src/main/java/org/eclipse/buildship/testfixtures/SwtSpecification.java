@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
