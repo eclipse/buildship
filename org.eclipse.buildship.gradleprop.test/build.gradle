@@ -1,6 +1,7 @@
 apply plugin: eclipsebuild.TestBundlePlugin
 
 dependencies {
+    implementation project(':org.eclipse.buildship.testfixtures')
     implementation project(':org.eclipse.buildship.gradleprop.provider')
 }
 

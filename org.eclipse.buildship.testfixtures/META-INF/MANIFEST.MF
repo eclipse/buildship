@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - Test fixtures
+Bundle-SymbolicName: org.eclipse.buildship.testfixtures;singleton:=true
+Bundle-Version: 3.1.7.qualifier
+Bundle-Vendor: Eclipse Buildship
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.eclipse.swtbot.eclipse.finder;visibility:=reexport,
+ org.eclipse.swtbot.junit4_x;visibility:=reexport,
+ org.junit;visibility:=reexport,
+ org.apache.log4j;visibility:=reexport,
+ org.eclipse.jdt.launching;visibility:=reexport,
+ org.eclipse.core.resources;visibility:=reexport
+Bundle-ClassPath: .
