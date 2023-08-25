@@ -22,6 +22,8 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
+import org.eclipse.buildship.testfixtures.SwtSpecification;
+
 public class GradlePropLSTest extends SwtSpecification {
 
     @Test

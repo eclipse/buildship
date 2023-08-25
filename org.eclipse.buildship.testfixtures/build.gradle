@@ -1,1 +1,5 @@
 apply plugin: eclipsebuild.BundlePlugin
+
+dependencies {
+    api withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
+}

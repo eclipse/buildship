@@ -7,7 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ******************************************************************************/
-package org.eclipse.buildship.gradleprop.test;
+package org.eclipse.buildship.testfixtures;
 
 import java.io.File;
 

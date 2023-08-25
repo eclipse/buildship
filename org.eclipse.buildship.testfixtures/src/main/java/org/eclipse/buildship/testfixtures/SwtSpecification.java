@@ -7,14 +7,14 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  ******************************************************************************/
-package org.eclipse.buildship.gradleprop.test;
+package org.eclipse.buildship.testfixtures;
 
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
-
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
