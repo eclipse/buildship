@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -115,12 +116,12 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (!includeExportedEntriesOnly || cpe.isExported()) {
                 if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && configurationScopes.isEntryIncluded(cpe)) {
-                    addLibraryClasspathEntry(result, cpe, modular);
+                    result.add(getRuntimeClasspathEntry(cpe.getPath(), modular, "Archive", JavaRuntime::newArchiveRuntimeClasspathEntry, IPath.class, cpe));
                 } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
                     Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
                     if (candidate.isPresent()) {
                         IJavaProject dependencyProject = JavaCore.create(candidate.get());
-                        IRuntimeClasspathEntry projectRuntimeEntry = JavaRuntime.newProjectRuntimeClasspathEntry(dependencyProject);
+                        IRuntimeClasspathEntry projectRuntimeEntry = getRuntimeClasspathEntry(dependencyProject, modular, "Project", JavaRuntime::newProjectRuntimeClasspathEntry, IJavaProject.class, cpe);
                         // add the project entry itself so that the source lookup can find the
                         // classes. See https://github.com/eclipse/buildship/issues/383
                         result.add(projectRuntimeEntry);
@@ -142,12 +143,12 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
 
         for (final IClasspathEntry cpe : container.getClasspathEntries()) {
             if (cpe.getEntryKind() == IClasspathEntry.CPE_LIBRARY && !(excludeTestCode && hasTestAttribute(cpe))) {
-                addLibraryClasspathEntry(result, cpe, moduleSuppport);
+                result.add(getRuntimeClasspathEntry(cpe.getPath(), moduleSuppport, "Archive", JavaRuntime::newArchiveRuntimeClasspathEntry, IPath.class, cpe));
             } else if (cpe.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
                 Optional<IProject> candidate = findAccessibleJavaProject(cpe.getPath().segment(0));
                 if (candidate.isPresent()) {
                     IJavaProject dependencyProject = JavaCore.create(candidate.get());
-                    IRuntimeClasspathEntry projectRuntimeEntry = JavaRuntime.newProjectRuntimeClasspathEntry(dependencyProject);
+                    IRuntimeClasspathEntry projectRuntimeEntry = getRuntimeClasspathEntry(dependencyProject, moduleSuppport, "Project", JavaRuntime::newProjectRuntimeClasspathEntry, IJavaProject.class, cpe);
                     // add the project entry itself so that the source lookup can find the classes
                     // see https://github.com/eclipse/buildship/issues/383
                     result.add(projectRuntimeEntry);
@@ -158,20 +159,20 @@ public final class GradleClasspathContainerRuntimeClasspathEntryResolver impleme
         return result.toArray(new IRuntimeClasspathEntry[result.size()]);
     }
 
-    private void addLibraryClasspathEntry(List<IRuntimeClasspathEntry> result, final IClasspathEntry cpe,boolean moduleSupport) {
+    private <T> IRuntimeClasspathEntry getRuntimeClasspathEntry(final T parameter, boolean moduleSupport, String type, Function<T, IRuntimeClasspathEntry> old, Class<T> parameterType, IClasspathEntry cpe) {
         if (moduleSupport) {
             try {
-                Method m = JavaRuntime.class.getMethod("newArchiveRuntimeClasspathEntry", IPath.class, int.class);
+                Method m = JavaRuntime.class.getMethod(String.format("new%sRuntimeClasspathEntry", type), parameterType, int.class);
                 int modulePathAttribute = IRuntimeClasspathEntry.class.getField("MODULE_PATH").getInt(null);
                 int classPathAttribute = IRuntimeClasspathEntry.class.getField("CLASS_PATH").getInt(null);
-                result.add( (IRuntimeClasspathEntry) m.invoke(null, cpe.getPath(), hasModuleAttribute(cpe) ? modulePathAttribute : classPathAttribute));
+                return (IRuntimeClasspathEntry) m.invoke(null, parameter, hasModuleAttribute(cpe) ? modulePathAttribute : classPathAttribute);
             } catch (Exception e) {
                 // Method does not exist yet in this version of eclipse.
                 // Revert to old behavior
-                result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath()));
+                return old.apply(parameter);
             }
         } else {
-            result.add(JavaRuntime.newArchiveRuntimeClasspathEntry(cpe.getPath()));
+            return old.apply(parameter);
         }
     }
 
