@@ -20,7 +20,8 @@ def eclipseVersionAgnosticDependencies = [
         'org.eclipse.swtbot.eclipse.finder'    : '2.2.1',
         'org.eclipse.swtbot.junit4_x'          : '2.2.1',
         'org.jetbrains.kotlin.bundled-compiler': '0.8.7',
-        'org.jetbrains.kotlin.core'            : '0.8.7'
+        'org.jetbrains.kotlin.core'            : '0.8.7',
+        'org.apache.log4j'                     : '1.2.24'
 ]
 
 def targetPlatformIds = [
