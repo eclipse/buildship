@@ -9,7 +9,7 @@
 -->
 <feature
       id="org.eclipse.buildship.kotlindsl"
-      label="Kotlin DSL Support"
+      label="%featureName"
       version="1.0.0.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.buildship.branding">
