@@ -4,6 +4,7 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.*
 import jetbrains.buildServer.configs.kotlin.v2019_2.Project
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.gradle
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.*
+import jetbrains.buildServer.configs.kotlin.v2019_2.vcs.GitVcsRoot
 
 val individualBuildsForPhase1 = listOf(
     IndividualScenarioBuildType(ScenarioType.SANITY_CHECK, OS.LINUX, EclipseVersion.ECLIPSE4_13, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8) // TODO use latest Eclipse version for sanity check coverage
@@ -55,6 +56,57 @@ val individualBuildsForPhase4 = listOf(
     //IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_18)
 )
 
+val individualBuildsForPhase1Forked = listOf(
+        IndividualScenarioBuildType(ScenarioType.SANITY_CHECK, OS.LINUX, EclipseVersion.ECLIPSE4_13, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot) // TODO use latest Eclipse version for sanity check coverage
+)
+val individualBuildsForPhase2Forked = listOf(
+        IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_20, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.BASIC_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot)
+)
+val individualBuildsForPhase3Forked = listOf(
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_9, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_10, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_11, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_12, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_13, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_14, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_15, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_16, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_17, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_18, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_19, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_20, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_21, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_22, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_24, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_25, eclipseRuntimeJdk = Jdk.OPEN_JDK_17, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_26, eclipseRuntimeJdk = Jdk.OPEN_JDK_17, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.LINUX, EclipseVersion.ECLIPSE4_27, eclipseRuntimeJdk = Jdk.OPEN_JDK_17, GitHubForkVcsRoot),
+
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.FULL_COVERAGE, OS.WINDOWS, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot)
+)
+val individualBuildsForPhase4Forked = listOf(
+        IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_8, GitHubForkVcsRoot),
+        // TODO Eclipse 4.8 can only run on Java 8 and below without further configuration https://wiki.eclipse.org/Configure_Eclipse_for_Java_9
+        //IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.ORACLE_JDK_9, GitHubForkVcsRoot),
+        //IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_8, eclipseRuntimeJdk = Jdk.OPEN_JDK_10, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_11, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_12, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_13, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_14, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_15, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_16, GitHubForkVcsRoot),
+        IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_17, GitHubForkVcsRoot),
+        // TODO JDK 18 is only supported in Eclipse 4.24
+        //IndividualScenarioBuildType(ScenarioType.CROSS_VERSION, OS.LINUX, EclipseVersion.ECLIPSE4_23, eclipseRuntimeJdk = Jdk.OPEN_JDK_18, GitHubForkVcsRoot)
+)
+
+
 val tb1_1 = CheckpointBuildType("Sanity Check (Phase 1/1)", individualBuildsForPhase1, null)
 val tb1_2 = CheckpointBuildType("Basic Test Coverage (Phase 1/2)", individualBuildsForPhase1, null)
 val tb2_2 = CheckpointBuildType("Basic Test Coverage (Phase 2/2)", individualBuildsForPhase2, tb1_2)
@@ -66,6 +118,17 @@ val tb4_2 = CheckpointBuildType("Cross-Version Test Coverage (Phase 2/4)", indiv
 val tb4_3 = CheckpointBuildType("Cross-Version Test Coverage (Phase 3/4)", individualBuildsForPhase3, tb4_2)
 val tb4_4 = CheckpointBuildType("Cross-Version Test Coverage (Phase 4/4)", individualBuildsForPhase4, tb4_3)
 
+val tb1_1_f = CheckpointBuildType("Sanity Check (Fork, Phase 1/1)", individualBuildsForPhase1Forked, null, Trigger.NONE, GitHubForkVcsRoot)
+val tb1_2_f = CheckpointBuildType("Basic Test Coverage (Fork, Phase 1/2)", individualBuildsForPhase1Forked, null, Trigger.NONE, GitHubForkVcsRoot)
+val tb2_2_f = CheckpointBuildType("Basic Test Coverage (Fork, Phase 2/2)", individualBuildsForPhase2Forked, tb1_2_f, Trigger.NONE, GitHubForkVcsRoot)
+val tb3_1_f = CheckpointBuildType("Full Test Coverage (Fork, Phase 1/3)", individualBuildsForPhase1Forked, null, Trigger.GIT, GitHubForkVcsRoot)
+val tb3_2_f = CheckpointBuildType("Full Test Coverage (Fork, Phase 2/3)", individualBuildsForPhase2Forked, tb3_1_f, Trigger.NONE, GitHubForkVcsRoot)
+val tb3_3_f = CheckpointBuildType("Full Test Coverage (Fork, Phase 3/3)", individualBuildsForPhase3Forked, tb3_2_f, Trigger.NONE, GitHubForkVcsRoot)
+val tb4_1_f = CheckpointBuildType("Cross-Version Test Coverage (Fork, Phase 1/4)", individualBuildsForPhase1Forked, null, Trigger.NONE, GitHubForkVcsRoot)
+val tb4_2_f = CheckpointBuildType("Cross-Version Test Coverage (Fork, Phase 2/4)", individualBuildsForPhase2Forked, tb4_1_f, Trigger.NONE, GitHubForkVcsRoot)
+val tb4_3_f = CheckpointBuildType("Cross-Version Test Coverage (Fork, Phase 3/4)", individualBuildsForPhase3Forked, tb4_2_f, Trigger.NONE, GitHubForkVcsRoot)
+val tb4_4_f = CheckpointBuildType("Cross-Version Test Coverage (Fork, Phase 4/4)", individualBuildsForPhase4Forked, tb4_3_f, Trigger.NONE, GitHubForkVcsRoot)
+
 val unsafeSnapshotPromotion = PromotionBuildType("snapshot (from sanity check)","snapshot",  tb1_1)
 val snapshotPromotion = PromotionBuildType("snapshot", "snapshot", tb4_4, Trigger.DAILY_MASTER)
 val milestonePromotion = PromotionBuildType("milestone","milestone", tb4_4)
@@ -74,8 +137,8 @@ val individualSnapshotPromotions = EclipseVersion.values().map { SinglePromotion
 val individualReleasePromotions = EclipseVersion.values().map { SinglePromotionBuildType("Release Eclipse ${it.codeName}", "release", it, tb1_1) } // TODO should depend on tb4_4
 
 
-class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: EclipseVersion, eclipseRuntimeJdk: Jdk) : BuildType({
-    createId("Individual", "${type.name.toLowerCase()}_Test_Coverage_${os.name.toLowerCase()}_Eclipse${eclipseVersion.versionNumber}_OnJava${eclipseRuntimeJdk.majorVersion}")
+class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: EclipseVersion, eclipseRuntimeJdk: Jdk, vcsRoot: GitVcsRoot = GitHubVcsRoot) : BuildType({
+    createId("Individual", "${vcsRoot.name}_${type.name.toLowerCase()}_Test_Coverage_${os.name.toLowerCase()}_Eclipse${eclipseVersion.versionNumber}_OnJava${eclipseRuntimeJdk.majorVersion}")
     addCredentialsLeakFailureCondition()
 
     artifactRules = """
@@ -93,6 +156,17 @@ class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: Ec
         param("gradle.tasks", type.gradleTasks)
         param("repository.mirrors", allMirrors())
         param("env.GRADLE_ENTERPRISE_ACCESS_KEY", "%ge.gradle.org.access.key%")
+    }
+
+    if (vcsRoot == GitHubForkVcsRoot) {
+        triggers {
+            vcs {
+                quietPeriodMode = VcsTrigger.QuietPeriodMode.DO_NOT_USE
+                perCheckinTriggering = true
+                groupCheckinsByCommitter = true
+                enableQueueOptimization = false
+            }
+        }
     }
 
     triggers {
@@ -116,7 +190,7 @@ class IndividualScenarioBuildType(type: ScenarioType, os: OS, eclipseVersion: Ec
     }
 
     vcs {
-        root(GitHubVcsRoot)
+        root(vcsRoot)
         checkoutMode = CheckoutMode.ON_AGENT
     }
 
@@ -260,12 +334,12 @@ class SinglePromotionBuildType(promotionName: String, typeName: String, eclipseV
 })
 
 
-class CheckpointBuildType(triggerName: String, scenarios: List<IndividualScenarioBuildType>, previousCheckpoint: CheckpointBuildType?, trigger: Trigger = Trigger.NONE) : BuildType({
+class CheckpointBuildType(triggerName: String, scenarios: List<IndividualScenarioBuildType>, previousCheckpoint: CheckpointBuildType?, trigger: Trigger = Trigger.NONE, vcsRoot: GitVcsRoot = GitHubVcsRoot) : BuildType({
     createId("Checkpoint", triggerName)
     trigger.applyOn(this)
 
     vcs {
-        root(GitHubVcsRoot)
+        root(vcsRoot)
 
         checkoutMode = CheckoutMode.ON_AGENT
         cleanCheckout = true
@@ -296,6 +370,7 @@ class CheckpointBuildType(triggerName: String, scenarios: List<IndividualScenari
 
 object Project : Project({
     description = "Eclipse plugins for Gradle http://eclipse.org/buildship"
+    vcsRoot(GitHubForkVcsRoot)
     vcsRoot(GitHubVcsRoot)
     subprojectsWithOrder(listOf(IndividualBuilds, Checkpoints, Promotions))
 
@@ -318,7 +393,8 @@ object Project : Project({
 
 object IndividualBuilds : Project({
     createId("Individual Coverage Scenarios")
-    buildTypesWithOrder(individualBuildsForPhase1 + individualBuildsForPhase2 + individualBuildsForPhase3 + individualBuildsForPhase4)
+    buildTypesWithOrder(individualBuildsForPhase1 + individualBuildsForPhase2 + individualBuildsForPhase3 + individualBuildsForPhase4 +
+            individualBuildsForPhase1Forked + individualBuildsForPhase2Forked + individualBuildsForPhase3Forked + individualBuildsForPhase4Forked)
 })
 
 object Checkpoints : Project({
@@ -327,7 +403,11 @@ object Checkpoints : Project({
         tb1_1,
         tb1_2, tb2_2,
         tb3_1, tb3_2, tb3_3,
-        tb4_1, tb4_2, tb4_3, tb4_4))
+        tb4_1, tb4_2, tb4_3, tb4_4,
+        tb1_1_f,
+        tb1_2_f, tb2_2_f,
+        tb3_1_f, tb3_2_f, tb3_3_f,
+        tb4_1_f, tb4_2_f, tb4_3_f, tb4_4_f))
 })
 
 object Promotions : Project({
