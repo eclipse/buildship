@@ -15,6 +15,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.buildship.core,
  org.jetbrains.kotlin.bundled-compiler;bundle-version="[0.8.5,0.9.0)",
  org.jetbrains.kotlin.core;bundle-version="[0.8.5,0.9.0)",
- com.google.guava;bundle-version="[30.1.0,32.0.0)",
+ com.google.guava;bundle-version="[32.1.2,33.0.0)",
  org.gradle.toolingapi;bundle-version="[5.5.0,5.6.0)"
 Import-Package: org.slf4j;version="1.7.2"
