@@ -21,6 +21,8 @@ public class EclipseTestResultProcessor {
 
     private TestDescriptorInternal currentTestSuite;
     private TestDescriptorInternal currentTestClass;
+    private String currentTestClassName;
+
     private TestDescriptorInternal currentTestMethod;
 
     public EclipseTestResultProcessor(TestResultProcessor testResultProcessor, String suite, Object testTaskOperationId, Object rootTestSuiteId, Logger logger) {
@@ -60,7 +62,7 @@ public class EclipseTestResultProcessor {
     }
 
     private void onTestStartedEvent(EclipseTestEvent.TestStarted event) {
-        logger.info("Test started: " + event.getTestName());
+        logger.info("Test started (" + event.getTestId() + "): " + event.getTestName());
 
         // TODO need idGenerator
         String testClass = event.getTestName();
@@ -74,10 +76,13 @@ public class EclipseTestResultProcessor {
         String classId = event.getTestId() + " class";
         if (this.currentTestClass == null) {
             this.currentTestClass = testClass(classId, testClass, this.currentTestSuite);
+            this.currentTestClassName = testClass;
             this.resultProcessor.started(this.currentTestClass, startEvent(this.currentTestSuite));
-        } else if (!this.currentTestClass.getId().equals(classId)) {
+        } else if (!this.currentTestClass.getId().equals(classId) && !this.currentTestClassName.equals(testClass)) {
+            logger.info("Test completed (" + event.getTestId() + "): " + event.getTestName());
             this.resultProcessor.completed(this.currentTestClass.getId(), completeEvent(TestResult.ResultType.SUCCESS));
             this.currentTestClass = testClass(classId, testClass, this.currentTestSuite);
+            this.currentTestClassName = testClass;
             this.resultProcessor.started(this.currentTestClass, startEvent(this.currentTestSuite));
         }
 
@@ -86,10 +91,12 @@ public class EclipseTestResultProcessor {
     }
 
     private void onTestEndedEvent(EclipseTestEvent.TestEnded event) {
+        logger.info("Test completed (" + event.getTestId() + "): " + event.getTestName());
         this.resultProcessor.completed(event.getTestId(), completeEvent(TestResult.ResultType.SUCCESS));
     }
 
     private void onTestFailedEvent(EclipseTestEvent.TestFailed event) {
+        logger.info("Test failed (" + event.getTestId() + "): " + event.getTestName());
         String message = event.getTestName() + " failed";
         if (event.getExpected() != null || event.getActual() != null) {
             message += " (expected=" + event.getExpected() + ", actual=" + event.getActual() + ")";
