@@ -177,7 +177,7 @@ class BundlePlugin implements Plugin<Project> {
             // copy the dependencies to the 'libs' folder
             into libDir
             from project.configurations.bundled
-            from project.configurations.bundledSource
+           // from project.configurations.bundledSource
         }
     }
 
