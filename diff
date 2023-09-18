@@ -1,0 +1,136 @@
+diff --git a/buildSrc/src/main/groovy/eclipsebuild/testing/EclipseTestExecuter.java b/buildSrc/src/main/groovy/eclipsebuild/testing/EclipseTestExecuter.java
+index 68228eb7..8229a1a7 100644
+--- a/buildSrc/src/main/groovy/eclipsebuild/testing/EclipseTestExecuter.java
++++ b/buildSrc/src/main/groovy/eclipsebuild/testing/EclipseTestExecuter.java
+@@ -114,13 +114,13 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
+             programArgs.add(optionsFile.getAbsolutePath());
+         }
+         programArgs.add("-version");
+-        programArgs.add("4");
++        programArgs.add("5");
+         programArgs.add("-port");
+         programArgs.add(Integer.toString(pdeTestPort));
+         programArgs.add("-testLoaderClass");
+-        programArgs.add("org.eclipse.jdt.internal.junit4.runner.JUnit4TestLoader");
++        programArgs.add("org.eclipse.jdt.internal.junit5.runner.JUnit5TestLoader");
+         programArgs.add("-loaderpluginname");
+-        programArgs.add("org.eclipse.jdt.junit4.runtime");
++        programArgs.add("org.eclipse.jdt.junit5.runtime");
+         programArgs.add("-classNames");
+ 
+         List<String> testNames = new ArrayList(collectTestNames(testTask, testTaskOperationId, workerLeaseService));
+diff --git a/org.eclipse.buildship.core.test/META-INF/MANIFEST.MF b/org.eclipse.buildship.core.test/META-INF/MANIFEST.MF
+index ed747e24..2b6adc3e 100644
+--- a/org.eclipse.buildship.core.test/META-INF/MANIFEST.MF
++++ b/org.eclipse.buildship.core.test/META-INF/MANIFEST.MF
+@@ -7,7 +7,7 @@ Bundle-Vendor: Eclipse Buildship
+ Bundle-RequiredExecutionEnvironment: JavaSE-11
+ Fragment-Host: org.eclipse.buildship.core
+ Comment: junit has to be a required bundle, otherwise the tests won't launch for headless builds
+-Require-Bundle: org.junit
++Require-Bundle: org.junit.platform.engine
+ Bundle-ClassPath: .,
+  lib/annotations-20.1.0.jar,
+  lib/ant-1.9.15.jar,
+diff --git a/org.eclipse.buildship.core.test/src/main/groovy/org/eclipse/buildship/core/internal/test/fixtures/WorkspaceSpecification.groovy b/org.eclipse.buildship.core.test/src/main/groovy/org/eclipse/buildship/core/internal/test/fixtures/WorkspaceSpecification.groovy
+index 05e38049..9feeddca 100644
+--- a/org.eclipse.buildship.core.test/src/main/groovy/org/eclipse/buildship/core/internal/test/fixtures/WorkspaceSpecification.groovy
++++ b/org.eclipse.buildship.core.test/src/main/groovy/org/eclipse/buildship/core/internal/test/fixtures/WorkspaceSpecification.groovy
+@@ -11,8 +11,11 @@ package org.eclipse.buildship.core.internal.test.fixtures
+ 
+ import org.junit.Rule
+ import org.junit.rules.TemporaryFolder
++import org.junit.runner.RunWith
++import org.spockframework.runtime.SpockRuntime
+ import spock.lang.AutoCleanup
+ import spock.lang.Specification
++import spock.lang.TempDir
+ 
+ import com.google.common.collect.ImmutableList
+ import com.google.common.io.Files
+@@ -53,8 +56,8 @@ import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
+  */
+ abstract class WorkspaceSpecification extends Specification {
+ 
+-    @Rule
+-    TemporaryFolder tempFolderProvider
++    @TempDir
++    public File tempFolderProvider
+ 
+     @AutoCleanup
+     TestEnvironment environment = TestEnvironment.INSTANCE
+@@ -64,7 +67,8 @@ abstract class WorkspaceSpecification extends Specification {
+     private LogCollector logCollector = new LogCollector()
+ 
+     def setup() {
+-        externalTestDir = tempFolderProvider.newFolder('external')
++        externalTestDir = new File(tempFolderProvider, 'external')
++        externalTestDir.mkdirs()
+         Platform.addLogListener(logCollector)
+         EclipseVmUtil.findOrRegisterVM("8", new File((String) System.getProperty("jdk8.location")))
+         EclipseVmUtil.findOrRegisterVM("11", new File((String) System.getProperty("jdk11.location")))
+diff --git a/org.eclipse.buildship.gradleprop.test/META-INF/MANIFEST.MF b/org.eclipse.buildship.gradleprop.test/META-INF/MANIFEST.MF
+index 7e215a66..de3ccf8a 100644
+--- a/org.eclipse.buildship.gradleprop.test/META-INF/MANIFEST.MF
++++ b/org.eclipse.buildship.gradleprop.test/META-INF/MANIFEST.MF
+@@ -9,7 +9,7 @@ Fragment-Host: org.eclipse.buildship.gradleprop.provider
+ Comment: junit has to be a required bundle, otherwise the tests won't launch for headless builds
+ Require-Bundle: org.eclipse.swtbot.eclipse.finder,
+  org.eclipse.swtbot.junit4_x,
+- org.junit,
++ org.junit.platform.engine,
+  org.apache.log4j,
+  org.eclipse.jdt.launching,
+  org.eclipse.core.resources
+diff --git a/org.eclipse.buildship.oomph.test/META-INF/MANIFEST.MF b/org.eclipse.buildship.oomph.test/META-INF/MANIFEST.MF
+index 79b31ff9..7ef02589 100644
+--- a/org.eclipse.buildship.oomph.test/META-INF/MANIFEST.MF
++++ b/org.eclipse.buildship.oomph.test/META-INF/MANIFEST.MF
+@@ -7,7 +7,7 @@ Bundle-Vendor: Eclipse Buildship
+ Bundle-RequiredExecutionEnvironment: JavaSE-11
+ Fragment-Host: org.eclipse.buildship.oomph
+ Automatic-Module-Name: org.eclipse.buildship.oomph.test
+-Require-Bundle: org.junit,
++Require-Bundle: org.junit.platform.engine,
+  org.eclipse.oomph.setup.core,
+  com.google.guava;bundle-version="[30.1.0,32.0.0)",
+  org.eclipse.debug.core,
+diff --git a/org.eclipse.buildship.oomph.test/src/main/groovy/org/eclipse/buildship/oomph/internal/test/fixtures/WorkspaceSpecification.groovy b/org.eclipse.buildship.oomph.test/src/main/groovy/org/eclipse/buildship/oomph/internal/test/fixtures/WorkspaceSpecification.groovy
+index 84b366f7..9a1ef768 100644
+--- a/org.eclipse.buildship.oomph.test/src/main/groovy/org/eclipse/buildship/oomph/internal/test/fixtures/WorkspaceSpecification.groovy
++++ b/org.eclipse.buildship.oomph.test/src/main/groovy/org/eclipse/buildship/oomph/internal/test/fixtures/WorkspaceSpecification.groovy
+@@ -52,7 +52,7 @@ import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
+ abstract class WorkspaceSpecification extends Specification {
+ 
+     @Rule
+-    TemporaryFolder tempFolderProvider
++    public TemporaryFolder tempFolderProvider
+ 
+     @AutoCleanup
+     TestEnvironment environment = TestEnvironment.INSTANCE
+diff --git a/org.eclipse.buildship.ui.test/META-INF/MANIFEST.MF b/org.eclipse.buildship.ui.test/META-INF/MANIFEST.MF
+index 83b5f745..41295d71 100644
+--- a/org.eclipse.buildship.ui.test/META-INF/MANIFEST.MF
++++ b/org.eclipse.buildship.ui.test/META-INF/MANIFEST.MF
+@@ -9,7 +9,7 @@ Fragment-Host: org.eclipse.buildship.ui
+ Comment: junit has to be a required bundle, otherwise the tests won't launch for headless builds
+ Require-Bundle: org.eclipse.swtbot.eclipse.finder,
+  org.eclipse.swtbot.junit4_x,
+- org.junit,
++ org.junit.platform.engine,
+  org.apache.log4j,
+  org.eclipse.jdt.launching
+ Bundle-ClassPath: .,
+diff --git a/org.eclipse.buildship.ui.test/src/main/groovy/org/eclipse/buildship/ui/internal/test/fixtures/WorkspaceSpecification.groovy b/org.eclipse.buildship.ui.test/src/main/groovy/org/eclipse/buildship/ui/internal/test/fixtures/WorkspaceSpecification.groovy
+index ec2b4e96..e9e8457a 100644
+--- a/org.eclipse.buildship.ui.test/src/main/groovy/org/eclipse/buildship/ui/internal/test/fixtures/WorkspaceSpecification.groovy
++++ b/org.eclipse.buildship.ui.test/src/main/groovy/org/eclipse/buildship/ui/internal/test/fixtures/WorkspaceSpecification.groovy
+@@ -48,7 +48,7 @@ import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView
+ abstract class WorkspaceSpecification extends Specification {
+ 
+     @Rule
+-    TemporaryFolder tempFolderProvider
++    public TemporaryFolder tempFolderProvider
+ 
+     @AutoCleanup
+     TestEnvironment environment = TestEnvironment.INSTANCE

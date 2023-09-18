@@ -52,7 +52,7 @@ import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 abstract class WorkspaceSpecification extends Specification {
 
     @Rule
-    TemporaryFolder tempFolderProvider
+    public TemporaryFolder tempFolderProvider
 
     @AutoCleanup
     TestEnvironment environment = TestEnvironment.INSTANCE

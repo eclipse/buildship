@@ -7,7 +7,7 @@ Bundle-Vendor: Eclipse Buildship
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Fragment-Host: org.eclipse.buildship.core
 Comment: junit has to be a required bundle, otherwise the tests won't launch for headless builds
-Require-Bundle: org.junit
+Require-Bundle: org.junit.platform.engine
 Bundle-ClassPath: .,
  lib/annotations-20.1.0.jar,
  lib/ant-1.9.15.jar,

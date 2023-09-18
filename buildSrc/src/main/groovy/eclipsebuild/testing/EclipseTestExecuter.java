@@ -114,13 +114,13 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
             programArgs.add(optionsFile.getAbsolutePath());
         }
         programArgs.add("-version");
-        programArgs.add("4");
+        programArgs.add("5");
         programArgs.add("-port");
         programArgs.add(Integer.toString(pdeTestPort));
         programArgs.add("-testLoaderClass");
-        programArgs.add("org.eclipse.jdt.internal.junit4.runner.JUnit4TestLoader");
+        programArgs.add("org.eclipse.jdt.internal.junit5.runner.JUnit5TestLoader");
         programArgs.add("-loaderpluginname");
-        programArgs.add("org.eclipse.jdt.junit4.runtime");
+        programArgs.add("org.eclipse.jdt.junit5.runtime");
         programArgs.add("-classNames");
 
         List<String> testNames = new ArrayList(collectTestNames(testTask, testTaskOperationId, workerLeaseService));
