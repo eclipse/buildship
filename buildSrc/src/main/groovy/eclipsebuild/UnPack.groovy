@@ -1,11 +1,7 @@
 package eclipsebuild
 
 import com.google.common.hash.HashingOutputStream
-import org.gradle.api.artifacts.transform.CacheableTransform
-import org.gradle.api.artifacts.transform.InputArtifact
-import org.gradle.api.artifacts.transform.TransformAction
-import org.gradle.api.artifacts.transform.TransformOutputs
-import org.gradle.api.artifacts.transform.TransformParameters
+import org.gradle.api.artifacts.transform.*
 import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.provider.Provider
 import org.gradle.internal.io.NullOutputStream

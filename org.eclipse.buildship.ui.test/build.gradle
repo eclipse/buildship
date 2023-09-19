@@ -2,7 +2,6 @@ apply plugin: eclipsebuild.TestBundlePlugin
 apply plugin: 'groovy'
 
 dependencies {
-    bundled "org.spockframework:spock-core:$spockLibVersion"
     implementation project(':org.eclipse.buildship.compat')
     implementation project(':org.eclipse.buildship.core')
     implementation project(':org.eclipse.buildship.ui')

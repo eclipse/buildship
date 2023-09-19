@@ -10,9 +10,9 @@
 package org.eclipse.buildship.oomph.internal.test.fixtures
 
 import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import com.google.common.collect.ImmutableList
 import com.google.common.io.Files
@@ -51,8 +51,8 @@ import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
  */
 abstract class WorkspaceSpecification extends Specification {
 
-    @Rule
-    public TemporaryFolder tempFolderProvider
+    @TempDir
+    public File tempFolderProvider
 
     @AutoCleanup
     TestEnvironment environment = TestEnvironment.INSTANCE
@@ -62,7 +62,8 @@ abstract class WorkspaceSpecification extends Specification {
     private LogCollector logCollector = new LogCollector()
 
     def setup() {
-        externalTestDir = tempFolderProvider.newFolder('external')
+        externalTestDir = new File(tempFolderProvider, 'external')
+        externalTestDir.mkdirs();
         Platform.addLogListener(logCollector)
         EclipseVmUtil.findOrRegisterVM("8", new File(System.getProperty("jdk8.location")))
         EclipseVmUtil.findOrRegisterVM("11", new File(System.getProperty("jdk11.location")))

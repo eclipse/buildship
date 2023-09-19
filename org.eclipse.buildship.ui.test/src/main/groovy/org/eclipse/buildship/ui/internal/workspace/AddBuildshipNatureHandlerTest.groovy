@@ -19,6 +19,7 @@ import org.eclipse.core.commands.Command
 import org.eclipse.core.commands.ExecutionEvent
 import org.eclipse.core.expressions.IEvaluationContext
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.viewers.StructuredSelection
@@ -62,6 +63,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
     def "Publishes 'nature added' event"() {
         setup:
         IProject project = EclipseProjects.newProject('test-nature-added-event')
+        project.getFile('settings.gradle').create(new ByteArrayInputStream("// intentionally empty".bytes),  IResource.FORCE, new NullProgressMonitor())
         waitForResourceChangeEvents()
 
         TestEventListener eventListener = new TestEventListener()

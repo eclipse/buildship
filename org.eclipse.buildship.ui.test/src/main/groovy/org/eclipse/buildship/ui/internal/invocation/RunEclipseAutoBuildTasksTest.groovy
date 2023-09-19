@@ -86,6 +86,7 @@ class RunEclipseAutoBuildTasksTest extends SwtBotSpecification {
         IEditorDescriptor desc = PlatformUI.workbench.editorRegistry.getDefaultEditor(file.getName());
         IWorkbenchPage page = PlatformUI.workbench.workbenchWindows[0].pages[0];
         runOnUiThread { page.openEditor(new FileEditorInput(file), desc.getId()) }
+//        System.out.println("xxxx " + IsAnything.classLoader)
         bot.waitUntil(Conditions.waitForEditor(new IsAnything<IEditorReference>()))
     }
 }

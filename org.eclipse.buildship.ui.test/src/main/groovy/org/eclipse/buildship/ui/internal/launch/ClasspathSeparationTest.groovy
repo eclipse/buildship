@@ -22,7 +22,7 @@ import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 
-class ClasspathSeparationTest extends SwtBotSpecification {
+abstract class ClasspathSeparationTest extends SwtBotSpecification {
 
     def cleanup() {
         DebugPlugin.default.launchManager.launchConfigurations.each { it.delete() }

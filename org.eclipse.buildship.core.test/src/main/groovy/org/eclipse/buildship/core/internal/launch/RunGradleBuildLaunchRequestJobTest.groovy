@@ -56,7 +56,7 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
     }
 
     @Unroll
-    def "Can launch task with Gradle #distribution.versionersion"(GradleDistribution distribution) {
+    def "Can launch task with Gradle #distribution.version"(GradleDistribution distribution) {
         setup:
         def job = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, distribution))
 

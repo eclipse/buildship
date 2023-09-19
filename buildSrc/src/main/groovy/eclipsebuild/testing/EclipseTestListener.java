@@ -31,12 +31,18 @@ public final class EclipseTestListener implements ITestRunListener2 {
 
     @Override
     public synchronized void testRunStarted(int testCount) {
-        offer(new EclipseTestEvent.TestRunStarted());
+        offer(new EclipseTestEvent.TestRunStarted(testCount));
     }
 
     @Override
     public synchronized void testRunEnded(long elapsedTime) {
         offer(new EclipseTestEvent.TestRunEnded());
+    }
+
+    @Override
+    public void testTreeEntry(String description) {
+        System.out.println("description: " + description);
+        offer(new EclipseTestEvent.TestTreeEntry(description));
     }
 
     @Override
@@ -69,10 +75,6 @@ public final class EclipseTestListener implements ITestRunListener2 {
     @Override
     public synchronized void testReran(String testId, String testClass, String testName, int status, String trace, String expected, String actual) {
         throw new UnsupportedOperationException("Unexpected call to testReran when running tests in Eclipse.");
-    }
-
-    @Override
-    public synchronized void testTreeEntry(String description) {
     }
 
     private void offer(EclipseTestEvent event) {
