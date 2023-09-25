@@ -182,10 +182,9 @@ subprojects {
         jvmArgs "-Djdk8.location=${java8.get().metadata.installationPath.asFile}"
         jvmArgs "-Djdk11.location=${java11.get().metadata.installationPath.asFile}"
 
-        // TODO re-enable html test reporting on Windows
-        if (org.gradle.internal.os.OperatingSystem.current().windows) {
-            reports.html.enabled = false
-        }
+        // TODO re-enable html test reporting
+        reports.html.enabled = false
+        reports.junitXml.enabled = false
     }
 
     // configure the repositories where the external dependencies can be found
