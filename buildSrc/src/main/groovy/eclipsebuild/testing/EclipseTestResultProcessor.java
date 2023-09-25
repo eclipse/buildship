@@ -109,6 +109,7 @@ public class EclipseTestResultProcessor {
         if (this.currentTestClass!=null) {
             this.currentTestClass = null;
         }
+        this.resultProcessor.completed(event.getTestId(), completeEvent(TestResult.ResultType.SUCCESS));
         this.resultProcessor.completed(classId, completeEvent(SUCCESS));
     }
 
