@@ -75,8 +75,6 @@ public class EclipseTestResultProcessor {
     private static final Pattern ECLIPSE_TEST_NAME = Pattern.compile("(.*)\\((.*)\\)");
 
     private void onTestStartedEvent(EclipseTestEvent.TestStarted event) {
-        logger.info("Test started (" + event.getTestId() + "): " + event.getTestName());
-
         // TODO need idGenerator
         String testClass = event.getTestName();
         String testMethod = event.getTestName();
@@ -85,6 +83,9 @@ public class EclipseTestResultProcessor {
             testClass = matcher.group(2);
             testMethod = matcher.group(1);
         }
+
+        logger.info("Test started (id=" + event.getTestId() + ", testName=" + event.getTestName() + ", class=" + testClass + ", method=" +  testMethod);
+
 
         String classId = getClassId(event);
         this.currentTestClass = testClass(classId, testClass, this.currentTestSuite);
