@@ -32,6 +32,7 @@
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="org.eclipse.swtbot.eclipse.feature.group" version="3.1.0.202106041005"/>
             <unit id="org.eclipse.swtbot.ide.feature.group" version="3.1.0.202106041005"/>
+            <unit id="org.eclipse.swtbot.junit5.feature.group" version="3.1.0.202106041005"/>
             <repository location="https://download.eclipse.org/technology/swtbot/releases/3.1.0"/>
         </location>
     </locations>
