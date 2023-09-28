@@ -20,48 +20,48 @@
     <requirement
         name="org.codehaus.groovy.eclipse.feature.feature.group"/>
     <requirement
-        name="org.codehaus.groovy25.feature.feature.group"/>
-    <requirement
         name="org.eclipse.oomph.setup.sdk.feature.group"/>
     <requirement
         name="org.eclipse.emf.ecoretools.design.feature.group"/>
+    <repository
+        url="https://download.eclipse.org/oomph/updates/release/latest/"/>
     <description>Installs the required plugins to the IDE.</description>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2023-06)">
+    <repository
+        url="https://groovy.jfrog.io/artifactory/plugins-release/org/codehaus/groovy/groovy-eclipse-integration/5.0.0/e4.28"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2023-03)">
+    <repository
+        url="https://groovy.jfrog.io/artifactory/plugins-release/org/codehaus/groovy/groovy-eclipse-integration/5.0.0/e4.27"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup.p2:P2Task"
+      filter="(scope.product.version.name=2022-12)">
+    <repository
+        url="https://groovy.jfrog.io/artifactory/plugins-release/org/codehaus/groovy/groovy-eclipse-integration/5.0.0/e4.26"/>
   </setupTask>
   <setupTask
       xsi:type="setup.p2:P2Task"
       filter="(scope.product.version.name=2022-09)">
     <repository
-        url="https://groovy.jfrog.io/artifactory/plugins-release/e4.25"/>
+        url="https://groovy.jfrog.io/artifactory/plugins-release/org/codehaus/groovy/groovy-eclipse-integration/5.0.0/e4.25"/>
   </setupTask>
   <setupTask
       xsi:type="setup.p2:P2Task"
       filter="(scope.product.version.name=2022-06)">
     <repository
-        url="https://groovy.jfrog.io/artifactory/plugins-release/e4.24"/>
+        url="https://groovy.jfrog.io/artifactory/plugins-release/org/codehaus/groovy/groovy-eclipse-integration/5.0.0/e4.24"/>
   </setupTask>
   <setupTask
       xsi:type="setup.p2:P2Task"
       filter="(scope.product.version.name=2022-03)">
     <repository
-        url="https://groovy.jfrog.io/artifactory/plugins-release/e4.23"/>
-  </setupTask>
-  <setupTask
-      xsi:type="setup.p2:P2Task"
-      filter="(scope.product.version.name=2021-12)">
-    <repository
-        url="https://groovy.jfrog.io/artifactory/plugins-release/e4.22"/>
-  </setupTask>
-  <setupTask
-      xsi:type="setup.p2:P2Task"
-      filter="(scope.product.version.name=2021-09)">
-    <repository
-        url="https://groovy.jfrog.io/artifactory/plugins-release/e4.21"/>
-  </setupTask>
-  <setupTask
-      xsi:type="setup.p2:P2Task"
-      filter="(scope.product.version.name=2021-06)">
-    <repository
-        url="https://groovy.jfrog.io/artifactory/plugins-release/e4.20"/>
+        url="https://groovy.jfrog.io/artifactory/plugins-release/org/codehaus/groovy/groovy-eclipse-integration/5.0.0/e4.23"/>
   </setupTask>
   <setupTask
       xsi:type="setup:CompoundTask"
