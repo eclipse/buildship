@@ -41,7 +41,6 @@ public final class EclipseTestListener implements ITestRunListener2 {
 
     @Override
     public void testTreeEntry(String description) {
-        System.out.println("description: " + description);
         offer(new EclipseTestEvent.TestTreeEntry(description));
     }
 
