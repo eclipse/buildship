@@ -1,7 +1,8 @@
 package eclipsebuild
 
-import org.apache.commons.io.IOUtils
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.io.IOUtils
+
 import java.util.zip.GZIPInputStream
 
 abstract class UnTarGz extends UnPack {

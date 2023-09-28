@@ -191,7 +191,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         configuration.showExecutionsView == true
     }
 
-    def "load build configuration respecting workspaces settings"() {
+    def "load build configuration respecting workspaces settings (#distribution)"() {
         setup:
         File projectDir = dir('project-dir')
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
@@ -230,7 +230,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true     | false       | true
     }
 
-    def "load build configuration overriding workspace settings"() {
+    def "load build configuration overriding workspace settings (#distribution)"() {
         setup:
         File projectDir = dir('project-dir')
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()

@@ -10,6 +10,9 @@
 package org.eclipse.buildship.core.internal.configuration
 
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
+
+import spock.lang.Rollup
+
 import org.eclipse.buildship.core.GradleDistribution
 
 class WorkspaceConfigurationTest extends WorkspaceSpecification {
@@ -29,6 +32,7 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
         configuration.experimentalModuleSupportEnabled == false
     }
 
+    @Rollup
     def "Can save workpsace configuration"(GradleDistribution distribution, String gradleUserHome, String javaHome, boolean offlineMode, boolean buildScansEnabled, boolean autoSync, List args, List jvmArgs, boolean showConsole, boolean showExecutions, moduleSupportEnabled) {
         setup:
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()

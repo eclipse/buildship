@@ -9,6 +9,10 @@ repositories {
     }
 }
 
+tasks.named('test') { Test task ->
+    task.useJUnitPlatform()
+}
+
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
@@ -20,5 +24,7 @@ dependencies {
     implementation "com.google.guava:guava:$guavaVersion-jre"
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.apache.commons:commons-compress:1.22'
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
 }
 

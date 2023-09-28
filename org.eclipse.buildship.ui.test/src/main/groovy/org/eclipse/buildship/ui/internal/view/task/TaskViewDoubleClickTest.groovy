@@ -11,7 +11,7 @@ package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
-class TaskViewDoubleClickTest extends BaseTaskViewTest {
+abstract class TaskViewDoubleClickTest extends BaseTaskViewTest {
 
     def setup() {
         def project = sampleProject()

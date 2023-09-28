@@ -11,8 +11,6 @@
 
 package eclipsebuild.testing;
 
-import java.io.File;
-
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
 import org.gradle.api.file.EmptyFileVisitor;
@@ -21,6 +19,8 @@ import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.internal.tasks.testing.DefaultTestClassRunInfo;
 import org.gradle.api.internal.tasks.testing.TestClassProcessor;
 import org.gradle.api.internal.tasks.testing.TestClassRunInfo;
+
+import java.io.File;
 
 public final class EclipsePluginTestClassScanner implements Runnable {
 

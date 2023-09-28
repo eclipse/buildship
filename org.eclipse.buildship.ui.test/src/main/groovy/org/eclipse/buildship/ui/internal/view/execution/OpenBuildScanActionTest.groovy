@@ -15,7 +15,7 @@ import spock.lang.IgnoreIf
 
 import org.eclipse.buildship.core.GradleDistribution
 
-class OpenBuildScanActionTest extends BaseExecutionViewTest {
+abstract class OpenBuildScanActionTest extends BaseExecutionViewTest {
 
     def "Build doesn't publish build scans"() {
         setup:

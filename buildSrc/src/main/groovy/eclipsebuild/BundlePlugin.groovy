@@ -11,21 +11,18 @@
 
 package eclipsebuild
 
-import org.gradle.api.GradleException
-import org.gradle.api.plugins.JavaLibraryPlugin
-import org.gradle.jvm.tasks.Jar;
-import org.osgi.framework.VersionRange;
-
 import org.eclipse.osgi.framework.util.Headers
 import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl
 import org.eclipse.osgi.internal.resolver.UserState
 import org.eclipse.osgi.service.resolver.BundleSpecification
-
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.tasks.Copy
+import org.gradle.jvm.tasks.Jar
 import org.osgi.framework.Version
+import org.osgi.framework.VersionRange
 
 /**
  * Gradle plug-in for building Eclipse bundles.
@@ -177,7 +174,6 @@ class BundlePlugin implements Plugin<Project> {
             // copy the dependencies to the 'libs' folder
             into libDir
             from project.configurations.bundled
-            from project.configurations.bundledSource
         }
     }
 

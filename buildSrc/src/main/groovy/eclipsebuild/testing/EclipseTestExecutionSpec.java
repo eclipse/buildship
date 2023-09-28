@@ -3,7 +3,6 @@ package eclipsebuild.testing;
 import org.gradle.api.internal.tasks.testing.JvmTestExecutionSpec;
 import org.gradle.api.tasks.testing.Test;
 
-import java.util.List;
 import java.util.Set;
 
 public class EclipseTestExecutionSpec extends JvmTestExecutionSpec {

@@ -9,10 +9,9 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.test.fixtures
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import com.google.common.collect.ImmutableList
 import com.google.common.io.Files
@@ -43,7 +42,6 @@ import org.eclipse.buildship.core.internal.preferences.PersistentModel
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.EclipseVmUtil
-import org.eclipse.buildship.core.internal.workspace.EclipseVmUtilTest
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 
@@ -53,8 +51,8 @@ import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
  */
 abstract class WorkspaceSpecification extends Specification {
 
-    @Rule
-    TemporaryFolder tempFolderProvider
+    @TempDir
+    public File tempFolderProvider
 
     @AutoCleanup
     TestEnvironment environment = TestEnvironment.INSTANCE
@@ -64,7 +62,8 @@ abstract class WorkspaceSpecification extends Specification {
     private LogCollector logCollector = new LogCollector()
 
     def setup() {
-        externalTestDir = tempFolderProvider.newFolder('external')
+        externalTestDir = new File(tempFolderProvider, 'external')
+        externalTestDir.mkdirs()
         Platform.addLogListener(logCollector)
         EclipseVmUtil.findOrRegisterVM("8", new File((String) System.getProperty("jdk8.location")))
         EclipseVmUtil.findOrRegisterVM("11", new File((String) System.getProperty("jdk11.location")))
@@ -260,7 +259,7 @@ abstract class WorkspaceSpecification extends Specification {
         private final List<IStatus> entries = new ArrayList()
 
         @Override
-        public synchronized void logging(IStatus status, String plugin) {
+        synchronized void logging(IStatus status, String plugin) {
             entries.add(status)
         }
 

@@ -11,15 +11,15 @@ package org.eclipse.buildship.core.internal.util.binding
 
 import org.gradle.api.JavaVersion
 import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.IgnoreIf
 import spock.lang.Specification
+import spock.lang.TempDir
 
 
 class ValidatorsTest extends Specification {
 
-    @Rule
-    TemporaryFolder tempFolder
+    @TempDir
+    File tempFolder
 
     def "noOp never invalidates a value"() {
         setup:
@@ -34,7 +34,8 @@ class ValidatorsTest extends Specification {
     def "Required directory validator passes only existing directory"() {
         given:
         def nullFolder = null
-        def existingFile = tempFolder.newFile('existing-file')
+        def existingFile = new File(tempFolder, 'existing-file')
+        existingFile.createNewFile()
         def existingFolder = existingFile.parentFile
         def nonExistingFile = new File('/nonexistingFolder/nonexistingFile')
         def nonExistingFolder = nonExistingFile.parentFile
@@ -51,7 +52,8 @@ class ValidatorsTest extends Specification {
     def "Optional directory validator passes existing directories and null values"() {
         setup:
         def nullFolder = null
-        def existingFile = tempFolder.newFile('existing-file')
+        def existingFile = new File(tempFolder, 'existing-file')
+        existingFile.createNewFile()
         def existingFolder = existingFile.parentFile
         def nonExistingFile = new File('/nonexistingFolder/nonexistingFile')
         def nonExistingFolder = nonExistingFile.parentFile

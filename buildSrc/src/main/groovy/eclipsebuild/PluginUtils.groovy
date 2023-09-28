@@ -13,6 +13,7 @@ package eclipsebuild
 
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.api.Project
+
 import java.nio.file.Paths
 
 /**

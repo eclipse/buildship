@@ -177,7 +177,7 @@ class GradleImportTaskTest extends ProjectSynchronizationSpecification {
 
     @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.4.1 can run on Java 12 and below
     @Unroll
-    def "new build configuration can override workspace settings (#distributionType)"() {
+    def "new build configuration can override workspace settings (#distribution)"() {
         setup:
         File projectDir = dir('projectDir') { file 'settings.gradle', '''rootProject.name = 'testProject' ''' }
         File projectGradleUserHome = dir('gradle-user-home').canonicalFile

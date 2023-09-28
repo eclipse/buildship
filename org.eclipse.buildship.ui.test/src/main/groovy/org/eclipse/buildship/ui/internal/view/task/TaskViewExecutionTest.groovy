@@ -11,7 +11,7 @@ package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
-class TaskViewExecutionTest extends BaseTaskViewTest {
+abstract class TaskViewExecutionTest extends BaseTaskViewTest {
 
     static String FILE_SEP = File.separator
     static String LINE_SEP = System.getProperty('line.separator')
