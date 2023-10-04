@@ -8,13 +8,13 @@
             <repository location="https://download.eclipse.org/releases/2018-12"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-            <unit id="com.google.gson" version="2.7.0.v20170129-0911"/>
             <unit id="org.junit" version="4.13.0.v20200204-1500"/>
             <unit id="org.slf4j.api" version="1.7.30.v20200204-2150"/>
             <repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20210602031627/repository"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <unit id="com.google.guava" version="32.1.2.jre"/>
+            <unit id="com.google.gson" version="2.10.1"/>
             <unit id="junit-jupiter-api" version="5.10.0"/>
             <unit id="junit-jupiter-engine" version="5.10.0"/>
             <unit id="junit-jupiter-migrationsupport" version="5.10.0"/>
