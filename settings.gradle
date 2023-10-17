@@ -12,6 +12,8 @@ gradleEnterprise {
     }
 }
 
+rootProject.name = 'buildship'
+
 include ':org.gradle.toolingapi'
 include ':org.eclipse.buildship.compat'
 include ':org.eclipse.buildship.core'
