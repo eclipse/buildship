@@ -57,7 +57,7 @@ public abstract class AbstractWizardPage extends WizardPage {
         setImageDescriptor(ImageDescriptor.createFromFile(GradleCreateWorkspaceCompositeWizardPage.class, "/icons/full/wizban/wizard.png")); //$NON-NLS-1$
 
         // set up the UI builder
-        this.defaultFont = FontUtils.getDefaultDialogFont();
+        this.defaultFont = FontUtils.getCustomDialogFont(SWT.NORMAL);
         this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
 
     }
