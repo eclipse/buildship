@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.jface.text,
  org.eclipse.jface,
  com.ibm.icu,
- com.google.guava;bundle-version="[27.0.0,28.0.0)",
+ com.google.guava;bundle-version="[32.1.2,33.0.0)",
  org.gradle.toolingapi;bundle-version="[6.3.0,6.4.0)",
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.jface
