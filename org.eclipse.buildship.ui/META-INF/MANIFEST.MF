@@ -23,8 +23,7 @@ Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.jface,
  com.ibm.icu,
  com.google.guava;bundle-version="[32.1.2,33.0.0)",
- org.gradle.toolingapi;bundle-version="[6.3.0,6.4.0)",
- org.eclipse.ui.workbench.texteditor,
- org.eclipse.jface
+ org.gradle.toolingapi;bundle-version="[8.1.1,8.2.0)",
+ org.eclipse.ui.workbench.texteditor
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
