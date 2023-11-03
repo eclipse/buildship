@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -34,6 +34,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         setup:
         File projectDir = dir('auto-sync-test-project') {
             dir('src/main/java')
+            file 'settings.gradle', ''
         }
         importAndWait(projectDir)
         IProject project = findProject('auto-sync-test-project')
@@ -43,7 +44,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         String buildScript = """
             apply plugin: "java"
             ${jcenterRepositoryBlock}
-            dependencies { compile "org.springframework:spring-beans:1.2.8" }
+            dependencies { implementation "org.springframework:spring-beans:1.2.8" }
         """
         project.getFile('build.gradle').create(new ByteArrayInputStream(buildScript.bytes), false, new NullProgressMonitor())
         waitForResourceChangeEvents()
@@ -63,6 +64,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
                     apply plugin: 'java'
                 }
             """
+            file 'settings.gradle', ''
         }
 
         importAndWait(projectDir)
@@ -73,7 +75,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         String buildScript = """
             apply plugin: "java"
             ${jcenterRepositoryBlock}
-            dependencies { compile "org.springframework:spring-beans:1.2.8" }
+            dependencies { implementation "org.springframework:spring-beans:1.2.8" }
         """
 
         project.getFile('build.gradle').setContents(new ByteArrayInputStream(buildScript.bytes), 0, new NullProgressMonitor())
@@ -89,6 +91,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         File projectDir = dir('auto-sync-test-project') {
             dir('src/main/java')
             file 'build.gradle', 'apply plugin: "java"'
+            file 'settings.gradle', ''
         }
         importAndWait(projectDir)
         IProject project = findProject('auto-sync-test-project')
@@ -127,7 +130,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         String buildScript = """
             apply plugin: "java"
             ${jcenterRepositoryBlock}
-            dependencies { compile "org.springframework:spring-beans:1.2.8" }
+            dependencies { implementation "org.springframework:spring-beans:1.2.8" }
         """
         project.getFile('custom.gradle').setContents(new ByteArrayInputStream(buildScript.bytes), 0, new NullProgressMonitor())
         waitForResourceChangeEvents()
@@ -141,6 +144,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         setup:
         File projectDir = dir('auto-sync-test-project') {
             dir('src/main/java')
+            file 'settings.gradle', ''
         }
         importAndWait(projectDir)
         IProject project = findProject('auto-sync-test-project')
@@ -167,6 +171,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
                     ${jcenterRepositoryBlock}
                 }
             """
+            file 'settings.gradle', ''
         }
 
         importAndWait(projectDir)
@@ -178,7 +183,7 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
         String buildScript = """
             apply plugin: "java"
             ${jcenterRepositoryBlock}
-            dependencies { compile "org.springframework:spring-beans:1.2.8" }
+            dependencies { implementation "org.springframework:spring-beans:1.2.8" }
         """
         project.getFile('build.gradle').setContents(new ByteArrayInputStream(buildScript.bytes), 0, new NullProgressMonitor())
         waitForResourceChangeEvents()
@@ -206,7 +211,8 @@ class SynchronizingBuildScriptUpdateListenerTest extends ProjectSynchronizationS
             workspaceConfig.arguments,
             workspaceConfig.jvmArguments,
             workspaceConfig.showConsoleView,
-            workspaceConfig.showExecutionsView)
+            workspaceConfig.showExecutionsView,
+            false)
         configurationManager.saveWorkspaceConfiguration(workspaceConfig)
     }
 

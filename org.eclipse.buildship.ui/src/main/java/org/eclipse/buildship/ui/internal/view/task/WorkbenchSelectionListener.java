@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.base.Function;
@@ -28,6 +30,9 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
+
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Links the selection from the workspace to the {@link TaskView}.
@@ -82,13 +87,22 @@ public final class WorkbenchSelectionListener implements ISelectionListener {
         Builder<TreeItem> selection = ImmutableList.builder();
 
         Tree tree = this.taskView.getTreeViewer().getTree();
-        for (TreeItem treeItem : tree.getItems()) {
+        for (TreeItem treeItem : allTreeItems(tree)) {
             Object data = treeItem.getData();
             if (data instanceof BaseProjectNode) {
                 BaseProjectNode selectedNode = (BaseProjectNode) data;
                 Optional<IProject> workspaceProject = selectedNode.getWorkspaceProject();
                 if (workspaceProject.isPresent() && projects.contains(workspaceProject.get())) {
                     selection.add(treeItem);
+                }
+            } else if (data instanceof FaultyBuildTreeNode) {
+                FaultyBuildTreeNode node = (FaultyBuildTreeNode) data;
+                for(IProject project : projects) {
+                    CorePlugin.internalGradleWorkspace()
+                        .getBuild(project)
+                        .map(InternalGradleBuild.class::cast)
+                        .filter(build -> build.getBuildConfig().equals(node.getBuildConfiguration()))
+                        .ifPresent(b -> selection.add(treeItem));
                 }
             }
         }
@@ -97,4 +111,15 @@ public final class WorkbenchSelectionListener implements ISelectionListener {
         tree.setSelection(treeSelection.toArray(new TreeItem[treeSelection.size()]));
     }
 
+    private Iterable<TreeItem> allTreeItems(Tree tree) {
+        return allTreeItems(tree.getItems(), new ArrayList<TreeItem>());
+    }
+
+    private Iterable<TreeItem> allTreeItems(TreeItem[] items, List<TreeItem> acc) {
+        acc.addAll(Arrays.asList(items));
+        for (TreeItem i : items) {
+            allTreeItems(i.getItems(), acc);
+        }
+        return acc;
+    }
 }

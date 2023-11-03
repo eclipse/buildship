@@ -11,8 +11,8 @@
 
 package eclipsebuild
 
-import org.gradle.api.logging.Logger
 import org.gradle.api.logging.LogLevel
+import org.gradle.api.logging.Logger
 
 /**
  * Output stream forwarding the content of the stream to Gradle logging.

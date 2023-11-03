@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -46,7 +46,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         configuration.showExecutionsView == showExecutions
     }
 
-    def "new build configuration can inherit workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, boolean showConsole, boolean showExecutions) {
+    def "new build configuration can inherit workspace settings"() {
         setup:
         File projectDir = dir('project-dir')
         File workspaceGradleUserHome = dir('workspace-gradle-user-home').canonicalFile
@@ -56,7 +56,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         when:
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync, workspaceArguments, workspaceJvmArguments, showConsole, showExecutions))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync, workspaceArguments, workspaceJvmArguments, showConsole, showExecutions, false))
         BuildConfiguration configuration = createInheritingBuildConfiguration(projectDir)
 
         then:
@@ -83,7 +83,7 @@ class BuildConfigurationTest extends ProjectSynchronizationSpecification {
         GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true     | false       | true
     }
 
-    def "new build configuration can override workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, boolean showConsole, boolean showExecutions) {
+    def "new build configuration can override workspace settings"() {
         setup:
         File projectDir = dir('project-dir')
         File projectGradleUserHome = dir('gradle-user-home').canonicalFile
@@ -191,7 +191,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         configuration.showExecutionsView == true
     }
 
-    def "load build configuration respecting workspaces settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, boolean showConsole, boolean showExecutions) {
+    def "load build configuration respecting workspaces settings (#distribution)"() {
         setup:
         File projectDir = dir('project-dir')
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
@@ -203,7 +203,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync, workspaceArguments, workspaceJvmArguments, showConsole, showExecutions))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, workspaceGradleUserHome, workspaceJavaHome, offlineMode, buildScansEnabled, autoSync, workspaceArguments, workspaceJvmArguments, showConsole, showExecutions, false))
         buildConfig = configurationManager.loadBuildConfiguration(projectDir)
 
         then:
@@ -230,7 +230,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
         GradleDistribution.forRemoteDistribution(new URI('http://example.com/gd'))   | true         | false             | true     | false       | true
     }
 
-    def "load build configuration overriding workspace settings"(GradleDistribution distribution, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, boolean showConsole, boolean showExecutions) {
+    def "load build configuration overriding workspace settings (#distribution)"() {
         setup:
         File projectDir = dir('project-dir')
         WorkspaceConfiguration originalWsConfig = configurationManager.loadWorkspaceConfiguration()
@@ -242,7 +242,7 @@ connection.gradle.distribution=MODIFIED_DISTRO"""
 
         when:
         configurationManager.saveBuildConfiguration(buildConfig)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, null, !buildScansEnabled, !offlineMode, !autoSync, [], [], false, false))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(GradleDistribution.fromBuild(), null, null, !buildScansEnabled, !offlineMode, !autoSync, [], [], false, false, false))
         buildConfig = configurationManager.loadBuildConfiguration(projectDir)
 
         then:

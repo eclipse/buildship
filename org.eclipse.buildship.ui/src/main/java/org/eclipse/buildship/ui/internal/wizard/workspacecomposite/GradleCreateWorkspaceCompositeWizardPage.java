@@ -219,5 +219,4 @@ public final class GradleCreateWorkspaceCompositeWizardPage extends AbstractComp
     private boolean hasSelectedElement() {
         return this.creationConfiguration.getCompositeProjects().getValue().size() > 0;
     }
-
 }

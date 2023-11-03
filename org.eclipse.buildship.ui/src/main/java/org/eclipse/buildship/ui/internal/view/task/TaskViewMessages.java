@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -27,8 +27,9 @@ public final class TaskViewMessages extends NLS {
     // context menu entries
 
     public static String Action_RunTasks_Text;
-    public static String Action_RunTasks_Text_Disabled_Included;
+    public static String Action_RunTasks_Text_Multiple_Root;
     public static String Action_RunTasks_Text_Disabled_NonStandard_layout;
+    public static String Action_RunTasks_Text_No_Support_For_Task_Execution_In_Included_build;
     public static String Action_RunTasks_Text_Disabled_Other;
     public static String Action_RunDefaultTasks_Text;
     public static String Action_CreateRunConfiguration_Text;

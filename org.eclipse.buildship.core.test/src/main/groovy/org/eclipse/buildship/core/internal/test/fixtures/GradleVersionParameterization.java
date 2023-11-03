@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -12,6 +12,8 @@ package org.eclipse.buildship.core.internal.test.fixtures;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.gradle.api.JavaVersion;
 
@@ -25,6 +27,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.internal.CompatibilityChecker;
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 
 /**
@@ -81,6 +84,13 @@ public abstract class GradleVersionParameterization {
         return Combinations.getCombinations(getGradleDistributions(gradleVersionPattern), dataValues);
     }
 
+    public ImmutableList<GradleDistribution> getGradleDistributions(String gradleVersionPattern, boolean ignoreJavaConstraint) {
+        Preconditions.checkNotNull(gradleVersionPattern);
+
+        ImmutableList<GradleVersion> gradleVersions = getGradleVersions(gradleVersionPattern, ignoreJavaConstraint);
+        return convertGradleVersionsToGradleDistributions(gradleVersions);
+    }
+
     /**
      * Returns a list of {@code GradleDistribution} that match the given Gradle version pattern,
      * where the matching Gradle versions also fall into the supplied version range.
@@ -89,10 +99,7 @@ public abstract class GradleVersionParameterization {
      * @return the matching Gradle distributions falling into the configured range, never null
      */
     public ImmutableList<GradleDistribution> getGradleDistributions(String gradleVersionPattern) {
-        Preconditions.checkNotNull(gradleVersionPattern);
-
-        ImmutableList<GradleVersion> gradleVersions = getGradleVersions(gradleVersionPattern);
-        return convertGradleVersionsToGradleDistributions(gradleVersions);
+        return getGradleDistributions(gradleVersionPattern, false);
     }
 
     private ImmutableList<GradleDistribution> convertGradleVersionsToGradleDistributions(ImmutableList<GradleVersion> gradleVersions) {
@@ -113,14 +120,16 @@ public abstract class GradleVersionParameterization {
      * is returned that matches the pattern.
      *
      * @param gradleVersionPattern the pattern of Gradle versions to match, must not be null
+     * @param ignoreJavaConstraint whether to ignore the java version constraint or not
      * @return the matching Gradle versions falling into the configured range, never null
      */
-    ImmutableList<GradleVersion> getGradleVersions(String gradleVersionPattern) {
+    ImmutableList<GradleVersion> getGradleVersions(String gradleVersionPattern, boolean ignoreJavaConstraint) {
         Preconditions.checkNotNull(gradleVersionPattern);
 
         Predicate<GradleVersion> versionConstraint = GradleVersionConstraints.toPredicate(gradleVersionPattern);
-        Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.9");
-        Predicate<GradleVersion> javaVersionConstraint = JavaVersion.current().isJava9Compatible() ? GradleVersionConstraints.toPredicate(">=4.3") : Predicates.alwaysTrue();
+        Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.6");
+        Set<String> unsupportedVersions = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
+        Predicate<GradleVersion> javaVersionConstraint = (ignoreJavaConstraint || unsupportedVersions == null || unsupportedVersions.size() == 0) ? Predicates.alwaysTrue() : GradleVersionConstraints.toPredicate("!=" + unsupportedVersions.stream().collect(Collectors.joining(" !=")));
         @SuppressWarnings("unchecked")
         Predicate<GradleVersion> matchingVersions = Predicates.and(versionConstraint, toolingApiConstraint, javaVersionConstraint);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,7 @@ import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 
-class ClasspathSeparationTest extends SwtBotSpecification {
+abstract class ClasspathSeparationTest extends SwtBotSpecification {
 
     def cleanup() {
         DebugPlugin.default.launchManager.launchConfigurations.each { it.delete() }
@@ -31,7 +31,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
     def "All dependencies are available when Gradle doesn't supply scope information"() {
         setup:
-        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('3.5'))
+        importAndWait(createSampleProject('sample-project'), GradleDistribution.forVersion('3.5'), [], new File(System.getProperty("jdk8.location")))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main'))
@@ -48,7 +48,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
     def "All dependencies are available when target source folders doesn't supply scope information"() {
         setup:
         File projectDir = createSampleProject('sample-project')
-        importAndWait(projectDir, GradleDistribution.forVersion('4.4'))
+        importAndWait(projectDir, GradleDistribution.forVersion('4.4'),[], new File(System.getProperty("jdk8.location")))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.CustomMain'))
@@ -64,7 +64,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Source folder is included in classpath if it doesn't supply scope information"() {
         setup:
-        File projectDir = createSampleProject('sample-project')
+        File projectDir = createSampleProject('sample-project', 'implementation')
         importAndWait(projectDir)
 
         when:
@@ -78,7 +78,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Only main dependencies are available when Java application launched from src/main/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'))
+        importAndWait(createSampleProject('sample-project', 'implementation'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.Main', true))
@@ -94,7 +94,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when Java application launched from src/test/java folder"() {
         setup:
-        importAndWait(createSampleProject('sample-project'))
+        importAndWait(createSampleProject('sample-project', 'implementation'))
 
         when:
         launchAndWait(createJavaLaunchConfiguration('sample-project', 'pkg.JunitTest'))
@@ -110,7 +110,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
 
     def "Main and test dependencies are available when JUnit test method executed"() {
         setup:
-        importAndWait(createSampleProject('sample-project'))
+        importAndWait(createSampleProject('sample-project', 'implementation'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project', 'pkg.JunitTest', 'test'))
@@ -124,9 +124,9 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('test.txt available')
     }
 
-    def "Main and test dependencies are available when JUnit test project executedt"() {
+    def "Main and test dependencies are available when JUnit test project executed"() {
         setup:
-        importAndWait(createSampleProject('sample-project'))
+        importAndWait(createSampleProject('sample-project', 'implementation'))
 
         when:
         launchAndWait(createJUnitLaunchConfiguration('sample-project'))
@@ -140,7 +140,7 @@ class ClasspathSeparationTest extends SwtBotSpecification {
         assertConsoleOutputContains('test.txt available')
     }
 
-    private File createSampleProject(String name) {
+    private File createSampleProject(String name, String configuration = 'compile') {
         dir(name) {
             file 'settings.gradle', """
                 include ':resource-library'
@@ -154,9 +154,9 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                 ${jcenterRepositoryBlock}
 
                 dependencies {
-                    compile project(':resource-library')
-                    compile 'com.google.guava:guava:18.0'
-                    testCompile 'junit:junit:4.12'
+                    $configuration project(':resource-library')
+                    $configuration 'com.google.guava:guava:18.0'
+                    test${configuration.capitalize()} 'junit:junit:4.12'
                 }
 
                 eclipse {
@@ -164,6 +164,9 @@ class ClasspathSeparationTest extends SwtBotSpecification {
                         file {
                             whenMerged {
                                 entries += new SourceFolder('src/custom', 'customOutputFolder')
+                                entries.each { println it; println it.getClass() }
+                                entries.findAll { it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency }
+                                       .each { it.entryAttributes['without_test_code'] = "false" }
                             }
                         }
                     }

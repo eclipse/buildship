@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,8 +9,8 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.gradle.tooling.BuildAction;
@@ -23,6 +23,7 @@ import org.gradle.tooling.model.eclipse.EclipseWorkspaceProject;
 import org.gradle.tooling.model.eclipse.RunClosedProjectBuildDependencies;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -40,7 +41,7 @@ public final class EclipseModelUtils {
     private EclipseModelUtils() {
     }
 
-    public static Collection<EclipseProject> queryModels(ProjectConnection connection) {
+    public static Map<String, EclipseProject> queryModels(ProjectConnection connection) {
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
         if (gradleVersion.supportsSendingReservedProjects()) {
@@ -48,11 +49,11 @@ public final class EclipseModelUtils {
         } else if (gradleVersion.supportsCompositeBuilds()) {
             return queryCompositeModel(EclipseProject.class, connection);
         } else {
-            return ImmutableList.of(queryModel(EclipseProject.class, connection));
+            return ImmutableMap.of(":", queryModel(EclipseProject.class, connection));
         }
     }
 
-    public static Collection<EclipseProject> runTasksAndQueryModels(ProjectConnection connection) {
+    public static Map<String, EclipseProject> runTasksAndQueryModels(ProjectConnection connection) {
         BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
         GradleVersion gradleVersion = GradleVersion.version(buildEnvironment.getGradle().getGradleVersion());
         if (gradleVersion.supportsSendingReservedProjects()) {
@@ -62,7 +63,7 @@ public final class EclipseModelUtils {
         } else if (gradleVersion.supportsCompositeBuilds()) {
             return queryCompositeModel(EclipseProject.class, connection);
         } else {
-            return ImmutableList.of(queryModel(EclipseProject.class, connection));
+            return ImmutableMap.of(":", queryModel(EclipseProject.class, connection));
         }
     }
 
@@ -74,7 +75,7 @@ public final class EclipseModelUtils {
     }
 
 
-    private static Collection<EclipseProject> runTasksAndQueryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
+    private static Map<String, EclipseProject> runTasksAndQueryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
         EclipseRuntimeConfigurer buildEclipseRuntimeConfigurer = buildEclipseRuntimeConfigurer();
         try {
             BuildAction<Void> runSyncTasksAction = IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class);
@@ -100,24 +101,24 @@ public final class EclipseModelUtils {
         }
     }
 
-    private static Collection<EclipseProject> runTasksAndQueryCompositeModel(ProjectConnection connection, GradleVersion gradleVersion) {
+    private static Map<String, EclipseProject> runTasksAndQueryCompositeModel(ProjectConnection connection, GradleVersion gradleVersion) {
         return runPhasedModelQuery(connection, gradleVersion, IdeFriendlyClassLoading.loadClass(TellGradleToRunSynchronizationTasks.class), IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class));
     }
 
-    private static Collection<EclipseProject> runPhasedModelQuery(ProjectConnection connection, GradleVersion gradleVersion,
-            BuildAction<Void> projectsLoadedAction, BuildAction<Collection<EclipseProject>> query) {
-        SimpleIntermediateResultHandler<Collection<EclipseProject>> resultHandler = new SimpleIntermediateResultHandler<>();
+    private static Map<String, EclipseProject> runPhasedModelQuery(ProjectConnection connection, GradleVersion gradleVersion,
+            BuildAction<Void> projectsLoadedAction, BuildAction<Map<String, EclipseProject>> query) {
+        SimpleIntermediateResultHandler<Map<String, EclipseProject>> resultHandler = new SimpleIntermediateResultHandler<>();
         connection.action().projectsLoaded(projectsLoadedAction, new SimpleIntermediateResultHandler<Void>()).buildFinished(query, resultHandler).build().forTasks().run();
         return resultHandler.getValue();
     }
 
-    private static Collection<EclipseProject> queryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
-        BuildAction<Collection<EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer());
+    private static Map<String, EclipseProject> queryCompositeModelWithRuntimInfo(ProjectConnection connection, GradleVersion gradleVersion) {
+        BuildAction<Map<String, EclipseProject>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(EclipseProject.class, EclipseRuntime.class, buildEclipseRuntimeConfigurer());
         return connection.action(query).run();
     }
 
-    private static <T> Collection<T> queryCompositeModel(Class<T> model, ProjectConnection connection) {
-        BuildAction<Collection<T>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(model);
+    private static <T> Map<String, T> queryCompositeModel(Class<T> model, ProjectConnection connection) {
+        BuildAction<Map<String, T>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(model);
         return connection.action(query).run();
     }
 

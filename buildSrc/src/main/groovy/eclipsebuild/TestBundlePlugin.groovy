@@ -11,19 +11,18 @@
 
 package eclipsebuild
 
-import org.gradle.api.Task
-import eclipsebuild.testing.EclipseTestTask
-
-import javax.inject.Inject
-
 import eclipsebuild.testing.EclipseTestExecuter
 import eclipsebuild.testing.EclipseTestExtension
+import eclipsebuild.testing.EclipseTestTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.Task
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.tasks.testing.Test
 import org.gradle.internal.operations.BuildOperationExecutor
+
+import javax.inject.Inject
 
 /**
  * Gradle plug-in to build Eclipse test bundles and launch tests.
@@ -120,7 +119,7 @@ class TestBundlePlugin implements Plugin<Project> {
             description = taskDescription
 
             // configure the test runner to execute all classes from the project
-            testExecuter = new EclipseTestExecuter(project, config, services.get(BuildOperationExecutor.class))
+            testExecuter = new EclipseTestExecuter(project, services.get(BuildOperationExecutor.class))
             testClassesDirs =  project.sourceSets.main.output.classesDirs
             classpath = project.sourceSets.main.output + project.sourceSets.test.output
             reports.html.destination = new File("${project.reporting.baseDir}/eclipseTest")
@@ -139,12 +138,14 @@ class TestBundlePlugin implements Plugin<Project> {
 
             // the input for the task 'eclipseTest' is the output jars from the dependent projects
             // consequently we have to set it after the project is evaluated
-            project.afterEvaluate {
-                for (tc in project.configurations.compile.dependencies.withType(ProjectDependency)*.dependencyProject.tasks) {
-                    def taskHandler = tc.findByPath("jar")
-                    if(taskHandler != null) inputs.files taskHandler.outputs.files
-                }
-            }
+//            project.afterEvaluate {
+//                for (dependency in compileClasspathProjectDependencies(project)) {
+//                    def taskHandler = dependency.tasks.findByPath("jar")
+//                    if (taskHandler != null) {
+//                        inputs.files taskHandler.outputs.files
+//                    }
+//                }
+//            }
 
             doFirst { beforeEclipseTest(project, config, testDistributionDir, additionalPluginsDir) }
         }
@@ -164,6 +165,7 @@ class TestBundlePlugin implements Plugin<Project> {
         // copy the target platform to the test distribution folder
         project.logger.info("Copy target platform from '${config.nonMavenizedTargetPlatformDir.absolutePath}' into the build folder '${testDistributionDir.absolutePath}'")
         copyTargetPlatformToBuildFolder(project, config, testDistributionDir)
+        fixEclipseIni(testDistributionDir)
 
         // publish the dependencies' output jars into a P2 repository in the additions folder
         project.logger.info("Create mini-update site from the test plug-in and its dependencies at '${additionalPluginsDir.absolutePath}'")
@@ -182,11 +184,34 @@ class TestBundlePlugin implements Plugin<Project> {
         }
     }
 
+    static void fixEclipseIni(File eclipseDir) {
+        File eclipseIni = new File(eclipseDir, "eclipse.ini")
+        List<String> lines = eclipseIni.readLines()
+        List<String> updateLines = []
+
+        int lineNum = 0
+        lines.each { line ->
+            if (lineNum == 1 && line.startsWith("../target-platform/plugins/org.eclipse.equinox.launcher")) {
+                updateLines.add(line.replace("../target-platform/", "../eclipse/"))
+            } else if (lineNum == 3 && line.startsWith("../target-platform/plugins/org.eclipse.equinox.launcher")) {
+                updateLines.add(line.replace("../target-platform/", "../eclipse/"))
+            } else {
+                updateLines.add(line)
+            }
+            lineNum++
+        }
+
+        eclipseIni.withWriter { writer ->
+            updateLines.each {line ->
+                writer.writeLine(line)
+            }
+        }
+    }
+
     static void publishDependenciesIntoTemporaryRepo(Project project, Config config, File additionalPluginsDir) {
         // take all direct dependencies and and publish their jar archive to the build folder
         // (eclipsetest/additions subfolder) as a mini P2 update site
-        for (ProjectDependency dep : project.configurations.compile.dependencies.withType(ProjectDependency)) {
-            Project p = dep.dependencyProject
+        for (Project p : compileClasspathProjectDependencies(project)) {
             project.logger.debug("Publish '${p.tasks.jar.outputs.files.singleFile.absolutePath}' to '${additionalPluginsDir.path}/${p.name}'")
             project.exec {
                 commandLine(config.eclipseSdkExe,
@@ -216,9 +241,8 @@ class TestBundlePlugin implements Plugin<Project> {
 
     static void installDepedenciesIntoTargetPlatform(Project project, Config config, File additionalPluginsDir, File testDistributionDir) {
         // take the mini P2 update sites from the build folder and install it into the test Eclipse distribution
-        for (ProjectDependency dep : project.configurations.compile.dependencies.withType(ProjectDependency)) {
-            Project p = dep.dependencyProject
-            project.logger.debug("Install '${additionalPluginsDir.path}/${p.name}' into '${testDistributionDir.absolutePath}'")
+        for (Project p : compileClasspathProjectDependencies(project)) {
+            project.logger.info("Install '${additionalPluginsDir.path}/${p.name}' into '${testDistributionDir.absolutePath}'")
             project.exec {
                 commandLine(config.eclipseSdkExe,
                         '-application', 'org.eclipse.equinox.p2.director',
@@ -236,7 +260,7 @@ class TestBundlePlugin implements Plugin<Project> {
         }
 
         // do the same with the current project
-        project.logger.debug("Install '${additionalPluginsDir.path}/${project.name}' into '${testDistributionDir.absolutePath}'")
+        project.logger.info("Install '${additionalPluginsDir.path}/${project.name}' into '${testDistributionDir.absolutePath}'")
         project.exec {
             commandLine(config.eclipseSdkExe,
                     '-application', 'org.eclipse.equinox.p2.director',
@@ -250,6 +274,18 @@ class TestBundlePlugin implements Plugin<Project> {
                     '-roaming',
                     '-nosplash')
         }
+    }
+
+    static def compileClasspathProjectDependencies(Project project) {
+        List<Project> result = []
+        def resolvedArtifacts = project.configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts
+        for (artifact in resolvedArtifacts) {
+            def identifier = artifact.id.componentIdentifier
+            if (identifier instanceof ProjectComponentIdentifier) {
+                result += project.rootProject.project(identifier.projectPath)
+            }
+        }
+        result.reverse()
     }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -11,8 +11,13 @@ package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.buildship.ui.internal.UiPluginConstants
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection
+
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
+
 import org.eclipse.jface.viewers.StructuredSelection
 
+@IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // TODO update cglib and re-enable the test
 class OpenBuildScriptActionTest extends ViewSpecification {
 
   OpenBuildScriptAction openAction

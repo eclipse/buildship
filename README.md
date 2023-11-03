@@ -1,4 +1,4 @@
-# Eclipse Buildship: Gradle integration for the Eclipse IDE <a href="https://builds.gradle.org/viewType.html?buildTypeId=Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse413_Java8_30&branch_Tooling_Buildship_Full_Test_Coverage_Linux_30=%3Cdefault%3E&tab=buildTypeStatusDiv"><img src="https://builds.gradle.org/app/rest/builds/buildType:(id:Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse413_Java8_30)/statusIcon"/></a>
+# Eclipse Buildship: Gradle integration for the Eclipse IDE <a href="https://builds.gradle.org/viewType.html?buildTypeId=Tooling_Buildship_Checkpoint_Full_Test_Coverage_Phase_33"><img src="https://builds.gradle.org/guestAuth/app/rest/builds/buildType:(id:Tooling_Buildship_Checkpoint_Full_Test_Coverage_Phase_33)/statusIcon"/></a>
 
 Buildship is a set of Eclipse Plug-ins that provide a deep integration of Gradle into the Eclipse IDE. Buildship is hosted
 on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship).
@@ -29,7 +29,7 @@ We are very interested in feedback from the Gradle and Eclipse communities. All 
 
 ## Issue Tracking
 
-Issues are tracked on GitHub. Add your :thumbsup: for issues that you care about to help us prioritize them. If you want to follow our priorities and progress, install the [ZenHub](https://www.zenhub.io) extension and have a look at our [board](https://github.com/eclipse/buildship#boards).
+Issues are tracked on GitHub. Add your :thumbsup: for issues that you care about to help us prioritize them. If you want to follow our priorities and progress, install the [ZenHub](https://www.zenhub.com/extension) extension and have a look at our [board](https://github.com/eclipse/buildship#boards).
 
 ## License
 

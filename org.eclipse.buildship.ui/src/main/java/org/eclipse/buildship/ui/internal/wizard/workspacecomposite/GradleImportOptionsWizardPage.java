@@ -45,7 +45,6 @@ public final class GradleImportOptionsWizardPage extends AbstractCompositeWizard
     public GradleImportOptionsWizardPage(CompositeConfiguration configuration, String title, String defaultMessage, String pageContextInformation) {
         super("GradleImportOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getDistribution(), configuration.getGradleUserHome(), configuration.getJavaHome()));
         this.pageContextInformation = pageContextInformation;
-
     }
 
     @Override
@@ -208,7 +207,6 @@ public final class GradleImportOptionsWizardPage extends AbstractCompositeWizard
                 getConfiguration().getShowExecutionsView().setValue(GradleImportOptionsWizardPage.this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection());
             }
         });
-
     }
 
     @Override

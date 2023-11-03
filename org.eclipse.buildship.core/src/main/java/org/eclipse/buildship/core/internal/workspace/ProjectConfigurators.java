@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -26,6 +27,7 @@ import org.eclipse.buildship.core.ProjectContext;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.extension.InternalProjectConfigurator;
 import org.eclipse.buildship.core.internal.extension.ProjectConfiguratorContribution;
+import org.eclipse.buildship.core.internal.preferences.PersistentModel;
 import org.eclipse.buildship.core.internal.util.gradle.Pair;
 
 public final class ProjectConfigurators {
@@ -111,11 +113,24 @@ public final class ProjectConfigurators {
         return String.format("Project configurator '%s' failed to %s", contribution.getId(), operationName);
     }
 
-    private IResource markerLocation() {
-        Optional<IProject> projectOrNull = CorePlugin.workspaceOperations().findProjectByLocation(this.gradleBuild.getBuildConfig().getRootProjectDirectory());
-        return projectOrNull.isPresent() ? projectOrNull.get() : ResourcesPlugin.getWorkspace().getRoot();
-    }
 
+    private IResource markerLocation() {
+        Optional<IProject> maybeProject = CorePlugin.workspaceOperations().findProjectByLocation(this.gradleBuild.getBuildConfig().getRootProjectDirectory());
+        if (!maybeProject.isPresent()) {
+            return ResourcesPlugin.getWorkspace().getRoot();
+        }
+        IProject project = maybeProject.get();
+        PersistentModel persistentModel = CorePlugin.modelPersistence().loadModel(project);
+        if (!persistentModel.isPresent()) {
+            return project;
+        }
+        IFile buildScript = project.getFile(persistentModel.getbuildScriptPath());
+        if (!buildScript.exists()) {
+            return project;
+        }
+
+        return buildScript;
+    }
 
     private static class BaseContext {
         protected final List<Pair<String, Exception>> errors = new ArrayList<>();

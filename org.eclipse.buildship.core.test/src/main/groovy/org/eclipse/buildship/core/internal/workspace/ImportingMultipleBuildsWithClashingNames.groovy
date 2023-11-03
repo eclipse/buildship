@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
+
+import static org.gradle.api.JavaVersion.VERSION_13
+
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
 
 import org.eclipse.core.runtime.IStatus
 
@@ -35,6 +40,7 @@ class ImportingMultipleBuildsWithClashingNames extends ProjectSynchronizationSpe
 
     // TODO (donat) the test randomly imports subprojects from project 'second'
     // ensure that the project synchronization is ordered
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Same subproject names in different builds interrupt the project synchronization on gradle < 5.5"() {
         setup:
         def firstProject = dir('first') {

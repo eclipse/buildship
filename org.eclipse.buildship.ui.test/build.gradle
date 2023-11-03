@@ -2,19 +2,15 @@ apply plugin: eclipsebuild.TestBundlePlugin
 apply plugin: 'groovy'
 
 dependencies {
-    compile project(':org.eclipse.buildship.core')
-    compile project(':org.eclipse.buildship.ui')
+    implementation project(':org.eclipse.buildship.compat')
+    implementation project(':org.eclipse.buildship.core')
+    implementation project(':org.eclipse.buildship.ui')
 }
-
-def javaHome = hasProperty('eclipse.test.java.home') ? getProperty('eclipse.test.java.home') : System.getProperty('java.home')
-javaHome = javaHome.replace('\"', '').replace('\'', '')
 
 eclipseTest {
     fragmentHost 'org.eclipse.buildship.ui'
     applicationName 'org.eclipse.swtbot.eclipse.core.swtbottestapplication'
     optionsFile rootProject.project(':org.eclipse.buildship.core').file('.options')
     consoleLog = true
-    // TODO (donat) re-enable custom java home when we change the execution environment to Java 7 for the entire project and adjust CI builds
-    // testEclipseJavaHome = javaHome
 }
 

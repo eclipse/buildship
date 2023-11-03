@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -48,13 +48,13 @@ final class BuildConfigurationPersistence {
     private static final String PREF_KEY_USE_PROJECT_AS_ROOT = "project.as.root";
     private static final String PREF_KEY_ROOT_PROJECT = "root.project";
 
-    public DefaultBuildConfigurationProperties readBuildConfiguratonProperties(IProject project) {
+    public BuildConfigurationProperties readBuildConfiguratonProperties(IProject project) {
         Preconditions.checkNotNull(project);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
         return readPreferences(preferences, project.getLocation().toFile());
     }
 
-    public DefaultBuildConfigurationProperties readBuildConfiguratonProperties(File projectDir) {
+    public BuildConfigurationProperties readBuildConfiguratonProperties(File projectDir) {
         Preconditions.checkNotNull(projectDir);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
         return readPreferences(preferences, projectDir);
@@ -73,7 +73,7 @@ final class BuildConfigurationPersistence {
         savePreferences(properties, preferences);
     }
 
-    public void saveBuildConfiguration(File projectDir, DefaultBuildConfigurationProperties properties) {
+    public void saveBuildConfiguration(File projectDir, BuildConfigurationProperties properties) {
         Preconditions.checkNotNull(projectDir);
         Preconditions.checkNotNull(properties);
         PreferenceStore preferences = PreferenceStore.forPreferenceFile(getProjectPrefsFile(projectDir, PREF_NODE));
@@ -127,7 +127,7 @@ final class BuildConfigurationPersistence {
         deleteRootDirPreference(preferences);
     }
 
-    private static DefaultBuildConfigurationProperties readPreferences(PreferenceStore preferences, File rootDir) {
+    private static BuildConfigurationProperties readPreferences(PreferenceStore preferences, File rootDir) {
         boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
 
         String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);

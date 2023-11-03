@@ -1,6 +1,6 @@
 apply plugin: eclipsebuild.BundlePlugin
 
 dependencies {
-    compile withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
+    api withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
 }
 

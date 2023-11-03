@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -34,13 +34,7 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
      */
     private static final String PROJECT_IMPORT_DIALOG_SETTINGS = "org.eclipse.buildship.ui.wizard.project.import"; //$NON-NLS-1$
 
-    /**
-     * Preference key that flags whether the welcome page should be shown as part of the import wizard.
-     */
-    private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.wizard.project.import.showWelcomePage"; //$NON-NLS-1$
-
     // the pages to display in the wizard
-    private final GradleWelcomeWizardPage welcomeWizardPage;
     private final GradleProjectWizardPage gradleProjectPage;
     private final GradleOptionsWizardPage gradleOptionsPage;
     private final ProjectPreviewWizardPage projectPreviewPage;
@@ -62,8 +56,6 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
      * @param dialogSettings the dialog settings to store/retrieve dialog preferences
      */
     public ProjectImportWizard(IDialogSettings dialogSettings) {
-        super(PREF_SHOW_WELCOME_PAGE);
-
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);
@@ -73,8 +65,6 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
 
         // instantiate the pages and pass the configuration object that serves as the data model of the wizard
         final ProjectImportConfiguration configuration = this.controller.getConfiguration();
-        WelcomePageContent welcomePageContent = WelcomePageContentFactory.createImportWizardWelcomePageContent();
-        this.welcomeWizardPage = new GradleWelcomeWizardPage(configuration, welcomePageContent);
         this.gradleProjectPage = new GradleProjectWizardPage(configuration);
         this.gradleOptionsPage = new GradleOptionsWizardPage(configuration);
         this.projectPreviewPage = new ProjectPreviewWizardPage(this.controller.getConfiguration());
@@ -97,9 +87,6 @@ public final class ProjectImportWizard extends AbstractProjectWizard implements 
     @Override
     public void addPages() {
         // assign wizard pages to this wizard
-        if (isShowWelcomePage()) {
-            addPage(this.welcomeWizardPage);
-        }
         addPage(this.gradleProjectPage);
         addPage(this.gradleOptionsPage);
         addPage(this.projectPreviewPage);

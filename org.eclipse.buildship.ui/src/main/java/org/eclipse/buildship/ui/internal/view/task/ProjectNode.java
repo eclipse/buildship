@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,15 +9,11 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
-import java.util.Map;
-
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 
 import org.eclipse.core.resources.IProject;
 
@@ -31,19 +27,15 @@ public final class ProjectNode extends BaseProjectNode {
 
     private final ProjectNode parentProjectNode;
     private final EclipseProject eclipseProject;
-    private final GradleProject gradleProject;
-    private final boolean includedProject;
-    private final Map<Path, BuildInvocations> allBuildInvocations;
-    private final Path projectPath;
+    private final BuildInvocations buildInvocations;
+    private final BuildNode buildNode;
 
-    public ProjectNode(ProjectNode parentProjectNode, EclipseProject eclipseProject, GradleProject gradleProject, Optional<IProject> workspaceProject, boolean includedProject,  Map<Path, BuildInvocations> allBuildInvocations, Path projectPath) {
+    public ProjectNode(ProjectNode parentProjectNode, BuildNode buildNode, Optional<IProject> workspaceProject, EclipseProject eclipseProject) {
         super(workspaceProject);
-        this.parentProjectNode = parentProjectNode; // is null for root project
-        this.eclipseProject = Preconditions.checkNotNull(eclipseProject);
-        this.gradleProject = Preconditions.checkNotNull(gradleProject);
-        this.includedProject = includedProject;
-        this.allBuildInvocations = Preconditions.checkNotNull(allBuildInvocations);
-        this.projectPath = Preconditions.checkNotNull(projectPath);
+        this.parentProjectNode = parentProjectNode; // null for root project
+        this.eclipseProject = eclipseProject;
+        this.buildInvocations = buildNode.buildInvocationsFor(Path.from(eclipseProject.getGradleProject().getPath()));
+        this.buildNode = buildNode;
     }
 
     public String getDisplayName() {
@@ -74,24 +66,20 @@ public final class ProjectNode extends BaseProjectNode {
     }
 
     public GradleProject getGradleProject() {
-        return this.gradleProject;
-    }
-
-    public boolean isIncludedProject() {
-        return this.includedProject;
-    }
-
-    public Map<Path, BuildInvocations> getAllBuildInvocations() {
-        return ImmutableMap.copyOf(this.allBuildInvocations);
+        return this.eclipseProject.getGradleProject();
     }
 
     public BuildInvocations getInvocations() {
-        return this.allBuildInvocations.get(this.projectPath);
+        return this.buildInvocations;
+    }
+
+    public BuildNode getBuildNode() {
+        return this.buildNode;
     }
 
     @Override
     public String toString() {
-        return this.gradleProject.getName();
+        return this.eclipseProject.getGradleProject().getName();
     }
 
     @Override
@@ -104,16 +92,15 @@ public final class ProjectNode extends BaseProjectNode {
         }
 
         ProjectNode that = (ProjectNode) other;
-        return Objects.equal(this.parentProjectNode, that.parentProjectNode)
+        return Objects.equal(this.getWorkspaceProject(), that.getWorkspaceProject())
+                && Objects.equal(this.parentProjectNode, that.parentProjectNode)
                 && Objects.equal(this.eclipseProject, that.eclipseProject)
-                && Objects.equal(this.gradleProject, that.gradleProject)
-                && Objects.equal(this.includedProject, that.includedProject)
-                && Objects.equal(this.allBuildInvocations, that.allBuildInvocations)
-                && Objects.equal(this.projectPath, that.projectPath);
+                && Objects.equal(this.buildInvocations, that.buildInvocations)
+                && Objects.equal(this.buildNode, that.buildNode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.gradleProject, this.includedProject, this.allBuildInvocations, this.projectPath);
+        return Objects.hashCode(getWorkspaceProject(), this.parentProjectNode, this.eclipseProject, this.buildInvocations, this.buildNode);
     }
 }

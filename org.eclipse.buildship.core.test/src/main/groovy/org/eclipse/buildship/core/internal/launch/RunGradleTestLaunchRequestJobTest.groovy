@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,8 +9,13 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.launch
 
+import static org.gradle.api.JavaVersion.VERSION_13
+
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
 
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.debug.core.DebugPlugin
@@ -34,7 +39,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
                 allprojects {
                     apply plugin: 'java'
                     ${jcenterRepositoryBlock}
-                    dependencies.testCompile 'junit:junit:4.12'
+                    dependencies.testImplementation 'junit:junit:4.12'
 
                     tasks.withType(Test) {
                         onOutput { descriptor, event ->
@@ -172,6 +177,7 @@ class RunGradleTestLaunchRequestJobTest extends BaseLaunchRequestJobTest {
         assertTestNotExecuted('MyTest3#test3_3')
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Cannot do test debugging with old Gradle version"() {
         setup:
         importAndWait(projectDir, GradleDistribution.forVersion('5.5'))

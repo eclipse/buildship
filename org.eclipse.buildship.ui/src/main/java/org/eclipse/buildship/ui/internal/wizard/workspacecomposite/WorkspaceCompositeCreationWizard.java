@@ -46,7 +46,6 @@ public final class WorkspaceCompositeCreationWizard extends AbstractWorkspaceCom
     
     // working set manager
     private IWorkingSetManager workingSetManager;
-    
 
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.internal.UiPlugin}..
@@ -137,7 +136,7 @@ public final class WorkspaceCompositeCreationWizard extends AbstractWorkspaceCom
         }
         return section;
     }
-    
+  
     public IWorkingSet getComposite() {
     	return this.composite;
     }

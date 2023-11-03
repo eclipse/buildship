@@ -11,11 +11,11 @@
 
 package eclipsebuild
 
-import org.gradle.api.Project
-import org.gradle.internal.os.OperatingSystem
-
 import eclipsebuild.BuildDefinitionPlugin.TargetPlatform
-
+import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
+import org.gradle.internal.os.OperatingSystem
 
 /**
  * Holds configuration-dependent settings for the plug-ins.
@@ -66,8 +66,13 @@ class Config {
     //    |--37
     //       |--...
 
+    Provider<Directory> getBaseDirectory() {
+        Provider<Directory> baseDirectory = project.rootProject.eclipseBuild.baseDirectory
+        return baseDirectory != null ? baseDirectory : project.rootProject.layout.buildDirectory.dir("tooling")
+    }
+
     File getEclipseSdkDir() {
-        new File(targetPlatformsDir, 'eclipse-sdk')
+        project.rootProject.eclipseBuild.eclipseSdkDir
     }
 
     File getTargetPlatformDir() {
@@ -82,15 +87,12 @@ class Config {
         new File(targetPlatformDir, 'mavenized-target-platform')
     }
 
-    File getEclipseSdkArchive() {
-        new File(eclipseSdkDir, OperatingSystem.current().isWindows() ? 'eclipse-sdk.zip' : 'eclipse-sdk.tar.gz')
-    }
-
     File getEclipseSdkExe() {
         new File(eclipseSdkDir, Constants.eclipseExePath)
     }
 
     File getJarProcessorJar() {
-        new File(eclipseSdkDir.path, '/eclipse/plugins').listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
+        String pluginsDir = OperatingSystem.current().isMacOsX() ? 'Eclipse.app/Contents/Eclipse/plugins' : '/eclipse/plugins'
+        new File(eclipseSdkDir.path, pluginsDir).listFiles().find { it.name.startsWith('org.eclipse.equinox.p2.jarprocessor_') }
     }
 }

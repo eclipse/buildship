@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - Compatibility classes
+Bundle-SymbolicName: org.eclipse.buildship.compat;singleton:=true
+Bundle-Version: 3.1.7.qualifier
+Bundle-Vendor: Eclipse Buildship
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.gradle.toolingapi;bundle-version="[8.1.1,8.2.0)";visibility:=reexport
+Export-Package: org.eclipse.buildship.core.internal.workspace

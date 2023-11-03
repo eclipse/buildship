@@ -101,7 +101,6 @@ public final class GradleCompositeImportOptionsPreferencePage extends PropertyPa
         this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(buildConfig.isShowConsoleView());
         this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(buildConfig.isShowExecutionsView());
         this.gradleProjectSettingsComposite.updateEnablement();
-        
     }
 
     private void addListeners() {

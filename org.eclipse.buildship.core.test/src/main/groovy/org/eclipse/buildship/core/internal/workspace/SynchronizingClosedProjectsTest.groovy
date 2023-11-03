@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import org.eclipse.core.resources.IMarker
 import org.eclipse.jdt.core.IClasspathEntry
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
@@ -73,14 +74,14 @@ class SynchronizingClosedProjectsTest extends ProjectSynchronizationSpecificatio
                         testArtifacts
                     }
                     task testJar(type: Jar) {
-                        classifier 'tests'
+                        archiveClassifier = 'tests'
                         from sourceSets.test.output.classesDirs
                     }
                     artifacts {
                         testArtifacts testJar
                     }
                     task sourceJar(type: Jar, dependsOn: classes) {
-                        classifier = 'sources'
+                        archiveClassifier = 'sources'
                         from sourceSets.main.allSource
                     }
                 }
@@ -146,19 +147,20 @@ class SynchronizingClosedProjectsTest extends ProjectSynchronizationSpecificatio
 
     def "Substitutions include dependencies from other configurations"() {
         when:
-        importAndWait(buildB)
+        tryImportAndWait(buildB)
 
         then:
         allProjects().size() == 3
 
         when:
         findProject("b2").close()
-        synchronizeAndWait(buildB)
+        trySynchronizeAndWait(buildB)
         IJavaProject javaProject = JavaCore.create(findProject('b1'))
         IRuntimeClasspathEntry[] classpath = projectRuntimeClasspath(javaProject)
 
         then:
-        numOfGradleErrorMarkers == 0
+        numOfGradleErrorMarkers == 1
+        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == 'Unresolved dependency: org.test:buildC:1.0'
         !classpath.find { it.type ==IRuntimeClasspathEntry.PROJECT && it.path.lastSegment() == 'b2' }
         classpath.find { it.type ==IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'b2-1.0.jar' }
         classpath.find { it.type ==IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'b2-1.0-tests.jar' }
@@ -170,14 +172,14 @@ class SynchronizingClosedProjectsTest extends ProjectSynchronizationSpecificatio
 
     def "Substitutes can have source attachments"() {
         when:
-        importAndWait(buildB)
+        tryImportAndWait(buildB)
 
         then:
         allProjects().size() == 3
 
         when:
         findProject("b2").close()
-        synchronizeAndWait(buildB)
+        trySynchronizeAndWait(buildB)
         IJavaProject javaProject = findJavaProject('b1')
 
         then:

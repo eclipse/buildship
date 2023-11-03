@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
 package org.eclipse.buildship.core.internal.workspace
 
 import org.gradle.api.JavaVersion
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 
@@ -21,6 +22,7 @@ import org.eclipse.jdt.launching.IRuntimeClasspathEntry
 import org.eclipse.jdt.launching.JavaRuntime
 
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.util.eclipse.PlatformUtils
 import org.eclipse.buildship.core.GradleDistribution
 
 class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
@@ -48,21 +50,21 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         buildFile << '''
             project(':a') {
                 dependencies {
-                    compile 'log4j:log4j:1.2.17'
+                    implementation 'log4j:log4j:1.2.17'
                 }
             }
 
             project(':b') {
                 dependencies {
-                    compile 'log4j:log4j:1.2.16'
+                    implementation 'log4j:log4j:1.2.16'
                 }
             }
 
             project(':c') {
                 dependencies {
-                    compile project(':a')
-                    compile project(':b')
-                    testCompile 'junit:junit:4.12'
+                    implementation project(':a')
+                    implementation project(':b')
+                    testImplementation 'junit:junit:4.12'
                 }
             }
         '''
@@ -82,7 +84,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         buildFile << '''
             project(':a') {
                 dependencies {
-                    compile 'org.springframework:spring-core:4.3.1.RELEASE'
+                    implementation 'org.springframework:spring-core:4.3.1.RELEASE'
                 }
             }
 
@@ -92,7 +94,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
                 }
 
                 dependencies {
-                    compile project(':a')
+                    implementation project(':a')
                 }
             }
         '''
@@ -106,6 +108,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         !classpath.find { it.path.toPortableString().contains('commons-logging') }
     }
 
+    @Ignore("Connectiong to this project with Gradle 4.3 seems to be broken")
     def "Dependencies are still on the runtime classpath"() {
         setup:
         new File(location, 'b/lib').mkdirs()
@@ -132,6 +135,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
         classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.lastSegment() == 'lib' }
     }
 
+    @Ignore("Connectiong to this project with Gradle 4.3 seems to be broken")
     @Issue("https://bugs.eclipse.org/bugs/show_bug.cgi?id=507206")
     def "Runtime classpath contains custom output folders"() {
         setup:
@@ -157,7 +161,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
 
             project(':b') {
                 dependencies {
-                    compile project(':a')
+                    implementation project(':a')
                 }
             }
         '''
@@ -179,7 +183,7 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
             file('build.gradle') << """
                 apply plugin: 'java'
                 ${jcenterRepositoryBlock}
-                dependencies.compile 'com.google.guava:guava:18.0'
+                dependencies.implementation 'com.google.guava:guava:18.0'
             """
         }
         importAndWait(external)
@@ -192,6 +196,42 @@ class RuntimeClasspathTest extends ProjectSynchronizationSpecification {
 
         expect:
         resolvedClasspath.find { it.path.lastSegment().contains 'guava' }
+    }
+
+    @Issue("https://github.com/eclipse/buildship/issues/1004")
+    @IgnoreIf({ !PlatformUtils.supportsTestAttributes() })
+    def "Project dependency test code is not on the classpath if without_test_code attribute is set"() {
+        setup:
+        // Another non-custom source directory is required for the default-directory to be set
+        new File(location, 'a/src/main/java').mkdirs()
+        new File(location, 'a/src/test/java').mkdirs()
+        buildFile << '''
+            project(':a') {
+                apply plugin: 'java-library'
+            }
+
+            project(':b') {
+                apply plugin: 'eclipse'
+
+                dependencies {
+                    implementation project(':a')
+                }
+
+                eclipse.classpath.file.whenMerged {
+                    entries.findAll { it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency }
+                        .each { it.entryAttributes['without_test_code'] = 'true' }
+                }
+            }
+        '''
+        importAndWait(location)
+
+        when:
+        IJavaProject javaProject = JavaCore.create(findProject('b'))
+        IRuntimeClasspathEntry[] classpath = projectRuntimeClasspath(javaProject)
+
+        then:
+        classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.toPortableString() == '/a/bin/main' }
+        !classpath.find { it.type == IRuntimeClasspathEntry.ARCHIVE && it.path.toPortableString() == '/a/bin/test' }
     }
 
     private IRuntimeClasspathEntry[] projectRuntimeClasspath(IJavaProject project) {

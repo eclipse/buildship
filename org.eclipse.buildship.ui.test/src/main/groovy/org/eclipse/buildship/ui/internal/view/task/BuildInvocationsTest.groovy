@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -73,8 +73,8 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
         IProject project = findProject('project-with-subtasks')
 
         ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getBuild(project).get().modelProvider
-        List<EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
-        GradleProject gradleProject = eclipseProjects[0].gradleProject
+        Map<String, EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        GradleProject gradleProject = eclipseProjects[':'].gradleProject
         Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject)
 
         then:
@@ -153,8 +153,8 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
 
         IProject project = findProject('project-without-tasks')
         ModelProvider modelProvider = CorePlugin.internalGradleWorkspace().getBuild(project).get().modelProvider
-        List<EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
-        GradleProject gradleProject = eclipseProjects[0].gradleProject
+        Map<String, EclipseProject> eclipseProjects = modelProvider.fetchModels(EclipseProject, FetchStrategy.LOAD_IF_NOT_CACHED, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+        GradleProject gradleProject = eclipseProjects[':'].gradleProject
         Map<Path, BuildInvocations> pathToBuildInvocations = BuildInvocations.collectAll(gradleProject)
 
         then:
@@ -170,7 +170,32 @@ class BuildInvocationsTest extends ProjectSynchronizationSpecification {
     }
 
     private static Set<String> getImplicitTasks() {
-        ["init", "wrapper", "help", "projects", "tasks", "properties", "components", "dependencies", "dependencyInsight", "setupBuild", "model", "buildEnvironment", "dependentComponents", "nothing", "prepareKotlinBuildScriptModel", "cleanEclipse", "cleanEclipseProject", "eclipse", "eclipseProject", "outgoingVariants"]
+        [
+            "init",
+            "wrapper",
+            "help",
+            "projects",
+            "tasks",
+            "properties",
+            "components",
+             "dependencies",
+             "dependencyInsight",
+             "setupBuild",
+             "model",
+             "buildEnvironment",
+             "dependentComponents",
+             "nothing",
+             "prepareKotlinBuildScriptModel",
+             "cleanEclipse",
+             "cleanEclipseProject",
+             "eclipse",
+             "eclipseProject",
+             "outgoingVariants",
+             "buildScanPublishPrevious",
+             "javaToolchains",
+             "provisionGradleEnterpriseAccessKey",
+             "resolvableConfigurations"
+         ]
     }
 
     private static Set<String> collectNamesOfNonImplicitProjectTasks(List<ProjectTask> tasks) {

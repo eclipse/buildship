@@ -61,7 +61,6 @@ public final class GradleCompositeRootProjectPreferencePage extends PropertyPage
     private Composite rootProjectSettingsComposite;
     private Label rootProjectLabel;
 
-
     private final Validator<File> rootProjectValidator;
     CompositeConfiguration compositeConfig;
 

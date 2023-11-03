@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,9 +9,13 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import static org.gradle.api.JavaVersion.VERSION_12
+
+import org.gradle.api.JavaVersion
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency
+import spock.lang.IgnoreIf
 import spock.lang.Issue
 
 import org.eclipse.core.resources.IResource
@@ -36,7 +40,7 @@ import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 
 class GradleClasspathContainerInitializerTest extends ProjectSynchronizationSpecification {
 
-
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_12) }) // Gradle 5.3 can run on Java 11 and below
     @Issue('https://github.com/eclipse/buildship/issues/893')
     def "Gradle classpath container initializer should not schedule another synchronization with different import properties"() {
         given:
@@ -49,7 +53,7 @@ class GradleClasspathContainerInitializerTest extends ProjectSynchronizationSpec
                 repositories.jcenter()
 
                 dependencies {
-                    compile 'com.google.guava:guava:21.0'
+                    implementation 'com.google.guava:guava:21.0'
                 }
             """
         }

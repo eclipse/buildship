@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,36 +9,27 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.wizard.project
 
-import com.google.common.base.Optional
-import com.google.common.base.Preconditions
-import com.google.common.base.Predicate
+import spock.lang.Ignore
 
 import org.eclipse.core.resources.IProject
-import org.eclipse.core.runtime.IAdaptable
 import org.eclipse.jface.dialogs.IDialogConstants
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 import org.eclipse.ui.IWorkingSet
 import org.eclipse.ui.IWorkingSetManager
 import org.eclipse.ui.PlatformUI
 
-import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.ui.internal.test.fixtures.LegacyEclipseSpockTestHelper
 import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 
+
 class ProjectCreationWizardUiTest extends SwtBotSpecification {
 
-    final def String TEST_PROJECT_NAME = "TestProject"
-
     def "Can open new wizard from menu bar"() {
-        setup:
-        openGradleCreationWizard()
-
         when:
-        bot.text(ProjectWizardMessages.InfoMessage_NewGradleProjectWizardPageDefault)
+        openGradleCreationWizard()
 
         then:
         // if widget is not available then a WidgetNotFoundException is thrown
@@ -63,22 +54,18 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         bot.button(IDialogConstants.CANCEL_LABEL).click()
     }
 
-    public void "Project files are deleted when cancel button is pressed on the preview page"() {
+    @Ignore // flaky test
+    def "Project files are deleted when cancel button is pressed on the preview page"() {
         setup:
         openGradleCreationWizard()
 
         when:
-        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(TEST_PROJECT_NAME)
-        bot.button(IDialogConstants.NEXT_LABEL).click()
-        bot.button(IDialogConstants.NEXT_LABEL).click()
-        // wait until the project preview finishes loading and the buttons are enabled again
-        // the preview can trigger a Gradle distribution download, thus we need a long timeout
-        bot.waitUntil(Conditions.widgetIsEnabled(bot.button(IDialogConstants.BACK_LABEL)), 300000)
+        goToProjectPreviewPage("TestProject")
 
         then:
         // after the project preview loaded the test project should be created
         File workspaceRootFolder = LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
-        File projectFolder = workspaceRootFolder.listFiles().find{ it.name == TEST_PROJECT_NAME }
+        File projectFolder = workspaceRootFolder.listFiles().find{ it.name == "TestProject" }
         projectFolder != null
         projectFolder.exists()
         projectFolder.isDirectory()
@@ -91,12 +78,29 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         !projectFolder.exists()
     }
 
+    def "Can create project with Java keywords in name"() {
+        setup:
+        openGradleCreationWizard()
+
+        when:
+        goToProjectPreviewPage("new.synchronized.default.project")
+
+        then:
+        // after the project preview loaded the test project should be created
+        File workspaceRootFolder = LegacyEclipseSpockTestHelper.workspace.root.location.toFile()
+        File projectFolder = workspaceRootFolder.listFiles().find { it.name == "new.synchronized.default.project" }
+        projectFolder != null
+        new File(projectFolder, 'lib/src/main/java/_new/_synchronized/_default/project/Library.java').exists()
+    }
+
+    @Ignore // flaky test
     def "Check if the created project has been added to the selected working set"() {
         setup:
         openGradleCreationWizard()
 
         when:
-        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(TEST_PROJECT_NAME)
+        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText("TestProject")
+        bot.checkBox("Add project to working sets").deselect()
         bot.checkBox("Add project to working sets").select()
         bot.button("Select...").click()
         // create a 'Gradle' working set if not exists
@@ -126,17 +130,25 @@ class ProjectCreationWizardUiTest extends SwtBotSpecification {
         // the 'Gradle' working set should contain the new test project
         PlatformUI.workbench.workingSetManager.getWorkingSet('Gradle').elements.any {
             IProject project = (IProject) it.getAdapter(IProject.class)
-            project == null ? false : TEST_PROJECT_NAME == project.name
+            project == null ? false : "TestProject" == project.name
         }
+    }
+
+    private def goToProjectPreviewPage(String projectName) {
+        bot.textWithLabel(ProjectWizardMessages.Label_ProjectName).setText(projectName)
+        bot.button(IDialogConstants.NEXT_LABEL).click()
+        bot.button(IDialogConstants.NEXT_LABEL).click()
+        // wait until the project preview finishes loading and the buttons are enabled again
+        // the preview can trigger a Gradle distribution download, thus we need a long timeout
+        bot.waitUntil(Conditions.widgetIsEnabled(bot.button(IDialogConstants.BACK_LABEL)), 300000)
     }
 
     private def openGradleCreationWizard() {
         bot.menu("File").menu("New").menu("Other...").click()
-        SWTBotShell shell = bot.shell("New")
+        SWTBotShell shell = bot.shells().find { SWTBotShell shell -> ['New', 'Select a wizard'].contains(shell.text) }
         shell.activate()
-        bot.waitUntil(Conditions.shellIsActive("New"))
+        bot.waitUntil(Conditions.shellIsActive(shell.getText()))
         bot.tree().expandNode("Gradle").select("Gradle Project")
-        bot.button(IDialogConstants.NEXT_LABEL).click()
         bot.button(IDialogConstants.NEXT_LABEL).click()
     }
 

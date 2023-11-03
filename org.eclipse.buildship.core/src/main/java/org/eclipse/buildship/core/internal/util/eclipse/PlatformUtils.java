@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -21,10 +21,20 @@ public class PlatformUtils {
     public static boolean supportsTestAttributes() {
         Bundle platformBundle = Platform.getBundle("org.eclipse.platform");
         if (platformBundle == null) {
-            return false;
+            // the bundle "org.eclipse.platform" will be null when it's JDT.LS
+            // in that case we check the JDT.LS bundle
+            return supportsTestAttributesInJdtLs();
         }
         Version platform = platformBundle.getVersion();
         Version eclipseLuna = new Version(4, 8, 0);
         return platform.compareTo(eclipseLuna) >= 0;
+    }
+
+    private static boolean supportsTestAttributesInJdtLs() {
+        Bundle lsBundle = Platform.getBundle("org.eclipse.jdt.ls.core");
+        if (lsBundle == null) {
+            return false;
+        }
+        return lsBundle.getVersion().compareTo(new Version(1, 0, 0)) >= 0;
     }
 }

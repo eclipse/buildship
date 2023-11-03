@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -88,7 +88,7 @@ public final class TaskNodeSelectionUtils {
 
     private static File workingDirForTask(TaskNode taskNode, File rootDir) {
         if (taskNode instanceof ProjectTaskNode) {
-            return rootDir;
+            return taskNode.getParentProjectNode().getBuildNode().getBuildTreeNode().getRootProjectDir();
         } else if (taskNode instanceof TaskSelectorNode) {
             return taskNode.getParentProjectNode().getEclipseProject().getProjectDirectory();
         } else {

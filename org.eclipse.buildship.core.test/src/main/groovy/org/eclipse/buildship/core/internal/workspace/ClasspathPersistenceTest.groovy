@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -27,7 +27,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         def projectDir = dir('sample-project') {
             file 'build.gradle',  """apply plugin: "java"
                ${jcenterRepositoryBlock}
-               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+               dependencies { implementation "org.springframework:spring-beans:1.2.8"}
             """
         }
         importAndWait(projectDir)
@@ -79,7 +79,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         File projectDir = dir('sample-project') {
             file 'build.gradle',  """apply plugin: "java"
                ${jcenterRepositoryBlock}
-               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+               dependencies { implementation "org.springframework:spring-beans:1.2.8"}
             """
         }
 
@@ -101,7 +101,7 @@ class ClasspathPersistenceTest extends ProjectSynchronizationSpecification {
         File projectDir = dir('sample-project') {
             file 'build.gradle',  """apply plugin: "java"
                ${jcenterRepositoryBlock}
-               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+               dependencies { implementation "org.springframework:spring-beans:1.2.8"}
             """
         }
 

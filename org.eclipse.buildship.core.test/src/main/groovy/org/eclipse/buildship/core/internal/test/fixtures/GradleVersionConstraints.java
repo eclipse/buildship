@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -75,16 +75,6 @@ public abstract class GradleVersionConstraints {
                 @Override
                 public boolean apply(GradleVersion element) {
                     return element.getBaseVersion().equals(target);
-                }
-            };
-        }
-        if (trimmed.startsWith(NOT_EQUALS)) {
-            final GradleVersion target = GradleVersion.version(trimmed.substring(2)).getBaseVersion();
-            return new Predicate<GradleVersion>() {
-
-                @Override
-                public boolean apply(GradleVersion element) {
-                    return !element.getBaseVersion().equals(target);
                 }
             };
         }

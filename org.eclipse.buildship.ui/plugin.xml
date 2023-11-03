@@ -67,6 +67,28 @@
             name="Gradle">
       </category>
     </extension>
+    
+    <!-- integration of a Gradle workspace composite creation wizard -->
+    <extension point="org.eclipse.ui.newWizards">
+    	<wizard
+            id="org.eclipse.buildship.ui.wizard.workspaceComposite.creation"
+            class="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeCreationWizard"
+            category="org.eclipse.buildship.ui.creationwizards"
+            icon="icons/full/etool16/creation_wiz.png"
+            name="Gradle Composite"
+            canFinishEarly="false"
+            hasPages="true"
+            project="true">
+         <description>
+            Create a new Gradle workspace composite.
+         </description>
+         <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
+      </wizard>
+      <category
+            id="org.eclipse.buildship.ui.creationwizards"
+            name="Gradle">
+      </category>
+    </extension>
 
     <!-- editor support for Gradle build scripts -->
     <extension
@@ -339,7 +361,7 @@
         <launchConfigurationTypeImage
                 id="org.eclipse.buildship.ui.launch.test.runconfigurationtypeimage"
                 configTypeID="org.eclipse.buildship.core.launch.test.runconfiguration"
-                icon="icons/full/obj16/launch_config.png">
+                icon="icons/full/obj16/test_launch_config.png">
         </launchConfigurationTypeImage>
     </extension>
     <extension
@@ -361,7 +383,7 @@
           point="org.eclipse.debug.ui.launchShortcuts">
        <shortcut
              class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcut"
-             icon="icons/full/obj16/launch_config.png"
+             icon="icons/full/obj16/test_launch_config.png"
              id="org.eclipse.buildship.ui.shortcut.test"
              label="Gradle Test"
              modes="run">
@@ -389,7 +411,7 @@
        </shortcut>
        <shortcut
              class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcut"
-             icon="icons/full/obj16/launch_config.png"
+             icon="icons/full/obj16/test_launch_config.png"
              id="org.eclipse.buildship.ui.shortcut.test.debug"
              label="Gradle Test"
              modes="debug">
@@ -650,6 +672,12 @@
              id="org.eclipse.buildship.ui.preferences"
              name="Gradle">
        </page>
+       <page
+             category="org.eclipse.buildship.ui.preferences"
+             class="org.eclipse.buildship.ui.internal.preferences.GradleExperimentalFeaturesPreferencePage"
+             id="org.eclipse.buildship.ui.preferences.experimental"
+             name="Experimental features">
+       </page>
     </extension>
 
     <!-- Add the "Gradle" menu to the project preferences -->
@@ -754,9 +782,6 @@
           point="org.eclipse.help.contentExtension">
     </extension>
     <extension
-          point="org.eclipse.help.contentExtension">
-    </extension>
-    <extension
           point="org.eclipse.ui.workingSets">
        <workingSet
              description="Gradle composite build that includes other builds"
@@ -772,7 +797,4 @@
              class="org.eclipse.buildship.ui.internal.workspace.StartupSetup">
        </startup>
     </extension>
-    
-    <!-- Import options property page for Gradle composite -->
-    
 </plugin>

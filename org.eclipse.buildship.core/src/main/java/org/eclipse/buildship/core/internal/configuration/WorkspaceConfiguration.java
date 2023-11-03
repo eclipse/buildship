@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -34,12 +34,13 @@ public final class WorkspaceConfiguration {
     private final List<String> jvmArguments;
     private final boolean showConsoleView;
     private final boolean showExecutionsView;
+    private final boolean experimentalModuleSupportEnabled;
 
     public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome,
                                   File javaHome, boolean gradleIsOffline, boolean buildScansEnabled,
                                   boolean autoSync, List<String> arguments,
                                   List<String> jvmArguments, boolean showConsoleView,
-                                  boolean showExecutionsView) {
+                                  boolean showExecutionsView, boolean experimentalModuleSupportEnabled) {
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.javaHome = javaHome;
@@ -50,6 +51,7 @@ public final class WorkspaceConfiguration {
         this.jvmArguments = jvmArguments;
         this.showConsoleView = showConsoleView;
         this.showExecutionsView = showExecutionsView;
+        this.experimentalModuleSupportEnabled = experimentalModuleSupportEnabled;
     }
 
     public GradleDistribution getGradleDistribution() {
@@ -93,6 +95,11 @@ public final class WorkspaceConfiguration {
         return this.showExecutionsView;
     }
 
+
+    public boolean isExperimentalModuleSupportEnabled() {
+        return this.experimentalModuleSupportEnabled;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof WorkspaceConfiguration) {
@@ -106,13 +113,14 @@ public final class WorkspaceConfiguration {
                     && Objects.equal(this.arguments, other.arguments)
                     && Objects.equal(this.jvmArguments, other.jvmArguments)
                     && Objects.equal(this.showConsoleView, other.showConsoleView)
-                    && Objects.equal(this.showExecutionsView, other.showExecutionsView);
+                    && Objects.equal(this.showExecutionsView, other.showExecutionsView)
+                    && Objects.equal(this.experimentalModuleSupportEnabled, other.experimentalModuleSupportEnabled);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.javaHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSync, this.arguments, this.jvmArguments, this.showConsoleView, this.showExecutionsView);
+        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.javaHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSync, this.arguments, this.jvmArguments, this.showConsoleView, this.showExecutionsView, this.experimentalModuleSupportEnabled);
     }
 }

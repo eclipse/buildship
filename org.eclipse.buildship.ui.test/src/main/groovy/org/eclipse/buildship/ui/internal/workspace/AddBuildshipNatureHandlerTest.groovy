@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -19,6 +19,7 @@ import org.eclipse.core.commands.Command
 import org.eclipse.core.commands.ExecutionEvent
 import org.eclipse.core.expressions.IEvaluationContext
 import org.eclipse.core.resources.IProject
+import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jface.viewers.StructuredSelection
@@ -40,7 +41,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
     def "Uses configuration from workspace settings"() {
         setup:
         WorkspaceConfiguration originalWorkspaceConfig = configurationManager.loadWorkspaceConfiguration()
-        WorkspaceConfiguration config = new WorkspaceConfiguration(GradleDistribution.forVersion("3.0"), dir('custom-gradle-home'), null, false, false, false, [], [], false, false)
+        WorkspaceConfiguration config = new WorkspaceConfiguration(GradleDistribution.forVersion("3.0"), dir('custom-gradle-home'), null, false, false, false, [], [], false, false, false)
         configurationManager.saveWorkspaceConfiguration(config)
 
         IProject project = EclipseProjects.newProject('add-buildship-nature')
@@ -62,6 +63,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
     def "Publishes 'nature added' event"() {
         setup:
         IProject project = EclipseProjects.newProject('test-nature-added-event')
+        project.getFile('settings.gradle').create(new ByteArrayInputStream("// intentionally empty".bytes),  IResource.FORCE, new NullProgressMonitor())
         waitForResourceChangeEvents()
 
         TestEventListener eventListener = new TestEventListener()

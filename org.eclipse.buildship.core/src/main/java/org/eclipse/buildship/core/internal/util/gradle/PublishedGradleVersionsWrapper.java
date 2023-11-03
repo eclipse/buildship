@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
@@ -52,6 +53,18 @@ public final class PublishedGradleVersionsWrapper {
         public LoadVersionsJob() {
             super("Loading available Gradle versions");
             setSystem(true);
+            setRule(new ISchedulingRule() {
+
+                @Override
+                public boolean isConflicting(ISchedulingRule rule) {
+                    return rule == this;
+                }
+
+                @Override
+                public boolean contains(ISchedulingRule rule) {
+                    return rule == this;
+                }
+            });
         }
 
         @Override

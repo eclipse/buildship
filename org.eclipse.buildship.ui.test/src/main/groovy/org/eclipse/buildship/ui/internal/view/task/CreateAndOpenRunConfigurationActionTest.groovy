@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,9 +9,11 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task
 
+import org.gradle.api.JavaVersion
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import spock.lang.AutoCleanup;
+import spock.lang.IgnoreIf
 
 import com.google.common.base.Optional
 import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager
@@ -21,6 +23,7 @@ import org.eclipse.buildship.ui.internal.test.fixtures.TestEnvironment
 import org.eclipse.debug.core.ILaunchConfiguration
 import org.eclipse.jface.viewers.StructuredSelection
 
+@IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // TODO update cglib and re-enable the test
 class CreateAndOpenRunConfigurationActionTest extends ViewSpecification {
 
     CreateRunConfigurationAction createAction

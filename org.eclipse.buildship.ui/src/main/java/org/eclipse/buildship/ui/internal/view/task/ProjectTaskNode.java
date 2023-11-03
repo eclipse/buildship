@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -74,6 +74,10 @@ public final class ProjectTaskNode implements TaskNode {
     }
 
     public String getPath() {
-        return this.projectTask.getPath().getPath();
+        if (this.parentProjectNode.getBuildNode().isIncludedBuild()) {
+            return ":" + this.parentProjectNode.getBuildNode().getIncludedBuildName() + this.projectTask.getPath().getPath();
+        } else {
+            return this.projectTask.getPath().getPath();
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -122,7 +122,10 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
         ]
         variableManager.addVariables(variables)
 
-        File projectDir = dir('sample-project').canonicalFile
+        File projectDir = dir('sample-project') {
+            file 'settings.gradle', ''
+        }
+        projectDir = projectDir.canonicalFile
         importAndWait(projectDir)
 
         ILaunchConfiguration launchConfig = emptyLaunchConfig()
@@ -150,7 +153,10 @@ class RunConfigurationTest extends ProjectSynchronizationSpecification {
     @Issue('https://github.com/eclipse/buildship/issues/572')
     def "load attributes from invaild expressions"() {
         setup:
-        File projectDir = dir('sample-project').canonicalFile
+        File projectDir = dir('sample-project') {
+            file 'settings.gradle', ''
+        }
+        projectDir = projectDir.canonicalFile
         importAndWait(projectDir)
 
         ILaunchConfiguration launchConfig = emptyLaunchConfig()

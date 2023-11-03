@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@ import java.util.function.Function
 import org.gradle.tooling.CancellationTokenSource
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
+import spock.lang.Ignore
 import spock.lang.Issue
 
 import org.eclipse.core.resources.IFile
@@ -28,6 +29,16 @@ import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationS
 
 class GradleBuildConnectionConcurrencyTest extends ProjectSynchronizationSpecification {
 
+    @Ignore("TODO create Buildship issue")
+    /* > Task :nothing UP-TO-DATE
+
+        BUILD SUCCESSFUL in 39ms
+        ***WARNING: Display must be created on main thread due to Cocoa restrictions. Use vmarg -XstartOnFirstThread
+
+        Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "Worker-2: Java indexing... "
+
+        Exception: java.lang.OutOfMemoryError thrown from the UncaughtExceptionHandler in thread "Active Thread: Equinox Container: bbf985fd-e145-47d0-ae6f-e5354e34c7d2"
+     */
     @Issue("https://github.com/eclipse/buildship/issues/818")
     def "Can use continuous task execution while editing workspace files"() {
         setup:

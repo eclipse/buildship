@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -16,7 +16,7 @@ import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationS
 
 class SynchronizationInvalidLocationTest extends ProjectSynchronizationSpecification {
 
-   def "Can import a nonexistent location"() {
+   def "Cannot import a nonexistent location"() {
        setup:
        File location = new File('nonexistent')
 
@@ -24,7 +24,8 @@ class SynchronizationInvalidLocationTest extends ProjectSynchronizationSpecifica
        SynchronizationResult result = tryImportAndWait(location)
 
        then:
-       result.status.isOK()
+       result.status.severity == IStatus.WARNING
+       ToolingApiStatusType.IMPORT_ROOT_DIR_FAILED.matches(result.status)
    }
 
    def "Cannot import a plain file"() {

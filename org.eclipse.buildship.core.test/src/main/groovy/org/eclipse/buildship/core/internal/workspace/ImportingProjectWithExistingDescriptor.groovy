@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -31,7 +31,7 @@ class ImportingProjectWithExistingDescriptor extends SingleProjectSynchronizatio
         project.delete(false, null)
         setup:
         def projectDir = dir('sample-project') {
-            file 'settings.gradle'
+            file 'settings.gradle', ''
         }
 
         expect:

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,8 +9,12 @@
  ******************************************************************************/
 package org.eclipse.buildship.oomph.internal.test
 
-import static org.eclipse.buildship.oomph.DistributionType.*
+import spock.lang.IgnoreIf
 
+import static org.eclipse.buildship.oomph.DistributionType.*
+import static org.gradle.api.JavaVersion.VERSION_13
+
+import org.gradle.api.JavaVersion
 import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.model.build.BuildEnvironment
 import spock.lang.Unroll
@@ -171,8 +175,9 @@ class GradleImportTaskTest extends ProjectSynchronizationSpecification {
         !findProject("presentChanged")
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.4.1 can run on Java 12 and below
     @Unroll
-    def "new build configuration can override workspace settings (#distributionType)"(GradleDistribution distribution, DistributionType distributionType, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, boolean showConsole, boolean showExecutions, boolean customGradleHome) {
+    def "new build configuration can override workspace settings (#distribution)"() {
         setup:
         File projectDir = dir('projectDir') { file 'settings.gradle', '''rootProject.name = 'testProject' ''' }
         File projectGradleUserHome = dir('gradle-user-home').canonicalFile

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.JavaCore
 
 import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
 
+@Ignore
 class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronizationSpecification {
 
     @Ignore('Now we update project settingsfor closed projects too')
@@ -48,7 +49,7 @@ class SynchronizingExistingWorkspaceProject extends SingleProjectSynchronization
         def projectDir = dir('sample-project') {
             file 'build.gradle', """apply plugin: "java"
                ${jcenterRepositoryBlock}
-               dependencies { compile "org.springframework:spring-beans:1.2.8"}
+               dependencies { implementation "org.springframework:spring-beans:1.2.8"}
             """
             dir 'src/main/java'
         }

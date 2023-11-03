@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -58,7 +58,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, boolean overrideWorkspaceSettings, GradleDistribution gradleDistribution, File gradleUserHome,
             File javaHome, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, List<String> arguments, List<String> jvmArguments,
             boolean showConsoleView, boolean showExecutionsView) {
-        DefaultBuildConfigurationProperties persistentBuildConfigProperties = new DefaultBuildConfigurationProperties(rootProjectDirectory,
+        BuildConfigurationProperties persistentBuildConfigProperties = new BuildConfigurationProperties(rootProjectDirectory,
                                                                                                         gradleDistribution,
                                                                                                         gradleUserHome,
                                                                                                         javaHome,
@@ -78,7 +78,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         Preconditions.checkNotNull(rootDir);
         Preconditions.checkArgument(rootDir.exists());
         Optional<IProject> projectCandidate = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
-        DefaultBuildConfigurationProperties buildConfigProperties;
+        BuildConfigurationProperties buildConfigProperties;
         if (projectCandidate.isPresent() && projectCandidate.get().isAccessible()) {
             IProject project = projectCandidate.get();
             try {
@@ -104,7 +104,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public void saveBuildConfiguration(BuildConfiguration configuration) {
         Preconditions.checkArgument(configuration instanceof DefaultBuildConfiguration, "Unknow configuration type: ", configuration.getClass());
-        DefaultBuildConfigurationProperties properties = ((DefaultBuildConfiguration)configuration).getProperties();
+        BuildConfigurationProperties properties = ((BuildConfiguration)configuration).getProperties();
         File rootDir = configuration.getRootProjectDirectory();
         Optional<IProject> rootProject = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
         if (rootProject.isPresent() && rootProject.get().isAccessible()) {
@@ -121,7 +121,17 @@ public class DefaultConfigurationManager implements ConfigurationManager {
 
     @Override
     public ProjectConfiguration loadProjectConfiguration(IProject project) {
-        String pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project.getLocation().toFile());
+        String pathToRoot = null;
+        if (project.isAccessible()) {
+            try {
+                pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project);
+            } catch (Exception e) {
+                // fallback to the file IO based preferences store.
+            }   
+        }
+        if (pathToRoot == null) {
+            pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project.getLocation().toFile());
+        }
         File rootDir = relativePathToProjectRoot(project.getLocation(), pathToRoot);
         BuildConfiguration buildConfig = loadBuildConfiguration(rootDir);
         return new DefaultProjectConfiguration(project.getLocation().toFile(), buildConfig);
@@ -138,6 +148,18 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     private ProjectConfiguration loadProjectConfiguration(File projectDir) {
+        Preconditions.checkNotNull(projectDir);
+        Preconditions.checkArgument(projectDir.exists());
+        Optional<IProject> projectCandidate = CorePlugin.workspaceOperations().findProjectByLocation(projectDir);
+        if (projectCandidate.isPresent() && projectCandidate.get().isAccessible()) {
+            IProject project = projectCandidate.get();
+            try {
+                return loadProjectConfiguration(project);
+            } catch (Exception e) {
+                // fallback to the file IO based preferences store.
+            }
+        }
+
         String pathToRoot = this.buildConfigurationPersistence.readPathToRoot(projectDir);
         File rootDir = relativePathToProjectRoot(new Path(projectDir.getAbsolutePath()), pathToRoot);
         BuildConfiguration buildConfig = loadBuildConfiguration(rootDir);
@@ -248,7 +270,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
             projectConfiguration = loadProjectConfiguration(attributes.getWorkingDir());
         } catch (Exception e) {
             CorePlugin.logger().trace(CoreTraceScopes.PREFERENCES, "Can't load build config from " + attributes.getWorkingDir(), e);
-            DefaultBuildConfigurationProperties buildConfigProperties = new DefaultBuildConfigurationProperties(
+            BuildConfigurationProperties buildConfigProperties = new BuildConfigurationProperties(
                     attributes.getWorkingDir(),
                     attributes.getGradleDistribution(),
                     attributes.getGradleUserHome(),

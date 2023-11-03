@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-patterns="*.gradle.kts"
+            id="org.eclipse.buildship.kotlindsl.content"
+            name="kotlin DSL content type"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.tm4e.registry.grammars">
+      <grammar
+            path="kotlin.tmLanguage.json"
+            scopeName="source.kotlin">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.buildship.kotlindsl.content"
+            scopeName="source.kotlin">
+      </scopeNameContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editorContentTypeBinding
+            contentTypeId="org.eclipse.buildship.kotlindsl.content"
+            editorId="org.eclipse.ui.genericeditor.GenericEditor">
+      </editorContentTypeBinding>
+   </extension>
+
+   <extension
+         point="org.eclipse.lsp4e.languageServer">
+      <contentTypeMapping
+            contentType="org.eclipse.buildship.kotlindsl.content"
+            id="org.eclipse.buildship.kotlindsl.provider.server">
+      </contentTypeMapping>
+      <server
+            class="org.eclipse.buildship.kotlindsl.provider.KotlinDSLConnectionProvider"
+            id="org.eclipse.buildship.kotlindsl.provider.server"
+            label="Kotlin DSL language server">
+      </server>
+   </extension>
+
+</plugin>

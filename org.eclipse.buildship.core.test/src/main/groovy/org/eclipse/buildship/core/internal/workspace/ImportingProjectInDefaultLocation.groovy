@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -20,8 +20,13 @@ import org.eclipse.buildship.core.internal.test.fixtures.TestEnvironment.*
 class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecification {
 
     def "Can import projects located in workspace folder with default name"() {
+        setup:
+        File rootProject = fileTree(workspaceDir('sample')) {
+            file 'settings.gradle', ''
+        }
+
         when:
-        importAndWait(workspaceDir('sample'))
+        importAndWait(rootProject)
 
         then:
         findProject("sample")
@@ -43,7 +48,9 @@ class ImportingProjectInDefaultLocation extends ProjectSynchronizationSpecificat
 
     def "Disallow synchornizing projects located in workspace folder and with custom root name"() {
         setup:
-        File rootProject = workspaceDir('sample2')
+        File rootProject = fileTree(workspaceDir('sample2')) {
+            file 'settings.gradle', ''
+        }
         importAndWait(rootProject)
 
         when:

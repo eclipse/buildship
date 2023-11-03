@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -17,23 +17,29 @@ class FaultyProjectConfiguratorTest extends BaseProjectConfiguratorTest {
 
     def "Synchronization finishes even if contributed configurator fails to initialize"() {
         setup:
-        File location = dir("FaultyProjectConfiguratorTest_1")
+        File location = dir("FaultyProjectConfiguratorTest_1") {
+            file 'settings.gradle', ''
+        }
+
         registerConfigurator(new FaultyInit())
 
         when:
         SynchronizationResult result = tryImportAndWait(location)
+        def loggedErrors = platformLogErrors.findAll { it.plugin == 'pluginId' }
 
         then:
         result.status.severity == IStatus.ERROR
-        platformLogErrors.size() == 1
-        platformLogErrors[0].message == "Project configurator 'configurator1' failed to initialize"
+        loggedErrors.size() == 1
+        loggedErrors[0].message == "Project configurator 'configurator1' failed to initialize"
         gradleErrorMarkers.size() == 1
         gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "Project configurator 'configurator1' failed to initialize"
     }
 
     def "Synchronization finishes even if contributed configurator throws exception in configure()"() {
         setup:
-        File location = dir("FaultyProjectConfiguratorTest_2")
+        File location = dir("FaultyProjectConfiguratorTest_2") {
+            file 'settings.gradle', ''
+        }
         registerConfigurator(new FaultyConfigure())
 
         when:

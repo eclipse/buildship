@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -22,8 +22,12 @@ class SynchronizingWithBrokenSiblingProject extends ProjectSynchronizationSpecif
     @Issue('https://github.com/eclipse/buildship/issues/528')
     def "Broken project does not have affect on unrelated synchronization"() {
         setup:
-        def first = dir('first')
-        def second = dir('second')
+        def first = dir('first') {
+            file 'settings.gradle', ''
+        }
+        def second = dir('second') {
+            file 'settings.gradle', ''
+        }
 
         importAndWait(first)
         importAndWait(second)

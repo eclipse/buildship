@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.gradle.tooling.BuildAction;
@@ -20,7 +20,7 @@ import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -53,7 +53,7 @@ public final class DefaultModelProvider implements ModelProvider {
     }
 
     @Override
-    public <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+    public <T>  Map<String, T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
         return executeOperation(() ->
             DefaultModelProvider.this.gradleBuild.withConnection(connection -> {
                 BuildEnvironment buildEnvironment = connection.getModel(BuildEnvironment.class);
@@ -61,14 +61,14 @@ public final class DefaultModelProvider implements ModelProvider {
                 if (gradleVersion.supportsCompositeBuilds()) {
                     return queryCompositeModel(model, connection);
                 } else {
-                    return ImmutableList.of(queryModel(model, connection));
+                    return ImmutableMap.of(":", queryModel(model, connection));
                 }
             }, tokenSource, monitor),
         strategy, model);
     }
 
     @Override
-    public Collection<EclipseProject> fetchEclipseProjectAndRunSyncTasks(final CancellationTokenSource tokenSource, final IProgressMonitor monitor) {
+    public  Map<String, EclipseProject> fetchEclipseProjectAndRunSyncTasks(final CancellationTokenSource tokenSource, final IProgressMonitor monitor) {
         return executeOperation(() ->
             // TODO (donat) Right now, project configurators can only get cached model query results if they invoke the same exact actions
             // used below. We should fix this by letting configurators declare their required models.
@@ -106,8 +106,8 @@ public final class DefaultModelProvider implements ModelProvider {
         }
     }
 
-    private static <T> Collection<T> queryCompositeModel(Class<T> model, ProjectConnection connection) {
-        BuildAction<Collection<T>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(model);
+    private static <T> Map<String, T> queryCompositeModel(Class<T> model, ProjectConnection connection) {
+        BuildAction<Map<String, T>> query = IdeFriendlyClassLoading.loadCompositeModelQuery(model);
         return connection.action(query).run();
     }
 

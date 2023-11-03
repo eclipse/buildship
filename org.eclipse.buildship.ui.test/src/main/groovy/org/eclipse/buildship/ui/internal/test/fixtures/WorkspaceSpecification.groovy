@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import com.google.common.io.Files
 
@@ -37,6 +38,7 @@ import org.eclipse.buildship.core.internal.configuration.ConfigurationManager
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.workspace.EclipseVmUtil
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView
 
@@ -46,8 +48,8 @@ import org.eclipse.buildship.ui.internal.view.execution.ExecutionsView
  */
 abstract class WorkspaceSpecification extends Specification {
 
-    @Rule
-    TemporaryFolder tempFolderProvider
+    @TempDir
+    public File tempFolderProvider
 
     @AutoCleanup
     TestEnvironment environment = TestEnvironment.INSTANCE
@@ -55,7 +57,10 @@ abstract class WorkspaceSpecification extends Specification {
     private File externalTestDir
 
     def setup() {
-        externalTestDir = tempFolderProvider.newFolder('external')
+        externalTestDir = new File(tempFolderProvider,'external')
+        externalTestDir.mkdirs()
+        EclipseVmUtil.findOrRegisterVM("8", new File((String) System.getProperty("jdk8.location")))
+        EclipseVmUtil.findOrRegisterVM("11", new File((String) System.getProperty("jdk11.location")))
     }
 
     def cleanup() {

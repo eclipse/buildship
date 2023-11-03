@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -11,7 +11,7 @@ package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
-class TaskViewExecutionTest extends BaseTaskViewTest {
+abstract class TaskViewExecutionTest extends BaseTaskViewTest {
 
     static String FILE_SEP = File.separator
     static String LINE_SEP = System.getProperty('line.separator')

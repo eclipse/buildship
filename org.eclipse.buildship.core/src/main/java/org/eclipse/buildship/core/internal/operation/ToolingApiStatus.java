@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -22,6 +22,7 @@ import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.ImportRootProjectException;
 import org.eclipse.buildship.core.internal.UnsupportedConfigurationException;
+import org.eclipse.buildship.core.internal.UnsupportedJavaVersionException;
 
 /**
  * Custom {@link IStatus} implementation to represent Gradle-related statuses.
@@ -40,6 +41,7 @@ public final class ToolingApiStatus extends Status implements IStatus {
         BUILD_FAILED(IStatus.WARNING, "%s failed due to an error in the referenced Gradle build."),
         CONNECTION_FAILED(IStatus.WARNING, "%s failed due to an error connecting to the Gradle build."),
         UNSUPPORTED_CONFIGURATION(IStatus.WARNING, "%s failed due to an unsupported configuration in the referenced Gradle build."),
+        INCOMPATIBILITY_JAVA(IStatus.WARNING, "%s failed due to an incompatible Java version."),
         PLUGIN_FAILED(IStatus.ERROR, "%s failed due to an error configuring Eclipse."),
         UNKNOWN(IStatus.ERROR, "%s failed due to an unexpected error.");
 
@@ -89,6 +91,8 @@ public final class ToolingApiStatus extends Status implements IStatus {
             return from(workName, ((CoreException) failure).getStatus().getException());
         } else if (failure instanceof GradlePluginsRuntimeException) {
             return new ToolingApiStatus(ToolingApiStatusType.PLUGIN_FAILED, workName, (GradlePluginsRuntimeException) failure);
+        } else if (failure instanceof UnsupportedJavaVersionException) {
+            return new ToolingApiStatus(ToolingApiStatusType.INCOMPATIBILITY_JAVA, workName, failure);
         } else {
             return new ToolingApiStatus(ToolingApiStatusType.UNKNOWN, workName, failure);
         }

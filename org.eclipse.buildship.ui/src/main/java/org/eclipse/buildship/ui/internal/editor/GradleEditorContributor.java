@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
 package org.eclipse.buildship.ui.internal.editor;
 
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.ui.part.EditorActionBarContributor;
+import org.eclipse.ui.texteditor.BasicTextEditorActionContributor;
 
 import org.eclipse.buildship.ui.internal.workspace.RefreshProjectAction;
 
@@ -19,7 +19,7 @@ import org.eclipse.buildship.ui.internal.workspace.RefreshProjectAction;
  *
  * @author Christophe Moine
  */
-public class GradleEditorContributor extends EditorActionBarContributor {
+public class GradleEditorContributor extends BasicTextEditorActionContributor {
 
     @Override
     public void contributeToToolBar(IToolBarManager toolBarManager) {

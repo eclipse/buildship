@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -19,7 +19,7 @@ import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 
 class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
 
-    @Shared def Attributes validAttributes = new Attributes (
+    @Shared def Attributes validAttributes = new Attributes(
         tasks : ['clean'],
         workingDir : "/home/user/workspace",
         gradleDistr : GradleDistribution.fromBuild().toString(),
@@ -83,29 +83,25 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
         configuration.getGradleUserHome().getAbsolutePath() == new File(validAttributes.gradleUserHome).getAbsolutePath()
     }
 
-    def "Can create a new valid instance with valid null arguments"(Attributes attributes) {
+    def "Can create a new valid instance with valid null arguments"() {
         when:
+        def attributes = validAttributes.copy { javaHome = null }
         def configuration = attributes.toConfiguration()
 
         then:
         configuration != null
         attributes.javaHome != null || configuration.getJavaHome() == null
-
-        where:
-        attributes << [
-            validAttributes.copy { javaHome = null },
-        ]
     }
 
-    def "Creation fails when null argument passed"(Attributes attributes) {
+    def "Creation fails when null argument passed"() {
         when:
-        attributes.toConfiguration()
+        att.toConfiguration()
 
         then:
         thrown(RuntimeException)
 
         where:
-        attributes << [
+        att << [
             validAttributes.copy { tasks = null },
             validAttributes.copy { workingDir = null },
             validAttributes.copy { jvmArguments = null},
@@ -253,21 +249,37 @@ class GradleRunConfigurationAttributesTest extends WorkspaceSpecification {
         def isOffline
         def buildScansEnabled
 
+        static Attributes from(Attributes from) {
+            Attributes attributes = new Attributes()
+            attributes.tasks = from.tasks
+            attributes.workingDir = from.workingDir
+            attributes.gradleDistr = from.gradleDistr
+            attributes.gradleUserHome = from.gradleUserHome
+            attributes.javaHome = from.javaHome
+            attributes.arguments  = from.arguments
+            attributes.jvmArguments = from.jvmArguments
+            attributes.showExecutionView = from.showExecutionView
+            attributes.showConsoleView = from.showConsoleView
+            attributes.overrideBuildSettings  = from.overrideBuildSettings
+            attributes.isOffline = from.isOffline
+            attributes.buildScansEnabled = from.buildScansEnabled
+            attributes
+        }
+
         def GradleRunConfigurationAttributes toConfiguration() {
             new GradleRunConfigurationAttributes(tasks, workingDir, gradleDistr, gradleUserHome, javaHome, jvmArguments, arguments, showExecutionView, showConsoleView, overrideBuildSettings, isOffline, buildScansEnabled)
         }
 
-        def Attributes copy(@DelegatesTo(value = Attributes, strategy=Closure.DELEGATE_FIRST) Closure closure) {
-            def clone = clone()
-            def Closure clonedClosure =  closure.clone()
-            clonedClosure.setResolveStrategy(Closure.DELEGATE_FIRST)
-            clonedClosure.setDelegate(clone)
-            clonedClosure.call(clone)
+        def Attributes copy(@DelegatesTo(value = Attributes, strategy = Closure.DELEGATE_ONLY) Closure closure) {
+            Attributes clone = Attributes.from(this)
+            closure.setResolveStrategy(Closure.DELEGATE_ONLY)
+            closure.setDelegate(clone)
+            closure.call(clone)
             return clone
         }
 
         def int size() {
-            Attributes.declaredFields.findAll { it.synthetic == false }.size
+            12 // the number of fields in the Attribute class
         }
     }
 

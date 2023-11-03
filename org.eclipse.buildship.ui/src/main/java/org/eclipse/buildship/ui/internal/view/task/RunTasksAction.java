@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -52,11 +52,14 @@ public final class RunTasksAction extends CommandBackedAction implements Selecti
             case ENABLED:
                 setText(TaskViewMessages.Action_RunTasks_Text);
                 break;
-            case DISABLED_INCLUDED_BUILD:
-                setText(TaskViewMessages.Action_RunTasks_Text_Disabled_Included);
+            case DISABLED_MULTIPLE_ROOT_PROJECTS:
+                setText(TaskViewMessages.Action_RunTasks_Text_Multiple_Root);
                 break;
             case DISABLED_NO_ROOT_PROJECT:
                 setText(TaskViewMessages.Action_RunTasks_Text_Disabled_NonStandard_layout);
+                break;
+            case COMPOSITE_WITH_UNSUPPORTED_GRADLE_VERSION:
+                setText(TaskViewMessages.Action_RunTasks_Text_No_Support_For_Task_Execution_In_Included_build);
                 break;
             default:
                 setText(TaskViewMessages.Action_RunTasks_Text_Disabled_Other);

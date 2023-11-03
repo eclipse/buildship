@@ -21,10 +21,15 @@ new default Eclipse installer. Oomph is a model-based tool to install custom Ecl
 ### 1. Install Oomph
 
 The latest version of Oomph is available at the [project's wiki page](https://wiki.eclipse.org/Eclipse_Oomph_Installer). Download and extract the binary that matches
-your environment. When you start Oomph, click the Advanced Mode icon. You should then see the screen below. Select _Eclipse IDE for Eclipse committers_. Check if the _VM_ and the _Bundle pool_ have proper values. Then click _Next_.
+your environment. When you start Oomph, click the Advanced Mode icon. 
+
+You should then see the screen below. Select _Eclipse IDE for Eclipse committers_. Check if the _VM_ and the _Bundle pool_ have proper values. Then click _Next_.
 
 ![Oomph initial screen](oomph/install-1.png)
 
+If you already have an Eclipse for Committers instance that you want to use, you can import the project instead. Use Import Project:
+
+![Project import](oomph/import-1.png)
 
 ### 2. Configure the Buildship model
 
@@ -38,8 +43,9 @@ On the properties screen you have to specify the environment-specific variables:
 
  * the location of the custom Eclipse distribution
  * the location of workspace and the git clone
- * the JDK
- * the target platform against the project is compiled
+ * the JRE locations
+
+ > **_NOTE:_**  Make sure the JREs are exactly the ones that are required
 
 When done, the configuration should like the screen below. Click _Next_ and _Finish_ to start the installation.
 
@@ -56,14 +62,15 @@ finish before doing anything! Once finished, you should see the workspace below.
 ![Initial workspace](oomph/install-4.png)
 
 
+#### Text file encoding
+
+If your are using Windows, make sure the text file encoding is set to `UTF-8`. This can be done under Windows > Preferences > General > Workspace > Text file encoding. Otherwise you might encounter `Unexpected character` errors.
+
 #### Change the target platform
 
-The target platform selected during the installation can be changed, even if it is a bit hidden. In the main menu, click _Help_ > _Perform Setup tasks_ then click _Back_. Select
-the _Show all variables_ checkbox and change the _Buildship Target Platform_ to the desired version. Click _Next_ and _Finish_, then wait for the target platform to download. Once
-finished, the source code will be compiled against the new target platform.
+The target platform selected during the installation can be changed. To do that, open one of the `target-platforms/4XX.target` files and select `Set as Active Target Platform`
 
 ![Specify new target platform](oomph/install-5.png)
-
 
 ## Manual setup (deprecated)
 
@@ -109,7 +116,7 @@ can then press _Finish_.
 ### Setting the target platform
 
 After importing all the projects into Eclipse, there will be some build errors due to code references to missing
-plugins. To add these missing plugins to Eclipse, open the _tooling-e45.target_ file (or the one matching your
+plugins. To add these missing plugins to Eclipse, open the _target-platforms/423.target_ file (or the one matching your
 desired target platform version) located in the project root folder and click _Set as Target Platform_
 in the top-right corner. This will fix all compilation issues. Note that this might take a while since the entire
 SDK for the specified Eclipse version will be downloaded.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -20,18 +20,6 @@ import org.eclipse.swt.graphics.FontData;
 public final class FontUtils {
 
     private FontUtils() {
-    }
-
-    /**
-     * Provides the default dialog font.
-     *
-     * @return the default dialog font
-     */
-    public static synchronized Font getDefaultDialogFont() {
-        Font font = JFaceResources.getDialogFont();
-        Device device = font.getDevice();
-        FontData[] fontData = font.getFontData();
-        return new Font(device, fontData);
     }
 
     /**

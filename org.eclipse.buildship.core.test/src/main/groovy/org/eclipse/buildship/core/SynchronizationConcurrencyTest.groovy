@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -47,7 +47,9 @@ class SynchronizationConcurrencyTest extends ProjectSynchronizationSpecification
     def "Synchronization requires workspace rule"() {
         setup:
         // import a sample project
-        File location = dir('SynchronizationConcurrencyTest')
+        File location = dir('SynchronizationConcurrencyTest') {
+            file 'settings.gradle', ''
+        }
         importAndWait(location)
 
         Job syncJob = new SyncJob(location)

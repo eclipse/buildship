@@ -1,4 +1,21 @@
+// publish build scans from CI builds
+plugins {
+    id "com.gradle.enterprise" version "3.10"
+}
+
+gradleEnterprise {
+    server = "https://ge.gradle.org"
+    buildScan {
+        boolean ci = System.getenv('CI') as boolean
+        publishAlwaysIf(ci)
+        uploadInBackground = !ci
+    }
+}
+
+rootProject.name = 'buildship'
+
 include ':org.gradle.toolingapi'
+include ':org.eclipse.buildship.compat'
 include ':org.eclipse.buildship.core'
 include ':org.eclipse.buildship.ui'
 include ':org.eclipse.buildship.feature'
@@ -6,16 +23,20 @@ include ':org.eclipse.buildship.site'
 include ':org.eclipse.buildship.branding'
 include ':org.eclipse.buildship.core.test'
 include ':org.eclipse.buildship.ui.test'
-include ':org.eclipse.buildship.stsmigration'
-include ':org.eclipse.buildship.stsmigration.test'
-
-// Oomph is only bundled with eclipse mars (45) and up. Allow for disabling it on older targets.
-if (properties['enable.oomph.plugin'] == "true") {
-    include ':org.eclipse.buildship.oomph'
-    include ':org.eclipse.buildship.oomph.edit'
-    include ':org.eclipse.buildship.oomph.feature'
-    include ':org.eclipse.buildship.oomph.test'
+include ':org.eclipse.buildship.testdependencies'
+if (properties['latest'] == 'true') {
+    include ':org.eclipse.buildship.gradleprop.provider'
+    include ':org.eclipse.buildship.gradleprop.ls'
+    include ':org.eclipse.buildship.gradleprop.feature'
+    include ':org.eclipse.buildship.kotlindsl.provider'
+    include ':org.eclipse.buildship.kotlindsl.feature'
+    include ':org.eclipse.buildship.gradleprop.test'
 }
+
+include ':org.eclipse.buildship.oomph'
+include ':org.eclipse.buildship.oomph.edit'
+include ':org.eclipse.buildship.oomph.feature'
+include ':org.eclipse.buildship.oomph.test'
 
 // Use local build cache on developer machine and remote cache on CI
 String cacheUrl = System.getProperty('gradle.cache.remote.url', '')

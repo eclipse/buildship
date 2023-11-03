@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -45,6 +45,7 @@ public final class MissingFeatures {
         addIfNeeded("5.6", "Receive compile-time error when referencing test source in main source set", missingFeatures);
         addIfNeeded("5.6", "Substitute closed project references with their publications", missingFeatures);
         addIfNeeded("5.6", "Test debugging", missingFeatures);
+        addIfNeeded("6.8", "Task execution in included builds", missingFeatures);
         return missingFeatures.build();
     }
 

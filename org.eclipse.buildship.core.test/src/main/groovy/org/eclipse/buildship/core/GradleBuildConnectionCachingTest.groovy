@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,8 +9,11 @@
  ******************************************************************************/
 package org.eclipse.buildship.core
 
+import static org.gradle.api.JavaVersion.VERSION_13
+
 import java.util.function.Function
 
+import org.gradle.api.JavaVersion
 import org.gradle.tooling.IntermediateResultHandler
 import org.gradle.tooling.ModelBuilder
 import org.gradle.tooling.ProjectConnection
@@ -19,6 +22,7 @@ import org.gradle.tooling.events.OperationType
 import org.gradle.tooling.model.GradleProject
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.tooling.model.eclipse.EclipseRuntime
+import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 import org.eclipse.core.runtime.IProgressMonitor
@@ -85,6 +89,7 @@ class GradleBuildConnectionCachingTest extends BaseProjectConfiguratorTest {
         assertModelLoadedTwice()
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.4 can run on Java 12 and below
     def "Build action loads value from cache during synchronization"() {
         setup:
         ResultHandler<Collection<EclipseProject>> resultHandler = Mock(ResultHandler)

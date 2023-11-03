@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -22,8 +22,8 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import org.eclipse.buildship.core.internal.util.binding.Property;
 import org.eclipse.buildship.ui.internal.preferences.GradleWorkbenchPreferencePage;
-import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
+import org.eclipse.buildship.ui.internal.util.widget.GradleDistributionGroup.DistributionChangedListener;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
 
 /**
@@ -31,18 +31,14 @@ import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsCompos
  */
 public final class GradleOptionsWizardPage extends AbstractWizardPage {
 
-    private final String pageContextInformation;
-
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
 
     public GradleOptionsWizardPage(ProjectImportConfiguration configuration) {
-        this(configuration, ProjectWizardMessages.Title_GradleOptionsWizardPage, ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageDefault,
-                ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageContext);
+        this(configuration, ProjectWizardMessages.Title_GradleOptionsWizardPage, ProjectWizardMessages.InfoMessage_GradleOptionsWizardPageDefault);
     }
 
-    public GradleOptionsWizardPage(ProjectImportConfiguration configuration, String title, String defaultMessage, String pageContextInformation) {
+    public GradleOptionsWizardPage(ProjectImportConfiguration configuration, String title, String defaultMessage) {
         super("GradleOptions", title, defaultMessage, configuration, ImmutableList.<Property<?>>of(configuration.getDistribution(), configuration.getGradleUserHome(), configuration.getJavaHome()));
-        this.pageContextInformation = pageContextInformation;
     }
 
     @Override
@@ -190,11 +186,6 @@ public final class GradleOptionsWizardPage extends AbstractWizardPage {
             }
         });
 
-    }
-
-    @Override
-    protected String getPageContextInformation() {
-        return this.pageContextInformation;
     }
 
     /**

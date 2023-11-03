@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -49,7 +49,7 @@ public class BaseConfigurator implements ProjectConfigurator {
         try {
             Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> {
                 this.gradleVersion = GradleVersion.version(connection.getModel(BuildEnvironment.class).getGradle().getGradleVersion());
-                return EclipseModelUtils.queryModels(connection);
+                return EclipseModelUtils.queryModels(connection).values();
             }, monitor);
             this.locationToProject = rootModels.stream()
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
@@ -117,7 +117,7 @@ public class BaseConfigurator implements ProjectConfigurator {
         LibraryFilter.update(javaProject, model, progress.newChild(1));
         ClasspathContainerUpdater.update(javaProject, model, progress.newChild(1));
         JavaSourceSettingsUpdater.update(javaProject, model, progress.newChild(1));
-        GradleClasspathContainerUpdater.updateFromModel(javaProject, model, this.locationToProject.values(), persistentModel, progress.newChild(1));
+        GradleClasspathContainerUpdater.updateFromModel(javaProject, model, this.locationToProject.values(), persistentModel, progress.newChild(1), context);
         persistentModel.hasAutoBuildTasks(model.hasAutoBuildTasks());
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -12,11 +12,7 @@ package org.eclipse.buildship.ui.internal.wizard.project
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.jface.dialogs.IDialogConstants
-import org.eclipse.jface.wizard.WizardDialog
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
-import org.eclipse.swtbot.swt.finder.SWTBot
-import org.eclipse.swtbot.swt.finder.waits.DefaultCondition
-import org.eclipse.swtbot.swt.finder.waits.ICondition
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
 
 import org.eclipse.buildship.core.internal.CorePlugin
@@ -27,11 +23,8 @@ import org.eclipse.buildship.ui.internal.test.fixtures.SwtBotSpecification
 class ProjectImportWizardUiTest extends SwtBotSpecification {
 
     def "can open import wizard from menu bar"()  {
-        setup:
-        openGradleImportWizard()
-
         when:
-        bot.styledText(ProjectWizardMessages.InfoMessage_GradleWelcomeWizardPageContext)
+        openGradleImportWizard()
 
         then:
         // if widget is not available then a WidgetNotFoundException is thrown
@@ -54,7 +47,6 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
 
         when:
         SWTBotShell wizard = openGradleImportWizard()
-        bot.button(IDialogConstants.NEXT_LABEL).click()
         bot.textWithLabel(ProjectWizardMessages.Label_ProjectRootDirectory).setText(projectDir.canonicalPath)
         bot.button(IDialogConstants.FINISH_LABEL).click()
 
@@ -69,7 +61,6 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
 
         when:
         openGradleImportWizard()
-        bot.button(IDialogConstants.NEXT_LABEL).click()
         bot.textWithLabel(ProjectWizardMessages.Label_ProjectRootDirectory).setText(projectDir.canonicalPath)
         bot.button(IDialogConstants.FINISH_LABEL).click()
         waitForGradleJobsToFinish()

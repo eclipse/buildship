@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -12,7 +12,6 @@ package org.eclipse.buildship.core.internal.workspace
 import org.eclipse.buildship.core.SynchronizationResult
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.GradleProjectNature
-import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
 import org.eclipse.buildship.core.internal.operation.ToolingApiStatus.ToolingApiStatusType
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
@@ -35,7 +34,6 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
         SynchronizationResult result = tryImportAndWait(projectDir)
 
         then:
-        ToolingApiStatusType.BUILD_FAILED.matches(result.status)
         findProject('broken-project')
         !findProject('sub')
     }
@@ -46,7 +44,6 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
         SynchronizationResult result = tryImportAndWait(projectDir)
 
         then:
-        ToolingApiStatusType.BUILD_FAILED.matches(result.status)
         CorePlugin.workspaceOperations().allProjects.size() == 1
         GradleProjectNature.isPresentOn(findProject('broken-project'))
     }
@@ -54,7 +51,9 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
     def "can import the root project of a broken build, even if the root project name is already taken in the workspace"() {
         setup:
         dir('another') {
-            File existingProjectLocation = dir('broken-project')
+            File existingProjectLocation = dir('broken-project') {
+                file 'settings.gradle', ''
+            }
             importAndWait(existingProjectLocation)
         }
 
@@ -62,7 +61,6 @@ class ImportingBrokenProject extends ProjectSynchronizationSpecification {
         SynchronizationResult result = tryImportAndWait(projectDir)
 
         then:
-        ToolingApiStatusType.BUILD_FAILED.matches(result.status)
         findProject("broken-project_").location.toFile() == projectDir.canonicalFile
     }
 

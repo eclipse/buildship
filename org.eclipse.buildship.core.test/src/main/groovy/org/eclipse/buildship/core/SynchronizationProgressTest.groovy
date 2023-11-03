@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -17,26 +17,30 @@ class SynchronizationProgressTest extends ProjectSynchronizationSpecification {
 
    def "Null monitor can be used when no progress is desired"() {
        setup:
-       File location = dir('SynchronizationProgressTest')
+       File location = dir('SynchronizationProgressTest')  {
+           file 'settings.gradle', ''
+       }
 
        when:
        GradleBuild gradleBuild = gradleBuildFor(location)
        SynchronizationResult result = gradleBuild.synchronize(null)
 
        then:
-       result.status.isOK()
+       assertResultOkStatus(result)
 
        when:
        gradleBuild = gradleBuildFor(findProject('SynchronizationProgressTest'))
        result = gradleBuild.synchronize(null)
 
        then:
-       result.status.isOK()
+       assertResultOkStatus(result)
    }
 
    def "Progress reported to the monitor"() {
        setup:
-       File location = dir('SynchronizationProgressTest')
+       File location = dir('SynchronizationProgressTest')  {
+           file 'settings.gradle', ''
+       }
        GradleBuild gradleBuild = gradleBuildFor(location)
        IProgressMonitor monitor = Mock(IProgressMonitor)
 

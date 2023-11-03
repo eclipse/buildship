@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -35,7 +35,7 @@ class ExecutionViewExpandAndCollapseAllTest extends BaseExecutionViewTest {
 
         then:
         tree.getTreeItem('Run build').expanded
-        tree.getTreeItem('Run build').getNode('Run tasks').expanded
+        tree.getTreeItem('Run build').getNode('Run main tasks').getNode('Run tasks').expanded
     }
 
     File sampleProject() {

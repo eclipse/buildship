@@ -3,18 +3,28 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 
 repositories {
+    mavenCentral()
     maven {
         url gradleRemoteRepositoryUrl
     }
 }
 
+tasks.named('test') { Test task ->
+    task.useJUnitPlatform()
+}
+
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'nu.studer:java-ordered-properties:1.0.1'
-    compile 'org.apache.maven:maven-ant-tasks:2.1.3'
-    compile 'bcel:bcel:5.1'
-    compile 'com.google.guava:guava:27.1-jre'
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'nu.studer:java-ordered-properties:1.0.4'
+    implementation 'org.apache.maven:maven-artifact-manager:2.2.1'
+    implementation 'org.apache.maven.wagon:wagon-file:3.5.1'
+    implementation 'org.apache.bcel:bcel:6.5.0'
+    implementation "com.google.guava:guava:$guavaVersion-jre"
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'org.apache.commons:commons-compress:1.22'
+    testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
 }
 

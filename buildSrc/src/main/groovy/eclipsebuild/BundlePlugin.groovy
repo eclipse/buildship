@@ -11,20 +11,18 @@
 
 package eclipsebuild
 
-import org.gradle.api.GradleException
-import org.gradle.jvm.tasks.Jar;
-import org.osgi.framework.VersionRange;
-
 import org.eclipse.osgi.framework.util.Headers
 import org.eclipse.osgi.internal.resolver.StateObjectFactoryImpl
 import org.eclipse.osgi.internal.resolver.UserState
 import org.eclipse.osgi.service.resolver.BundleSpecification
-
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.tasks.Copy
+import org.gradle.jvm.tasks.Jar
 import org.osgi.framework.Version
+import org.osgi.framework.VersionRange
 
 /**
  * Gradle plug-in for building Eclipse bundles.
@@ -35,12 +33,12 @@ import org.osgi.framework.Version
  * It makes OSGi-related variables like os, ws and arch available for the project (via project.ext)
  * for building against platform-dependent dependencies. An example dependency on SWT:
  * <pre>
- * compile "eclipse:org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}:+"
+ * implementation "eclipse:org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}:+"
  * </pre>
  * A {@code withEclipseBundle} method is declared that can use the target platform's version mapping and fix
  * the dependency version to a concrete value. For example:
  * <pre>
- * compile withDependencies("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
+ * implementation withDependencies("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
  * </pre>
  * To construct the output jar the plugin loads the contents of the <code>build.properties</code>
  * file and sync it with the jar's content.
@@ -68,7 +66,7 @@ class BundlePlugin implements Plugin<Project> {
 
     static void configureProject(Project project) {
         // apply the java plugin
-        project.plugins.apply(JavaPlugin)
+        project.plugins.apply(JavaLibraryPlugin)
 
         // make new variables for the build.gradle file e.g. for platform-dependent dependencies
         Constants.exposePublicConstantsFor(project)
@@ -76,7 +74,7 @@ class BundlePlugin implements Plugin<Project> {
         // add new configuration scope
         project.configurations.create('bundled')
         project.configurations.create('bundledSource')
-        project.configurations { compile.extendsFrom bundled }
+        project.configurations { api.extendsFrom bundled }
 
         // make the most basic task depend on the target platform assembling
         project.tasks.compileJava.dependsOn  ":${BuildDefinitionPlugin.TASK_NAME_INSTALL_TARGET_PLATFORM}"
@@ -115,7 +113,7 @@ class BundlePlugin implements Plugin<Project> {
         // handle dependencies to local projects
         Project localProject = project.rootProject.allprojects.find { it.name == pluginName }
         if (localProject && versionRange.includes(new Version(localProject.version))) {
-            project.dependencies.compile(localProject)
+            project.dependencies.api(localProject)
             return
         }
 
@@ -138,7 +136,7 @@ class BundlePlugin implements Plugin<Project> {
             // otherwise fail the build
             throw new GradleException("Unsupported dependency version constraint '${versionRange}' for dependency ${pluginName}.")
         }
-        project.dependencies.compile(dependency)
+        project.dependencies.api(dependency)
         project.logger.info("Dependency defined in MANIFEST.MF: ${dependency}")
     }
 
@@ -176,7 +174,6 @@ class BundlePlugin implements Plugin<Project> {
             // copy the dependencies to the 'libs' folder
             into libDir
             from project.configurations.bundled
-            from project.configurations.bundledSource
         }
     }
 

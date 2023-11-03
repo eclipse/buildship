@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -65,8 +65,8 @@ public final class ImportRootProjectOperation {
 
                 File rootDir = ImportRootProjectOperation.this.buildConfiguration.getRootProjectDirectory();
                 verifyNoWorkspaceRootIsImported(rootDir, progress.newChild(1));
-                saveProjectConfiguration(ImportRootProjectOperation.this.buildConfiguration, rootDir, progress.newChild(1));
                 importRootProject(rootDir, progress.newChild(1));
+                saveProjectConfiguration(ImportRootProjectOperation.this.buildConfiguration, rootDir, progress.newChild(1));
             }
         }, monitor);
     }

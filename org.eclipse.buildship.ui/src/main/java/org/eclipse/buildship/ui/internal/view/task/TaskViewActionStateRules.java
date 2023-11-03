@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -69,8 +69,14 @@ public final class TaskViewActionStateRules {
             return TaskScopedActionEnablement.DISABLED_DEFAULT;
         }
 
-        if (hasMultipleOrIncludedParentProject(taskNodes)) {
-            return TaskScopedActionEnablement.DISABLED_INCLUDED_BUILD;
+        if (hasMultipleParentProject(taskNodes)) {
+            return TaskScopedActionEnablement.DISABLED_MULTIPLE_ROOT_PROJECTS;
+        }
+
+        // disable the task execution in included builds when the Gradle version is <6.8.
+        BuildNode buildNode = taskNodes.get(0).getParentProjectNode().getBuildNode();
+        if (buildNode.isIncludedBuild() && !buildNode.getBuildTreeNode().supportsTaskExecutionInIncludedBuild()) {
+            return TaskScopedActionEnablement.COMPOSITE_WITH_UNSUPPORTED_GRADLE_VERSION;
         }
 
         // if project tasks are selected only then the execution should be permitted
@@ -90,12 +96,9 @@ public final class TaskViewActionStateRules {
         return  TaskScopedActionEnablement.DISABLED_DEFAULT;
     }
 
-    private static boolean hasMultipleOrIncludedParentProject(List<TaskNode> nodes) {
+    private static boolean hasMultipleParentProject(List<TaskNode> nodes) {
         Preconditions.checkArgument(!nodes.isEmpty());
         final ProjectNode firstParent = nodes.get(0).getParentProjectNode();
-        if (firstParent.isIncludedProject()) {
-            return true;
-        }
         return Iterables.any(nodes, new Predicate<TaskNode>() {
 
             @Override
@@ -149,14 +152,14 @@ public final class TaskViewActionStateRules {
             return false;
         }
 
-        return nodeSelection.hasAllNodesOfType(ProjectNode.class) && nodeSelection.isSingleSelection() && !nodeSelection.getFirstElement(ProjectNode.class).isIncludedProject();
+        return nodeSelection.hasAllNodesOfType(ProjectNode.class) && nodeSelection.isSingleSelection();
     }
 
     /**
      * Possible statuses that {@link #taskScopedTaskExecutionActionsEnablement(NodeSelection)} can return.
      */
     public enum TaskScopedActionEnablement {
-        ENABLED, DISABLED_DEFAULT, DISABLED_INCLUDED_BUILD, DISABLED_NO_ROOT_PROJECT;
+        ENABLED, DISABLED_DEFAULT, DISABLED_MULTIPLE_ROOT_PROJECTS, DISABLED_NO_ROOT_PROJECT, COMPOSITE_WITH_UNSUPPORTED_GRADLE_VERSION;
 
         public boolean asBoolean() {
             return this == ENABLED;
