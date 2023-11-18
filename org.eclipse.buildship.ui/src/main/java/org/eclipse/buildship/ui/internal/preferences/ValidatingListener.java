@@ -23,7 +23,7 @@ import org.eclipse.buildship.core.internal.util.binding.Validator;
  *
  * @author Donat Csikos
  */
-final class ValidatingListener<T> implements ModifyListener {
+public final class ValidatingListener<T> implements ModifyListener {
 
     private final PreferencePage preferencePage;
     private final Supplier<T> target;

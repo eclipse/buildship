@@ -15,6 +15,9 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardContainer;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.IWorkingSetManager;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Eclipse wizard for creating Gradle composites in the workspace.
@@ -27,17 +30,22 @@ public final class WorkspaceCompositeCreationWizard extends AbstractWorkspaceCom
      *
      * @see org.eclipse.jface.dialogs.DialogSettings#getOrCreateSection(IDialogSettings, String)
      */
-    private static final String PROJECT_CREATION_DIALOG_SETTINGS = "org.eclipse.buildship.ui.wizard.project.creation"; //$NON-NLS-1$
-
-    /**
-     * Preference key that flags whether the welcome page should be shown as part of the creation wizard.
-     */
-    private static final String PREF_SHOW_WELCOME_PAGE = "org.eclipse.buildship.ui.wizard.project.creation.showWelcomePage"; //$NON-NLS-1$
+    private static final String PROJECT_CREATION_DIALOG_SETTINGS = "org.eclipse.buildship.ui.wizard.composite.creation"; //$NON-NLS-1$
 
     // the pages to display in the wizard
     private final GradleCreateWorkspaceCompositeWizardPage newGradleWorkspaceCompositePage;
     private final GradleImportOptionsWizardPage compositeImportOptionsPage;
     private final GradleRootProjectWizardPage compositeRootProjectPage;
+    
+    // the controller that contain the wizard logic
+    private final CompositeImportWizardController importController;
+    private final CompositeCreationWizardController creationController;
+    private final CompositeRootProjectWizardController rootProjectController;
+    
+    private IWorkingSet composite;
+    
+    // working set manager
+    private IWorkingSetManager workingSetManager;
 
     /**
      * Creates a new instance and uses the {@link org.eclipse.jface.dialogs.DialogSettings} from {@link org.eclipse.buildship.ui.internal.UiPlugin}..
@@ -52,23 +60,26 @@ public final class WorkspaceCompositeCreationWizard extends AbstractWorkspaceCom
      * @param dialogSettings          the dialog settings to store/retrieve dialog preferences
      */
     public WorkspaceCompositeCreationWizard(IDialogSettings dialogSettings) {
-        super(PREF_SHOW_WELCOME_PAGE);
 
         // store the dialog settings on the wizard and use them to retrieve / persist the most
         // recent values entered by the user
         setDialogSettings(dialogSettings);
+        
+        this.workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
+
+        // instantiate the controllers for this wizard
+        this.importController = new CompositeImportWizardController(this);
+        this.creationController = new CompositeCreationWizardController(this);
+        this.rootProjectController = new CompositeRootProjectWizardController(this);
 
         // instantiate the pages and pass the configuration objects that serve as
         // the data models of the wizard
-        this.newGradleWorkspaceCompositePage = new GradleCreateWorkspaceCompositeWizardPage();
-        this.compositeImportOptionsPage = new GradleImportOptionsWizardPage(
-                WorkspaceCompositeWizardMessages.Title_NewGradleImportOptionsWizardPage,
-                WorkspaceCompositeWizardMessages.InfoMessage_NewGradleWorkspaceCompositeOptionsWizardPageDefault,
-                WorkspaceCompositeWizardMessages.InfoMessage_NewGradleWorkspaceCompositeImportOptionsWizardPageContext);
-        this.compositeRootProjectPage = new GradleRootProjectWizardPage(
-                WorkspaceCompositeWizardMessages.Title_NewGradleCompositeRootWizardPage,
-                WorkspaceCompositeWizardMessages.InfoMessage_NewGradleWorkspaceCompositePreviewWizardPageDefault,
-                WorkspaceCompositeWizardMessages.InfoMessage_NewGradleWorkspaceCompositeCompositeRootWizardPageContext);
+        final CompositeConfiguration compositeConfiguration = this.importController.getConfiguration();
+        final CompositeCreationConfiguration creationConfiguration = this.creationController.getConfiguration();
+        final CompositeRootProjectConfiguration rootProjectConfiguration = this.rootProjectController.getConfiguration();
+        this.newGradleWorkspaceCompositePage = new GradleCreateWorkspaceCompositeWizardPage(compositeConfiguration, creationConfiguration);
+        this.compositeImportOptionsPage = new GradleImportOptionsWizardPage(compositeConfiguration);
+        this.compositeRootProjectPage = new GradleRootProjectWizardPage(compositeConfiguration, rootProjectConfiguration);
     }
 
     @Override
@@ -98,7 +109,9 @@ public final class WorkspaceCompositeCreationWizard extends AbstractWorkspaceCom
 
     @Override
     public boolean performFinish() {
-        return false;
+    	boolean finished = this.importController.performCreateComposite(getContainer(), this.workingSetManager);
+    	composite = this.importController.getWorkingSet();
+        return finished;
     }
 
     @Override
@@ -122,5 +135,9 @@ public final class WorkspaceCompositeCreationWizard extends AbstractWorkspaceCom
             section = dialogSettings.addNewSection(PROJECT_CREATION_DIALOG_SETTINGS);
         }
         return section;
+    }
+  
+    public IWorkingSet getComposite() {
+    	return this.composite;
     }
 }

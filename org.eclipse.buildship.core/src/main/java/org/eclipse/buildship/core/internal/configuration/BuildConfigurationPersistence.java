@@ -45,6 +45,8 @@ final class BuildConfigurationPersistence {
     private static final String PREF_KEY_JVM_ARGUMENTS = "jvm.arguments";
     private static final String PREF_KEY_SHOW_CONSOLE_VIEW = "show.console.view";
     private static final String PREF_KEY_SHOW_EXECUTIONS_VIEW = "show.executions.view";
+    private static final String PREF_KEY_USE_PROJECT_AS_ROOT = "project.as.root";
+    private static final String PREF_KEY_ROOT_PROJECT = "root.project";
 
     public BuildConfigurationProperties readBuildConfiguratonProperties(IProject project) {
         Preconditions.checkNotNull(project);
@@ -58,7 +60,13 @@ final class BuildConfigurationPersistence {
         return readPreferences(preferences, projectDir);
     }
 
-    public void saveBuildConfiguration(IProject project, BuildConfigurationProperties properties) {
+    public DefaultBuildConfigurationProperties readCompositeBuildProperties(File compositeDir) {
+        Preconditions.checkNotNull(compositeDir);
+        PreferenceStore preferences = PreferenceStore.forPreferenceFile(compositeDir);
+        return readCompositePreferences(preferences, compositeDir);
+    }
+
+	public void saveBuildConfiguration(IProject project, DefaultBuildConfigurationProperties properties) {
         Preconditions.checkNotNull(project);
         Preconditions.checkNotNull(properties);
         PreferenceStore preferences = PreferenceStore.forProjectScope(project, PREF_NODE);
@@ -147,25 +155,73 @@ final class BuildConfigurationPersistence {
         boolean showConsoleView = preferences.readBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, false);
         boolean showExecutionsView = preferences.readBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, false);
 
-        return new BuildConfigurationProperties(rootDir, distribution, gradleUserHome, javaHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
+        return new DefaultBuildConfigurationProperties(rootDir, distribution, gradleUserHome, javaHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
     }
+    
+    private DefaultBuildConfigurationProperties readCompositePreferences(PreferenceStore preferences,
+			File compositePreferencesDir) {
+    	boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
 
-    private static void savePreferences(BuildConfigurationProperties properties, PreferenceStore preferences) {
-        GradleDistribution gradleDistribution = properties.getGradleDistribution();
-        String gradleDistributionString = gradleDistribution == null ? GradleDistribution.fromBuild().toString() : gradleDistribution.toString();
-        preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistributionString);
-        preferences.write(PREF_KEY_GRADLE_USER_HOME, toPortableString(properties.getGradleUserHome()));
-        preferences.write(PREF_KEY_JAVA_HOME, toPortableString(properties.getJavaHome()));
-        preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());
-        preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, properties.isBuildScansEnabled());
-        preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, properties.isOfflineMode());
-        preferences.writeBoolean(PREF_KEY_AUTO_SYNC, properties.isAutoSync());
-        List<String> arguments = properties.getArguments();
-        preferences.write(PREF_KEY_ARGUMENTS, arguments == null ? "" : Joiner.on(' ').join(arguments));
-        List<String> jvmArguments = properties.getJvmArguments();
-        preferences.write(PREF_KEY_JVM_ARGUMENTS, jvmArguments == null ? "" : Joiner.on(' ').join(jvmArguments));
-        preferences.writeBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, properties.isShowConsoleView());
-        preferences.writeBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, properties.isShowExecutionsView());
+        String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
+        GradleDistribution distribution;
+        try {
+            distribution = GradleDistribution.fromString(distributionString);
+        } catch (RuntimeException ignore) {
+            distribution = GradleDistribution.fromBuild();
+        }
+
+        String gradleUserHomeString = preferences.readString(PREF_KEY_GRADLE_USER_HOME, "");
+        File gradleUserHome = gradleUserHomeString.isEmpty()
+                ? null
+                : new File(gradleUserHomeString);
+        String javaHomeString = preferences.readString(PREF_KEY_JAVA_HOME, "");
+        File javaHome = javaHomeString.isEmpty()
+                ? null
+                : new File(javaHomeString);
+
+        boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
+        boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);
+        boolean autoSync = preferences.readBoolean(PREF_KEY_AUTO_SYNC, false);
+        List<String> arguments = Lists.newArrayList(Splitter.on(' ').omitEmptyStrings().split(preferences.readString(PREF_KEY_ARGUMENTS, "")));
+        List<String> jvmArguments = Lists.newArrayList(Splitter.on(' ').omitEmptyStrings().split(preferences.readString(PREF_KEY_JVM_ARGUMENTS, "")));
+        boolean showConsoleView = preferences.readBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, false);
+        boolean showExecutionsView = preferences.readBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, false);
+
+        File rootDir = new File(preferences.readString(PREF_KEY_ROOT_PROJECT, compositePreferencesDir.getAbsolutePath()));
+        
+        return new DefaultBuildConfigurationProperties(rootDir, distribution, gradleUserHome, javaHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
+	}
+
+    private static void savePreferences(DefaultBuildConfigurationProperties properties, PreferenceStore preferences) {
+        if (properties.isOverrideWorkspaceSettings()) {
+            GradleDistribution gradleDistribution = properties.getGradleDistribution();
+            String gradleDistributionString = gradleDistribution == null ? GradleDistribution.fromBuild().toString() : gradleDistribution.toString();
+            preferences.write(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, gradleDistributionString);
+            preferences.write(PREF_KEY_GRADLE_USER_HOME, toPortableString(properties.getGradleUserHome()));
+            preferences.write(PREF_KEY_JAVA_HOME, toPortableString(properties.getJavaHome()));
+            preferences.writeBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, properties.isOverrideWorkspaceSettings());
+            preferences.writeBoolean(PREF_KEY_BUILD_SCANS_ENABLED, properties.isBuildScansEnabled());
+            preferences.writeBoolean(PREF_KEY_OFFLINE_MODE, properties.isOfflineMode());
+            preferences.writeBoolean(PREF_KEY_AUTO_SYNC, properties.isAutoSync());
+            List<String> arguments = properties.getArguments();
+            preferences.write(PREF_KEY_ARGUMENTS, arguments == null ? "" : Joiner.on(' ').join(arguments));
+            List<String> jvmArguments = properties.getJvmArguments();
+            preferences.write(PREF_KEY_JVM_ARGUMENTS, jvmArguments == null ? "" : Joiner.on(' ').join(jvmArguments));
+            preferences.writeBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, properties.isShowConsoleView());
+            preferences.writeBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, properties.isShowExecutionsView());
+        } else {
+            preferences.delete(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION);
+            preferences.delete(PREF_KEY_GRADLE_USER_HOME);
+            preferences.delete(PREF_KEY_JAVA_HOME);
+            preferences.delete(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS);
+            preferences.delete(PREF_KEY_BUILD_SCANS_ENABLED);
+            preferences.delete(PREF_KEY_OFFLINE_MODE);
+            preferences.delete(PREF_KEY_AUTO_SYNC);
+            preferences.delete(PREF_KEY_ARGUMENTS);
+            preferences.delete(PREF_KEY_JVM_ARGUMENTS);
+            preferences.delete(PREF_KEY_SHOW_CONSOLE_VIEW);
+            preferences.delete(PREF_KEY_SHOW_EXECUTIONS_VIEW);
+        }
         preferences.flush();
     }
 

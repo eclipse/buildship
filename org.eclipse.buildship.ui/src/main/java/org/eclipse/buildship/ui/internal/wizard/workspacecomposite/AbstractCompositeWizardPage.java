@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2020 Gradle Inc.
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,16 +10,17 @@
 
 package org.eclipse.buildship.ui.internal.wizard.workspacecomposite;
 
-import org.eclipse.buildship.ui.internal.util.font.FontUtils;
-import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
-import org.eclipse.buildship.ui.internal.wizard.HelpContextIdProvider;
-import org.eclipse.buildship.ui.internal.wizard.project.ProjectImportWizard;
+import java.util.List;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -27,17 +28,18 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
 
-import com.google.common.base.Strings;
+import org.eclipse.buildship.core.internal.util.binding.Property;
+import org.eclipse.buildship.core.internal.util.binding.ValidationListener;
+import org.eclipse.buildship.ui.internal.wizard.HelpContextIdProvider;
 
 /**
- * Common base class for all pages in the {@link ProjectImportWizard}.
+ * Common base class for all pages in the {@link WorkspaceCompositeCreationWizard}.
  */
-public abstract class AbstractWizardPage extends WizardPage {
+public abstract class AbstractCompositeWizardPage extends WizardPage {
 
-    @SuppressWarnings("unused")
+    private final CompositeConfiguration configuration;
+    private final List<Property<?>> observedProperties;
     private final String defaultMessage;
-    private final Font defaultFont;
-    private final UiBuilder.UiBuilderFactory builderFactory;
 
     /**
      * Constructor setting up the main messages and the validation facility for this wizard page.
@@ -45,10 +47,15 @@ public abstract class AbstractWizardPage extends WizardPage {
      * @param name the name of the page
      * @param title the page title
      * @param defaultMessage the default message to show when there is no validation error
+     * @param configuration the data model of the wizard
+     * @param observedProperties the subset of the properties from the data model that are managed
+     *            on this page
      */
-    protected AbstractWizardPage(String name, String title, String defaultMessage) {
+    protected AbstractCompositeWizardPage(String name, String title, String defaultMessage, CompositeConfiguration configuration, final List<Property<?>> observedProperties) {
         super(name);
 
+        this.configuration = configuration;
+        this.observedProperties = observedProperties;
         this.defaultMessage = defaultMessage;
 
         // set the basic message and the attached image
@@ -56,14 +63,59 @@ public abstract class AbstractWizardPage extends WizardPage {
         setMessage(defaultMessage);
         setImageDescriptor(ImageDescriptor.createFromFile(GradleCreateWorkspaceCompositeWizardPage.class, "/icons/full/wizban/wizard.png")); //$NON-NLS-1$
 
-        // set up the UI builder
-        this.defaultFont = FontUtils.getDefaultDialogFont();
-        this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
+        // create a listener that updates the state and the message if an observed property in the
+        // model changes
+        ValidationListener listener = new ValidationListener() {
+            @Override
+            public void validationTriggered(Property<?> source, Optional<String> validationErrorMessage) {
+                validateInput(source, validationErrorMessage);
+                // we set the page to completed if all its properties are valid
+                setPageComplete(isPageComplete());
+            }
+        };
 
+     // attach the listener to all of the observed properties
+        for (Property<?> property : observedProperties) {
+            property.addValidationListener(listener);
+        }
+    }
+    /**
+     * This method is overided by the main composite creation page due to a  different validation machanism.
+     * @param source
+     * @param validationErrorMessage
+     */
+    protected void validateInput(Property<?> source, Optional<String> validationErrorMessage) {
+        // if the modified property is invalid, show its error message, otherwise check if
+        // any of the other properties of this page is invalid and if so, display the first
+        // found error message
+        if (validationErrorMessage.isPresent()) {
+            setMessage(validationErrorMessage.get(), IMessageProvider.ERROR);
+        } else {
+            Optional<String> otherErrorMessage = validateAllObservedProperties();
+            if (!otherErrorMessage.isPresent()) {
+                setMessage(AbstractCompositeWizardPage.this.defaultMessage);
+            } else {
+                setMessage(otherErrorMessage.get(), IMessageProvider.ERROR);
+            }
+        }
     }
 
-    protected UiBuilder.UiBuilderFactory getUiBuilderFactory() {
-        return this.builderFactory;
+    private Optional<String> validateAllObservedProperties() {
+        for (Property<?> property : this.observedProperties) {
+            Optional<String> errorMessage = property.validate();
+            if (errorMessage.isPresent()) {
+                return errorMessage;
+            }
+        }
+        return Optional.absent();
+    }
+
+    protected CompositeConfiguration getConfiguration() {
+        return this.configuration;
+    }
+
+    protected List<Property<?>> getObservedProperties() {
+        return this.observedProperties;
     }
 
     @Override
@@ -166,12 +218,16 @@ public abstract class AbstractWizardPage extends WizardPage {
 
     @Override
     public boolean isPageComplete() {
+        for (Property<?> property : this.observedProperties) {
+            if (!property.isValid()) {
+                return false;
+            }
+        }
         return true;
     }
 
     @Override
     public void dispose() {
-        this.defaultFont.dispose();
         super.dispose();
     }
 

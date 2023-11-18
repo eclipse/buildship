@@ -26,6 +26,22 @@
          </description>
          <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
       </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="org.eclipse.buildship.ui.creationwizards"
+            class="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeCreationWizard"
+            hasPages="true"
+            icon="icons/full/etool16/new_gradlecomposite_obj.png"
+            id="org.eclipse.buildship.ui.wizard.workspaceComposite.creation"
+            name="Gradle Composite"
+            project="true">
+         <description>
+            Create a new Gradle workspace composite.
+         </description>
+         <keywordReference
+               id="org.eclipse.buildship.ui.keyword.buildship">
+         </keywordReference>
+      </wizard>
       <category
             id="org.eclipse.buildship.ui.creationwizards"
             name="Gradle">
@@ -74,15 +90,6 @@
       </category>
     </extension>
 
-    <!-- definition of keywords available in search fields of Gradle project wizards -->
-    <extension
-          point="org.eclipse.ui.keywords">
-       <keyword
-             id="org.eclipse.buildship.ui.keyword.buildship"
-             label="Buildship">
-       </keyword>
-    </extension>
-
     <!-- editor support for Gradle build scripts -->
     <extension
             point="org.eclipse.ui.editors">
@@ -127,6 +134,12 @@
             id="org.eclipse.buildship.ui.views"
             name="Gradle">
       </category>
+      <view
+            class="org.eclipse.ui.navigator.CommonNavigator"
+            icon="icons/sample.png"
+            id="com.example.test"
+            name="My Common Navigator">
+      </view>
     </extension>
 
     <!-- integration of Gradle commands -->
@@ -173,6 +186,12 @@
             categoryId="org.eclipse.buildship.ui.project"
             name="Add Gradle Nature"
             description="Adds the Gradle nature and synchronizes this project as if the Gradle Import wizard had been run on its location.">
+      </command>
+      <command
+            categoryId="org.eclipse.buildship.ui.project"
+            description="Create and configure workspace composites."
+            id="org.eclipse.buildship.ui.commands.opencompositeconfiguration"
+            name="Configure Composites">
       </command>
       <command
             id="org.eclipse.buildship.ui.shortcut.test.run"
@@ -261,6 +280,10 @@
             </iterate>
          </activeWhen>
       </handler>
+      <handler
+            class="org.eclipse.buildship.ui.internal.view.task.CompositeConfigurationDialogHandler"
+            commandId="org.eclipse.buildship.ui.commands.opencompositeconfiguration">
+      </handler>
     </extension>
 
     <!-- integration of Gradle command accelerators -->
@@ -305,6 +328,11 @@
              commandId="org.eclipse.buildship.ui.commands.refreshproject"
              icon="icons/full/elcl16/refresh.png"
              disabledIcon="icons/full/dlcl16/refresh.png">
+       </image>
+       <image
+       		 commandId="org.eclipse.buildship.ui.commands.opencompositeconfiguration"
+       		 icon="icons/full/obj16/gradlecomposite_obj.png"
+       		 disabledIcon="icons/full/obj16/gradlecomposite_obj.png">
        </image>
        <image
              commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
@@ -428,6 +456,10 @@
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
+       <factory
+             adaptableType="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.ExternalGradleProject"
+             class="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.ExternalProjectAdapterFactory">
+       </factory>
     </extension>
 
     <!-- extension point to decorate the Gradle projects with a small Gradle icon -->
@@ -451,75 +483,88 @@
                 </objectState>
             </enablement>
         </decorator>
+        <decorator
+              adaptable="true"
+              id="org.eclipse.buildship.ui.gradlecompositedecorator"
+              label="Gradle Composite Decorator">
+           <enablement></enablement>
+        </decorator>
     </extension>
 
     <!-- 
         Register Gradle context menu item on Project Explorer and Package Explorer 
     -->
     <extension
-            point="org.eclipse.ui.menus">
-        <menuContribution
-                locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-            <menu
-                    id="org.eclipse.buildship.ui.contextmenuentry"
-                    label="Gradle">
-                <command
-                        commandId="org.eclipse.buildship.ui.commands.refreshproject"
-                        style="push">
-                </command>
-                <visibleWhen>
-                    <or>
-                        <with variable="activePartId">
-                           <equals value="org.eclipse.buildship.ui.gradlebuildscripteditor"/>
-                        </with>
-                        <with
-                                variable="activeMenuSelection">
-                            <iterate
-                                    operator="or"
-                                    ifEmpty="false">
-                                 <adapt
-                                            type="org.eclipse.core.resources.IResource">
-                                         <and>
-                                            <test
-                                                    forcePluginActivation="true"
-                                                    property="org.eclipse.core.resources.projectNature"
-                                                    value="org.eclipse.buildship.core.gradleprojectnature">
-                                            </test>
-                                            <test
-                                                    forcePluginActivation="true"
-                                                    property="org.eclipse.buildship.core.isGradleResource">
-                                            </test>
-                                         </and>
-                                </adapt>
-                            </iterate>
-                        </with>
-                    </or>
-                </visibleWhen>
-            </menu>
-        </menuContribution>
-        <menuContribution
-            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
-         <command
-               commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
-               style="push">
-            <visibleWhen>
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+          <menu
+                id="org.eclipse.buildship.ui.contextmenuentry"
+                label="Gradle">
+             <command
+                   commandId="org.eclipse.buildship.ui.commands.refreshproject"
+                   style="push">
+             </command>
+             <command
+                   commandId="org.eclipse.buildship.ui.commands.opencompositeconfiguration"
+                   style="push">
+             </command>
+             <visibleWhen>
+                <or>
+                   <with
+                         variable="activePartId">
+                      <equals
+                            value="org.eclipse.buildship.ui.gradlebuildscripteditor">
+                      </equals>
+                   </with>
+                   <with
+                         variable="activeMenuSelection">
+                      <iterate
+                            ifEmpty="false"
+                            operator="or">
+                         <adapt
+                               type="org.eclipse.core.resources.IResource">
+                            <and>
+                               <test
+                                     forcePluginActivation="true"
+                                     property="org.eclipse.core.resources.projectNature"
+                                     value="org.eclipse.buildship.core.gradleprojectnature">
+                               </test>
+                               <test
+                                     forcePluginActivation="true"
+                                     property="org.eclipse.buildship.core.isGradleResource">
+                               </test>
+                            </and>
+                         </adapt>
+                      </iterate>
+                   </with>
+                </or>
+             </visibleWhen>
+          </menu>
+       </menuContribution>
+       <menuContribution
+             locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+          <command
+                commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
+                style="push">
+             <visibleWhen>
                 <iterate
-                        operator="or"
-                        ifEmpty="false">
-                    <adapt
-                        type="org.eclipse.core.resources.IProject">
-                        <not>
-                            <test
-                                forcePluginActivation="true"
-                                property="org.eclipse.core.resources.projectNature"
-                                value="org.eclipse.buildship.core.gradleprojectnature">
-                            </test>
-                        </not>
-                    </adapt>
+                      ifEmpty="false"
+                      operator="or">
+                   <adapt
+                         type="org.eclipse.core.resources.IProject">
+                      <not>
+                         <test
+                               forcePluginActivation="true"
+                               property="org.eclipse.core.resources.projectNature"
+                               value="org.eclipse.buildship.core.gradleprojectnature">
+                         </test>
+                      </not>
+                   </adapt>
                 </iterate>
-            </visibleWhen>
-         </command>
-      </menuContribution>
+             </visibleWhen>
+          </command>
+       </menuContribution>
     </extension>
 
     <!-- extension point to register plugins that need to be activated (if not already activated) when a build execution starts -->
@@ -592,6 +637,31 @@
              </contentExtension>
           </includes>
        </viewerContentBinding>
+       <viewerActionBinding
+             viewerId="com.example.test">
+          <includes>
+             <actionExtension
+                   pattern="org.eclipse.ui.navigator.resources.*">
+             </actionExtension>
+          </includes>
+       </viewerActionBinding>
+       <viewerContentBinding
+             viewerId="com.example.test">
+          <includes>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resourceContent">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resources.filters.*">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resources.linkHelper">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resources.workingSets">
+             </contentExtension>
+          </includes>
+       </viewerContentBinding>
     </extension>
 
     <!-- Add the "Gradle" menu to the workbench preferences-->
@@ -642,6 +712,39 @@
           </enabledWhen>
        </page>
     </extension>
+    <extension
+          point="org.eclipse.ui.propertyPages">
+       <page
+             class="org.eclipse.buildship.ui.internal.preferences.GradleCompositeImportOptionsPreferencePage"
+             id="org.eclipse.buildship.ui.compositeimportproperties"
+             name="Import Options">
+          <enabledWhen>
+             <adapt
+                   type="org.eclipse.ui.IWorkingSet">
+                <test
+                      forcePluginActivation="true"
+                      property="org.eclipse.buildship.ui.composite.gradlecomposite"
+                      value="true">
+                </test>
+             </adapt>
+          </enabledWhen>
+       </page>
+       <page
+             class="org.eclipse.buildship.ui.internal.preferences.GradleCompositeRootProjectPreferencePage"
+             id="org.eclipse.buildship.ui.compositerootprojectproperties"
+             name="Root Project">
+          <enabledWhen>
+             <adapt
+                   type="org.eclipse.ui.IWorkingSet">
+                <test
+                      forcePluginActivation="true"
+                      property="org.eclipse.buildship.ui.composite.gradlecomposite"
+                      value="true">
+                </test>
+             </adapt>
+          </enabledWhen>
+       </page>
+    </extension>
     
     <extension
           point="org.eclipse.core.expressions.propertyTesters">
@@ -651,6 +754,17 @@
              namespace="org.eclipse.buildship.ui.marker"
              properties="gradlemarker"
              type="org.eclipse.core.resources.IMarker">
+       </propertyTester>
+    </extension>
+    
+    <extension
+          point="org.eclipse.core.expressions.propertyTesters">
+       <propertyTester
+             id="org.eclipse.buildship.ui.properties.compositepropertytester"
+             class="org.eclipse.buildship.ui.internal.composite.WorkingSetProperyTester"
+             namespace="org.eclipse.buildship.ui.composite"
+             properties="gradlecomposite"
+             type="org.eclipse.ui.IWorkingSet">
        </propertyTester>
     </extension>
     
@@ -665,26 +779,22 @@
        </stylesheet>
     </extension>
     <extension
-          point="org.eclipse.ui.ide.projectConfigurators">
-       <projectConfigurator
-               class="org.eclipse.buildship.ui.internal.project.GradleProjectConfigurator"
-               label="Gradle">
-       <activeWhen>
-           <or>
-               <hasFileRecursively filename="gradle.properties"/>
-               <hasFileRecursively filename="settings.gradle"/>
-               <hasFileRecursively filename="settings.gradle.kts"/>
-           </or>
-       </activeWhen>
-       </projectConfigurator>
+          point="org.eclipse.help.contentExtension">
     </extension>
     <extension
-          point="org.eclipse.ui.actionSetPartAssociations">
-       <actionSetPartAssociation
-             targetID="org.eclipse.ui.edit.text.actionSet.presentation">
-          <part
-                id="org.eclipse.buildship.ui.gradlebuildscripteditor">
-          </part>
-       </actionSetPartAssociation>
+          point="org.eclipse.ui.workingSets">
+       <workingSet
+             description="Gradle composite build that includes other builds"
+             icon="icons/full/obj16/gradlecomposite_obj.png"
+             id="org.eclipse.buildship.ui.GradleCompositePage"
+             name="Workspace Composite"
+             pageClass="org.eclipse.buildship.ui.internal.preferences.GradleCreateWorkspaceCompositePreferencePage">
+       </workingSet>
+    </extension>
+    <extension
+          point="org.eclipse.ui.startup">
+       <startup
+             class="org.eclipse.buildship.ui.internal.workspace.StartupSetup">
+       </startup>
     </extension>
 </plugin>

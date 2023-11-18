@@ -49,7 +49,11 @@ public interface ConfigurationManager {
 
     void deleteProjectConfiguration(IProject project);
 
-    RunConfiguration loadRunConfiguration(ILaunchConfiguration configuration);
+    CompositeConfiguration loadCompositeConfiguration(String workingSetName);
+
+    void saveCompositeConfiguration(CompositeConfiguration compConf);
+
+    RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration);
 
     TestRunConfiguration loadTestRunConfiguration(ILaunchConfiguration configuration);
 
