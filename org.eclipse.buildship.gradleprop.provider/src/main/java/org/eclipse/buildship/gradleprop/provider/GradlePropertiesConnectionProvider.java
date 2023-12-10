@@ -10,7 +10,6 @@
 package org.eclipse.buildship.gradleprop.provider;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -43,12 +42,10 @@ public class GradlePropertiesConnectionProvider extends ProcessStreamConnectionP
     implements StreamConnectionProvider {
 
   public GradlePropertiesConnectionProvider() {
-    URL localFileURL;
     Bundle bundle = FrameworkUtil.getBundle(GradlePropertiesConnectionProvider.class);
     try {
-      localFileURL = FileLocator.toFileURL(bundle.getEntry("/"));
-      URI localFileURI = new URI(localFileURL.toExternalForm());
-      Path pathToPlugin = Paths.get(localFileURI.getPath());
+      URL localFileURL = FileLocator.toFileURL(bundle.getEntry("/"));
+      Path pathToPlugin = Paths.get(localFileURL.toURI());
 
       String pathToServer = pathToPlugin.resolve("libs/language-server.jar").toString();
 

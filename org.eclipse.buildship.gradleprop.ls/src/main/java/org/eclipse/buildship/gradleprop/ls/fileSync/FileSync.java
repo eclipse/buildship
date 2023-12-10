@@ -13,6 +13,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,7 +46,13 @@ public class FileSync {
   }
 
   public boolean openFile(String uri) {
-    Path path = getPathFromUri(uri);
+    Path path;
+    try {
+      path = getPathFromUri(uri);
+    } catch (URISyntaxException e) {
+      LOGGER.error("Malformed uri:" + uri, e);
+      return false;
+    }
     try {
       String content = Files.readString(path);
       contentByUri.put(uri, new ContentInFile(content, 0));
@@ -92,9 +100,8 @@ public class FileSync {
   }
 
 
-  private Path getPathFromUri(String uri) {
-    String trimmedUri = uri.substring("file://".length());
-    return Paths.get(trimmedUri);
+  private Path getPathFromUri(String uri) throws URISyntaxException {
+    return Paths.get(new URI(uri));
   }
 
   private String applyChange(String content, TextDocumentContentChangeEvent change)
