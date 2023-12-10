@@ -23,7 +23,6 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Bundle;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,12 +41,10 @@ public class KotlinDSLConnectionProvider extends ProcessStreamConnectionProvider
     implements StreamConnectionProvider {
 
   public KotlinDSLConnectionProvider() {
-    URL localFileURL;
     Bundle bundle = FrameworkUtil.getBundle(KotlinDSLConnectionProvider.class);
     try {
-      localFileURL = FileLocator.toFileURL(bundle.getEntry("/"));
-      URI localFileURI = new URI(localFileURL.toExternalForm());
-      Path pathToPlugin = Paths.get(localFileURI.getPath());
+      URL localFileURL = FileLocator.toFileURL(bundle.getEntry("/"));
+      Path pathToPlugin = Paths.get(localFileURL.toURI());
 
       String pathToServer = pathToPlugin.resolve("libs/server-1.0.0-all.jar").toString();
 
