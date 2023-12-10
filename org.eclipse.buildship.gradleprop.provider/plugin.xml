@@ -5,8 +5,7 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"
-            file-extensions="properties"
-            file-names="gradle"
+            file-names="gradle.properties"
             id="org.eclipse.buildship.gradleprop.provider.content"
             name="content for gradle.properties files"
             priority="normal">
