@@ -52,7 +52,7 @@ final class Bundle2Pom {
         } else
             manifest = new JarFile(bundleFileOrDirectory).manifest
 
-        pom.artifact = manifest.attr.getValue(Constants.BUNDLE_SYMBOLICNAME)
+        pom.artifact = manifest.mainAttributes.getValue(Constants.BUNDLE_SYMBOLICNAME)
         if (pom.artifact.contains(';'))
             pom.artifact = pom.artifact.split(';')[0]
         pom.artifact = pom.artifact.trim()
@@ -62,10 +62,10 @@ final class Bundle2Pom {
 
         // cut the qualifier and use only the major.minor.service segments as version number
         // this is in sync with version constraints declared in the bundle manifest
-        def version = new Version(manifest.attr.getValue(Constants.BUNDLE_VERSION))
+        def version = new Version(manifest.mainAttributes.getValue(Constants.BUNDLE_VERSION))
         pom.version = "${version.major}.${version.minor}.${version.release}"
 
-        parseDependencyBundles(pom.dependencyBundles, manifest.attr.getValue(Constants.REQUIRE_BUNDLE))
+        parseDependencyBundles(pom.dependencyBundles, manifest.mainAttributes.getValue(Constants.REQUIRE_BUNDLE))
 
         return pom
     }
