@@ -201,21 +201,16 @@
                 <iterate
                         operator="or"
                         ifEmpty="false">
-                    <adapt
-                            type="org.eclipse.core.resources.IResource">
-                        <and>
-                            <test
-                                    forcePluginActivation="true"
-                                    property="org.eclipse.core.resources.projectNature"
-                                    value="org.eclipse.buildship.core.gradleprojectnature">
-                            </test>
-                            <test
-                                    forcePluginActivation="true"
-                                    property="org.eclipse.buildship.core.isGradleResource">
-                            </test>
-                         </and>
-                    </adapt>
+                   <reference
+                         definitionId="org.eclipse.buildship.ui.GradleResourceInGradleProject">
+                   </reference>
                 </iterate>
+                <with
+                      variable="activeEditorInput">
+                   <reference
+                         definitionId="org.eclipse.buildship.ui.GradleResourceInGradleProject">
+                   </reference>
+                </with>
             </or>
          </activeWhen>
       </handler>
@@ -455,21 +450,16 @@
                             <iterate
                                     operator="or"
                                     ifEmpty="false">
-                                 <adapt
-                                            type="org.eclipse.core.resources.IResource">
-                                         <and>
-                                            <test
-                                                    forcePluginActivation="true"
-                                                    property="org.eclipse.core.resources.projectNature"
-                                                    value="org.eclipse.buildship.core.gradleprojectnature">
-                                            </test>
-                                            <test
-                                                    forcePluginActivation="true"
-                                                    property="org.eclipse.buildship.core.isGradleResource">
-                                            </test>
-                                         </and>
-                                </adapt>
+                               <reference
+                                     definitionId="org.eclipse.buildship.ui.GradleResourceInGradleProject">
+                               </reference>
                             </iterate>
+                        </with>
+                        <with
+                              variable="activeEditorInput">
+                           <reference
+                                 definitionId="org.eclipse.buildship.ui.GradleResourceInGradleProject">
+                           </reference>
                         </with>
                     </or>
                 </visibleWhen>
@@ -664,5 +654,25 @@
                 id="org.eclipse.buildship.ui.gradlebuildscripteditor">
           </part>
        </actionSetPartAssociation>
+    </extension>
+    <extension
+          point="org.eclipse.core.expressions.definitions">
+       <definition
+             id="org.eclipse.buildship.ui.GradleResourceInGradleProject">
+          <adapt
+                type="org.eclipse.core.resources.IResource">
+             <and>
+                <test
+                      forcePluginActivation="true"
+                      property="org.eclipse.core.resources.projectNature"
+                      value="org.eclipse.buildship.core.gradleprojectnature">
+                </test>
+                <test
+                      forcePluginActivation="true"
+                      property="org.eclipse.buildship.core.isGradleResource">
+                </test>
+             </and>
+          </adapt>
+       </definition>
     </extension>
 </plugin>
