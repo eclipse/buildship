@@ -9,9 +9,10 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.preferences;
 
+import static com.google.common.base.Optional.absent;
+
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,6 +25,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -58,9 +60,7 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
 
             @Override
             public PersistentModel load(IProject project) throws Exception {
-                synchronized (DefaultModelPersistence.this.lock) {
-                    return doLoadModel(project);
-                }
+                return doLoadModel(project);
             }
         });
     }
@@ -120,18 +120,23 @@ public final class DefaultModelPersistence implements ModelPersistence, EventLis
         deleteModel(event.getProject());
     }
 
-    private static PersistentModel doLoadModel(IProject project) throws IOException, FileNotFoundException {
-        String projectName = project.getName();
-        File preferencesFile = preferencesFile(projectName);
-        if (preferencesFile.exists()) {
-            try (Reader reader = new InputStreamReader(new FileInputStream(preferencesFile(projectName)), Charsets.UTF_8)) {
-                Properties props = new Properties();
-                props.load(reader);
-                return PersistentModelConverter.toModel(project, props);
+    private Optional<Properties> loadPreferencesForProject(IProject project) throws IOException {
+        synchronized (DefaultModelPersistence.this.lock) {
+            File preferencesFile = preferencesFile(project.getName());
+            if (preferencesFile.exists()) {
+                try (Reader reader = new InputStreamReader(new FileInputStream(preferencesFile), Charsets.UTF_8)) {
+                    Properties props = new Properties();
+                    props.load(reader);
+                    return Optional.of(props);
+                }
             }
-        } else {
-            return new AbsentPersistentModel(project);
+            return absent();
         }
+    }
+
+    private PersistentModel doLoadModel(IProject project) throws IOException {
+        return loadPreferencesForProject(project).transform(props -> PersistentModelConverter.toModel(project, props)).or(() -> new AbsentPersistentModel(project));
+
     }
 
     private void persistAllProjectPrefs() {
