@@ -372,6 +372,7 @@ object Project : Project({
     description = "Eclipse plugins for Gradle http://eclipse.org/buildship"
     vcsRoot(GitHubForkVcsRoot)
     vcsRoot(GitHubVcsRoot)
+    vcsRoot(GitHubBuildshipForkSettingsVcsRoot)
     subprojectsWithOrder(listOf(IndividualBuilds, Checkpoints, Promotions))
 
     params {

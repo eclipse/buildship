@@ -21,3 +21,13 @@ object GitHubForkVcsRoot : GitVcsRoot({
     branch = "refs/heads/master"
     branchSpec = "+:*"
 })
+
+object GitHubBuildshipForkSettingsVcsRoot : GitVcsRoot({
+    name = "BuildshipSettings"
+    url = "https://github.com/gradle/buildship.git"
+    agentGitPath = "%env.TEAMCITY_GIT_PATH%"
+    agentCleanFilesPolicy = AgentCleanFilesPolicy.NON_IGNORED_ONLY
+    checkoutPolicy = AgentCheckoutPolicy.AUTO
+    authMethod = anonymous()
+    branch = "refs/heads/teamcity-config"
+})
