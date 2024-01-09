@@ -10,7 +10,6 @@ apply plugin: eclipsebuild.BuildDefinitionPlugin
 
 ext.toolingApiBundleVersion = getBundleVersion(toolingApiVersion)
 
-println "guava $groovyLibVersion $guavaVersion"
 // define version mapping for the 3rd-party dependencies that are not specific to a particular Eclipse version
 def eclipseVersionAgnosticDependencies = [
         'org.gradle.toolingapi'                : toolingApiBundleVersion,
