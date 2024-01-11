@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IResource;
  * <ul>
  *  <li>a Gradle project</li>
  *  <li>a .gradle file</li>
+ *  <li>a .gradle.kts file</li>
  *  <li>a gradle.properties file</li>
  * </ul>
  * @author Stefan Oehme
@@ -32,7 +33,7 @@ public class GradleResourceTester extends PropertyTester {
             IResource resource = (IResource) receiver;
             IProject project = resource.getProject();
             if (GradleProjectNature.isPresentOn(project)) {
-                return resource instanceof IProject || "gradle".equals(resource.getFileExtension()) || "gradle.properties".equals(resource.getName());
+                return resource instanceof IProject || "gradle".equals(resource.getFileExtension()) || resource.getName().endsWith(".gradle.kts") || "gradle.properties".equals(resource.getName());
             }
         }
         return false;
