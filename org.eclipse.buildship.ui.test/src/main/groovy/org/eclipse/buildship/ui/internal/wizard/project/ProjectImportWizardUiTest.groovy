@@ -11,6 +11,8 @@ package org.eclipse.buildship.ui.internal.wizard.project
 
 import org.eclipse.core.resources.IProject
 import org.eclipse.core.runtime.IProgressMonitor
+import org.eclipse.core.runtime.jobs.Job
+import org.eclipse.jdt.core.JavaCore
 import org.eclipse.jface.dialogs.IDialogConstants
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell
@@ -72,6 +74,28 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
         bot.button("Cancel").click()
     }
 
+    def "import project from folder does not include Java resources of subprojects in the root project"() {
+        given:
+        def rootDir = dir('rootProject') {
+            file 'settings.gradle', 'include "subProject"'
+            dir('subProject') {
+                file 'build.gradle', 'plugins { id "java-library" }'
+                dir('src/main/java') {
+                    file 'Foobar.java', 'class Foobar { }'
+                }
+            }
+        }
+
+        when:
+        importProjectFromFolder rootDir
+        waitForImportJobsToFinish()
+        waitForGradleJobsToFinish()
+
+        then:
+        findProject('rootProject').hasNature(JavaCore.NATURE_ID) == false
+        findProject('subProject').hasNature(JavaCore.NATURE_ID) == true
+    }
+
     private static SWTBotShell openGradleImportWizard() {
         bot.menu("File").menu("Import...").click()
         SWTBotShell shell = bot.shell("Import")
@@ -80,6 +104,21 @@ class ProjectImportWizardUiTest extends SwtBotSpecification {
         bot.tree().expandNode("Gradle").select("Existing Gradle Project")
         bot.button("Next >").click()
         bot.shell(ProjectWizardMessages.Title_GradleProjectWizardPage)
+    }
+
+    private void importProjectFromFolder(File projectDir) {
+        bot.menu("File").menu("Import...").click()
+        bot.shell("Import").activate()
+        bot.waitUntil(Conditions.shellIsActive("Import"))
+        bot.tree().expandNode("General").select("Projects from Folder or Archive")
+        bot.button("Next >").click()
+        bot.comboBoxWithLabel("Import source:").setText(projectDir.canonicalPath)
+        bot.button(IDialogConstants.FINISH_LABEL).click()
+    }
+
+    private void waitForImportJobsToFinish() {
+        def jobFamily = Class.forName("org.eclipse.ui.internal.wizards.datatransfer.SmartImportJob")
+        Job.getJobManager().join(jobFamily, null)
     }
 
     class FaultyWorkspaceOperations {
