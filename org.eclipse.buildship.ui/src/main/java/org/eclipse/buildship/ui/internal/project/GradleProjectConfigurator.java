@@ -78,7 +78,8 @@ public class GradleProjectConfigurator implements ProjectConfigurator {
 
   @Override
   public boolean shouldBeAnEclipseProject(IContainer container, IProgressMonitor monitor) {
-    return false;
+    IPath location = container.getLocation();
+    return location != null && isGradleRoot(location.toFile());
   }
 
   @Override
@@ -88,11 +89,7 @@ public class GradleProjectConfigurator implements ProjectConfigurator {
 
   @Override
   public boolean canConfigure(IProject project, Set<IPath> ignoredPaths, IProgressMonitor monitor) {
-    IPath location = project.getLocation();
-    if(location != null) {
-      return isGradleRoot(location.toFile());
-    }
-    return false;
+    return shouldBeAnEclipseProject(project, monitor);
   }
 
   @Override
