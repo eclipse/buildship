@@ -237,25 +237,38 @@ task tag {
 // increment the service segment in the version number and push it to master
 task incrementVersion {
     doLast {
-        def oldVersion = file('version.txt').text.trim()
-        def newVersion = ""
-        def matcher = version =~ "^(\\d+)\\.(\\d+).(\\d+)"
-        if (matcher.find()) {
-            def serviceSegment = Integer.parseInt(matcher.group(3)) + 1
-            newVersion = matcher.group(1) + "." + matcher.group(2) + "." + serviceSegment
-            file('version.txt').text = newVersion
-
-            Pattern bundleVersionPattern = Pattern.compile('(?<=Bundle-Version: )\\d+\\.\\d+\\.\\d+(?=\\.qualifier)')
-            file('.').eachFileRecurse { file ->
-                if (file.name == 'MANIFEST.MF') {
-                    replacePatternsInFile(file, [(bundleVersionPattern): newVersion])
-                }
-            }
+        def githubAccessKey = findProperty("githubAccessKey")
+        if (!githubAccessKey) {
+            throw new IllegalStateException("Cannot increment version: define GitHub access key with -PgithubAccessKey=<access_key> project property")
         } else {
-            throw new IllegalStateException("Unparseable version: $oldVersion.")
+            // update version file
+            def oldVersion = file('version.txt').text.trim()
+            def newVersion = ""
+            def matcher = version =~ "^(\\d+)\\.(\\d+).(\\d+)"
+            if (matcher.find()) {
+                def serviceSegment = Integer.parseInt(matcher.group(3)) + 1
+                newVersion = matcher.group(1) + "." + matcher.group(2) + "." + serviceSegment
+                file('version.txt').text = newVersion
+                Pattern bundleVersionPattern = Pattern.compile('(?<=Bundle-Version: )\\d+\\.\\d+\\.\\d+(?=\\.qualifier)')
+                file('.').eachFileRecurse { file ->
+                    if (file.name == 'MANIFEST.MF') {
+                        replacePatternsInFile(file, [(bundleVersionPattern): newVersion])
+                    }
+                }
+            } else {
+                throw new IllegalStateException("Unparseable version: $oldVersion.")
+            }
+
+            // set access token
+            System.setProperty("org.ajoberstar.grgit.auth.username", githubAccessKey)
+            
+            // commit and push changes
+            grgit.commit {
+                message = "Increment version $oldVersion -> $newVersion"
+                all = true
+            }
+            grgit.push()
         }
-        exec { commandLine 'git', 'commit', '-a', '-m', "Increment version from $oldVersion to $newVersion" }
-        exec { commandLine 'git', 'push', githubAuthenticatedHost, 'master' }
     }
 }
 
