@@ -29,4 +29,4 @@ Export-Package: org.gradle.api;version="8.1.1",
  org.gradle.tooling.model.idea;version="8.1.1",
  org.gradle.tooling.model.java;version="8.1.1",
  org.gradle.tooling.model.kotlin.dsl;version="8.1.1"
-Bundle-Version: 8.1.1.qualifier
+Bundle-Version: 3.1.10.qualifier
