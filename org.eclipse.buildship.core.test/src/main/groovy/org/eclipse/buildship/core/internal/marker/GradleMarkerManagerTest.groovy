@@ -104,6 +104,24 @@ class GradleMarkerManagerTest extends ProjectSynchronizationSpecification {
         gradleErrorMarkers[0].resource.fullPath.toPortableString() == '/'
     }
 
+    def "Long error messages are trimmed"() {
+        setup:
+        GradleMarkerManager.addError(gradleBuild, problemWithLongMessage)
+
+        expect:
+        numOfGradleErrorMarkers == 1
+        (gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) as String).length() == 65535
+    }
+
+    def "Long stacktraces are trimmed"() {
+        setup:
+        GradleMarkerManager.addError(gradleBuild, problemWithLongStacktrace)
+
+        expect:
+        numOfGradleErrorMarkers == 1
+        (gradleErrorMarkers[0].getAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE) as String).length() == 65535
+    }
+
     private InternalGradleBuild getGradleBuild() {
         GradleCore.workspace.getBuild(project).get();
     }
@@ -118,5 +136,21 @@ class GradleMarkerManagerTest extends ProjectSynchronizationSpecification {
 
     private ToolingApiStatus getConnectionProblem() {
         ToolingApiStatus.from("", new GradleConnectionException(''))
+    }
+
+    private ToolingApiStatus getProblemWithLongMessage() {
+        ToolingApiStatus.from("", new GradleConnectionException('X' * 70000))
+    }
+
+    private ToolingApiStatus getProblemWithLongStacktrace() {
+        ToolingApiStatus.from("", createException(400))
+    }
+
+    private Throwable createException(int numOfRootCauses) {
+        if (numOfRootCauses == 0) {
+            return new GradleConnectionException("")
+        } else {
+            return new GradleConnectionException("", createException(numOfRootCauses - 1))
+        }
     }
 }
