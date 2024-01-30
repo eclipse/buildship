@@ -29,8 +29,10 @@ import org.gradle.tooling.model.build.BuildEnvironment;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.configuration.GradleArguments;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 public final class IdeAttachedProjectConnection implements ProjectConnection {
 
@@ -96,12 +98,12 @@ public final class IdeAttachedProjectConnection implements ProjectConnection {
         this.delegate.notifyDaemonsAboutChangedPaths(changedPaths);
     }
 
-    public static ProjectConnection newInstance(CancellationTokenSource tokenSource, GradleArguments gradleArguments, IProgressMonitor monitor) {
+    public static ProjectConnection newInstance(CancellationTokenSource tokenSource, GradleArguments gradleArguments, InternalGradleBuild gradleBuild, IProgressMonitor monitor) {
         GradleConnector connector = GradleConnector.newConnector();
         gradleArguments.applyTo(connector);
         ProjectConnection connection = new CompatProjectConnection(connector.connect());
 
-        GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
+        GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, gradleBuild, monitor)
                 .forBackgroundProcess()
                 .withFullProgress()
                 .build();

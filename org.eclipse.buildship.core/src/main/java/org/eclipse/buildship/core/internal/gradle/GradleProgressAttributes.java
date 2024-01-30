@@ -32,6 +32,8 @@ import org.eclipse.buildship.core.internal.console.ProcessStreams;
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.internal.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.internal.util.progress.ProblemsReportingProgressListener;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Holds attributes that are commonly used to handle progress in each Gradle invocation.
@@ -98,8 +100,8 @@ public final class GradleProgressAttributes {
         this.streams.close();
     }
 
-    public static final GradleProgressAttributesBuilder builder(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        return new GradleProgressAttributesBuilder(tokenSource, monitor);
+    public static final GradleProgressAttributesBuilder builder(CancellationTokenSource tokenSource, InternalGradleBuild gradleBuild, IProgressMonitor monitor) {
+        return new GradleProgressAttributesBuilder(tokenSource, gradleBuild, monitor);
     }
 
     /**
@@ -114,9 +116,11 @@ public final class GradleProgressAttributes {
         private ProcessDescription processDescription = null;
         private boolean isInteractive = true;
         private ProgressListener delegatingListener = null;
+        private final InternalGradleBuild gradleBuild;
 
-        public GradleProgressAttributesBuilder(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        public GradleProgressAttributesBuilder(CancellationTokenSource tokenSource, InternalGradleBuild gradleBuild, IProgressMonitor monitor) {
             this.tokenSource = tokenSource;
+            this.gradleBuild = gradleBuild;
             this.monitor = monitor;
         }
 
@@ -158,6 +162,7 @@ public final class GradleProgressAttributes {
             CancellationForwardingListener cancellationListener = new CancellationForwardingListener(this.monitor, this.tokenSource);
             progressListeners.add(cancellationListener);
             progressEventListeners.add(cancellationListener);
+            progressEventListeners.add(new ProblemsReportingProgressListener(this.gradleBuild));
 
             return new GradleProgressAttributes(streams, this.tokenSource.token(), progressListeners.build(), progressEventListeners.build(), this.isInteractive);
         }

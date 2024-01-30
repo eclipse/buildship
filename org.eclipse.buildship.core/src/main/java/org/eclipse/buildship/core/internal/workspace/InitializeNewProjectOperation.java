@@ -58,7 +58,7 @@ public class InitializeNewProjectOperation extends BaseToolingApiOperation {
             if (projectDir.mkdir()) {
                 InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(buildConfig);
                 RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(buildConfig);
-                GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
+                GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, gradleBuild, monitor)
                         .forNonInteractiveBackgroundProcess()
                         .withFilteredProgress()
                         .build();
