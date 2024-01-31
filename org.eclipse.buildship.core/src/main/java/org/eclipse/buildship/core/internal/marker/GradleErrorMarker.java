@@ -9,6 +9,8 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.marker;
 
+import java.nio.charset.StandardCharsets;
+
 import com.google.common.base.Throwables;
 
 import org.eclipse.core.resources.IMarker;
@@ -53,16 +55,35 @@ public class GradleErrorMarker {
                 marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
             }
 
-            marker.setAttribute(IMarker.MESSAGE, message);
+            marker.setAttribute(IMarker.MESSAGE, trimMarkerProperty(message));
             marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
             marker.setAttribute(IMarker.SEVERITY, severity);
             marker.setAttribute(ATTRIBUTE_ROOT_DIR, gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath());
             if (exception != null) {
                 String stackTrace = Throwables.getStackTraceAsString(exception);
-                marker.setAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, stackTrace);
+                marker.setAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, trimMarkerProperty(stackTrace));
             }
         } catch (CoreException e) {
             CorePlugin.logger().warn("Cannot create Gradle error marker", e);
         }
+    }
+
+    /*
+     * The Eclipse platform will throw an exception if a marker property is longer than 65535 bytes
+     * https://github.com/eclipse-platform/eclipse.platform/blob/97d555a8b563dcb3a32bd43ad58ba452fa027a73/resources/bundles/org.eclipse.core.resources/src/org/eclipse/core/internal/resources/MarkerInfo.java#L56-L60
+     */
+    private static String trimMarkerProperty(String property) {
+        // avoid calling String.toBytes() for shorter Strings
+        // UTF-8 can theoretically use up to 4 bytes to represent a code point
+        if (property.length() < 16384) {
+            return property;
+        }
+        // check precise length
+        byte[] bytes = property.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length <= 65535) {
+            return property;
+        }
+        // trim to size if needed
+        return new String(bytes, 0, 65535, StandardCharsets.UTF_8);
     }
 }
