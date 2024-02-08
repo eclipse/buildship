@@ -157,6 +157,40 @@ final class BuildConfigurationPersistence {
 
         return new BuildConfigurationProperties(rootDir, distribution, gradleUserHome, javaHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
     }
+    
+    private DefaultBuildConfigurationProperties readCompositePreferences(PreferenceStore preferences,
+			File compositePreferencesDir) {
+    	boolean overrideWorkspaceSettings = preferences.readBoolean(PREF_KEY_OVERRIDE_WORKSPACE_SETTINGS, false);
+
+        String distributionString = preferences.readString(PREF_KEY_CONNECTION_GRADLE_DISTRIBUTION, null);
+        GradleDistribution distribution;
+        try {
+            distribution = GradleDistribution.fromString(distributionString);
+        } catch (RuntimeException ignore) {
+            distribution = GradleDistribution.fromBuild();
+        }
+
+        String gradleUserHomeString = preferences.readString(PREF_KEY_GRADLE_USER_HOME, "");
+        File gradleUserHome = gradleUserHomeString.isEmpty()
+                ? null
+                : new File(gradleUserHomeString);
+        String javaHomeString = preferences.readString(PREF_KEY_JAVA_HOME, "");
+        File javaHome = javaHomeString.isEmpty()
+                ? null
+                : new File(javaHomeString);
+
+        boolean buildScansEnabled = preferences.readBoolean(PREF_KEY_BUILD_SCANS_ENABLED, false);
+        boolean offlineMode = preferences.readBoolean(PREF_KEY_OFFLINE_MODE, false);
+        boolean autoSync = preferences.readBoolean(PREF_KEY_AUTO_SYNC, false);
+        List<String> arguments = Lists.newArrayList(Splitter.on(' ').omitEmptyStrings().split(preferences.readString(PREF_KEY_ARGUMENTS, "")));
+        List<String> jvmArguments = Lists.newArrayList(Splitter.on(' ').omitEmptyStrings().split(preferences.readString(PREF_KEY_JVM_ARGUMENTS, "")));
+        boolean showConsoleView = preferences.readBoolean(PREF_KEY_SHOW_CONSOLE_VIEW, false);
+        boolean showExecutionsView = preferences.readBoolean(PREF_KEY_SHOW_EXECUTIONS_VIEW, false);
+
+        File rootDir = new File(preferences.readString(PREF_KEY_ROOT_PROJECT, compositePreferencesDir.getAbsolutePath()));
+        
+        return new DefaultBuildConfigurationProperties(rootDir, distribution, gradleUserHome, javaHome, overrideWorkspaceSettings, buildScansEnabled, offlineMode, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
+	}
 
     private DefaultBuildConfigurationProperties readCompositePreferences(PreferenceStore preferences,
 			File compositePreferencesDir) {
