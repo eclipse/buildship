@@ -4,6 +4,7 @@
 .settings
 .eclipse
 build
+build.app
 target
 bin
 
@@ -13,3 +14,5 @@ bin
 *.iws
 
 screenshots
+
+tooling-local.target

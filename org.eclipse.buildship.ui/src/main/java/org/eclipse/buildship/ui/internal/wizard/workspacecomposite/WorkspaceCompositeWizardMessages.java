@@ -25,6 +25,8 @@ public final class WorkspaceCompositeWizardMessages extends NLS {
     public static String Title_NewGradleWorkspaceCompositeWizardPage;
     public static String Title_NewGradleImportOptionsWizardPage;
     public static String Title_NewGradleCompositeRootWizardPage;
+    
+    public static String Title_ConfigureGradleWorkspaceCompositeDialog;
 
     public static String Label_CompositeName;
 
@@ -49,6 +51,10 @@ public final class WorkspaceCompositeWizardMessages extends NLS {
     public static String Group_Label_GradleProjects;
     public static String Button_New_GradleProject;
     public static String Button_Add_ExternalGradleProject;
+    
+    public static String CompositeConfigurationDialog_New;
+    public static String CompositeConfigurationDialog_Edit;
+    public static String CompositeConfigurationDialog_Remove;
 
     public static String Label_RootProject;
     public static String Button_Select_RootProject;

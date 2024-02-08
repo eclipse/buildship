@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -67,17 +67,17 @@ public final class GradleProjectPreferencePage extends PropertyPage {
         IProject project = getTargetProject();
         BuildConfiguration buildConfig = CorePlugin.configurationManager().loadProjectConfiguration(project).getBuildConfiguration();
         boolean overrideWorkspaceSettings = buildConfig.isOverrideWorkspaceSettings();
-        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(buildConfig.getGradleDistribution()));
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setGradleUserHome(buildConfig.getGradleUserHome());
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJavaHome(buildConfig.getJavaHome());
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setArguments(buildConfig.getArguments());
-        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJvmArguments(buildConfig.getJvmArguments());
+        this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(buildConfig.getProperties().getGradleDistribution()));
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setGradleUserHome(buildConfig.getProperties().getGradleUserHome());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJavaHome(buildConfig.getProperties().getJavaHome());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setArguments(buildConfig.getProperties().getArguments());
+        this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().setJvmArguments(buildConfig.getProperties().getJvmArguments());
         this.gradleProjectSettingsComposite.getOverrideBuildSettingsCheckbox().setSelection(overrideWorkspaceSettings);
-        this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(buildConfig.isBuildScansEnabled());
-        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(buildConfig.isOfflineMode());
-        this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(buildConfig.isAutoSync());
-        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(buildConfig.isShowConsoleView());
-        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(buildConfig.isShowExecutionsView());
+        this.gradleProjectSettingsComposite.getBuildScansCheckbox().setSelection(buildConfig.getProperties().isBuildScansEnabled());
+        this.gradleProjectSettingsComposite.getOfflineModeCheckbox().setSelection(buildConfig.getProperties().isOfflineMode());
+        this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(buildConfig.getProperties().isAutoSync());
+        this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(buildConfig.getProperties().isShowConsoleView());
+        this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(buildConfig.getProperties().isShowExecutionsView());
         this.gradleProjectSettingsComposite.updateEnablement();
     }
 

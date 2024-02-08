@@ -4,11 +4,20 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.vcs.GitVcsRoot
 
 object GitHubVcsRoot : GitVcsRoot({
     name = "Buildship"
-    url = "https://gradlewaregitbot@github.com/eclipse/buildship.git"
-    branchSpec = "+:refs/heads/*"
-    userForTags = "Gradleware GitHubVcsRoot Bot <gradlewa/**/regitbot@gradleware.com>"
+    url = "https://github.com/eclipse/buildship.git"
     agentGitPath = "%env.TEAMCITY_GIT_PATH%"
-    agentCleanFilesPolicy = GitVcsRoot.AgentCleanFilesPolicy.NON_IGNORED_ONLY
-    useMirrors = false
+    agentCleanFilesPolicy = AgentCleanFilesPolicy.NON_IGNORED_ONLY
+    checkoutPolicy = AgentCheckoutPolicy.AUTO
     authMethod = anonymous()
+})
+
+object GitHubForkVcsRoot : GitVcsRoot({
+    name = "BuildshipFork"
+    url = "https://github.com/gradle/buildship.git"
+    agentGitPath = "%env.TEAMCITY_GIT_PATH%"
+    agentCleanFilesPolicy = AgentCleanFilesPolicy.NON_IGNORED_ONLY
+    checkoutPolicy = AgentCheckoutPolicy.AUTO
+    authMethod = anonymous()
+    branch = "refs/heads/master"
+    branchSpec = "+:*"
 })

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -80,7 +80,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         result.status.severity == IStatus.ERROR
         gradleErrorMarkers.size() == 1
         gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
-        gradleErrorMarkers[0].getResource() == project
+        gradleErrorMarkers[0].getResource() == project.getFile('build.gradle')
     }
 
     def "The eclipseWtp task is run before importing WTP projects"() {
@@ -127,6 +127,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'war'
                 apply plugin: 'eclipse'
             """
+            file 'settings.gradle', ''
         }
         wtpinstalled = true
 
@@ -170,6 +171,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                     compile "junit:junit:4.12"
                 }
             """
+            file 'settings.gradle', ''
         }
         wtpinstalled = true
 
@@ -190,7 +192,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'java'
                 ${jcenterRepositoryBlock}
                 dependencies {
-                    compile "junit:junit:4.12"
+                    implementation "junit:junit:4.12"
                 }
             """
         }
@@ -213,7 +215,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'war'
                 ${jcenterRepositoryBlock}
                 dependencies {
-                    compile "junit:junit:4.12"
+                    implementation "junit:junit:4.12"
                 }
             """
         }
@@ -236,7 +238,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
                 apply plugin: 'war'
                 ${jcenterRepositoryBlock}
                 dependencies {
-                    compile "junit:junit:4.12"
+                    implementation "junit:junit:4.12"
                 }
             """
         }
@@ -325,7 +327,7 @@ class ImportingWtpProjects extends ProjectSynchronizationSpecification {
         result.status.severity == IStatus.ERROR
         gradleErrorMarkers.size() == 1
         gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == "WTP currently does not support mixed deployment paths."
-        gradleErrorMarkers[0].getResource() == project
+        gradleErrorMarkers[0].getResource() == project.getFile('build.gradle')
     }
 
     def "Does not override classpath container customisation"() {

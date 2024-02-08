@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -18,9 +18,9 @@ import org.eclipse.buildship.ui.internal.test.fixtures.ProjectSynchronizationSpe
 
 class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecification {
 
-    def "Launch shortcut enabled on test sources"(String gradleVersion) {
+    def "Launch shortcut enabled on test sources"() {
         setup:
-        importAndWait(projectWithSources, GradleDistribution.forVersion(gradleVersion))
+        importAndWait(createProjectWithSources(dependencyConfiguration), GradleDistribution.forVersion(gradleVersion), [], jdk == "8" ? new File(System.getProperty("jdk8.location")) : null)
 
         when:
         IJavaProject project = findJavaProject('project-with-sources')
@@ -31,12 +31,14 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
         testLaunchShortcutEnabledOn(type)
 
         where:
-        gradleVersion << ['4.3', GradleVersion.current().version]
+        gradleVersion                   | dependencyConfiguration | jdk
+        '4.3'                           | 'compile'               | "8"
+        GradleVersion.current().version | 'implementation'        | null
     }
 
     def "Launch debug shortcut enabled on test sources"() {
         setup:
-        importAndWait(projectWithSources, GradleDistribution.fromBuild())
+        importAndWait(createProjectWithSources('implementation'), GradleDistribution.fromBuild())
 
         when:
         IJavaProject project = findJavaProject('project-with-sources')
@@ -48,7 +50,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
 
     def "Launch debug shortcut disabled for projects using Gradle < 5.6"() {
         setup:
-        importAndWait(projectWithSources, GradleDistribution.forVersion('5.5.1'))
+        importAndWait(createProjectWithSources(), GradleDistribution.forVersion('5.5.1'), [], new File(System.getProperty("jdk11.location")))
 
         when:
         IJavaProject project = findJavaProject('project-with-sources')
@@ -58,9 +60,9 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
         !testDebugLaunchShortcutEnabledOn(type)
     }
 
-    def "Launch shortcut disabled on production sources"(String gradleVersion) {
+    def "Launch shortcut disabled on production sources"() {
         setup:
-        importAndWait(projectWithSources, GradleDistribution.forVersion(gradleVersion))
+        importAndWait(createProjectWithSources(dependencyConfiguration), GradleDistribution.forVersion(gradleVersion), [], jdk == "8" ? new File(System.getProperty("jdk8.location")) : null)
 
         when:
         IJavaProject project = findJavaProject('project-with-sources')
@@ -71,12 +73,14 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
         !testLaunchShortcutEnabledOn(type)
 
         where:
-        gradleVersion << ['4.3', GradleVersion.current().version]
+        gradleVersion                   | dependencyConfiguration | jdk
+        '4.3'                           | 'compile'               | "8"
+        GradleVersion.current().version | 'implementation'        | null
     }
 
     def "Launch shortcut disabled on non-source type"() {
         setup:
-        importAndWait(projectWithSources)
+        importAndWait(createProjectWithSources('implementation'))
 
         when:
         IJavaProject project = findJavaProject('project-with-sources')
@@ -87,7 +91,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
         !testLaunchShortcutEnabledOn(type)
     }
 
-    private File getProjectWithSources() {
+    private File createProjectWithSources(configuration = 'compile') {
         dir('project-with-sources') {
             file 'build.gradle', """
                 apply plugin: 'java'
@@ -95,7 +99,7 @@ class TestLaunchShortcutValidatorTest extends ProjectSynchronizationSpecificatio
                 ${jcenterRepositoryBlock}
 
                 dependencies {
-                    compile 'com.google.guava:guava:18.0'
+                    $configuration 'com.google.guava:guava:18.0'
                 }
             """
             dir('src/main/java') {

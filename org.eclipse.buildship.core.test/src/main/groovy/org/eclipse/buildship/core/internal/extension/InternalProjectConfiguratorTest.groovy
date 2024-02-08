@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -57,29 +57,21 @@ class InternalProjectConfiguratorTest extends WorkspaceSpecification {
         setup:
         ProjectConfiguratorContribution c1 = configurator('c1')
         ProjectConfiguratorContribution c2 = configurator('c2')
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
 
         when:
-        configurators = configurators.toSorted()
+        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
 
         then:
         assertOrder(configurators, 'c1', 'c2')
-
-        when:
-        configurators = configurators.reverse().toSorted()
-
-        then:
-        assertOrder(configurators, 'c2', 'c1')
     }
 
     def "Ordering respects 'runsBefore' dependency"() {
         setup:
         ProjectConfiguratorContribution c1 = configurator('c1')
         ProjectConfiguratorContribution c2 = configurator('c2', ['c1'])
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
 
         when:
-        configurators = configurators.toSorted()
+        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
 
         then:
         assertOrder(configurators, 'c2', 'c1')
@@ -89,10 +81,9 @@ class InternalProjectConfiguratorTest extends WorkspaceSpecification {
         setup:
         ProjectConfiguratorContribution c1 = configurator('c1', [], ['c2'])
         ProjectConfiguratorContribution c2 = configurator('c2')
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
 
         when:
-        configurators = configurators.toSorted()
+        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c1, c2])
 
         then:
         assertOrder(configurators, 'c2', 'c1')
@@ -103,10 +94,9 @@ class InternalProjectConfiguratorTest extends WorkspaceSpecification {
         ProjectConfiguratorContribution c1 = configurator('c1', ['c2'])
         ProjectConfiguratorContribution c2 = configurator('c2', ['c3'])
         ProjectConfiguratorContribution c3 = configurator('c3', ['c1'])
-        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c3, c2, c1])
 
         when:
-        configurators = configurators.toSorted()
+        List<InternalProjectConfigurator> configurators = InternalProjectConfigurator.from([c3, c2, c1])
 
         then:
         assertOrder(configurators, 'c2', 'c3', 'c1')

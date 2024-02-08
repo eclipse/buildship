@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -27,7 +27,7 @@ import org.eclipse.jdt.launching.environments.IExecutionEnvironment;
  * Helper class to access the installed VMs in the Eclipse registry.
  */
 @SuppressWarnings("restriction")
-final class EclipseVmUtil {
+public final class EclipseVmUtil {
 
     private static final String VM_ID_PREFIX = "org.eclipse.buildship.core.vm.";
 

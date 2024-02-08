@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -111,6 +111,7 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
         this.filteredTree.getViewer().getTree().setHeaderVisible(true);
         this.filteredTree.getViewer().setContentProvider(new ExecutionPageContentProvider());
         this.filteredTree.getViewer().setUseHashlookup(true);
+        this.filteredTree.getViewer().setComparator(new ExecutionPageSorter());
 
         this.nameColumn = new TreeViewerColumn(this.filteredTree.getViewer(), SWT.NONE);
         this.nameColumn.getColumn().setText(ExecutionViewMessages.Tree_Column_Operation_Name_Text);

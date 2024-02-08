@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -18,7 +18,6 @@ import java.util.SortedSet;
 import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.GradleTask;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
@@ -121,8 +120,6 @@ class BuildInvocations {
 
     private static ImmutableSortedMap<Path, BuildInvocations> buildBuildInvocationsMapping(GradleProject project, Multimap<Path, ProjectTask> projectTasks,
             Multimap<Path, TaskSelector> taskSelectors) {
-        Preconditions.checkState(taskSelectors.keySet().containsAll(projectTasks.keySet()), "Task selectors are always configured for all projects");
-
         // create mappings for all projects which contain tasks selectors (which covers at least
         // those projects that contain project tasks)
         ImmutableSortedMap.Builder<Path, BuildInvocations> mapping = ImmutableSortedMap.orderedBy(Path.Comparator.INSTANCE);

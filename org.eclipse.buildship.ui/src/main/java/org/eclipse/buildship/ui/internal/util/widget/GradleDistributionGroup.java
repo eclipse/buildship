@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -18,13 +18,13 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -42,7 +42,6 @@ import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
 import org.eclipse.buildship.core.internal.util.gradle.PublishedGradleVersionsWrapper;
 import org.eclipse.buildship.ui.internal.i18n.UiMessages;
 import org.eclipse.buildship.ui.internal.util.file.DirectoryDialogSelectionListener;
-import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.widget.UiBuilder.UiBuilderFactory;
 
@@ -62,8 +61,6 @@ public final class GradleDistributionGroup extends Group {
 
     private final List<DistributionChangedListener> listeners;
     private final PublishedGradleVersionsWrapper publishedGradleVersions;
-
-    private Font font;
 
     private Text localInstallationDirText;
     private Button localInstallationDirBrowseButton;
@@ -92,8 +89,7 @@ public final class GradleDistributionGroup extends Group {
         setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
         GridLayoutFactory.swtDefaults().numColumns(4).applyTo(this);
 
-        this.font = FontUtils.getDefaultDialogFont();
-        UiBuilderFactory uiBuilder = new UiBuilder.UiBuilderFactory(this.font);
+        UiBuilderFactory uiBuilder = new UiBuilder.UiBuilderFactory(JFaceResources.getDialogFont());
         this.useGradleWrapperOption = uiBuilder.newRadio(this).alignLeft(4).text(CoreMessages.GradleDistribution_Label_GradleWrapper).control();
 
         this.useLocalInstallationDirOption = uiBuilder.newRadio(this).alignLeft().text(CoreMessages.GradleDistribution_Label_LocalInstallationDirectory).control();
@@ -267,14 +263,6 @@ public final class GradleDistributionGroup extends Group {
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         updateEnablement();
-    }
-
-    @Override
-    public void dispose() {
-        if (this.font != null && !this.font.isDisposed()) {
-            this.font.dispose();
-        }
-        super.dispose();
     }
 
     /**

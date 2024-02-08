@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -56,7 +56,7 @@ class RunGradleBuildLaunchRequestJobTest extends BaseLaunchRequestJobTest {
     }
 
     @Unroll
-    def "Can launch task with Gradle #distribution.configuration"(GradleDistribution distribution) {
+    def "Can launch task with Gradle #distribution.version"(GradleDistribution distribution) {
         setup:
         def job = new RunGradleBuildLaunchRequestJob(createLaunch(projectDir, distribution))
 

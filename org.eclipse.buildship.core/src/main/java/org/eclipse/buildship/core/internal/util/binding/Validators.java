@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -20,9 +20,6 @@ import com.google.common.collect.FluentIterable;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.IWorkingSetManager;
-import org.eclipse.ui.PlatformUI;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
@@ -165,11 +162,9 @@ public final class Validators {
             }
 
             private boolean compositeNameAlreadyExistsinWorkspace(String compositeName) {
-
-                IWorkingSetManager workingSetManager = PlatformUI.getWorkbench().getWorkingSetManager();
-                IWorkingSet[] workingSets = workingSetManager.getAllWorkingSets();
-                for (IWorkingSet workingSet : workingSets) {
-                    if (workingSet.getName().equals(compositeName)) {
+            	File compositePreferencesFolder = CorePlugin.getInstance().getStateLocation().append("workspace-composites").toFile();
+                for (File workingSetPreferences : compositePreferencesFolder.listFiles()) {
+                    if (workingSetPreferences.getName().equals(compositeName)) {
                         return true;
                     }
                 }

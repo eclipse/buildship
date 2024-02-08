@@ -166,6 +166,12 @@
             description="Adds the Gradle nature and synchronizes this project as if the Gradle Import wizard had been run on its location.">
       </command>
       <command
+            categoryId="org.eclipse.buildship.ui.project"
+            description="Create and configure workspace composites."
+            id="org.eclipse.buildship.ui.commands.opencompositeconfiguration"
+            name="Configure Composites">
+      </command>
+      <command
             id="org.eclipse.buildship.ui.shortcut.test.run"
             categoryId="org.eclipse.debug.ui.category.run"
             name="Run Gradle Test"
@@ -252,6 +258,10 @@
             </iterate>
          </activeWhen>
       </handler>
+      <handler
+            class="org.eclipse.buildship.ui.internal.view.task.CompositeConfigurationDialogHandler"
+            commandId="org.eclipse.buildship.ui.commands.opencompositeconfiguration">
+      </handler>
     </extension>
 
     <!-- integration of Gradle command accelerators -->
@@ -298,6 +308,11 @@
              disabledIcon="icons/full/dlcl16/refresh.png">
        </image>
        <image
+       		 commandId="org.eclipse.buildship.ui.commands.opencompositeconfiguration"
+       		 icon="icons/full/obj16/gradlecomposite_obj.png"
+       		 disabledIcon="icons/full/obj16/gradlecomposite_obj.png">
+       </image>
+       <image
              commandId="org.eclipse.buildship.ui.commands.addbuildshipnature"
              icon="icons/full/eview16/tasks_view.png">
        </image>
@@ -324,7 +339,7 @@
         <launchConfigurationTypeImage
                 id="org.eclipse.buildship.ui.launch.test.runconfigurationtypeimage"
                 configTypeID="org.eclipse.buildship.core.launch.test.runconfiguration"
-                icon="icons/full/obj16/launch_config.png">
+                icon="icons/full/obj16/test_launch_config.png">
         </launchConfigurationTypeImage>
     </extension>
     <extension
@@ -346,7 +361,7 @@
           point="org.eclipse.debug.ui.launchShortcuts">
        <shortcut
              class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcut"
-             icon="icons/full/obj16/launch_config.png"
+             icon="icons/full/obj16/test_launch_config.png"
              id="org.eclipse.buildship.ui.shortcut.test"
              label="Gradle Test"
              modes="run">
@@ -374,7 +389,7 @@
        </shortcut>
        <shortcut
              class="org.eclipse.buildship.ui.internal.launch.TestLaunchShortcut"
-             icon="icons/full/obj16/launch_config.png"
+             icon="icons/full/obj16/test_launch_config.png"
              id="org.eclipse.buildship.ui.shortcut.test.debug"
              label="Gradle Test"
              modes="debug">
@@ -466,6 +481,10 @@
                 label="Gradle">
              <command
                    commandId="org.eclipse.buildship.ui.commands.refreshproject"
+                   style="push">
+             </command>
+             <command
+                   commandId="org.eclipse.buildship.ui.commands.opencompositeconfiguration"
                    style="push">
              </command>
              <visibleWhen>
@@ -631,6 +650,12 @@
              id="org.eclipse.buildship.ui.preferences"
              name="Gradle">
        </page>
+       <page
+             category="org.eclipse.buildship.ui.preferences"
+             class="org.eclipse.buildship.ui.internal.preferences.GradleExperimentalFeaturesPreferencePage"
+             id="org.eclipse.buildship.ui.preferences.experimental"
+             name="Experimental features">
+       </page>
     </extension>
 
     <!-- Add the "Gradle" menu to the project preferences -->
@@ -732,6 +757,29 @@
        </stylesheet>
     </extension>
     <extension
+          point="org.eclipse.ui.ide.projectConfigurators">
+       <projectConfigurator
+               class="org.eclipse.buildship.ui.internal.project.GradleProjectConfigurator"
+               label="Gradle">
+       <activeWhen>
+           <or>
+               <hasFileRecursively filename="gradle.properties"/>
+               <hasFileRecursively filename="settings.gradle"/>
+               <hasFileRecursively filename="settings.gradle.kts"/>
+           </or>
+       </activeWhen>
+       </projectConfigurator>
+    </extension>
+    <extension
+          point="org.eclipse.ui.actionSetPartAssociations">
+       <actionSetPartAssociation
+             targetID="org.eclipse.ui.edit.text.actionSet.presentation">
+          <part
+                id="org.eclipse.buildship.ui.gradlebuildscripteditor">
+          </part>
+       </actionSetPartAssociation>
+    </extension>
+    <extension
           point="org.eclipse.help.contentExtension">
     </extension>
     <extension
@@ -744,8 +792,7 @@
              icon="icons/full/obj16/gradlecomposite_obj.png"
              id="org.eclipse.buildship.ui.GradleCompositePage"
              name="Workspace Composite"
-             pageClass="org.eclipse.buildship.ui.internal.preferences.GradleCreateWorkspaceCompositePreferencePage"
-             updaterClass="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.GradleWorkspaceCompositeUpdater">
+             pageClass="org.eclipse.buildship.ui.internal.preferences.GradleCreateWorkspaceCompositePreferencePage">
        </workingSet>
     </extension>
     <extension

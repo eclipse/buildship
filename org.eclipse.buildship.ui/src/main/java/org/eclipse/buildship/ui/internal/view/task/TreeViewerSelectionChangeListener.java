@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -22,6 +22,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.ui.PlatformUI;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 import org.eclipse.buildship.ui.internal.util.selection.SelectionUtils;
 
 /**
@@ -66,6 +68,15 @@ public final class TreeViewerSelectionChangeListener implements ISelectionChange
                 Optional<IProject> project = ((TaskNode) selectedNode).getParentProjectNode().getWorkspaceProject();
                 if (project.isPresent()) {
                     projects.add(project.get());
+                }
+            } else if (selectedNode instanceof FaultyBuildTreeNode) {
+                FaultyBuildTreeNode faultyNode = (FaultyBuildTreeNode) selectedNode;
+                for (IProject p : CorePlugin.workspaceOperations().getAllProjects()) {
+                    CorePlugin.internalGradleWorkspace()
+                        .getBuild(p)
+                        .map(InternalGradleBuild.class::cast)
+                        .filter(build -> build.getBuildConfig().equals(faultyNode.getBuildConfiguration()))
+                        .ifPresent(b -> projects.add(p));
                 }
             }
         }

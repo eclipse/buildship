@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -36,12 +36,13 @@ abstract class ProjectSynchronizationSpecification extends WorkspaceSpecificatio
         waitForGradleJobsToFinish()
     }
 
-    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild(), List<String> arguments = []) {
+    protected void importAndWait(File location, GradleDistribution gradleDistribution = GradleDistribution.fromBuild(), List<String> arguments = [], File javaHome = null) {
         BuildConfiguration configuration = BuildConfiguration
              .forRootProjectDirectory(location)
              .gradleDistribution(gradleDistribution)
              .overrideWorkspaceConfiguration(true)
              .arguments(arguments)
+             .javaHome(javaHome)
              .build()
         GradleBuild gradleBuild = GradleCore.workspace.createBuild(configuration)
         gradleBuild.synchronize(new NullProgressMonitor())

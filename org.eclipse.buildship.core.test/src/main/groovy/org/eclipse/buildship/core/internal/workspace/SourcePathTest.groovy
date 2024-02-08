@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -21,14 +21,14 @@ import org.eclipse.buildship.core.GradleDistribution
 
 class SourcePathTest extends ProjectSynchronizationSpecification {
 
-    def "Source files available from project dependency"(String version) {
+    def "Source files available from project dependency"() {
          setup:
          File projectDir = dir('root') {
              file('settings.gradle') << 'include "p1","p2"'
              file('build.gradle') << 'allprojects { apply plugin: "java" }'
 
              dir('p1') {
-                 file('build.gradle') << 'dependencies { compile project(":p2") }'
+                 file('build.gradle') << 'dependencies { implementation project(":p2") }'
                  dir('src/main/java').mkdirs()
              }
 
@@ -39,7 +39,7 @@ class SourcePathTest extends ProjectSynchronizationSpecification {
          }
 
          when:
-         importAndWait(projectDir, GradleDistribution.forVersion(version))
+         importAndWait(projectDir, GradleDistribution.forVersion(version), new File(System.getProperty('jdk8.location')))
          IRuntimeClasspathEntry[] p1sources = sourceEntries(findProject('p1'))
          IRuntimeClasspathEntry[] p2sources = sourceEntries(findProject('p2'))
 

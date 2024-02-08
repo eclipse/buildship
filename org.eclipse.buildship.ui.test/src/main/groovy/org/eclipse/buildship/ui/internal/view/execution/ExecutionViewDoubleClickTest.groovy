@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -39,7 +39,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
         root.expanded
 
         when:
-        SWTBotTreeItem runNode = root.getNode('Run tasks')
+        SWTBotTreeItem runNode = root.getNode('Run main tasks')
 
         then:
         !runNode.expanded
@@ -53,6 +53,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
 
     def "Double-clicking test class and method open editor"() {
         setup:
+        bot.closeAllEditors()
         File projectDir = sampleTestProject()
         importAndWait(projectDir)
         launchTaskAndWait(projectDir, 'build')
@@ -63,14 +64,18 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
 
         when:
         root.expand()
-        SWTBotTreeItem runNode = root.getNode('Run tasks')
+        SWTBotTreeItem runNode = root.getNode('Run main tasks').getNode('Run tasks')
         runNode.expand()
         SWTBotTreeItem testNode = runNode.getNode(':test')
         testNode.expand()
-        SWTBotTreeItem fileNode = testNode.getNode('LibraryTest')
+        SWTBotTreeItem testNode2 = testNode.getNode('Executing task \':test\'')
+        testNode2.expand()
+        SWTBotTreeItem testNode3 = testNode2.getNode('Execute executeTests for :test')
+        testNode3.expand()
+        SWTBotTreeItem fileNode = testNode3.getNode('LibraryTest')
 
         then:
-        bot.editors().size == 0
+        bot.editors().size() == 0
 
         when:
         fileNode.doubleClick()
@@ -85,7 +90,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
         SWTBotTreeItem methodNode = fileNode.getNode('testSomeLibraryMethod')
 
         then:
-        bot.editors().size == 0
+        bot.editors().size() == 0
 
         when:
         methodNode.doubleClick()
@@ -128,7 +133,7 @@ class ExecutionViewDoubleClickTest extends BaseExecutionViewTest {
                 ${jcenterRepositoryBlock}
 
                 dependencies {
-                    testCompile 'junit:junit:4.12'
+                    testImplementation 'junit:junit:4.12'
                 }
             """
         }

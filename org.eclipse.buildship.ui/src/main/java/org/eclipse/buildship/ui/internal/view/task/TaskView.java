@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,12 +9,10 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
-import java.util.List;
-
-import org.gradle.tooling.model.eclipse.EclipseProject;
-
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
@@ -40,6 +38,7 @@ import org.eclipse.ui.wizards.IWizardDescriptor;
 
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
+import org.eclipse.buildship.core.internal.workspace.SynchronizationJob;
 import org.eclipse.buildship.ui.internal.UiPluginConstants;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelection;
 import org.eclipse.buildship.ui.internal.util.nodeselection.NodeSelectionProvider;
@@ -161,10 +160,18 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
         this.uiContributionManager = new UiContributionManager(this);
         this.uiContributionManager.wire();
 
-        // set initial content (use fetch strategy LOAD_IF_NOT_CACHED since
-        // the model might already be available in case a project import has
-        // just happened)
-        reload(FetchStrategy.LOAD_IF_NOT_CACHED);
+        // set initial content (use fetch strategy FROM_CACHE_ONLY as we don't want to enforce
+        // a potentially expensive sync operation just because a view was opened)
+        reload(FetchStrategy.FROM_CACHE_ONLY);
+
+        Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                if (event.getJob() instanceof SynchronizationJob) {
+                    reload(FetchStrategy.FROM_CACHE_ONLY);
+                }
+            }
+        });
     }
 
     /**
@@ -182,9 +189,7 @@ public final class TaskView extends ViewPart implements NodeSelectionProvider {
      */
     public void setContent(TaskViewContent content) {
         if (!this.pages.isDisposed() && !this.treeViewer.getControl().isDisposed()) {
-            List<EclipseProject> models = content.getProjects();
-            List<IProject> faultyProjects = content.getFaultyProjects();
-            this.pages.showPage((models.isEmpty() && faultyProjects.isEmpty()) ? this.emptyInputPage : this.nonEmptyInputPage);
+            this.pages.showPage(content.isEmpty() ? this.emptyInputPage : this.nonEmptyInputPage);
             this.treeViewer.setInput(content);
         }
     }

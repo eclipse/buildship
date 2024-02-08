@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -74,7 +74,7 @@ class RunGradleTestLaunchRequestJobComplexTest extends ProjectSynchronizationSpe
             file 'build.gradle',  """
                 apply plugin: "java"
                 ${jcenterRepositoryBlock}
-                dependencies { testCompile 'junit:junit:4.10' }
+                dependencies { testImplementation 'junit:junit:4.10' }
             """
             dir('src/test/java') {
                 file 'SampleTest.java', '''

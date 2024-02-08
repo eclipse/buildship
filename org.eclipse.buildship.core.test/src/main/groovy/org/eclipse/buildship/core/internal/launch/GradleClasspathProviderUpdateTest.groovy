@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,6 +9,9 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.launch
 
+import static org.gradle.api.JavaVersion.VERSION_13
+
+import org.gradle.api.JavaVersion
 import spock.lang.IgnoreIf
 import spock.lang.Requires
 
@@ -50,6 +53,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         !hasGradleClasspathProvider(launchConfiguration)
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Classpath provider added when referenced project is a new Java project"() {
         setup:
         File projectDir = dir('project-name') {
@@ -65,7 +69,9 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
 
     def "Classpath provider not added for new non-Java project"() {
         setup:
-        File projectDir = dir('project-name')
+        File projectDir = dir('project-name') {
+            file 'settings.gradle', ''
+        }
 
         when:
         importAndWait(projectDir)
@@ -99,6 +105,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         hasGradleClasspathProvider(launchConfiguration)
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Classpath provider injected when project using old Gradle version is moved under target name"() {
         setup:
         File settingsFile
@@ -142,6 +149,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         !hasGradleClasspathProvider(launchConfiguration)
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Classpath provider removed when project using old Gradle version deleted"() {
         setup:
         File projectDir = dir('project-name') {
@@ -191,6 +199,7 @@ class GradleClasspathProviderUpdateTest extends ProjectSynchronizationSpecificat
         !hasGradleClasspathProvider(launchConfiguration)
     }
 
+    @IgnoreIf({ JavaVersion.current().isCompatibleWith(VERSION_13) }) // Gradle 5.5 can run on Java 12 and below
     def "Classpath provider removed when Gradle nature removed from project using Old Gradle version"() {
         setup:
         File projectDir = dir('project-name') {

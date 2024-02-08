@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,9 +9,11 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import org.gradle.api.JavaVersion
 import org.gradle.tooling.model.eclipse.EclipseExternalDependency
 import org.gradle.tooling.model.eclipse.EclipseProject
 import org.gradle.tooling.model.eclipse.EclipseProjectDependency
+import spock.lang.IgnoreIf
 
 import org.eclipse.core.resources.IResource
 import org.eclipse.core.runtime.NullProgressMonitor
@@ -23,10 +25,8 @@ import org.eclipse.jdt.core.JavaCore
 import org.eclipse.buildship.core.internal.test.fixtures.WorkspaceSpecification
 import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils
 import org.eclipse.buildship.core.internal.util.gradle.ModelUtils
-import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainer
-import org.eclipse.buildship.core.internal.workspace.GradleClasspathContainerUpdater
-import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 
+@IgnoreIf({ JavaVersion.current().isJava9Compatible() }) // TODO update cglib and re-enable the test
 class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
     IJavaProject project
@@ -51,7 +51,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -67,11 +67,11 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
-        resolvedClasspath[0].path.toFile() == dir("foo")
+        resolvedClasspath[0].path.toFile().canonicalPath.equals(dir("foo").canonicalPath)
     }
 
     def "Linked files can be added to the classpath"(String path) {
@@ -83,7 +83,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -102,7 +102,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
@@ -126,7 +126,7 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
 
         when:
         Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         def modifiedContainer = gradleClasspathContainer
@@ -135,10 +135,48 @@ class GradleClasspathContainerUpdaterTest extends WorkspaceSpecification {
         when:
         persistentModel = persistentModelBuilder(persistentModel.build())
         allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
-        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null)
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
 
         then:
         modifiedContainer.is(gradleClasspathContainer)
+    }
+
+    def "Non-lowercase extensions should be taken into account"(String path) {
+        given:
+        def file = new File(path)
+
+        def gradleProject = gradleProjectWithClasspath(
+            externalDependency(file)
+        )
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
+
+        when:
+        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
+
+        then:
+        resolvedClasspath[0].entryKind == IClasspathEntry.CPE_LIBRARY
+        resolvedClasspath[0].path.toFile() == file.absoluteFile
+
+        where:
+        path << ['test.Zip', 'test.ZIP', 'test.rar', 'test.RAR']
+    }
+
+    def "Non-zip files should be ignored"() {
+        given:
+        def file = new File("test.dll")
+
+        def gradleProject = gradleProjectWithClasspath(
+            externalDependency(file)
+        )
+        PersistentModelBuilder persistentModel = persistentModelBuilder(project.project)
+
+        when:
+        Set allProjects = HierarchicalElementUtils.getAll(gradleProject).toSet()
+        GradleClasspathContainerUpdater.updateFromModel(project, gradleProject, allProjects, persistentModel, null, null)
+
+        then:
+        resolvedClasspath.length == 0
     }
 
     EclipseProject gradleProjectWithClasspath(Object... dependencies) {

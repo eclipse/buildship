@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -15,47 +15,18 @@ import org.eclipse.buildship.ui.internal.wizard.HelpContextIdProvider;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.wizard.Wizard;
-import org.osgi.service.prefs.BackingStoreException;
-
-import com.google.common.base.Preconditions;
 
 /**
  * Base class for project wizards.
  */
 public abstract class AbstractProjectWizard extends Wizard implements HelpContextIdProvider {
 
-    // the preference key under which it is stored whether to show the welcome page or not
-    private final String welcomePageEnabledPreferenceKey;
-
     // state bit storing that the wizard is blocked to finish globally
     private boolean finishGloballyEnabled;
 
-    protected AbstractProjectWizard(String welcomePageEnabledPreferenceKey) {
-        this.welcomePageEnabledPreferenceKey = Preconditions.checkNotNull(welcomePageEnabledPreferenceKey);
-
+    protected AbstractProjectWizard() {
         // the wizard must not be finishable unless this global flag is enabled
         this.finishGloballyEnabled = true;
-    }
-
-    public boolean isShowWelcomePage() {
-        // store the in the configuration scope to have the same settings for
-        // all workspaces
-        @SuppressWarnings("deprecation")
-        ConfigurationScope configurationScope = new ConfigurationScope();
-        IEclipsePreferences node = configurationScope.getNode(UiPlugin.PLUGIN_ID);
-        return node.getBoolean(this.welcomePageEnabledPreferenceKey, true);
-    }
-
-    public void setWelcomePageEnabled(boolean enabled) {
-        @SuppressWarnings("deprecation")
-        ConfigurationScope configurationScope = new ConfigurationScope();
-        IEclipsePreferences node = configurationScope.getNode(UiPlugin.PLUGIN_ID);
-        node.putBoolean(this.welcomePageEnabledPreferenceKey, enabled);
-        try {
-            node.flush();
-        } catch (BackingStoreException e) {
-            throw new GradlePluginsRuntimeException(e);
-        }
     }
 
     @Override

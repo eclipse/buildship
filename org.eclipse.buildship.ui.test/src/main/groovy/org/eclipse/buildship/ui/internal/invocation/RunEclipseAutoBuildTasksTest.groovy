@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -62,6 +62,7 @@ class RunEclipseAutoBuildTasksTest extends SwtBotSpecification {
             dir('src/main/java') {
                 file 'A.java', ''
             }
+            file 'settings.gradle', ''
          }
          importAndWait(location)
          openInEditor(findProject('run-eclipse-auto-build-task').getFile('src/main/java/A.java'))
@@ -85,6 +86,7 @@ class RunEclipseAutoBuildTasksTest extends SwtBotSpecification {
         IEditorDescriptor desc = PlatformUI.workbench.editorRegistry.getDefaultEditor(file.getName());
         IWorkbenchPage page = PlatformUI.workbench.workbenchWindows[0].pages[0];
         runOnUiThread { page.openEditor(new FileEditorInput(file), desc.getId()) }
+//        System.out.println("xxxx " + IsAnything.classLoader)
         bot.waitUntil(Conditions.waitForEditor(new IsAnything<IEditorReference>()))
     }
 }

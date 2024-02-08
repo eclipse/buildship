@@ -27,16 +27,8 @@ class JarBundleUtils {
     }
 
     private static ResolvedDependency getResolvedSourceDependency(Project project, Configuration configuration) {
-        def deps =  configuration.incoming.dependencies.collect { dep ->
-            dep.artifact { artifact ->
-                artifact.name = dep.name
-                artifact.type = 'source'
-                artifact.extension = 'jar'
-                artifact.classifier = 'sources'
-            }
-            dep
-        }
-        project.configurations.detachedConfiguration(deps as Dependency[]).resolvedConfiguration.getFirstLevelModuleDependencies().first()
+        def dep = configuration.incoming.dependencies.collect {"$it.group:$it.name:$it.version:sources" }.first()
+        project.configurations.detachedConfiguration([project.dependencies.create(dep)] as Dependency[]).resolvedConfiguration.getFirstLevelModuleDependencies().first()
     }
 
     private static ResolvedArtifact findJarArtifact(ResolvedDependency dependency) {
@@ -47,26 +39,27 @@ class JarBundleUtils {
         dependency.moduleArtifacts.find { it.classifier == 'sources' }
     }
 
-
-    static String manifestContent(File jar, String template, String packageFilter, String bundleVersion, String qualifier, String sourceReference = null) {
-        List<String> packageNames = packageNames(jar, packageFilter) as List
+    static String manifestContent(Iterable<File> jars, String template, String packageFilter, String bundleVersion, String qualifier, String sourceReference = null) {
+        List<String> packageNames = packageNames(jars, packageFilter) as List
         packageNames.sort()
         String fullVersion = "${bundleVersion}.${qualifier}"
         manifestFor(template, packageNames, bundleVersion, fullVersion, sourceReference)
     }
 
-    private static Set<String> packageNames(File jar, String filteredPackagesPattern) {
+    private static Set<String> packageNames(Iterable<File> jars, String filteredPackagesPattern) {
         def result = [] as Set
         Pattern filteredPackages = Pattern.compile(filteredPackagesPattern)
-        new ZipInputStream(new FileInputStream(jar)).withCloseable { zip ->
-            ZipEntry e
-            while (e = zip.nextEntry) {
-                if (!e.directory && e.name.endsWith(".class")) {
-                    int index = e.name.lastIndexOf('/')
-                    if (index < 0) index = e.name.length()
-                    String packageName = e.name.substring(0, index).replace('/', '.')
-                    if (!packageName.matches(filteredPackages)) {
-                        result.add(packageName)
+        jars.each { jar->
+            new ZipInputStream(new FileInputStream(jar)).withCloseable { zip ->
+                ZipEntry e
+                while (e = zip.nextEntry) {
+                    if (!e.directory && e.name.endsWith(".class")) {
+                        int index = e.name.lastIndexOf('/')
+                        if (index < 0) index = e.name.length()
+                        String packageName = e.name.substring(0, index).replace('/', '.')
+                        if (!packageName.matches(filteredPackages)) {
+                            result.add(packageName)
+                        }
                     }
                 }
             }

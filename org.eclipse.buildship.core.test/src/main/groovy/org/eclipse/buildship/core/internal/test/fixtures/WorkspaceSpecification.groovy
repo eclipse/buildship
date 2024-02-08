@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,10 +9,9 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.test.fixtures
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.AutoCleanup
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import com.google.common.collect.ImmutableList
 import com.google.common.io.Files
@@ -42,6 +41,7 @@ import org.eclipse.buildship.core.internal.preferences.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.preferences.PersistentModel
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.workspace.EclipseVmUtil
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
 
@@ -51,8 +51,8 @@ import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
  */
 abstract class WorkspaceSpecification extends Specification {
 
-    @Rule
-    TemporaryFolder tempFolderProvider
+    @TempDir
+    public File tempFolderProvider
 
     @AutoCleanup
     TestEnvironment environment = TestEnvironment.INSTANCE
@@ -62,8 +62,11 @@ abstract class WorkspaceSpecification extends Specification {
     private LogCollector logCollector = new LogCollector()
 
     def setup() {
-        externalTestDir = tempFolderProvider.newFolder('external')
+        externalTestDir = new File(tempFolderProvider, 'external')
+        externalTestDir.mkdirs()
         Platform.addLogListener(logCollector)
+        EclipseVmUtil.findOrRegisterVM("8", new File((String) System.getProperty("jdk8.location")))
+        EclipseVmUtil.findOrRegisterVM("11", new File((String) System.getProperty("jdk11.location")))
     }
 
     def cleanup() {
@@ -256,7 +259,7 @@ abstract class WorkspaceSpecification extends Specification {
         private final List<IStatus> entries = new ArrayList()
 
         @Override
-        public synchronized void logging(IStatus status, String plugin) {
+        synchronized void logging(IStatus status, String plugin) {
             entries.add(status)
         }
 
@@ -269,20 +272,25 @@ abstract class WorkspaceSpecification extends Specification {
         }
     }
 
-    protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern = '>=1.2') {
+    protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern = '>=2.6') {
         GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
     }
 
+    protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern, boolean ignoreJavaConstraint) {
+        GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern, ignoreJavaConstraint)
+    }
+
     protected static String getJcenterRepositoryBlock() {
+        // TODO (donat) everything should be converted to Maven Central
         String jcenterMirror = System.getProperty("org.eclipse.buildship.eclipsetest.mirrors.jcenter")
         if (jcenterMirror == null) {
             """
                 repositories {
                     if (org.gradle.api.JavaVersion.current().isJava8Compatible()) {
-                        jcenter()
+                        mavenCentral()
                     } else {
                         maven {
-                            url = "http://jcenter.bintray.com"
+                            url = "https://repo1.maven.org/maven2/"
                         }
                     }
                 }

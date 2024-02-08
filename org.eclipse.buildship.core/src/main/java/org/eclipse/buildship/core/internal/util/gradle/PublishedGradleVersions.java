@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -218,7 +218,12 @@ public final class PublishedGradleVersions {
     }
 
     private static File getCacheFile() {
-        return new File(System.getProperty("user.home"), ".tooling/gradle/versions.json");
+        // ensures compliance with XDG base spec: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+        String xdgCache = System.getenv("XDG_CACHE_HOME");
+        if (xdgCache == null) {
+            xdgCache = System.getProperty("user.home") + "/.cache/";
+        }
+        return new File(xdgCache, "tooling/gradle/versions.json");
     }
 
     /**

@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Buildship, Eclipse Plug-ins for Gradle - UI
 Bundle-SymbolicName: org.eclipse.buildship.ui;singleton:=true
-Bundle-Version: 3.1.5.qualifier
+Bundle-Version: 3.1.7.qualifier
 Bundle-Vendor: Eclipse Buildship
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-Activator: org.eclipse.buildship.ui.internal.UiPlugin
 Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.core.runtime,
@@ -20,9 +20,10 @@ Require-Bundle: org.eclipse.buildship.core,
  org.eclipse.jdt.ui,
  org.eclipse.jface.databinding,
  org.eclipse.jface.text,
+ org.eclipse.jface,
  com.ibm.icu,
- com.google.guava;bundle-version="[27.0.0,28.0.0)",
- org.gradle.toolingapi;bundle-version="[6.3.0,6.4.0)",
+ com.google.guava;bundle-version="[32.1.2,33.0.0)",
+ org.gradle.toolingapi;bundle-version="[8.1.1,8.2.0)",
  org.eclipse.ui.workbench.texteditor
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .

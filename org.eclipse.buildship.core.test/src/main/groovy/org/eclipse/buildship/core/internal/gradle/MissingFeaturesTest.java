@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -47,14 +47,14 @@ public class MissingFeaturesTest {
     public void someLimitationWhenUsingFinalVersionOf26() {
         MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.6"));
         List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
-        assertEquals(details.size(), 16);
+        assertEquals(details.size(), 17);
     }
 
     @Test
     public void someLimitationWhenUsingSnapshotVersionOf26() {
         MissingFeatures missingFeatures = new MissingFeatures(GradleVersion.version("2.6-20150101053008+0000"));
         List<Pair<GradleVersion, String>> details = missingFeatures.getMissingFeatures();
-        assertEquals(details.size(), 16);
+        assertEquals(details.size(), 17);
     }
 
 }

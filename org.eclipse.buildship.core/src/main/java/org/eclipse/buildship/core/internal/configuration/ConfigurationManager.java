@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.ui.IWorkingSet;
 
 import org.eclipse.buildship.core.GradleDistribution;
 
@@ -50,7 +49,7 @@ public interface ConfigurationManager {
 
     void deleteProjectConfiguration(IProject project);
 
-    CompositeConfiguration loadCompositeConfiguration(IWorkingSet workingSet);
+    CompositeConfiguration loadCompositeConfiguration(String workingSetName);
 
     void saveCompositeConfiguration(CompositeConfiguration compConf);
 

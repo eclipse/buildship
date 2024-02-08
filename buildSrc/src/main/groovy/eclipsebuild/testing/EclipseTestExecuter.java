@@ -11,26 +11,13 @@
 
 package eclipsebuild.testing;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-import eclipsebuild.Config;
 import eclipsebuild.Constants;
-import eclipsebuild.TestBundlePlugin;
+import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
+import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
 import org.gradle.api.GradleException;
-import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.internal.file.FileResolver;
+import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.internal.tasks.testing.*;
 import org.gradle.api.internal.tasks.testing.detection.TestFrameworkDetector;
 import org.gradle.api.internal.tasks.testing.processors.TestMainAction;
@@ -38,28 +25,28 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.TestOutputEvent;
-import org.gradle.initialization.DefaultBuildCancellationToken;
-import org.gradle.internal.concurrent.DefaultExecutorFactory;
 import org.gradle.internal.operations.BuildOperationExecutor;
 import org.gradle.internal.time.Time;
+import org.gradle.internal.work.WorkerLeaseService;
 import org.gradle.process.ExecResult;
-import org.gradle.process.internal.DefaultJavaExecAction;
+import org.gradle.process.internal.ExecFactory;
 import org.gradle.process.internal.JavaExecAction;
 
-import org.eclipse.jdt.internal.junit.model.ITestRunListener2;
-import org.eclipse.jdt.internal.junit.model.RemoteTestRunnerClient;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec> {
 
     private static final Logger LOGGER = Logging.getLogger(EclipseTestExecuter.class);
 
     private final Project project;
-    private final Config config;
     private final BuildOperationExecutor executor;
 
-    public EclipseTestExecuter(Project project, Config config, BuildOperationExecutor executor) {
+    public EclipseTestExecuter(Project project, BuildOperationExecutor executor) {
         this.project = project;
-        this.config = config;
         this.executor = executor;
     }
 
@@ -84,6 +71,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
             final int pdeTestPort) {
 
         Test testTask = ((EclipseTestExecutionSpec)testSpec).getTestTask();
+        Set<String> includePatterns = ((EclipseTestExecutionSpec)testSpec).getFilters();
 
         final Object testTaskOperationId = this.executor.getCurrentOperation().getParentId();
         final Object rootTestSuiteId = testTask.getPath();
@@ -102,18 +90,12 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         File equinoxLauncherFile = getEquinoxLauncherFile(testEclipseDir);
         LOGGER.info("equinox launcher file {}", equinoxLauncherFile);
 
-        final JavaExecAction javaExecHandleBuilder = new DefaultJavaExecAction(getFileResolver(testTask), new DefaultExecutorFactory().create("Exec process"), new DefaultBuildCancellationToken());
+        ExecFactory execFactory = ((ProjectInternal) project).getServices().get(ExecFactory.class);
+        WorkerLeaseService workerLeaseService = ((ProjectInternal) project).getServices().get(WorkerLeaseService.class);
+        final JavaExecAction javaExecHandleBuilder = execFactory.newJavaExecAction();
         javaExecHandleBuilder.setClasspath(this.project.files(equinoxLauncherFile));
-        javaExecHandleBuilder.setMain("org.eclipse.equinox.launcher.Main");
-
-        String javaHome = getExtension(testTask).getTestEclipseJavaHome();
-        File executable = new File(javaHome, "bin/java");
-        if (executable.exists()) {
-            javaExecHandleBuilder.setExecutable(executable);
-        } else {
-            LOGGER.warn("Java executable doesn't exist: " + executable.getAbsolutePath());
-        }
-
+        javaExecHandleBuilder.getMainClass().set("org.eclipse.equinox.launcher.Main");
+        javaExecHandleBuilder.setExecutable(testTask.getJavaLauncher().get().getExecutablePath().getAsFile());
         List<String> programArgs = new ArrayList<String>();
 
         programArgs.add("-os");
@@ -132,16 +114,20 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
             programArgs.add(optionsFile.getAbsolutePath());
         }
         programArgs.add("-version");
-        programArgs.add("4");
+        programArgs.add("5");
         programArgs.add("-port");
         programArgs.add(Integer.toString(pdeTestPort));
         programArgs.add("-testLoaderClass");
-        programArgs.add("org.eclipse.jdt.internal.junit4.runner.JUnit4TestLoader");
+        programArgs.add("org.eclipse.jdt.internal.junit5.runner.JUnit5TestLoader");
         programArgs.add("-loaderpluginname");
-        programArgs.add("org.eclipse.jdt.junit4.runtime");
+        programArgs.add("org.eclipse.jdt.junit5.runtime");
         programArgs.add("-classNames");
 
-        List testNames = new ArrayList(collectTestNames(testTask, testTaskOperationId, rootTestSuiteId));
+        List<String> testNames = new ArrayList(collectTestNames(testTask, testTaskOperationId, workerLeaseService));
+        if (!includePatterns.isEmpty()) {
+            Set<Pattern> patterns = includePatterns.stream().map( p -> Pattern.compile(".*" + p + ".*")).collect(Collectors.toSet());
+            testNames = testNames.stream().filter( testName -> matches(testName, patterns)).collect(Collectors.toList());
+        }
         Collections.sort(testNames);
         programArgs.addAll(testNames);
 
@@ -168,13 +154,16 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
 
         // TODO this should be specified when creating the task (to allow override in build script)
         List<String> jvmArgs = new ArrayList<String>();
-        jvmArgs.add("-XX:MaxPermSize=256m");
+        jvmArgs.addAll(testTask.getJvmArgs());
+        if (!testTask.getJavaLauncher().get().getMetadata().getLanguageVersion().canCompileOrRun(9)) {
+            jvmArgs.add("-XX:MaxPermSize=1024m");
+        }
         jvmArgs.add("-Xms40m");
-        jvmArgs.add("-Xmx1024m");
+        jvmArgs.add("-Xmx8192m");
 
         // Java 9 workaround from https://bugs.eclipse.org/bugs/show_bug.cgi?id=493761
         // TODO we should remove this option when it is not required by Eclipse
-        if (JavaVersion.current().isJava9Compatible()) {
+        if (testTask.getJavaLauncher().get().getMetadata().getLanguageVersion().canCompileOrRun(9)) {
             jvmArgs.add("--add-modules=ALL-SYSTEM");
         }
         // uncomment to debug spawned Eclipse instance
@@ -223,32 +212,27 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         });
         // TODO
         final String suiteName = this.project.getName();
-        Future<?> testCollectorJob = threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                EclipseTestListener pdeTestListener = new EclipseTestListener(testResultProcessor, suiteName, this, testTaskOperationId, rootTestSuiteId);
-                new RemoteTestRunnerClient().startListening(new ITestRunListener2[] { pdeTestListener }, pdeTestPort);
-                LOGGER.info("Listening on port " + pdeTestPort + " for test suite " + suiteName + " results ...");
-                synchronized (this) {
-                    try {
-                        wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        throw new RuntimeException(e);
-                    } finally {
-                        latch.countDown();
-                    }
-                }
-            }
-        });
+
+        EclipseTestListener pdeTestListener = new EclipseTestListener();
+        RemoteTestRunnerClient remoteTestRunnerClient = new RemoteTestRunnerClient();
+        remoteTestRunnerClient.startListening(new ITestRunListener2[] { pdeTestListener }, pdeTestPort);
+        LOGGER.info("Listening on port " + pdeTestPort + " for test suite " + suiteName + " results ...");
+
+        EclipseTestAdapter eclipseTestAdapter = new EclipseTestAdapter(pdeTestListener, new EclipseTestResultProcessor(testResultProcessor, suiteName, testTask, rootTestSuiteId, project.getLogger()));
+
+        if(!eclipseTestAdapter.processEvents()) {
+            throw new GradleException("Test execution failed");
+        }
+
         try {
-            latch.await(getExtension(testTask).getTestTimeoutSeconds(), TimeUnit.SECONDS);
-            // short chance to do cleanup
             eclipseJob.get(15, TimeUnit.SECONDS);
-            testCollectorJob.get(15, TimeUnit.SECONDS);
         } catch (Exception e) {
             throw new GradleException("Test execution failed", e);
         }
+    }
+
+    private boolean matches(String testName, Set<Pattern> patterns) {
+        return patterns.stream().anyMatch(pattern -> pattern.matcher(testName).matches());
     }
 
     private File getEquinoxLauncherFile(File testEclipseDir) {
@@ -261,11 +245,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
         return null;
     }
 
-    private FileResolver getFileResolver(Test testTask) {
-        return testTask.getProject().getPlugins().findPlugin(TestBundlePlugin.class).fileResolver;
-    }
-
-    private List<String> collectTestNames(Test testTask, Object testTaskOperationId, Object rootTestSuiteId) {
+    private List<String> collectTestNames(Test testTask, Object testTaskOperationId, WorkerLeaseService workerLeaseService) {
         ClassNameCollectingProcessor processor = new ClassNameCollectingProcessor();
         Runnable detector;
         final FileTree testClassFiles = testTask.getCandidateClassFiles();
@@ -278,7 +258,7 @@ public final class EclipseTestExecuter implements TestExecuter<TestExecutionSpec
             detector = new EclipsePluginTestClassScanner(testClassFiles, processor);
         }
 
-        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), Time.clock(), testTaskOperationId, rootTestSuiteId, String.format("Gradle Eclipse Test Run %s", testTask.getIdentityPath())).run();
+        new TestMainAction(detector, processor, new NoOpTestResultProcessor(), workerLeaseService, Time.clock(), testTaskOperationId, String.format("Gradle Eclipse Test Run %s", testTask.getIdentityPath())).run();
         LOGGER.info("collected test class names: {}", processor.classNames);
         return processor.classNames;
     }

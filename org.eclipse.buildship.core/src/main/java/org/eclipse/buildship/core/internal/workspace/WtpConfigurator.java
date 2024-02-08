@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -63,7 +63,7 @@ public class WtpConfigurator implements ProjectConfigurator {
         // TODO (donat) add required model declarations to the project configurator extension point
         GradleBuild gradleBuild = context.getGradleBuild();
         try {
-            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> EclipseModelUtils.queryModels(connection), monitor);
+            Collection<EclipseProject> rootModels = gradleBuild.withConnection(connection -> EclipseModelUtils.queryModels(connection).values(), monitor);
             this.locationToProject = rootModels.stream()
                 .flatMap(p -> HierarchicalElementUtils.getAll(p).stream())
                 .collect(Collectors.toMap(p -> p.getProjectDirectory(), p -> p));

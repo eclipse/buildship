@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -75,6 +75,9 @@ public final class CoreMessages extends NLS {
     public static String Preference_Label_ShowConsoleViewHover;
     public static String Preference_Label_ShowExecutionsViewHover;
     public static String Preference_Label_Root_Project;
+
+    public static String Preference_Label_ModulePath;
+    public static String Preference_Label_ModulePathHover;
 
     static {
         // initialize resource bundle

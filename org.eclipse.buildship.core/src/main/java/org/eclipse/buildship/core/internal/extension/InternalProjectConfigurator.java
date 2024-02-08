@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
 package org.eclipse.buildship.core.internal.extension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +90,11 @@ public final class InternalProjectConfigurator implements ProjectConfigurator, C
         filterDuplicateIds(configurators);
         filterInvalidDependencies(configurators);
         filterCylicDependencies(configurators);
-        return configurators.stream().map(c -> new InternalProjectConfigurator(c)).collect(Collectors.toList());
+
+        List<InternalProjectConfigurator> internalConfigurators = configurators.stream().map(c -> new InternalProjectConfigurator(c)).collect(Collectors.toList());
+        Collections.sort(internalConfigurators);
+
+        return internalConfigurators;
     }
 
     private static void filterInvalidConfigurators(List<ProjectConfiguratorContribution> configurators) {

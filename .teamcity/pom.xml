@@ -2,6 +2,11 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <name>Tooling_Buildship Config DSL Script</name>
+
+  <properties>
+    <kotlin.version>1.6.21</kotlin.version>
+  </properties>
+
   <groupId>Tooling_Buildship</groupId>
   <artifactId>Tooling_Buildship_dsl</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -15,7 +20,7 @@
   <repositories>
     <repository>
       <id>jetbrains-all</id>
-      <url>http://download.jetbrains.com/teamcity-repository</url>
+      <url>https://download.jetbrains.com/teamcity-repository</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
@@ -32,30 +37,32 @@
   <pluginRepositories>
     <pluginRepository>
       <id>JetBrains</id>
-      <url>http://download.jetbrains.com/teamcity-repository</url>
+      <url>https://download.jetbrains.com/teamcity-repository</url>
     </pluginRepository>
   </pluginRepositories>
 
   <build>
-    <sourceDirectory>.</sourceDirectory>
+    <sourceDirectory></sourceDirectory>
     <plugins>
       <plugin>
         <artifactId>kotlin-maven-plugin</artifactId>
         <groupId>org.jetbrains.kotlin</groupId>
         <version>${kotlin.version}</version>
 
-        <configuration/>
+        <configuration>
+          <jvmTarget>1.8</jvmTarget>
+        </configuration>
         <executions>
           <execution>
             <id>compile</id>
-            <phase>process-sources</phase>
+            <phase>compile</phase>
             <goals>
               <goal>compile</goal>
             </goals>
           </execution>
           <execution>
             <id>test-compile</id>
-            <phase>process-test-sources</phase>
+            <phase>test-compile</phase>
             <goals>
               <goal>test-compile</goal>
             </goals>
@@ -70,6 +77,26 @@
           <format>kotlin</format>
           <dstDir>target/generated-configs</dstDir>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>compile</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>testCompile</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -99,6 +126,12 @@
       <artifactId>kotlin-script-runtime</artifactId>
       <version>${kotlin.version}</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-test</artifactId>
+      <version>${kotlin.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

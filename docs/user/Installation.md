@@ -25,9 +25,10 @@ For manual installation use one of the update sites below.
 
 ### Update site with the latest release
 
-There's a separate update site that contains the latest Buildship release.
+There are separate update sites containing the latest Buildship versions:
 
-    https://download.eclipse.org/buildship/updates/latest/
+- latest relase: https://download.eclipse.org/buildship/updates/latest/
+- latest snapshot: https://download.eclipse.org/buildship/updates/latest-snapshot/
 
 This update site is built against the Eclipse version that was current at the time of the release.
 
@@ -35,6 +36,30 @@ This update site is built against the Eclipse version that was current at the ti
 
 Eclipse Version | Type      | Update Site
 --------------- | ----------| ------------
+2023-03         | snapshot  | `https://download.eclipse.org/buildship/updates/e427/snapshots/3.x`
+2023-03         | release   | `https://download.eclipse.org/buildship/updates/e427/releases/3.x`
+2022-12         | snapshot  | `https://download.eclipse.org/buildship/updates/e426/snapshots/3.x`
+2022-12         | release   | `https://download.eclipse.org/buildship/updates/e426/releases/3.x`
+2022-09         | snapshot  | `https://download.eclipse.org/buildship/updates/e425/snapshots/3.x`
+2022-09         | release   | `https://download.eclipse.org/buildship/updates/e425/releases/3.x`
+2022-06         | snapshot  | `https://download.eclipse.org/buildship/updates/e424/snapshots/3.x`
+2022-06         | release   | `https://download.eclipse.org/buildship/updates/e424/releases/3.x`
+2022-03         | snapshot  | `https://download.eclipse.org/buildship/updates/e423/snapshots/3.x`
+2022-03         | release   | `https://download.eclipse.org/buildship/updates/e423/releases/3.x`
+2021-12         | snapshot  | `https://download.eclipse.org/buildship/updates/e422/snapshots/3.x`
+2021-12         | release   | `https://download.eclipse.org/buildship/updates/e422/releases/3.x`
+2021-09         | snapshot  | `https://download.eclipse.org/buildship/updates/e421/snapshots/3.x`
+2021-09         | release   | `https://download.eclipse.org/buildship/updates/e421/releases/3.x`
+2021-06         | snapshot  | `https://download.eclipse.org/buildship/updates/e420/snapshots/3.x`
+2021-06         | release   | `https://download.eclipse.org/buildship/updates/e420/releases/3.x`
+2021-03         | snapshot  | `https://download.eclipse.org/buildship/updates/e419/snapshots/3.x`
+2021-03         | release   | `https://download.eclipse.org/buildship/updates/e419/releases/3.x`
+2020-12         | snapshot  | `https://download.eclipse.org/buildship/updates/e418/snapshots/3.x`
+2020-12         | release   | `https://download.eclipse.org/buildship/updates/e418/releases/3.x`
+2020-09         | snapshot  | `https://download.eclipse.org/buildship/updates/e417/snapshots/3.x`
+2020-09         | release   | `https://download.eclipse.org/buildship/updates/e417/releases/3.x`
+2020-06         | snapshot  | `https://download.eclipse.org/buildship/updates/e416/snapshots/3.x`
+2020-06         | release   | `https://download.eclipse.org/buildship/updates/e416/releases/3.x`
 2020-03         | snapshot  | `https://download.eclipse.org/buildship/updates/e415/snapshots/3.x`
 2020-03         | milestone | `https://download.eclipse.org/buildship/updates/e415/milestones/3.x`
 2020-03         | release   | `https://download.eclipse.org/buildship/updates/e415/releases/3.x`
@@ -59,21 +84,6 @@ Eclipse Version | Type      | Update Site
 Photon (4.8)    | snapshot  | `https://download.eclipse.org/buildship/updates/e48/snapshots/3.x`
 Photon (4.8)    | milestone | `https://download.eclipse.org/buildship/updates/e48/milestones/3.x`
 Photon (4.8)    | release   | `https://download.eclipse.org/buildship/updates/e48/releases/3.x`
-Oxygen (4.7)    | snapshot  | `https://download.eclipse.org/buildship/updates/e47/snapshots/3.x`
-Oxygen (4.7)    | milestone | `https://download.eclipse.org/buildship/updates/e47/milestones/3.x`
-Oxygen (4.7)    | release   | `https://download.eclipse.org/buildship/updates/e47/releases/3.x`
-Neon (4.6)      | snapshot  | `https://download.eclipse.org/buildship/updates/e46/snapshots/3.x`
-Neon (4.6)      | milestone | `https://download.eclipse.org/buildship/updates/e46/milestones/3.x`
-Neon (4.6)      | release   | `https://download.eclipse.org/buildship/updates/e46/releases/3.x`
-Mars (4.5)      | snapshot  | `https://download.eclipse.org/buildship/updates/e45/snapshots/3.x`
-Mars (4.5)      | milestone | `https://download.eclipse.org/buildship/updates/e45/milestones/3.x`
-Mars (4.5)      | release   | `https://download.eclipse.org/buildship/updates/e45/releases/3.x`
-Luna (4.4)      | snapshot  | `https://download.eclipse.org/buildship/updates/e44/snapshots/3.x`
-Luna (4.4)      | milestone | `https://download.eclipse.org/buildship/updates/e44/milestones/3.x`
-Luna (4.4)      | release   | `https://download.eclipse.org/buildship/updates/e44/releases/3.x`
-Kepler (4.3)    | snapshot  | `https://download.eclipse.org/buildship/updates/e43/snapshots/3.x`
-Kepler (4.3)    | milestone | `https://download.eclipse.org/buildship/updates/e43/milestones/3.x`
-Kepler (4.3)    | release   | `https://download.eclipse.org/buildship/updates/e43/releases/3.x`
 
 ### Update sites for Buildship 2.x
 
@@ -128,34 +138,6 @@ Apply the following instructions to install the latest snapshot or milestone of 
  1. Click _Next_. This may take a while.
  1. Review the list of software that will be installed. Click _Next_ again.
  1. Review and accept the licence agreement and click _Finish_.
-
-
-## Installing from builds.gradle.org update site
-
-We propose you install Buildship from eclipse.org. If, for any reason, you still want to install
-from [builds.gradle.org](https://builds.gradle.org/project.html?projectId=Tooling_Buildship&tab=projectOverview), the following snapshot update sites
-are available for all the supported Eclipse versions:
-  
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse48_Java8/.lastSuccessful/update-site` (latest 4.8 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse47_Java8/.lastSuccessful/update-site` (latest 4.7 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse46_Java8/.lastSuccessful/update-site` (latest 4.6 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse45_Java7/.lastSuccessful/update-site` (latest 4.5 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse44_Java7/.lastSuccessful/update-site` (latest 4.4 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse43_Java7/.lastSuccessful/update-site` (latest 4.3 development snapshot)
-  * `https://builds.gradle.org/repository/download/Tooling_Buildship_Full_Test_Coverage_Linux_Eclipse42_Java7/.lastSuccessful/update-site` (latest 4.2 development snapshot)
-
-Apply the following instructions to install the latest snapshot of Buildship into your version of Eclipse.
-
- 1. In Eclipse, open the menu item _Help >> Install New Software_.
- 1. Paste the update site link that matches your Eclipse version into the _Work with_ text box.
- 1. Click the _Add_ button at the top of the screen, give the update site a name, and press _OK_.
- 1. If prompted, set the following credentials: username=guest, password=guest.
- 1. Ensure that the option _Group Items by Category_ is enabled.
- 1. Select the top-level node _Buildship: Eclipse Plug-ins for Gradle_ once it appears.
- 1. Click _Next_. This may take a while.
- 1. Review the list of software that will be installed. Click _Next_ again.
- 1. Review and accept the licence agreement and click _Finish_.
-
 
 ## Updating from update site
 

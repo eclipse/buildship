@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace;
 
-import java.util.Collection;
+import java.util.Map;
 
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -43,12 +43,12 @@ public interface ModelProvider {
      * @param monitor the monitor to report the progress on
      * @return the returned models
      */
-    <T> Collection<T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor);
+    <T>  Map<String, T> fetchModels(Class<T> model, FetchStrategy strategy, CancellationTokenSource tokenSource, IProgressMonitor monitor);
 
     /**
      * Queries the {@link EclipseProject} model and executes the synchronization tasks in the same Tooling API query.
      *
      * @return the returned models
      */
-    Collection<EclipseProject> fetchEclipseProjectAndRunSyncTasks(CancellationTokenSource tokenSource, IProgressMonitor monitor);
+    Map<String, EclipseProject> fetchEclipseProjectAndRunSyncTasks(CancellationTokenSource tokenSource, IProgressMonitor monitor);
 }

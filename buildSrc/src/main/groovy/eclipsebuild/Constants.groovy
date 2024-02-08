@@ -11,8 +11,7 @@
 
 package eclipsebuild
 
-import org.gradle.api.Project;
-
+import org.gradle.api.Project
 import org.gradle.internal.os.OperatingSystem
 
 /**
@@ -61,8 +60,23 @@ class Constants {
      * @return the architecture: x86_64 or x86
      */
     static String getArch() {
-        System.getProperty("os.arch").contains("64") ? "x86_64" : "x86"
+        def arch = System.getProperty("os.arch")
+        if (arch == 'aarch64') {
+            return arch
+        }
+        return arch.contains("64") ? "x86_64" : "x86"
     }
+
+    /**
+     * Returns the eclipse-sdk dependency type specific for the current OS.
+     *
+     * @return the dependency type: 'tar.gz', 'zip', 'dmg', or null
+     */
+    static String getType() {
+        def os = OperatingSystem.current()
+        os.isLinux() ? 'tar.gz' : os.isWindows() ? 'zip' : os.isMacOsX() ? 'dmg' : null
+    }
+
 
     /**
      * Returns the group ID of the mavenized Eclipse plugins.
@@ -82,7 +96,7 @@ class Constants {
         OperatingSystem os = OperatingSystem.current()
         os.isLinux() ? "eclipse/eclipse" :
                 os.isWindows() ? "eclipse/eclipse.exe" :
-                os.isMacOsX() ? "eclipse/Eclipse.app/Contents/MacOS/eclipse" :
+                os.isMacOsX() ? "Eclipse.app/Contents/MacOS/eclipse" :
                 null
     }
 
@@ -92,27 +106,24 @@ class Constants {
      *
      * @return the URL from where the Eclipse SDK can be downloaded
      */
-    static String getEclipseSdkDownloadUrl() {
-        def classifier = "${getOs()}.${getArch()}"
-        switch (classifier) {
-            case "win32.x86":     return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-win32.zip'
-            case "win32.x86_64":  return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-win32-x86_64.zip'
-            case "linux.x86" :    return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-linux-gtk.tar.gz'
-            case "linux.x86_64":  return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-linux-gtk-x86_64.tar.gz'
-                case "macosx.x86_64": return 'https://repo.gradle.org/gradle/list/ext-releases-local/org/eclipse/eclipse-sdk/4.4.2/eclipse-SDK-4.4.2-macosx-cocoa-x86_64.tar.gz'
-            default: throw new RuntimeException("Unsupported platform: $classifier")
+
+    static String getEclipseSdkDownloadClassifier() {
+        def os = getOs()
+        if(os == 'win32') {
+            return 'win32-x86_64'
         }
+        return "$os-$ws-$arch"
     }
 
     static String getEclipseSdkDownloadSha256Hash() {
-        def classifier = "${getOs()}.${getArch()}"
+        def classifier = "$os.$arch"
         switch (classifier) {
-            case "win32.x86":     return '82f0f7239eb4b638557a439a2af9ba2d6b8c846243043615b16be159ec229da6'
-            case "win32.x86_64":  return 'f4db0f6cbc4e837362dd51daf7cc9662d89f6b37395f3632a19c1a6ddb6d62f3'
-            case "linux.x86" :    return '27124cc182dad0a2cba76aba95788e209776b17cf842df473eb143c8a5f44cc1'
-            case "linux.x86_64":  return '14a5f79fb9362993fb11ca616cde822bcfdd5daa20c3496c9d4ab91e3555003c'
-            case "macosx.x86_64": return 'e49cc9b6379a4eed7613f997b0b4c415f34bb858069a134f8ad46b1585761395'
-            default: throw new RuntimeException("Unsupported platform: $classifier")
+            case "win32.x86_64":   return '7ea771854d990556a8c0568fe20f115d7b15432fd14eec85cff7db589581b38b'
+            case "linux.aarch64" : return 'ec6c0a18d1d63d9dee385cb3423d5d7ed145cffde86b68fc5d69119f4c279656'
+            case "linux.x86_64":   return 'dfd0d753bc08b1dc6452934a9d83d3efea8f2760eb17b1bb509a8f7e1103186b'
+            case "macosx.x86_64":  return '7b7d1315528331141a024737e7af9e2d1b12505be813de14776cce7c88ae8832'
+            case "macosx.aarch64": return '22409543fed3086203445aa285f2658639f2b8b715e54cb57d00fc4c618bbff2'
+            default: throw new RuntimeException("Unsupported platform (SHA256): $classifier")
         }
     }
 

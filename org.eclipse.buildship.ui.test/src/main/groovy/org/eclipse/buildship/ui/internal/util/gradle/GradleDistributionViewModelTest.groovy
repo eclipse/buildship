@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,9 +10,9 @@
 package org.eclipse.buildship.ui.internal.util.gradle
 
 import org.junit.ClassRule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Shared
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import com.google.common.base.Strings
 
@@ -24,11 +24,11 @@ import org.eclipse.buildship.core.WrapperGradleDistribution
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel.Type
 
-class GradleDistributionViewModelTest extends Specification {
+abstract class GradleDistributionViewModelTest extends Specification {
 
-    @ClassRule
+    @TempDir
     @Shared
-    TemporaryFolder tempFolder
+    File tempFolder
 
     def "Validation passes for valid objects"(GradleDistributionViewModel.Type type, String configuration) {
         setup:
@@ -41,31 +41,31 @@ class GradleDistributionViewModelTest extends Specification {
         where:
         type                     | configuration
         Type.WRAPPER             | null
-        Type.LOCAL_INSTALLATION  | tempFolder.newFolder().absolutePath
+        Type.LOCAL_INSTALLATION  | tempFolder.absolutePath
         Type.REMOTE_DISTRIBUTION | 'http://remote.distribution'
         Type.VERSION             | '2.4'
     }
 
-    def "Validation fails for invalid objects"(GradleDistributionViewModel.Type type, String configuration) {
+    def "Validation fails for invalid objects"() {
         setup:
         GradleDistributionViewModel distributionViewModel = new GradleDistributionViewModel(type, configuration)
 
         expect:
         distributionViewModel.validate().present
-        distributionViewModel.type == type ? Optional.of(type) : Optional.empty()
+        distributionViewModel.type == expectedType
 
         where:
-        type                     | configuration
-        null                     | null
-        null                     | ''
-        Type.LOCAL_INSTALLATION  | null
-        Type.LOCAL_INSTALLATION  | ''
-        Type.LOCAL_INSTALLATION  | '/path/to/nonexisting/folder'
-        Type.REMOTE_DISTRIBUTION | null
-        Type.REMOTE_DISTRIBUTION | ''
-        Type.REMOTE_DISTRIBUTION | '[invalid-url]'
-        Type.VERSION             | null
-        Type.VERSION             | ''
+        type                     | configuration                 | expectedType
+        null                     | null                          | Optional.empty()
+        null                     | ''                            | Optional.empty()
+        Type.LOCAL_INSTALLATION  | null                          | Optional.of(Type.LOCAL_INSTALLATION)
+        Type.LOCAL_INSTALLATION  | ''                            | Optional.of(Type.LOCAL_INSTALLATION)
+        Type.LOCAL_INSTALLATION  | '/path/to/nonexisting/folder' | Optional.of(Type.LOCAL_INSTALLATION)
+        Type.REMOTE_DISTRIBUTION | null                          | Optional.of(Type.REMOTE_DISTRIBUTION)
+        Type.REMOTE_DISTRIBUTION | ''                            | Optional.of(Type.REMOTE_DISTRIBUTION)
+        Type.REMOTE_DISTRIBUTION | '[invalid-url]'               | Optional.of(Type.REMOTE_DISTRIBUTION)
+        Type.VERSION             | null                          | Optional.of(Type.VERSION)
+        Type.VERSION             | ''                            | Optional.of(Type.VERSION)
     }
 
     def "Can convert valid wrapper distribution info objects to Gradle distribution"() {
@@ -79,7 +79,7 @@ class GradleDistributionViewModelTest extends Specification {
 
     def "Can convert valid local distribution info objects to Gradle distribution"() {
         setup:
-        String location = tempFolder.newFolder().absolutePath
+        String location = tempFolder.absolutePath
         GradleDistributionViewModel distributionViewModel = new GradleDistributionViewModel(Type.LOCAL_INSTALLATION , location)
 
         expect:

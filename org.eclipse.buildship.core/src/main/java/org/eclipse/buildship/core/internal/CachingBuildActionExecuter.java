@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -214,5 +214,12 @@ public class CachingBuildActionExecuter<T> implements BuildActionExecuter<T> {
             inspectableResultHandler.getResult().ifPresent(r -> this.cache.put(key, r));
             inspectableResultHandler.forwardResults(handler);
         }
+    }
+
+    @Override
+    public BuildActionExecuter<T> withSystemProperties(Map<String, String> systemProperties) {
+        this.cacheKeyBuilder.withSystemPrperties(systemProperties);
+        this.delegate.withSystemProperties(systemProperties);
+        return this;
     }
 }

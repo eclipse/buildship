@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -59,6 +59,8 @@ public enum PluginImages implements PluginImage {
     OPERATION_SUCCESS(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_success.png")),
     OPERATION_SKIPPED(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_skipped.png")),
     OPERATION_FAILURE(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_failure.png")),
+    OPERATION_TEST_OUTPUT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_test_output.png")),
+    OPERATION_TEST_ERR_OUTPUT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/operation_test_err_output.png")),
     PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/project.png")),
     JAVA_PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/java_project.png")),
     FAULTY_PROJECT(ImmutableMap.of(ImageState.ENABLED, "icons/full/obj16/faulty_project.png")),

@@ -14,9 +14,10 @@
 
 package eclipsebuild.mavenize
 
+import org.osgi.framework.Constants
+
 import java.util.jar.JarFile
 import java.util.jar.Manifest
-import org.osgi.framework.Constants
 
 /**
  * Converts bundle manifest to POM.

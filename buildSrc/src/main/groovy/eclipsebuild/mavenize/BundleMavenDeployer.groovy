@@ -53,7 +53,7 @@ final class BundleMavenDeployer {
 
     collectArtifacts(pluginFolder)
     fixDependencies()
-    deployBundles(new DeployMavenAntTaskExecutor(ant, target))
+    deployBundles(new DeployMavenExecutor(ant, target))
   }
 
   private void collectArtifacts(artifactsSourceDir) {
@@ -143,7 +143,7 @@ final class BundleMavenDeployer {
     }
   }
 
-  private deployBundles(DeployMavenAntTaskExecutor executor) {
+  private deployBundles(DeployMavenExecutor executor) {
     logger.info('Deploying artifacts')
     try {
       artifacts.each { name, artifactVersions ->

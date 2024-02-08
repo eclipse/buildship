@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -29,8 +29,8 @@ public final class TaskDescriptionLabelProvider extends ColumnLabelProvider {
     public String getText(Object element) {
         if (element instanceof ProjectNode) {
             return getProjectTaskText((ProjectNode) element);
-        } else if (element instanceof FaultyProjectNode) {
-            return getFaultyProjectTaskText((FaultyProjectNode) element);
+        } else if (element instanceof FaultyBuildTreeNode) {
+            return getFaultyBuildTreeNodeText((FaultyBuildTreeNode) element);
         } else if (element instanceof ProjectTaskNode) {
             return getProjectTaskText((ProjectTaskNode) element);
         } else if (element instanceof TaskSelectorNode) {
@@ -46,8 +46,8 @@ public final class TaskDescriptionLabelProvider extends ColumnLabelProvider {
         return projectNode.getEclipseProject().getDescription();
     }
 
-    private String getFaultyProjectTaskText(FaultyProjectNode projectNode) {
-        return "";
+    private String getFaultyBuildTreeNodeText(FaultyBuildTreeNode faultyBuildTreeNode) {
+        return "Click the Refresh Tasks button to get the structure and the tasks for project at " + faultyBuildTreeNode.getProjectPath();
     }
 
     private String getTaskGroupText(TaskGroupNode taskGroup) {

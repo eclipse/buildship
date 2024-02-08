@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Language Server
+Bundle-SymbolicName: org.eclipse.buildship.gradleprop.ls;singleton:=true
+Bundle-Version: 1.0.0.qualifier

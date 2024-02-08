@@ -4,12 +4,12 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-SymbolicName: org.eclipse.buildship.oomph.edit;singleton:=true
 Automatic-Module-Name: org.eclipse.buildship.oomph.edit
-Bundle-Version: 3.1.5.qualifier
+Bundle-Version: 3.1.7.qualifier
 Bundle-ClassPath: .
 Bundle-Activator: org.eclipse.buildship.oomph.provider.GradleImportEditPlugin$Implementation
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;bundle-version="[2.10.0,3.0.0)",
  org.eclipse.emf.edit;bundle-version="[2.10.0,3.0.0)";visibility:=reexport,

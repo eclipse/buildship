@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -28,11 +29,9 @@ import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttribut
 import org.eclipse.buildship.core.internal.launch.GradleTestRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.ui.IWorkingSet;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -59,7 +58,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     public BuildConfiguration createBuildConfiguration(File rootProjectDirectory, boolean overrideWorkspaceSettings, GradleDistribution gradleDistribution, File gradleUserHome,
             File javaHome, boolean buildScansEnabled, boolean offlineMode, boolean autoSync, List<String> arguments, List<String> jvmArguments,
             boolean showConsoleView, boolean showExecutionsView) {
-        DefaultBuildConfigurationProperties persistentBuildConfigProperties = new DefaultBuildConfigurationProperties(rootProjectDirectory,
+        BuildConfigurationProperties persistentBuildConfigProperties = new BuildConfigurationProperties(rootProjectDirectory,
                                                                                                         gradleDistribution,
                                                                                                         gradleUserHome,
                                                                                                         javaHome,
@@ -76,11 +75,10 @@ public class DefaultConfigurationManager implements ConfigurationManager {
 
     @Override
     public BuildConfiguration loadBuildConfiguration(File rootDir) {
-        System.out.println(rootDir);
         Preconditions.checkNotNull(rootDir);
         Preconditions.checkArgument(rootDir.exists());
         Optional<IProject> projectCandidate = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
-        DefaultBuildConfigurationProperties buildConfigProperties;
+        BuildConfigurationProperties buildConfigProperties;
         if (projectCandidate.isPresent() && projectCandidate.get().isAccessible()) {
             IProject project = projectCandidate.get();
             try {
@@ -106,7 +104,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public void saveBuildConfiguration(BuildConfiguration configuration) {
         Preconditions.checkArgument(configuration instanceof DefaultBuildConfiguration, "Unknow configuration type: ", configuration.getClass());
-        DefaultBuildConfigurationProperties properties = ((DefaultBuildConfiguration)configuration).getProperties();
+        BuildConfigurationProperties properties = ((BuildConfiguration)configuration).getProperties();
         File rootDir = configuration.getRootProjectDirectory();
         Optional<IProject> rootProject = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
         if (rootProject.isPresent() && rootProject.get().isAccessible()) {
@@ -123,7 +121,17 @@ public class DefaultConfigurationManager implements ConfigurationManager {
 
     @Override
     public ProjectConfiguration loadProjectConfiguration(IProject project) {
-        String pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project.getLocation().toFile());
+        String pathToRoot = null;
+        if (project.isAccessible()) {
+            try {
+                pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project);
+            } catch (Exception e) {
+                // fallback to the file IO based preferences store.
+            }   
+        }
+        if (pathToRoot == null) {
+            pathToRoot = this.buildConfigurationPersistence.readPathToRoot(project.getLocation().toFile());
+        }
         File rootDir = relativePathToProjectRoot(project.getLocation(), pathToRoot);
         BuildConfiguration buildConfig = loadBuildConfiguration(rootDir);
         return new DefaultProjectConfiguration(project.getLocation().toFile(), buildConfig);
@@ -140,6 +148,18 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     private ProjectConfiguration loadProjectConfiguration(File projectDir) {
+        Preconditions.checkNotNull(projectDir);
+        Preconditions.checkArgument(projectDir.exists());
+        Optional<IProject> projectCandidate = CorePlugin.workspaceOperations().findProjectByLocation(projectDir);
+        if (projectCandidate.isPresent() && projectCandidate.get().isAccessible()) {
+            IProject project = projectCandidate.get();
+            try {
+                return loadProjectConfiguration(project);
+            } catch (Exception e) {
+                // fallback to the file IO based preferences store.
+            }
+        }
+
         String pathToRoot = this.buildConfigurationPersistence.readPathToRoot(projectDir);
         File rootDir = relativePathToProjectRoot(new Path(projectDir.getAbsolutePath()), pathToRoot);
         BuildConfiguration buildConfig = loadBuildConfiguration(rootDir);
@@ -171,20 +191,24 @@ public class DefaultConfigurationManager implements ConfigurationManager {
             this.buildConfigurationPersistence.deletePathToRoot(project.getLocation().toFile());
         }
     }
-
-    @Override
-    public CompositeConfiguration loadCompositeConfiguration(IWorkingSet workingSet) {
-        File compositePropertiesFile = CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(workingSet.getName()).toFile();
-        BuildConfiguration buildConfig = loadBuildConfigurationForComposite(compositePropertiesFile);
-        IAdaptable[] projectList = loadCompositeProjects(workingSet);
-        CompositePropertiesReader compositeReader = CompositeProperties.getCompositeReaderForFile(compositePropertiesFile);
-        boolean projectAsCompositeRoot = compositeReader.getProjectAsCompositeRoot();
-        File rootProject = compositeReader.getRootProject();
-        return new DefaultCompositeConfiguration(canonicalize(compositePropertiesFile), projectList, buildConfig, projectAsCompositeRoot, rootProject);
+    
+    private File getCompositePropertiesFile(String compositeName) {
+    	return CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(compositeName).toFile();
     }
 
-    private IAdaptable[] loadCompositeProjects(IWorkingSet workingSet) {
-        IAdaptable[] projects = workingSet.getElements();
+    @Override
+    public CompositeConfiguration loadCompositeConfiguration(String workingSetName) {
+        File compositePropertiesFile = getCompositePropertiesFile(workingSetName);
+        BuildConfiguration buildConfig = loadBuildConfigurationForComposite(compositePropertiesFile);
+        List<File> projectList = loadCompositeProjects(compositePropertiesFile);
+        CompositePropertiesReader compositeReader = CompositeProperties.getCompositeReaderForFile(workingSetName);
+        boolean projectAsCompositeRoot = compositeReader.getProjectAsCompositeRoot();
+        return new DefaultCompositeConfiguration(workingSetName, projectList, buildConfig, projectAsCompositeRoot);
+    }
+
+    private List<File> loadCompositeProjects(File compositePropertiesFile) {
+        List<File> projects = new ArrayList<File>();
+        //TODO (kuzniarz) add File read loop for project list creation
         //TODO (kuzniarz) implement load mechanism that reads external gradle projects from properties file. Needs a save mechanism first...
         return projects;
     }
@@ -192,7 +216,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     @Override
     public void saveCompositeConfiguration(CompositeConfiguration compConf) {
         try {
-            FileOutputStream out = new FileOutputStream(compConf.getCompositeDir());
+            FileOutputStream out = new FileOutputStream(getCompositePropertiesFile(compConf.getCompositeName()));
             Properties prop = CompositeProperties.forCompositeConfiguration(compConf).build().toProperties();
             prop.store(out, "");
         } catch (FileNotFoundException e) {
@@ -246,7 +270,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
             projectConfiguration = loadProjectConfiguration(attributes.getWorkingDir());
         } catch (Exception e) {
             CorePlugin.logger().trace(CoreTraceScopes.PREFERENCES, "Can't load build config from " + attributes.getWorkingDir(), e);
-            DefaultBuildConfigurationProperties buildConfigProperties = new DefaultBuildConfigurationProperties(
+            BuildConfigurationProperties buildConfigProperties = new BuildConfigurationProperties(
                     attributes.getWorkingDir(),
                     attributes.getGradleDistribution(),
                     attributes.getGradleUserHome(),

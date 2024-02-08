@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,12 +9,10 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.view.task;
 
-import java.io.File;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.gradle.tooling.model.GradleProject;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Optional;
@@ -28,9 +26,6 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.configuration.GradleProjectNature;
-import org.eclipse.buildship.core.internal.configuration.ProjectConfiguration;
-import org.eclipse.buildship.core.internal.util.gradle.Path;
 
 /**
  * Content provider for the {@link TaskView}.
@@ -58,80 +53,49 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         ImmutableList.Builder<Object> result = ImmutableList.builder();
         if (input instanceof TaskViewContent) {
             TaskViewContent taskViewContent = (TaskViewContent) input;
-            List<EclipseProject> projects = taskViewContent.getProjects();
-            List<IProject> faultyProjects = taskViewContent.getFaultyProjects();
-            result.addAll(createTopLevelProjectNodes(projects, faultyProjects));
+            result.addAll(createTopLevelProjectNodes(taskViewContent));
+            result.addAll(taskViewContent.getFaultyBuilds());
         }
         return result.build().toArray();
     }
 
-    private List<BaseProjectNode> createTopLevelProjectNodes(List<EclipseProject> projects, List<IProject> faultyProjects) {
+    private List<BaseProjectNode> createTopLevelProjectNodes(TaskViewContent taskViewContent) {
         // flatten the tree of Gradle projects to a list, similar
         // to how Eclipse projects look in the Eclipse Project explorer
         List<BaseProjectNode> allProjectNodes = Lists.newArrayList();
+        Collection<BuildNode> builds = taskViewContent.getBuilds();
+
         if (this.taskView.getState().isProjectHierarchyFlattened()) {
             // flatten the tree of Gradle projects to a list, similar
-            // to how Eclipse projects look in the Eclipse Project explorer
-            for (EclipseProject project : projects) {
-                GradleProject gradleProject = project.getGradleProject();
-                if (gradleProject.getParent() == null) {
-                    Map<Path, BuildInvocations> invocations = BuildInvocations.collectAll(gradleProject);
-                    collectProjectNodesRecursively(project, null, allProjectNodes, invocations);
-                }
+            // to how Eclipse projects look in the Project explorer
+            for (BuildNode build : builds) {
+                collectProjectNodesRecursively(build.getRootEclipseProject(), null, allProjectNodes, build);
             }
         } else {
             // put all subprojects into the parent project's folder, similar
             // to how a Java class look in the Eclipse Type Hierarchy
-            for (EclipseProject project : projects) {
-                if (project.getParent() == null) {
-                    GradleProject gradleProject = project.getGradleProject();
-                    Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(project.getName());
-                    Map<Path, BuildInvocations> invocations = BuildInvocations.collectAll(gradleProject);
-                    allProjectNodes.add(new ProjectNode(null, project, gradleProject, workspaceProject, isIncludedProject(workspaceProject, project), invocations,
-                            Path.from(gradleProject.getPath())));
-                }
+            for (BuildNode build : builds) {
+                EclipseProject rootEclipseProject = build.getRootEclipseProject();
+                Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(rootEclipseProject.getName());
+                allProjectNodes.add(new ProjectNode(null, build, workspaceProject, rootEclipseProject));
             }
-        }
-
-        for (IProject faultyProject : faultyProjects) {
-            allProjectNodes.add(new FaultyProjectNode(faultyProject));
         }
 
         return allProjectNodes;
     }
 
-    private void collectProjectNodesRecursively(EclipseProject eclipseProject, ProjectNode parentProjectNode, List<BaseProjectNode> allProjectNodes,
-            Map<Path, BuildInvocations> invocationsContainer) {
-        GradleProject gradleProject = eclipseProject.getGradleProject();
-
+    private void collectProjectNodesRecursively(EclipseProject eclipseProject, ProjectNode parentProjectNode, List<BaseProjectNode> acc, BuildNode buildNode) {
         // find the corresponding Eclipse project in the workspace
         // (find by location rather than by name since the Eclipse project name does not always
         // correspond to the Gradle project name)
         Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(eclipseProject.getName());
 
         // create a new node for the given Eclipse project and then recurse into the children
-        ProjectNode projectNode = new ProjectNode(parentProjectNode, eclipseProject, gradleProject, workspaceProject, isIncludedProject(workspaceProject, eclipseProject),
-                invocationsContainer, Path.from(gradleProject.getPath()));
-        allProjectNodes.add(projectNode);
+        ProjectNode projectNode = new ProjectNode(parentProjectNode, buildNode, workspaceProject, eclipseProject);
+        acc.add(projectNode);
         for (EclipseProject childProject : eclipseProject.getChildren()) {
-            collectProjectNodesRecursively(childProject, projectNode, allProjectNodes, invocationsContainer);
+            collectProjectNodesRecursively(childProject, projectNode, acc, buildNode);
         }
-    }
-
-    private static boolean isIncludedProject(Optional<IProject> workspaceProject, EclipseProject modelProject) {
-        if (!workspaceProject.isPresent()) {
-            return false;
-        }
-
-        IProject project = workspaceProject.get();
-        if (!GradleProjectNature.isPresentOn(project)) {
-            return false;
-        }
-
-        ProjectConfiguration projectConfig = CorePlugin.configurationManager().loadProjectConfiguration(project);
-        File configRootDir = projectConfig.getBuildConfiguration().getRootProjectDirectory();
-        File modelRootDir = modelProject.getProjectIdentifier().getBuildIdentifier().getRootDir();
-        return !modelRootDir.equals(configRootDir);
     }
 
     @Override
@@ -171,10 +135,8 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
         EclipseProject eclipseProject = projectNode.getEclipseProject();
 
         for (EclipseProject childProject : eclipseProject.getChildren()) {
-            GradleProject gradleProject = childProject.getGradleProject();
-            Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByName(childProject.getName());
-
-            ProjectNode childProjectNode = new ProjectNode(projectNode, childProject, gradleProject, workspaceProject, isIncludedProject(workspaceProject, eclipseProject), projectNode.getAllBuildInvocations(), Path.from(gradleProject.getPath()));
+            Optional<IProject> workspaceProject = CorePlugin.workspaceOperations().findProjectByLocation(childProject.getProjectDirectory());
+            ProjectNode childProjectNode = new ProjectNode(projectNode, projectNode.getBuildNode(), workspaceProject, childProject);
             result.add(childProjectNode);
         }
         return result;
@@ -194,13 +156,21 @@ public final class TaskViewContentProvider implements ITreeContentProvider {
 
     public static List<TaskNode> taskNodesFor(ProjectNode projectNode) {
         List<TaskNode> taskNodes = Lists.newArrayList();
+
         for (ProjectTask projectTask : projectNode.getInvocations().getProjectTasks()) {
             taskNodes.add(new ProjectTaskNode(projectNode, projectTask));
         }
-        for (TaskSelector taskSelector : projectNode.getInvocations().getTaskSelectors()) {
-            taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
+
+        if (shouldContainTaskSelectors(projectNode)) {
+            for (TaskSelector taskSelector : projectNode.getInvocations().getTaskSelectors()) {
+                taskNodes.add(new TaskSelectorNode(projectNode, taskSelector));
+            }
         }
         return taskNodes;
+    }
+
+    private static boolean shouldContainTaskSelectors(ProjectNode projectNode) {
+        return !projectNode.getBuildNode().isIncludedBuild();
     }
 
     private Object[] childrenOf(TaskGroupNode groupNode) {

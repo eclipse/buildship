@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,7 @@ import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Map;
 
 import org.gradle.api.Action;
 import org.gradle.tooling.BuildAction;
@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.Platform;
 
 import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.workspace.CompositeModelQuery;
-import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider;
+import org.eclipse.buildship.core.internal.workspace.TellGradleToRunAutoSyncTasks;
 
 /**
  * When Buildship is launched from the IDE - as an Eclipse application or as a plug-in
@@ -43,13 +43,13 @@ public class IdeFriendlyClassLoading {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T, U> BuildAction<Collection<T>> loadCompositeModelQuery(Class<T> model, Class<U> parameterType, Action<? super U> parameter) {
-        return (BuildAction<Collection<T>>) loadClass(CompositeModelQuery.class, new Object[] { model, parameterType, parameter });
+    public static <T, U> BuildAction<Map<String, T>>loadCompositeModelQuery(Class<T> model, Class<U> parameterType, Action<? super U> parameter) {
+        return (BuildAction<Map<String, T>>) loadClass(CompositeModelQuery.class, new Object[] { model, parameterType, parameter });
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> BuildAction<Collection<T>> loadCompositeModelQuery(Class<T> model) {
-        return (BuildAction<Collection<T>>) loadClass(CompositeModelQuery.class, model );
+    public static <T> BuildAction<Map<String, T>> loadCompositeModelQuery(Class<T> model) {
+        return (BuildAction<Map<String, T>>) loadClass(CompositeModelQuery.class, model );
     }
 
     @SuppressWarnings("unchecked")
@@ -124,9 +124,9 @@ public class IdeFriendlyClassLoading {
     }
 
     private static final Class<?> loadClassWithIdeFriendlyClassLoader(String classname) throws Exception {
-        ClassLoader coreClassloader = DefaultModelProvider.class.getClassLoader();
+        ClassLoader compatClassloader = TellGradleToRunAutoSyncTasks.class.getClassLoader();
         ClassLoader tapiClassloader = ProjectConnection.class.getClassLoader();
-        URL actionRootUrl = FileLocator.resolve(coreClassloader.getResource(""));
+        URL actionRootUrl = FileLocator.resolve(compatClassloader.getResource(""));
 
         if (classLoader == null) {
             classLoader = new URLClassLoader(new URL[] { actionRootUrl }, tapiClassloader);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,9 @@
 package org.eclipse.buildship.ui.internal.view.task
 
 import org.eclipse.core.resources.IResource
+import org.eclipse.core.resources.ProjectScope
 import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.preferences.IEclipsePreferences
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem
 
 import org.eclipse.buildship.core.internal.CorePlugin
@@ -116,17 +118,16 @@ class TaskViewContentTest extends BaseTaskViewTest {
         waitFor { taskTree.b }
     }
 
-    def "If one project has invalid configuration then tasks from other projects are still visible"(String config) {
+    def "If one project has invalid configuration then tasks from other projects are still visible"() {
         given:
         def first = dir("a") { file 'build.gradle' }
         def second = dir("b") { file 'build.gradle' }
         importAndWait(first)
         importAndWait(second)
-        fileTree(first) {
-            dir('.settings') {
-                file("${CorePlugin.PLUGIN_ID}.prefs").text = config
-            }
-        }
+        IEclipsePreferences preferences = new ProjectScope(findProject('a')).getNode(CorePlugin.PLUGIN_ID)
+        preferences.put('connection.project.dir', 'invalid')
+        preferences.flush()
+
         findProject('a').refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor())
 
         when:
@@ -135,9 +136,6 @@ class TaskViewContentTest extends BaseTaskViewTest {
         then:
         waitFor { !taskTree.a }
         waitFor { taskTree.b }
-
-        where:
-        config << ['', 'connection.project.dir=invalid']
     }
 
     def "The task view is refreshed when projects are added/deleted"() {

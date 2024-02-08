@@ -96,8 +96,8 @@ public class ExternalProjectDialogSelectionListener extends SelectionAdapter {
     }
 
     private File getGradleSettings(String projectDir) {
-        File groovyFile = new File(projectDir + "\\settings.gradle");
-        File kotlinFile = new File(projectDir + "\\settings.gradle.kts");
+        File groovyFile = new File(projectDir + "/settings.gradle");
+        File kotlinFile = new File(projectDir + "/settings.gradle.kts");
         if (groovyFile.exists()) {
             return groovyFile;
         } else if (kotlinFile.exists()) {

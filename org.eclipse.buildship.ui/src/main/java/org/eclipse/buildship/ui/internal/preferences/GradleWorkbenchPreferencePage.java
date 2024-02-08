@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,6 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.preference.PreferencePage;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
@@ -25,7 +24,6 @@ import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration;
 import org.eclipse.buildship.core.internal.i18n.CoreMessages;
 import org.eclipse.buildship.core.internal.util.binding.Validator;
 import org.eclipse.buildship.core.internal.util.binding.Validators;
-import org.eclipse.buildship.ui.internal.util.font.FontUtils;
 import org.eclipse.buildship.ui.internal.util.gradle.GradleDistributionViewModel;
 import org.eclipse.buildship.ui.internal.util.widget.AdvancedOptionsGroup;
 import org.eclipse.buildship.ui.internal.util.widget.GradleProjectSettingsComposite;
@@ -38,16 +36,15 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
 
     public static final String PAGE_ID = "org.eclipse.buildship.ui.preferences";
 
-    private final Font defaultFont;
     private final Validator<File> gradleUserHomeValidator;
     private final Validator<File> javaHomeValidator;
     private final Validator<GradleDistributionViewModel> distributionValidator;
 
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
+    private boolean experimentalModuleSupportEnabled;
 
 
     public GradleWorkbenchPreferencePage() {
-        this.defaultFont = FontUtils.getDefaultDialogFont();
         this.gradleUserHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Gradle_User_Home);
         this.javaHomeValidator = Validators.optionalDirectoryValidator(CoreMessages.Preference_Label_Java_Home);
         this.distributionValidator = GradleDistributionViewModel.validator();
@@ -78,6 +75,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         this.gradleProjectSettingsComposite.getAutoSyncCheckbox().setSelection(config.isAutoSync());
         this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().setSelection(config.isShowConsoleView());
         this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(config.isShowExecutionsView());
+        this.experimentalModuleSupportEnabled = config.isExperimentalModuleSupportEnabled();
     }
 
     private void addListeners() {
@@ -101,7 +99,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         List<String> jvmArguments = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments();
         boolean showConsoleView = this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection();
         boolean showExecutionsView = this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection();
-        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView);
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView, this.experimentalModuleSupportEnabled);
         CorePlugin.configurationManager().saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }
@@ -112,12 +110,6 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJavaHomeText().setText("");
         this.gradleProjectSettingsComposite.getGradleDistributionGroup().setDistribution(GradleDistributionViewModel.from(GradleDistribution.fromBuild()));
         super.performDefaults();
-    }
-
-    @Override
-    public void dispose() {
-        this.defaultFont.dispose();
-        super.dispose();
     }
 
     @Override

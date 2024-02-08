@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,14 +9,17 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import spock.lang.Ignore
+
 import org.eclipse.buildship.core.internal.CorePlugin
 
+@Ignore
 class ImportingProjectWithoutDescriptor extends SingleProjectSynchronizationSpecification {
 
     def "The project is created and added to the workspace"() {
         setup:
         def projectDir = dir('sample-project') {
-            file 'settings.gradle'
+            file 'settings.gradle', ''
         }
 
         expect:

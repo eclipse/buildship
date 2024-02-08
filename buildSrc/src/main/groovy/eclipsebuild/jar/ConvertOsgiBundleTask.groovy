@@ -5,54 +5,60 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 
-class ConvertOsgiBundleTask extends DefaultTask {
+abstract class ConvertOsgiBundleTask extends DefaultTask {
 
     @Input
-    Property<String> bundleName
+    abstract Property<String> getBundleName()
 
     @Input
-    Property<String> bundleVersion
+    abstract Property<String> getBundleVersion()
 
     @Input
-    Property<String> packageFilter
+    abstract Property<String> getPackageFilter()
 
     @Input
-    Property<String> qualifier
+    abstract Property<String> getQualifier()
 
     @Input
-    Property<String> template
+    abstract Property<String> getTemplate()
 
-    @Input
-    Configuration pluginConfiguration
+    @Classpath
+    abstract Property<Configuration> getPluginConfiguration()
 
-    @Input
-    ConfigurableFileCollection resources
+    @InputFiles
+    abstract ConfigurableFileCollection getResources()
 
     @OutputDirectory
-    File target
+    abstract DirectoryProperty getOutputDirectory()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputSourceDirectory()
 
     @TaskAction
     void convertOsgiBundle() {
-        createNewBundle(project, JarBundleUtils.firstDependencyJar(pluginConfiguration))
+        createNewBundle(project, JarBundleUtils.firstDependencyJar(pluginConfiguration.get()), JarBundleUtils.firstDependencySourceJar(project, pluginConfiguration.get()))
     }
 
-    void createNewBundle(Project project, File jar) {
+    void createNewBundle(Project project, File dependencyJar, File dependencySourceJar) {
+        println dependencySourceJar.absolutePath
         String sourceReference = PluginUtils.sourceReference(project)
-        String manifest = JarBundleUtils.manifestContent(jar, template.get(), packageFilter.get(), bundleVersion.get(), qualifier.get(), sourceReference)
+        File jarTaskOutput = project.tasks['jar'].outputs.files.asFileTree.files.first()
+        String manifest = JarBundleUtils.manifestContent([dependencyJar] + jarTaskOutput, template.get(), packageFilter.get(), bundleVersion.get(), qualifier.get(), sourceReference)
 
         File extraResources = project.file("${project.buildDir}/tmp/bundle-resources")
         File manifestFile = new File(extraResources, '/META-INF/MANIFEST.MF')
         manifestFile.parentFile.mkdirs()
         manifestFile.text = manifest
 
-        File osgiJar = new File(target, "osgi_${jar.name}")
+        // binary jar
+        File osgiJar = new File(outputDirectory.get().asFile, "osgi_${project.name}.jar")
         project.ant.zip(destfile: osgiJar) {
-            zipfileset(src: jar, excludes: 'META-INF/MANIFEST.MF')
+            zipfileset(src: jarTaskOutput, excludes: 'META-INF/MANIFEST.MF')
+            zipfileset(src: dependencyJar, excludes: 'META-INF/MANIFEST.MF')
         }
 
         project.ant.zip(update: 'true', destfile: osgiJar) {
@@ -61,6 +67,28 @@ class ConvertOsgiBundleTask extends DefaultTask {
 
         resources.files.each { File resource ->
             project.ant.zip(update: 'true', destfile: osgiJar) {
+                fileset(dir: resource)
+            }
+        }
+
+        // source jar
+        File osgiSourceJar = new File(outputSourceDirectory.get().asFile, "osgi_${project.name}.source.jar")
+        project.ant.zip(destfile: osgiSourceJar) {
+            project.sourceSets.main.allSource.srcDirs.forEach { File srcDir ->
+                println srcDir
+                if (srcDir.exists()) {
+                    fileset(dir: srcDir.absolutePath, excludes: 'META-INF/MANIFEST.MF')
+                }
+            }
+            zipfileset(src: dependencySourceJar, excludes: 'META-INF/MANIFEST.MF')
+        }
+
+        project.ant.zip(update: 'true', destfile: osgiSourceJar) {
+            fileset(dir: extraResources)
+        }
+
+        resources.files.each { File resource ->
+            project.ant.zip(update: 'true', destfile: osgiSourceJar) {
                 fileset(dir: resource)
             }
         }

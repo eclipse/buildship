@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -60,6 +60,7 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
                     }
                 }
             '''
+            file 'settings.gradle', ''
         }
 
         when:
@@ -104,7 +105,7 @@ class ImportingProjectWithCustomName extends ProjectSynchronizationSpecification
                 file 'build.gradle', '''
                     apply plugin: 'java'
                     dependencies {
-                        compile project(':b')
+                        implementation project(':b')
                     }
                 '''
             }

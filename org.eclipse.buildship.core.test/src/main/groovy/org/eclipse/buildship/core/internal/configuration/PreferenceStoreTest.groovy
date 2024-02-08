@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -26,7 +26,8 @@ class PreferenceStoreTest extends WorkspaceSpecification {
             projectPrefs.write(it, "${it}v")
             filePrefs.write(it, "${it}v")
         }
-        String expectedContent = ['a=av', 'b=bv', 'c=cv', 'eclipse.preferences.version=1'].join(System.lineSeparator) + System.lineSeparator
+        def separator = System.getProperty('line.separator', '/')
+        String expectedContent = ['a=av', 'b=bv', 'c=cv', 'eclipse.preferences.version=1'].join(separator) + separator
 
         when:
         projectPrefs.flush()

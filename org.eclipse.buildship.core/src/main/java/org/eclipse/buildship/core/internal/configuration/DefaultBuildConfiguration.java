@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -24,10 +24,10 @@ import org.eclipse.buildship.core.GradleDistribution;
 // TODO (donat) remove public modifier
 public final class DefaultBuildConfiguration implements BuildConfiguration {
 
-    private final DefaultBuildConfigurationProperties properties;
+    private final BuildConfigurationProperties properties;
     private final WorkspaceConfiguration workspaceConfiguration;
 
-    public DefaultBuildConfiguration(DefaultBuildConfigurationProperties persistentProperties, WorkspaceConfiguration workspaceConfiguration) {
+    public DefaultBuildConfiguration(BuildConfigurationProperties persistentProperties, WorkspaceConfiguration workspaceConfiguration) {
         this.properties = persistentProperties;
         this.workspaceConfiguration = workspaceConfiguration;
     }
@@ -144,7 +144,8 @@ public final class DefaultBuildConfiguration implements BuildConfiguration {
                 this.workspaceConfiguration);
     }
 
-    public DefaultBuildConfigurationProperties getProperties() {
+    @Override
+    public BuildConfigurationProperties getProperties() {
         return this.properties;
     }
 

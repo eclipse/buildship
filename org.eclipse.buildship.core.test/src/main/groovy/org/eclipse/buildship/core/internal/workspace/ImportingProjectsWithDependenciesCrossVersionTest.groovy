@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -9,20 +9,22 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
+import org.gradle.api.JavaVersion
+import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 import org.eclipse.jdt.core.IClasspathEntry
-import org.eclipse.jdt.core.IJavaProject
 
-import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
+import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
 
 class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchronizationSpecification {
 
-    File projectDir
-
-    def setup() {
-        projectDir = dir('multi-project-build') {
+    def sampleProject(GradleDistribution distribution) {
+        GradleVersion version = GradleVersion.version(distribution.version)
+        def configuration = version <= GradleVersion.version("6.8.2") ? "compile" : "implementation"
+        dir('multi-project-build') {
             file 'settings.gradle', '''
                 rootProject.name = 'root'
                 include 'api'
@@ -38,29 +40,29 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
             """
 
             dir('api') {
-                file 'build.gradle', '''
+                file 'build.gradle', """
                     dependencies {
-                        compile 'com.google.guava:guava:18.0'
+                        $configuration 'com.google.guava:guava:18.0'
                     }
-                '''
+                """
                 dir('src/main/java')
             }
             dir('impl') {
-                file 'build.gradle', '''
+                file 'build.gradle', """
                     dependencies {
-                        compile project(':api')
-                        compile 'log4j:log4j:1.2.17'
+                        $configuration project(':api')
+                        $configuration 'log4j:log4j:1.2.17'
                     }
-                '''
+                """
                 dir('src/main/java')
             }
         }
     }
 
     @Unroll
-    def "Dependencies are not exported for #distribution.configuration"(GradleDistribution distribution) {
+    def "Dependencies are not exported for #distribution.version"(GradleDistribution distribution) {
         when:
-        importAndWait(projectDir, distribution)
+        importAndWait(sampleProject(distribution), distribution)
 
         then:
         !apiProjectDependency.exported
@@ -71,9 +73,9 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
     }
 
     @Unroll
-    def "Dependenies have no access rules for #distribution.configuration"(GradleDistribution distribution) {
+    def "Dependenies have no access rules for #distribution.version"(GradleDistribution distribution) {
         when:
-        importAndWait(projectDir, distribution)
+        importAndWait(sampleProject(distribution), distribution)
 
         then:
         apiProjectDependency.accessRules == []
@@ -84,9 +86,9 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
     }
 
     @Unroll
-    def "Binary dependencies can define javadoc location for #distribution.configuration"(GradleDistribution distribution) {
+    def "Binary dependencies can define javadoc location for #distribution.version"(GradleDistribution distribution) {
         when:
-        importAndWait(projectDir, distribution)
+        importAndWait(sampleProject(distribution), distribution)
 
         then:
         guavaDependency.sourceAttachmentPath != null
@@ -96,9 +98,9 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
         distribution << supportedGradleDistributions
     }
 
-    def "Binary dependencies define classpath scopes for #distribution.configuration"(GradleDistribution distribution) {
+    def "Binary dependencies define classpath scopes for #distribution.version"(GradleDistribution distribution) {
         when:
-        importAndWait(projectDir, distribution)
+        importAndWait(sampleProject(distribution), distribution)
 
         then:
         guavaDependency.extraAttributes.size() == 1
@@ -109,9 +111,10 @@ class ImportingProjectsWithDependenciesCrossVersionTest extends ProjectSynchroni
         distribution << getSupportedGradleDistributions('>=4.4')
     }
 
-    def "Binary dependencies does not define classpath scopes for #distribution.configuration"(GradleDistribution distribution) {
+    @IgnoreIf({ JavaVersion.current().isJava10Compatible() }) // no Gradle versions <4.4 support Java 10 and above
+    def "Binary dependencies does not define classpath scopes for #distribution.version"(GradleDistribution distribution) {
         when:
-        importAndWait(projectDir, distribution)
+        importAndWait(sampleProject(distribution), distribution, new File(System.getProperty("jdk8.location")))
 
         then:
         guavaDependency.extraAttributes.length == 0

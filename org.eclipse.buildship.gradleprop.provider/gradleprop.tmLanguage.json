@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "gradleprop",
+  "scopeName": "source.gradleprop",
+  "fileTypes": ["properties"],
+  "patterns": [
+    {
+      "name": "value",
+      "match": "=\\s*([^\\s=]+)",
+      "captures": {
+        "1": {
+          "name": "constant.numeric.value"
+        }
+      }
+    },
+    {
+      "name": "gradle_property",
+      "match": "([\\w.]+)(?=\\s*=)",
+      "captures": {
+        "1": {
+          "name": "constant.numeric.value"
+        },
+        "2": {
+          "name": "constant.numeric.value"
+        }
+      }
+    }
+  ]
+}

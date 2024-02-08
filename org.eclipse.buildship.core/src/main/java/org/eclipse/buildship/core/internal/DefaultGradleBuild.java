@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -10,9 +10,9 @@
 package org.eclipse.buildship.core.internal;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +23,7 @@ import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.TestLauncher;
+import org.gradle.tooling.model.build.BuildEnvironment;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.google.common.base.Preconditions;
@@ -53,6 +54,7 @@ import org.eclipse.buildship.core.internal.util.gradle.HierarchicalElementUtils;
 import org.eclipse.buildship.core.internal.util.gradle.IdeAttachedProjectConnection;
 import org.eclipse.buildship.core.internal.workspace.ConnectionAwareLauncherProxy;
 import org.eclipse.buildship.core.internal.workspace.DefaultModelProvider;
+import org.eclipse.buildship.core.internal.workspace.FetchStrategy;
 import org.eclipse.buildship.core.internal.workspace.ImportRootProjectOperation;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 import org.eclipse.buildship.core.internal.workspace.ModelProvider;
@@ -64,16 +66,14 @@ import org.eclipse.buildship.core.internal.workspace.SynchronizeGradleBuildOpera
 import org.eclipse.buildship.core.internal.workspace.ValidateProjectLocationOperation;
 
 public final class DefaultGradleBuild implements InternalGradleBuild {
-
     private static Map<File, SynchronizeOperation> syncOperations = new ConcurrentHashMap<>();
-
-    private final org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfig;
 
     // TODO (donat) Now, we have two caches: one for the project configurators and that lives within
     // a synchronization (projectConnectionCache field) and one that lives forever (modelProvider).
     // We should revisit this at some point and unify them.
     private final ModelProvider modelProvider;
     private final Cache<Object, Object> projectConnectionCache;
+    private final org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfig;
 
     public DefaultGradleBuild(org.eclipse.buildship.core.internal.configuration.BuildConfiguration buildConfiguration) {
         this.buildConfig = buildConfiguration;
@@ -87,6 +87,11 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
     }
 
     public SynchronizationResult synchronize(NewProjectHandler newProjectHandler, CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        IStatus toolingApiCompatibilityStatus = CompatibilityChecker.validateToolingApiCompatibility(this, this.buildConfig, monitor);
+        if (!toolingApiCompatibilityStatus.isOK()) {
+            return DefaultSynchronizationResult.from(toolingApiCompatibilityStatus);
+        }
+
         monitor = monitor != null ? monitor : new NullProgressMonitor();
 
         SynchronizeOperation operation = new SynchronizeOperation(this, newProjectHandler);
@@ -220,9 +225,12 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
             try {
-                SubMonitor progress = SubMonitor.convert(monitor, 5);
+                SubMonitor progress = SubMonitor.convert(monitor, 6);
                 progress.setTaskName((String.format("Synchronizing Gradle build at %s with workspace", this.gradleBuild.getBuildConfig().getRootProjectDirectory())));
                 new ImportRootProjectOperation(this.gradleBuild.getBuildConfig(), this.newProjectHandler).run(progress.newChild(1));
+                // Force caching the result
+                // Note, that this is a TAPI client-side operation and does not trigger configuration
+                this.gradleBuild.modelProvider.fetchModel(BuildEnvironment.class, FetchStrategy.FORCE_RELOAD, tokenSource, progress.newChild(1));
                 Set<EclipseProject> allProjects = collectAll(this.gradleBuild.modelProvider.fetchEclipseProjectAndRunSyncTasks(tokenSource, progress.newChild(1)));
                 new ValidateProjectLocationOperation(allProjects).run(progress.newChild(1));
                 new RunOnImportTasksOperation(allProjects, this.gradleBuild.getBuildConfig()).run(progress.newChild(1), tokenSource);
@@ -259,10 +267,10 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         }
     }
 
-    private static Set<EclipseProject> collectAll(Collection<EclipseProject> models) {
+    private static Set<EclipseProject> collectAll(Map<String, EclipseProject> models) {
         ImmutableSet.Builder<EclipseProject> result = ImmutableSet.builder();
-        for (EclipseProject model : models) {
-            result.addAll(HierarchicalElementUtils.getAll(model));
+        for (Entry<String, EclipseProject> model : models.entrySet()) {
+            result.addAll(HierarchicalElementUtils.getAll(model.getValue()));
         }
         return result.build();
     }

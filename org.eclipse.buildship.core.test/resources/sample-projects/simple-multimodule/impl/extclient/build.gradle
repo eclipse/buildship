@@ -1,5 +1,5 @@
 apply plugin: 'java'
 
 dependencies {
-    compile project(":impl:client")
+    implementation project(":impl:client")
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -26,9 +26,9 @@ import org.eclipse.buildship.core.GradleDistribution
 @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
 class ReexportedDependencySpecification extends ProjectSynchronizationSpecification {
 
-    def "Transitive dependencies are acessible from local project classpath when using Gradle 2.5+"(GradleDistribution distribution) {
+    def "Transitive dependencies are acessible from local project classpath when using Gradle 2.5+"() {
         setup:
-        File location = multiProjectWithSpringTransitiveDependency()
+        File location = multiProjectWithSpringTransitiveDependency(dependencyScope)
 
         when:
         importAndWait(location, distribution)
@@ -41,12 +41,14 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         resolvedClasspath(moduleB).any { IClasspathEntry entry -> entry.path.lastSegment() == 'spring-beans-1.2.8.jar' && !entry.isExported() }
 
         where:
-        distribution << [GradleDistribution.forVersion('2.6'), GradleDistribution.fromBuild()]
+        distribution                         | dependencyScope
+        GradleDistribution.forVersion('2.6') | "compile"
+        GradleDistribution.fromBuild()       | "implementation"
     }
 
-    def "Excluded dependencies are not resolved when using Gradle 2.5+"(GradleDistribution distribution) {
+    def "Excluded dependencies are not resolved when using Gradle 2.5+"() {
         setup:
-        File location = springExampleProjectFromBug473348()
+        File location = springExampleProjectFromBug473348(dependencyScope)
 
         when:
         importAndWait(location, distribution)
@@ -61,15 +63,17 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         resolvedClasspath(moduleB).any { IClasspathEntry entry -> entry.path.lastSegment() == 'spring-core-1.2.8.jar' && !entry.isExported() }
 
         where:
-        distribution << [GradleDistribution.forVersion('2.6'), GradleDistribution.fromBuild()]
+        distribution                         | dependencyScope
+        GradleDistribution.forVersion('2.6') | "compile"
+        GradleDistribution.fromBuild()       | "implementation"
     }
 
-    def "Sample with transitive dependency exclusion should compile when imported by Buildship"(GradleDistribution distribution) {
+    def "Sample with transitive dependency exclusion should compile when imported by Buildship"() {
         setup:
-        File location = springExampleProjectFromBug473348()
+        File location = springExampleProjectFromBug473348(dependencyScope)
 
         when:
-        importAndWait(location, GradleDistribution.forVersion('2.6'))
+        importAndWait(location, distribution)
         waitForBuild()
 
         then:
@@ -77,7 +81,9 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         errorMarkers(findProject("moduleB")) == []
 
         where:
-        distribution << [GradleDistribution.forVersion('2.6'), GradleDistribution.fromBuild()]
+        distribution                         | dependencyScope
+        GradleDistribution.forVersion('2.6') | "compile"
+        GradleDistribution.fromBuild()       | "implementation"
     }
 
     private List<String> errorMarkers(IProject project) {
@@ -93,7 +99,7 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
         workspace.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null)
     }
 
-    private File multiProjectWithSpringTransitiveDependency() {
+    private File multiProjectWithSpringTransitiveDependency(scope = "compile") {
         dir('spring-example') {
             file 'build.gradle', """
                 allprojects {
@@ -108,24 +114,24 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
 
             moduleA {
                 dir 'src/main/java'
-                file 'build.gradle', '''
+                file 'build.gradle', """
                     dependencies {
-                        compile (project(":moduleB"))
+                        $scope (project(":moduleB"))
                     }
-                '''
+                """
             }
             moduleB {
                 dir 'src/main/java'
-                file 'build.gradle', '''
+                file 'build.gradle', """
                     dependencies {
-                        compile "org.springframework:spring-beans:1.2.8"
+                        $scope "org.springframework:spring-beans:1.2.8"
                     }
-                '''
+                """
             }
         }
     }
 
-    private File springExampleProjectFromBug473348() {
+    private File springExampleProjectFromBug473348(configuration = 'implementation') {
         dir('Bug473348') {
             file 'build.gradle', """
                 allprojects {
@@ -138,14 +144,14 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
                 include "moduleB"
             '''
             moduleA {
-                file 'build.gradle', '''
+                file 'build.gradle', """
                     dependencies {
-                        compile "org.springframework:spring-beans:3.1.4.RELEASE"
-                        compile (project(":moduleB")) {
+                        $configuration "org.springframework:spring-beans:3.1.4.RELEASE"
+                        $configuration (project(":moduleB")) {
                             exclude group: "org.springframework"
                         }
                     }
-                '''
+                """
                 dir ('src/main/java') {
                     file 'ApplicationA.java', '''
                         import org.springframework.beans.BeansException;
@@ -170,11 +176,11 @@ class ReexportedDependencySpecification extends ProjectSynchronizationSpecificat
             }
 
             moduleB {
-                file 'build.gradle', '''
+                file 'build.gradle', """
                     dependencies {
-                        compile "org.springframework:spring-beans:1.2.8"
+                        $configuration "org.springframework:spring-beans:1.2.8"
                     }
-                '''
+                """
                 dir("src/main/java") {
                     file 'ApplicationB.java', '''
                         import org.springframework.beans.factory.FactoryBean;

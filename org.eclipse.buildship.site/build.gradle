@@ -4,7 +4,7 @@ apply plugin: 'org.hidetake.ssh'
 buildscript {
     repositories { jcenter() }
     dependencies {
-        classpath 'org.hidetake:gradle-ssh-plugin:1.1.2'
+        classpath 'org.hidetake:gradle-ssh-plugin:2.10.1'
     }
 }
 
@@ -12,7 +12,7 @@ updateSite {
     extraResources = files('epl-v20.html', 'notice.html', 'p2.index')
     signing { File unsignedFolder, File signedFolder ->
         if (gradle.taskGraph.hasTask(uploadUpdateSite)) {
-            signByEclipseService(signedFolder, unsignedFolder)
+            signWithEclipseService(signedFolder, unsignedFolder)
         } else {
             signLocally(unsignedFolder, signedFolder)
         }
@@ -28,22 +28,27 @@ remotes {
         user =  ECLIPSE_ORG_FTP_USER
         password = ECLIPSE_ORG_FTP_PASSWORD
         knownHosts = project.rootProject.file('gradle/ssh/known_hosts')
+        fileTransfer = 'scp'
     }
 }
 
 dependencies {
+    localPlugin project(':org.eclipse.buildship.compat')
     localPlugin project(':org.eclipse.buildship.core')
     localPlugin project(':org.eclipse.buildship.ui')
     localPlugin project(':org.eclipse.buildship.branding')
-    localPlugin project(':org.eclipse.buildship.stsmigration')
     localFeature project(':org.eclipse.buildship.feature')
-    if (findProperty('enable.oomph.plugin') == "true") {
-        localPlugin project(':org.eclipse.buildship.oomph')
-        localPlugin project(':org.eclipse.buildship.oomph.edit')
-        localFeature project(':org.eclipse.buildship.oomph.feature')
-    }
+    localPlugin project(':org.eclipse.buildship.oomph')
+    localPlugin project(':org.eclipse.buildship.oomph.edit')
+    localFeature project(':org.eclipse.buildship.oomph.feature')
+    if (findProperty('latest') == 'true') {
+        localPlugin project(':org.eclipse.buildship.gradleprop.provider')
+        localFeature project(':org.eclipse.buildship.gradleprop.feature')
 
-   if (findProperty('include.experimental.features') == 'true') {
+        localPlugin project(':org.eclipse.buildship.kotlindsl.provider')
+        localFeature project(':org.eclipse.buildship.kotlindsl.feature')
+    }
+    if (findProperty('include.experimental.features') == 'true') {
         localPlugin project(':org.eclipse.buildship.kotlin')
         localFeature project(':org.eclipse.buildship.kotlin.feature')
     }
@@ -144,12 +149,12 @@ artifact.repository.factory.order=compositeArtifacts.xml,\\!
 """
             project.exec {
                 workingDir "$buildDir/composite-repository"
-                commandLine 'jar', 'cvMf', 'compositeArtifacts.jar', 'compositeArtifacts.xml'
+                commandLine "${System.getProperty('java.home')}/bin/jar", 'cvMf', 'compositeArtifacts.jar', 'compositeArtifacts.xml'
             }
 
             project.exec {
                 workingDir "$buildDir/composite-repository"
-                commandLine 'jar', 'cvMf', 'compositeContent.jar', 'compositeContent.xml'
+                commandLine "${System.getProperty('java.home')}/bin/jar", 'cvMf', 'compositeContent.jar', 'compositeContent.xml'
             }
 
             ssh.run {
@@ -159,47 +164,25 @@ artifact.repository.factory.order=compositeArtifacts.xml,\\!
                     execute "rm -rf $compositeFolder/compositeContent.xml"
                     
                     // update composite repo metadate
-                    put from: new File(compositeArtifactsFile.parentFile, 'compositeArtifacts.jar'), into: compositeFolder
-                    put from: new File(compositeContentFile.parentFile, 'compositeContent.jar'), into: compositeFolder
-                    put from: p2indexFile, into: compositeFolder
+                    uploadFileWithScp(new File(compositeArtifactsFile.parentFile, 'compositeArtifacts.jar'), compositeFolder)
+                    uploadFileWithScp(new File(compositeContentFile.parentFile, 'compositeContent.jar'), compositeFolder)
+                    uploadFileWithScp(p2indexFile, compositeFolder)
                 }
             }           
         }
         
-        if (config.isRelease() && isLatestRelease()) {
+        if ((config.isRelease() || config.isSnapshot()) && isLatestRelease()) {
             ssh.run {
                 session(remotes.eclipseDotOrg) {
-                    def latestFolder = "${ECLIPSE_ORG_FTP_UPDATE_SITES_PATH}/latest"
+                    def latestFolder = "${ECLIPSE_ORG_FTP_UPDATE_SITES_PATH}/latest${config.isSnapshot() ? '-snapshot' : ''}"
                     // wipe the previous release and replace it with the new one
                     execute "rm -rf $latestFolder"
                     execute "mkdir -p $latestFolder"
-                    put from: files { file("$buildDir/repository").listFiles() }, into: latestFolder
+                    file("$buildDir/repository").listFiles().each { uploadDirWithScp(it, latestFolder) }
                 }
             }
         }
     }
-}
-
-// Quick fix for https://github.com/eclipse/buildship/issues/519
-//
-// This is a quick-and-dirty solution to rewrite the the tooling-commons manifest to have the same version range for Guava
-// as it is defined in the Buildship plugins. The solution doesn't match for the whole depenency String as the OSGi
-// descriptors are word-wrapped, meaning that every dependency declarations can have newlines after each character.
-// Besides, this workaround needs to be validated every time the tooling-commons descriptors change (which we expect
-// that won't happen).
-tasks.copyBundles.doLast {
-    String newVersionRange = eclipsebuild.Config.on(project).targetPlatform.eclipseVersion >= '47' ? '[21.0.0,22.0.0)' : '[15.0.0,16.0.0)'
-    new File(project.buildDir, "${eclipsebuild.UpdateSitePlugin.PRE_NORMALIZED_BUNDLES_DIR_NAME}/plugins").listFiles().each { jar ->
-        if (jar.name.contains("com.gradleware.tooling")) {
-            replaceGuavaDependencyRangeInManifest(jar, newVersionRange)
-        }
-    }
-}
-
-private void replaceGuavaDependencyRangeInManifest(File jar, String newVersionRange) {
-    File manifest = project.zipTree(jar).files.find { it.name == 'MANIFEST.MF'}
-    manifest.text = manifest.text.replace('[15.0.0,22.0.0)', newVersionRange)
-    project.ant.zip(update: true, filesonly: true, destfile: jar) { fileset(dir: manifest.parentFile.parentFile) }
 }
 
 // utility methods
@@ -222,37 +205,39 @@ def releaseStream() {
     "${matcher[0][1]}.x"
 }
 
-private void signByEclipseService(signedFolder, unsignedFolder) {
-  ssh.run {
-    session(remotes.eclipseDotOrg) {
-      // the remote folder where the jars are signed
-      def remoteFolder = "${ECLIPSE_ORG_TEMP_PATH}/${signedFolder.name}"
-
-      // clean up the folder used for signing if the previous build failed
-      execute "rm -rf $remoteFolder"
-      execute "mkdir -p $remoteFolder"
-      
-
-      // upload the jars to the EF build server, sign and download them to the signed folder        
-      file(unsignedFolder).eachFileRecurse(groovy.io.FileType.FILES) { File source ->
-          if(source.name.endsWith('.jar')) { 
-              String sourceRelativePath = source.path.replace(unsignedFolder.path + System.getProperty('file.separator'), '')
-              File target = new File(signedFolder, sourceRelativePath)
-              target.parentFile.mkdirs()
-              target.text = ''
-                            
-              put from: source, into: remoteFolder
-              execute "curl -o $remoteFolder/$source.name -F file=@$remoteFolder/$source.name http://build.eclipse.org:31338/sign"
-              println "$remoteFolder/$source.name"
-              get from: "$remoteFolder/$source.name", into: target.path
-                            
-          }
-      }
-
-      // clean up the temporary folder on the EF server
-      execute "rm -rf $remoteFolder"
+private void signWithEclipseService(signedFolder, unsignedFolder) {
+    file(unsignedFolder).eachFileRecurse(groovy.io.FileType.FILES) { File source ->
+        if(source.name.endsWith('.jar')) {
+            String sourceRelativePath = source.path.replace(unsignedFolder.path + System.getProperty('file.separator'), '')
+            File target = new File(signedFolder, sourceRelativePath)
+            target.parentFile.mkdirs()
+            def cmd = "${file('sign-jar.sh').absolutePath} $ECLIPSE_ORG_FTP_HOST $ECLIPSE_ORG_FTP_USER $ECLIPSE_ORG_FTP_PASSWORD ${project.rootProject.file('gradle/ssh/known_hosts').absolutePath} ${source.absolutePath} ${target.absolutePath}"
+            def sout = new StringBuilder()
+            def serr = new StringBuilder()
+            def process = cmd.execute()
+            process.consumeProcessOutput(sout, serr)
+            def exitCode = process.waitFor()
+            System.out.println(sout)
+            System.err.println(serr)
+            if (exitCode != 0) {
+                throw new RuntimeException("Signing failed for " + source.name)
+            }
+        }
     }
-  }
+}
+
+private void uploadFileWithScp(File source, String targetPath) {
+    def sourcePath = source.absolutePath
+    def cmd = "sshpass -p $ECLIPSE_ORG_FTP_PASSWORD scp -o UserKnownHostsFile=${project.rootProject.file('gradle/ssh/known_hosts')} $source $ECLIPSE_ORG_FTP_USER@$ECLIPSE_ORG_FTP_HOST:${targetPath}/"
+    def process = cmd.execute()
+    process.waitFor()
+}
+
+private void uploadDirWithScp(File source, String targetPath) {
+    def sourcePath = source.absolutePath
+    def cmd = "sshpass -p $ECLIPSE_ORG_FTP_PASSWORD scp -r -o UserKnownHostsFile=${project.rootProject.file('gradle/ssh/known_hosts')} $source $ECLIPSE_ORG_FTP_USER@$ECLIPSE_ORG_FTP_HOST:${targetPath}/"
+    def process = cmd.execute()
+    process.waitFor()
 }
 
 private void signLocally(File unsignedFolder, File signedFolder) {

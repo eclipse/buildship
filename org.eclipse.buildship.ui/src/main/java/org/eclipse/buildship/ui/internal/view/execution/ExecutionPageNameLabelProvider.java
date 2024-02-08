@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -18,6 +18,7 @@ import org.gradle.tooling.events.SuccessResult;
 import org.gradle.tooling.events.task.TaskFinishEvent;
 import org.gradle.tooling.events.task.TaskOperationDescriptor;
 import org.gradle.tooling.events.task.TaskSuccessResult;
+import org.gradle.tooling.events.test.Destination;
 import org.gradle.tooling.events.test.TestOperationDescriptor;
 import org.gradle.tooling.events.test.TestOutputDescriptor;
 
@@ -46,11 +47,18 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
 
     private final ImmutableMap<String, ColorDescriptor> customTextToColor;
     private final ResourceManager resourceManager;
+    private final Styler stdErrStyler;
 
     public ExecutionPageNameLabelProvider() {
         this.resourceManager = new LocalResourceManager(JFaceResources.getResources());
         ColorDescriptor decorationsColor = ColorUtils.getDecorationsColorDescriptorFromCurrentTheme();
         this.customTextToColor = ImmutableMap.of("UP-TO-DATE", decorationsColor, "FROM-CACHE", decorationsColor);
+        this.stdErrStyler = new Styler() {
+            @Override
+            public void applyStyles(TextStyle textStyle) {
+                textStyle.foreground = ExecutionPageNameLabelProvider.this.resourceManager.createColor(decorationsColor);
+            }
+        };
     }
 
     @Override
@@ -63,6 +71,12 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
             // apply custom coloring of those parts of the label for which there is a custom coloring mapping
             for (String text : this.customTextToColor.keySet()) {
                 assignColorToText(rawLabel, styledLabel, text);
+            }
+
+            // use custom color for standard error
+            OperationDescriptor descriptor = operationItem.getDescriptor();
+            if (descriptor instanceof TestOutputDescriptor && ((TestOutputDescriptor)descriptor).getDestination() == Destination.StdErr) {
+                styledLabel.setStyle(0, rawLabel.length(), this.stdErrStyler);
             }
 
             return styledLabel;
@@ -125,7 +139,7 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
     }
 
     private static String renderTestOutput(TestOutputDescriptor descriptor) {
-        return String.format("%s: %s", descriptor.getDestination().toString(), descriptor.getMessage());
+        return descriptor.getMessage();
     }
 
     private static String renderOther(OperationDescriptor descriptor) {
@@ -153,6 +167,15 @@ public final class ExecutionPageNameLabelProvider extends LabelProvider implemen
     }
 
     private Image calculateImage(OperationItem operationItem) {
+        if (operationItem.getDescriptor() instanceof TestOutputDescriptor) {
+            TestOutputDescriptor descriptor = (TestOutputDescriptor) operationItem.getDescriptor();
+            if (descriptor.getDestination() == Destination.StdOut) {
+                return PluginImages.OPERATION_TEST_OUTPUT.withState(PluginImage.ImageState.ENABLED).getImage();
+            } else {
+                return PluginImages.OPERATION_TEST_ERR_OUTPUT.withState(PluginImage.ImageState.ENABLED).getImage();
+            }
+        }
+
         if (operationItem.getFinishEvent() != null) {
             OperationResult result = operationItem.getFinishEvent().getResult();
             if (result instanceof FailureResult) {
