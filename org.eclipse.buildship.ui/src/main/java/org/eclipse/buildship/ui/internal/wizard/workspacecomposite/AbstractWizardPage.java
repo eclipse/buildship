@@ -15,6 +15,7 @@ import org.eclipse.buildship.ui.internal.util.widget.UiBuilder;
 import org.eclipse.buildship.ui.internal.wizard.HelpContextIdProvider;
 import org.eclipse.buildship.ui.internal.wizard.project.ProjectImportWizard;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -36,7 +37,6 @@ public abstract class AbstractWizardPage extends WizardPage {
 
     @SuppressWarnings("unused")
     private final String defaultMessage;
-    private final Font defaultFont;
     private final UiBuilder.UiBuilderFactory builderFactory;
 
     /**
@@ -57,8 +57,7 @@ public abstract class AbstractWizardPage extends WizardPage {
         setImageDescriptor(ImageDescriptor.createFromFile(GradleCreateWorkspaceCompositeWizardPage.class, "/icons/full/wizban/wizard.png")); //$NON-NLS-1$
 
         // set up the UI builder
-        this.defaultFont = FontUtils.getDefaultDialogFont();
-        this.builderFactory = new UiBuilder.UiBuilderFactory(this.defaultFont);
+        this.builderFactory = new UiBuilder.UiBuilderFactory(JFaceResources.getDialogFont());
 
     }
 
@@ -171,7 +170,6 @@ public abstract class AbstractWizardPage extends WizardPage {
 
     @Override
     public void dispose() {
-        this.defaultFont.dispose();
         super.dispose();
     }
 
