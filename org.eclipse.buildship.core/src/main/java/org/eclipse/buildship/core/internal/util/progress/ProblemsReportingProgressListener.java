@@ -117,7 +117,7 @@ public class ProblemsReportingProgressListener implements ProgressListener {
         IPath absolutePath = Path.fromOSString(location.getPath());
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         IFile workspacePath = workspaceRoot.getFileForLocation(absolutePath);
-        if (workspacePath.exists()) {
+        if (workspacePath != null && workspacePath.exists()) {
             return workspacePath;
         }
         return ResourcesPlugin.getWorkspace().getRoot();
