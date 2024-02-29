@@ -142,7 +142,6 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
                         .category('deprecation', 'plugin')
                         .severity(Severity.WARNING)
                         .solution("Please use 'standard-plugin-2' instead of this plugin")
-
             }
             '''
         }
