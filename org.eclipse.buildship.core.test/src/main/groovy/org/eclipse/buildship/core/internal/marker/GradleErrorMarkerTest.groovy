@@ -12,7 +12,9 @@ package org.eclipse.buildship.core.internal.marker
 import org.gradle.tooling.BuildException
 
 import org.eclipse.core.resources.IMarker
+import org.eclipse.core.runtime.IStatus
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
@@ -135,18 +137,18 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
                 def gradleInternal = gradle as GradleInternal
                 def problems = gradleInternal.services.get(Problems)
 
-                problems.forNamespace('buildscript').reporting {
+                problems.forNamespace("buildscript").reporting {
                     it.label("Problem label")
                         .category('deprecation', 'plugin')
                         .severity(Severity.WARNING)
                         .solution("Please use 'standard-plugin-2' instead of this plugin")
-                }
-            /**/
+
+            }
             '''
         }
 
         when:
-        importAndWait(projectDir)
+        tryImportAndWait(projectDir)
 
         then:
         numOfGradleErrorMarkers == 1
