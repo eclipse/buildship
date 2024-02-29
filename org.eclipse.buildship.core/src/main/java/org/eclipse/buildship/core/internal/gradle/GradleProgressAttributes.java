@@ -11,12 +11,13 @@ package org.eclipse.buildship.core.internal.gradle;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.EnumSet;
 import java.util.List;
-
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.OperationType;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.StandardSystemProperty;
@@ -72,7 +73,12 @@ public final class GradleProgressAttributes {
             operation.addProgressListener(listener);
         }
         for (org.gradle.tooling.events.ProgressListener listener : this.progressEventListeners) {
-            operation.addProgressListener(listener);
+            if (CorePlugin.configurationManager().loadWorkspaceConfiguration().isProblemsApiSupportEnabled()) {
+                operation.addProgressListener(listener);
+            } else {
+                operation.addProgressListener(listener, EnumSet.complementOf(EnumSet.of(OperationType.PROBLEMS)));
+            }
+
         }
         operation.withCancellationToken(this.cancellationToken);
     }
@@ -162,7 +168,9 @@ public final class GradleProgressAttributes {
             CancellationForwardingListener cancellationListener = new CancellationForwardingListener(this.monitor, this.tokenSource);
             progressListeners.add(cancellationListener);
             progressEventListeners.add(cancellationListener);
-            progressEventListeners.add(new ProblemsReportingProgressListener(this.gradleBuild));
+            if (CorePlugin.configurationManager().loadWorkspaceConfiguration().isProblemsApiSupportEnabled()) {
+                progressEventListeners.add(new ProblemsReportingProgressListener(this.gradleBuild));
+            }
 
             return new GradleProgressAttributes(streams, this.tokenSource.token(), progressListeners.build(), progressEventListeners.build(), this.isInteractive);
         }

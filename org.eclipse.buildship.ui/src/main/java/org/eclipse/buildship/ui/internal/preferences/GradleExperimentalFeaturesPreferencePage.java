@@ -33,6 +33,7 @@ public final class GradleExperimentalFeaturesPreferencePage extends PreferencePa
 
     public static final String PAGE_ID = "org.eclipse.buildship.ui.preferences.experimental";
     private Button enableModuleSuppotCheckbox;
+    private Button enableProblemApiCheckbox;
 
     @Override
     public void init(IWorkbench workbench) {
@@ -49,6 +50,12 @@ public final class GradleExperimentalFeaturesPreferencePage extends PreferencePa
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(this.enableModuleSuppotCheckbox);
         HoverText.createAndAttach(this.enableModuleSuppotCheckbox, CoreMessages.Preference_Label_ModulePathHover);
 
+        this.enableProblemApiCheckbox = new Button(composite, SWT.CHECK);
+        this.enableProblemApiCheckbox.setText(CoreMessages.Preference_Label_ProblemsApiSupport);
+        this.enableProblemApiCheckbox.setSelection(CorePlugin.configurationManager().loadWorkspaceConfiguration().isProblemsApiSupportEnabled());
+        GridDataFactory.swtDefaults().align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(this.enableProblemApiCheckbox);
+        HoverText.createAndAttach(this.enableProblemApiCheckbox, CoreMessages.Preference_Label_ProblemsApiSupportHover);
+
         return composite;
     }
 
@@ -57,7 +64,7 @@ public final class GradleExperimentalFeaturesPreferencePage extends PreferencePa
         ConfigurationManager manager = CorePlugin.configurationManager();
         WorkspaceConfiguration c = manager.loadWorkspaceConfiguration();
         manager.saveWorkspaceConfiguration(new WorkspaceConfiguration(c.getGradleDistribution(), c.getGradleUserHome(), c.getJavaHome(), c.isOffline(), c.isBuildScansEnabled(),
-                c.isAutoSync(), c.getArguments(), c.getJvmArguments(), c.isShowConsoleView(), c.isShowExecutionsView(), this.enableModuleSuppotCheckbox.getSelection()));
+                c.isAutoSync(), c.getArguments(), c.getJvmArguments(), c.isShowConsoleView(), c.isShowExecutionsView(), this.enableModuleSuppotCheckbox.getSelection(), this.enableProblemApiCheckbox.getSelection()));
         return true;
     }
 }

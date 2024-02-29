@@ -35,12 +35,13 @@ public final class WorkspaceConfiguration {
     private final boolean showConsoleView;
     private final boolean showExecutionsView;
     private final boolean experimentalModuleSupportEnabled;
+    private final boolean problemsApiSupportEnabled;
 
     public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome,
                                   File javaHome, boolean gradleIsOffline, boolean buildScansEnabled,
                                   boolean autoSync, List<String> arguments,
                                   List<String> jvmArguments, boolean showConsoleView,
-                                  boolean showExecutionsView, boolean experimentalModuleSupportEnabled) {
+                                  boolean showExecutionsView, boolean experimentalModuleSupportEnabled, boolean problemApiSupportEnabled) {
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.javaHome = javaHome;
@@ -52,6 +53,7 @@ public final class WorkspaceConfiguration {
         this.showConsoleView = showConsoleView;
         this.showExecutionsView = showExecutionsView;
         this.experimentalModuleSupportEnabled = experimentalModuleSupportEnabled;
+        this.problemsApiSupportEnabled = problemApiSupportEnabled;
     }
 
     public GradleDistribution getGradleDistribution() {
@@ -100,6 +102,11 @@ public final class WorkspaceConfiguration {
         return this.experimentalModuleSupportEnabled;
     }
 
+
+    public boolean isProblemsApiSupportEnabled() {
+        return this.problemsApiSupportEnabled;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof WorkspaceConfiguration) {
@@ -114,13 +121,14 @@ public final class WorkspaceConfiguration {
                     && Objects.equal(this.jvmArguments, other.jvmArguments)
                     && Objects.equal(this.showConsoleView, other.showConsoleView)
                     && Objects.equal(this.showExecutionsView, other.showExecutionsView)
-                    && Objects.equal(this.experimentalModuleSupportEnabled, other.experimentalModuleSupportEnabled);
+                    && Objects.equal(this.experimentalModuleSupportEnabled, other.experimentalModuleSupportEnabled)
+                    && Objects.equal(this.problemsApiSupportEnabled, other.problemsApiSupportEnabled);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.javaHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSync, this.arguments, this.jvmArguments, this.showConsoleView, this.showExecutionsView, this.experimentalModuleSupportEnabled);
+        return Objects.hashCode(this.gradleDistribution, this.gradleUserHome, this.javaHome, this.gradleIsOffline, this.buildScansEnabled, this.autoSync, this.arguments, this.jvmArguments, this.showConsoleView, this.showExecutionsView, this.experimentalModuleSupportEnabled, this.problemsApiSupportEnabled);
     }
 }

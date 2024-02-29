@@ -78,6 +78,9 @@ public final class CoreMessages extends NLS {
     public static String Preference_Label_ModulePath;
     public static String Preference_Label_ModulePathHover;
 
+    public static String Preference_Label_ProblemsApiSupport;
+    public static String Preference_Label_ProblemsApiSupportHover;
+
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, CoreMessages.class);
