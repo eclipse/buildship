@@ -104,12 +104,14 @@
    <!-- Define custom marker type for Gradle-related problems -->
    <extension
          id="org.eclipse.buildship.core.errormarker"
-         name="Gradle Error Marker"
+         name="Gradle Problem"
          point="org.eclipse.core.resources.markers">
      <super type="org.eclipse.core.resources.problemmarker"/>
      <persistent value="true" />
      <attribute name="stacktrace" />
    </extension>
+
+   <!-- Built-in Buildship project configurators -->
    <extension
          point="org.eclipse.buildship.core.projectconfigurators">
       <configurator

@@ -328,7 +328,7 @@ public final class DefaultGradleBuild implements InternalGradleBuild {
         @Override
         public void runInToolingApi(CancellationTokenSource tokenSource, IProgressMonitor monitor) throws Exception {
             // TODO (donat) use AutoCloseable once we update to Tooling API 5.0
-            ProjectConnection connection = IdeAttachedProjectConnection.newInstance(tokenSource, getGradleArguments(), monitor);
+            ProjectConnection connection = IdeAttachedProjectConnection.newInstance(tokenSource, getGradleArguments(), DefaultGradleBuild.this, monitor);
             if (isSynchronizing()) {
                 connection = new CachingProjectConnection(connection, DefaultGradleBuild.this.projectConnectionCache);
             }

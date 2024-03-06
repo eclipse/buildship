@@ -11,12 +11,13 @@ package org.eclipse.buildship.core.internal.gradle;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.EnumSet;
 import java.util.List;
-
 import org.gradle.tooling.CancellationToken;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.events.OperationType;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.StandardSystemProperty;
@@ -32,6 +33,8 @@ import org.eclipse.buildship.core.internal.console.ProcessStreams;
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.internal.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.internal.util.progress.ProblemsReportingProgressListener;
+import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 /**
  * Holds attributes that are commonly used to handle progress in each Gradle invocation.
@@ -70,7 +73,12 @@ public final class GradleProgressAttributes {
             operation.addProgressListener(listener);
         }
         for (org.gradle.tooling.events.ProgressListener listener : this.progressEventListeners) {
-            operation.addProgressListener(listener);
+            if (CorePlugin.configurationManager().loadWorkspaceConfiguration().isProblemsApiSupportEnabled()) {
+                operation.addProgressListener(listener);
+            } else {
+                operation.addProgressListener(listener, EnumSet.complementOf(EnumSet.of(OperationType.PROBLEMS)));
+            }
+
         }
         operation.withCancellationToken(this.cancellationToken);
     }
@@ -98,8 +106,8 @@ public final class GradleProgressAttributes {
         this.streams.close();
     }
 
-    public static final GradleProgressAttributesBuilder builder(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
-        return new GradleProgressAttributesBuilder(tokenSource, monitor);
+    public static final GradleProgressAttributesBuilder builder(CancellationTokenSource tokenSource, InternalGradleBuild gradleBuild, IProgressMonitor monitor) {
+        return new GradleProgressAttributesBuilder(tokenSource, gradleBuild, monitor);
     }
 
     /**
@@ -114,9 +122,11 @@ public final class GradleProgressAttributes {
         private ProcessDescription processDescription = null;
         private boolean isInteractive = true;
         private ProgressListener delegatingListener = null;
+        private final InternalGradleBuild gradleBuild;
 
-        public GradleProgressAttributesBuilder(CancellationTokenSource tokenSource, IProgressMonitor monitor) {
+        public GradleProgressAttributesBuilder(CancellationTokenSource tokenSource, InternalGradleBuild gradleBuild, IProgressMonitor monitor) {
             this.tokenSource = tokenSource;
+            this.gradleBuild = gradleBuild;
             this.monitor = monitor;
         }
 
@@ -158,6 +168,9 @@ public final class GradleProgressAttributes {
             CancellationForwardingListener cancellationListener = new CancellationForwardingListener(this.monitor, this.tokenSource);
             progressListeners.add(cancellationListener);
             progressEventListeners.add(cancellationListener);
+            if (CorePlugin.configurationManager().loadWorkspaceConfiguration().isProblemsApiSupportEnabled()) {
+                progressEventListeners.add(new ProblemsReportingProgressListener(this.gradleBuild));
+            }
 
             return new GradleProgressAttributes(streams, this.tokenSource.token(), progressListeners.build(), progressEventListeners.build(), this.isInteractive);
         }

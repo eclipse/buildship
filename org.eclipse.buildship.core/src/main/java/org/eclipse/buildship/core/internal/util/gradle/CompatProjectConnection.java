@@ -29,6 +29,7 @@ import org.gradle.tooling.ModelBuilder;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
+import org.gradle.tooling.StreamedValueListener;
 import org.gradle.tooling.TestLauncher;
 import org.gradle.tooling.events.OperationType;
 import org.gradle.tooling.model.eclipse.EclipseProject;
@@ -432,6 +433,11 @@ public class CompatProjectConnection implements ProjectConnection {
         public BuildActionExecuter<T> withSystemProperties(Map<String, String> systemProperties) {
             this.delegate.withSystemProperties(systemProperties);
             return this;
+        }
+
+        @Override
+        public void setStreamedValueListener(StreamedValueListener listener) {
+            this.delegate.setStreamedValueListener(listener);
         }
     }
 

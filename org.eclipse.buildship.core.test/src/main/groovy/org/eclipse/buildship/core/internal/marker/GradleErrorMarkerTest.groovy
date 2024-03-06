@@ -11,6 +11,10 @@ package org.eclipse.buildship.core.internal.marker
 
 import org.gradle.tooling.BuildException
 
+import org.eclipse.core.resources.IMarker
+import org.eclipse.core.runtime.IStatus
+
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
@@ -119,5 +123,36 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
         then:
         findProject('sub')
         numOfGradleErrorMarkers == 0
+    }
+
+
+    def "Convers problem reports to error markers"() {
+        setup:
+        File projectDir = dir('error-marker-test') {
+            file 'build.gradle', '''
+                import org.gradle.api.internal.GradleInternal
+                import org.gradle.api.problems.Problems
+                import org.gradle.api.problems.Severity
+
+                def gradleInternal = gradle as GradleInternal
+                def problems = gradleInternal.services.get(Problems)
+
+                problems.forNamespace("buildscript").reporting {
+                    it.label("Problem label")
+                        .category('deprecation', 'plugin')
+                        .severity(Severity.WARNING)
+                        .solution("Please use 'standard-plugin-2' instead of this plugin")
+            }
+            '''
+        }
+
+        when:
+        tryImportAndWait(projectDir)
+
+        then:
+        numOfGradleErrorMarkers == 1
+        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == 'Problem label'
+        gradleErrorMarkers[0].getAttribute(GradleErrorMarker.ATTRIBUTE_PROBLEM_CATEGORY) == 'buildscript:deprecation:plugin'
+
     }
 }

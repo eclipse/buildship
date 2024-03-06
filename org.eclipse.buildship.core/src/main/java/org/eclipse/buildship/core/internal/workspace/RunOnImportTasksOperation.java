@@ -106,11 +106,12 @@ public final class RunOnImportTasksOperation {
 
     private void runTasks(final List<String> tasksToRun, IProgressMonitor monitor, CancellationTokenSource tokenSource) {
         RunConfiguration runConfiguration = CorePlugin.configurationManager().createDefaultRunConfiguration(this.buildConfig);
-        GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, monitor)
+        InternalGradleBuild gradleBuild = CorePlugin.internalGradleWorkspace().getGradleBuild(this.buildConfig);
+        GradleProgressAttributes progressAttributes = GradleProgressAttributes.builder(tokenSource, gradleBuild, monitor)
                 .forBackgroundProcess()
                 .withFilteredProgress()
                 .build();
-        BuildLauncher launcher = CorePlugin.internalGradleWorkspace().getGradleBuild(this.buildConfig).newBuildLauncher(runConfiguration, progressAttributes);
+        BuildLauncher launcher = gradleBuild.newBuildLauncher(runConfiguration, progressAttributes);
         launcher.forTasks(tasksToRun.toArray(new String[tasksToRun.size()])).run();
     }
 }

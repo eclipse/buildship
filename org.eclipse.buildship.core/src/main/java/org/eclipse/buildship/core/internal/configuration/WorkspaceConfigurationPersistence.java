@@ -44,6 +44,7 @@ final class WorkspaceConfigurationPersistence {
     private static final String SHOW_CONSOLE_VIEW = "show.console.view";
     private static final String SHOW_EXECUTIONS_VIEW = "show.executions.view";
     private static final String EXPERIMENTAL_ENABLE_MODULE_SUPPORT = "experimental.module.support";
+    private static final String PROBLEMS_API_SUPPORT = "problems.api.support";
 
     public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();
@@ -72,8 +73,8 @@ final class WorkspaceConfigurationPersistence {
         boolean showConsoleView = preferences.getBoolean(SHOW_CONSOLE_VIEW, true);
         boolean showExecutionsView = preferences.getBoolean(SHOW_EXECUTIONS_VIEW, true);
         boolean moduleSupport = preferences.getBoolean(EXPERIMENTAL_ENABLE_MODULE_SUPPORT, false);
-
-        return new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSyncEnabled, arguments, jvmArguments, showConsoleView, showExecutionsView, moduleSupport);
+        boolean problemsApiSupport = preferences.getBoolean(PROBLEMS_API_SUPPORT, true);
+        return new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSyncEnabled, arguments, jvmArguments, showConsoleView, showExecutionsView, moduleSupport, problemsApiSupport);
     }
 
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
@@ -98,6 +99,7 @@ final class WorkspaceConfigurationPersistence {
         preferences.putBoolean(SHOW_CONSOLE_VIEW, config.isShowConsoleView());
         preferences.putBoolean(SHOW_EXECUTIONS_VIEW, config.isShowExecutionsView());
         preferences.putBoolean(EXPERIMENTAL_ENABLE_MODULE_SUPPORT, config.isExperimentalModuleSupportEnabled());
+        preferences.putBoolean(PROBLEMS_API_SUPPORT, config.isProblemsApiSupportEnabled());
         try {
             preferences.flush();
         } catch (BackingStoreException e) {

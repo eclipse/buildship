@@ -90,4 +90,14 @@ class CompatTask implements GradleTask {
         }
     }
 
+    @Override
+    public String getBuildTreePath() {
+        // returns true for Gradle versions < 2.1
+        try {
+            return this.delegate.getBuildTreePath();
+        } catch (Exception ignore) {
+            return getPath();
+        }
+    }
+
 }
