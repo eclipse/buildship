@@ -9,19 +9,15 @@
  ******************************************************************************/
 package org.eclipse.buildship.ui.internal.marker;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
-import org.eclipse.jface.wizard.IWizard;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,16 +26,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PropertyPage;
-import org.eclipse.ui.wizards.IWizardDescriptor;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
-import org.eclipse.buildship.core.internal.GradlePluginsRuntimeException;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
-import org.eclipse.buildship.ui.internal.UiPluginConstants;
-import org.eclipse.buildship.ui.internal.view.task.TaskViewMessages;
 
 /**
  * Property page displaying details of Gradle problem markers.

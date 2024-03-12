@@ -29,7 +29,6 @@ import org.gradle.tooling.model.build.BuildEnvironment;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import org.eclipse.buildship.core.internal.DefaultGradleBuild;
 import org.eclipse.buildship.core.internal.configuration.GradleArguments;
 import org.eclipse.buildship.core.internal.gradle.GradleProgressAttributes;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
