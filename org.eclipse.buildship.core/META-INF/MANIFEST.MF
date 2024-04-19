@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.core.expressions,
  org.gradle.toolingapi;bundle-version="[8.6.0,8.7.0)";visibility:=reexport,
  com.google.guava;bundle-version="33.0.0",
  com.google.gson;bundle-version="[2.7.0,3.0.0)",
- org.eclipse.buildship.compat;visibility:=reexport
+ org.eclipse.buildship.compat;visibility:=reexport,
+ org.eclipse.ui.workbench
 Bundle-ActivationPolicy: lazy
 Import-Package: org.slf4j;version="1.7.2"
 Export-Package: org.eclipse.buildship.core,

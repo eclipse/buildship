@@ -74,6 +74,7 @@ public final class CoreMessages extends NLS {
     public static String Preference_Label_AutoSyncHover;
     public static String Preference_Label_ShowConsoleViewHover;
     public static String Preference_Label_ShowExecutionsViewHover;
+    public static String Preference_Label_Root_Project;
 
     public static String Preference_Label_ModulePath;
     public static String Preference_Label_ModulePathHover;

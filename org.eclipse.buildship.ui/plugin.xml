@@ -26,6 +26,22 @@
          </description>
          <keywordReference id="org.eclipse.buildship.ui.keyword.buildship"/>
       </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="org.eclipse.buildship.ui.creationwizards"
+            class="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.WorkspaceCompositeCreationWizard"
+            hasPages="true"
+            icon="icons/full/etool16/new_gradlecomposite_obj.png"
+            id="org.eclipse.buildship.ui.wizard.workspaceComposite.creation"
+            name="Gradle Composite"
+            project="true">
+         <description>
+            Create a new Gradle workspace composite.
+         </description>
+         <keywordReference
+               id="org.eclipse.buildship.ui.keyword.buildship">
+         </keywordReference>
+      </wizard>
       <category
             id="org.eclipse.buildship.ui.creationwizards"
             name="Gradle">
@@ -127,6 +143,12 @@
             id="org.eclipse.buildship.ui.views"
             name="Gradle">
       </category>
+      <view
+            class="org.eclipse.ui.navigator.CommonNavigator"
+            icon="icons/sample.png"
+            id="com.example.test"
+            name="My Common Navigator">
+      </view>
     </extension>
 
     <!-- integration of Gradle commands -->
@@ -423,6 +445,10 @@
                 type="org.eclipse.ui.views.properties.IPropertySource">
           </adapter>
        </factory>
+       <factory
+             adaptableType="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.ExternalGradleProject"
+             class="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.ExternalProjectAdapterFactory">
+       </factory>
     </extension>
 
     <!-- extension point to decorate the Gradle projects with a small Gradle icon -->
@@ -445,6 +471,12 @@
                         value="org.eclipse.buildship.core.gradleprojectnature">
                 </objectState>
             </enablement>
+        </decorator>
+        <decorator
+              adaptable="true"
+              id="org.eclipse.buildship.ui.gradlecompositedecorator"
+              label="Gradle Composite Decorator">
+           <enablement></enablement>
         </decorator>
     </extension>
 
@@ -582,6 +614,31 @@
              </contentExtension>
           </includes>
        </viewerContentBinding>
+       <viewerActionBinding
+             viewerId="com.example.test">
+          <includes>
+             <actionExtension
+                   pattern="org.eclipse.ui.navigator.resources.*">
+             </actionExtension>
+          </includes>
+       </viewerActionBinding>
+       <viewerContentBinding
+             viewerId="com.example.test">
+          <includes>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resourceContent">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resources.filters.*">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resources.linkHelper">
+             </contentExtension>
+             <contentExtension
+                   pattern="org.eclipse.ui.navigator.resources.workingSets">
+             </contentExtension>
+          </includes>
+       </viewerContentBinding>
     </extension>
 
     <!-- Add the "Gradle" menu to the workbench preferences-->
@@ -632,6 +689,39 @@
           </enabledWhen>
        </page>
     </extension>
+    <extension
+          point="org.eclipse.ui.propertyPages">
+       <page
+             class="org.eclipse.buildship.ui.internal.preferences.GradleCompositeImportOptionsPreferencePage"
+             id="org.eclipse.buildship.ui.compositeimportproperties"
+             name="Import Options">
+          <enabledWhen>
+             <adapt
+                   type="org.eclipse.ui.IWorkingSet">
+                <test
+                      forcePluginActivation="true"
+                      property="org.eclipse.buildship.ui.composite.gradlecomposite"
+                      value="true">
+                </test>
+             </adapt>
+          </enabledWhen>
+       </page>
+       <page
+             class="org.eclipse.buildship.ui.internal.preferences.GradleCompositeRootProjectPreferencePage"
+             id="org.eclipse.buildship.ui.compositerootprojectproperties"
+             name="Root Project">
+          <enabledWhen>
+             <adapt
+                   type="org.eclipse.ui.IWorkingSet">
+                <test
+                      forcePluginActivation="true"
+                      property="org.eclipse.buildship.ui.composite.gradlecomposite"
+                      value="true">
+                </test>
+             </adapt>
+          </enabledWhen>
+       </page>
+    </extension>
     
     <extension
           point="org.eclipse.core.expressions.propertyTesters">
@@ -644,6 +734,17 @@
        </propertyTester>
     </extension>
     
+    <extension
+          point="org.eclipse.core.expressions.propertyTesters">
+       <propertyTester
+             id="org.eclipse.buildship.ui.properties.compositepropertytester"
+             class="org.eclipse.buildship.ui.internal.composite.WorkingSetProperyTester"
+             namespace="org.eclipse.buildship.ui.composite"
+             properties="gradlecomposite"
+             type="org.eclipse.ui.IWorkingSet">
+       </propertyTester>
+    </extension>
+
     <!-- Adjust styling when dark theme is used -->
     <extension
           point="org.eclipse.e4.ui.css.swt.theme">
@@ -697,4 +798,26 @@
           </adapt>
        </definition>
     </extension>
+    <extension
+          point="org.eclipse.help.contentExtension">
+    </extension>
+    <extension
+          point="org.eclipse.ui.workingSets">
+       <workingSet
+             description="Gradle composite build that includes other builds"
+             icon="icons/full/obj16/gradlecomposite_obj.png"
+             id="org.eclipse.buildship.ui.GradleCompositePage"
+             name="Workspace Composite"
+             pageClass="org.eclipse.buildship.ui.internal.preferences.GradleCreateWorkspaceCompositePreferencePage"
+             updaterClass="org.eclipse.buildship.ui.internal.wizard.workspacecomposite.GradleWorkspaceCompositeUpdater">
+       </workingSet>
+    </extension>
+    <extension
+          point="org.eclipse.ui.startup">
+       <startup
+             class="org.eclipse.buildship.ui.internal.workspace.StartupSetup">
+       </startup>
+    </extension>
+
+    <!-- Import options property page for Gradle composite -->
 </plugin>

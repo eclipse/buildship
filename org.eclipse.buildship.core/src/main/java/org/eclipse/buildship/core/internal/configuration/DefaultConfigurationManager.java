@@ -10,18 +10,15 @@
 package org.eclipse.buildship.core.internal.configuration;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.debug.core.ILaunchConfiguration;
-
+import org.eclipse.buildship.core.CompositeProperties;
+import org.eclipse.buildship.core.CompositeProperties.CompositePropertiesReader;
 import org.eclipse.buildship.core.GradleDistribution;
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.CoreTraceScopes;
@@ -30,6 +27,15 @@ import org.eclipse.buildship.core.internal.launch.BaseRunConfigurationAttributes
 import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.launch.GradleTestRunConfigurationAttributes;
 import org.eclipse.buildship.core.internal.util.file.RelativePathUtils;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.ui.IWorkingSet;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 
 /**
  * Default implementation for {@link ConfigurationManager}.
@@ -70,6 +76,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
 
     @Override
     public BuildConfiguration loadBuildConfiguration(File rootDir) {
+        System.out.println(rootDir);
         Preconditions.checkNotNull(rootDir);
         Preconditions.checkArgument(rootDir.exists());
         Optional<IProject> projectCandidate = CorePlugin.workspaceOperations().findProjectByLocation(rootDir);
@@ -88,6 +95,11 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         } else {
             buildConfigProperties = this.buildConfigurationPersistence.readBuildConfiguratonProperties(rootDir);
         }
+        return new DefaultBuildConfiguration(buildConfigProperties, loadWorkspaceConfiguration());
+    }
+
+    public BuildConfiguration loadBuildConfigurationForComposite(File fileDir) {
+        DefaultBuildConfigurationProperties buildConfigProperties = this.buildConfigurationPersistence.readCompositeBuildProperties(fileDir);
         return new DefaultBuildConfiguration(buildConfigProperties, loadWorkspaceConfiguration());
     }
 
@@ -179,6 +191,38 @@ public class DefaultConfigurationManager implements ConfigurationManager {
             this.buildConfigurationPersistence.deletePathToRoot(project);
         } else {
             this.buildConfigurationPersistence.deletePathToRoot(project.getLocation().toFile());
+        }
+    }
+
+    @Override
+    public CompositeConfiguration loadCompositeConfiguration(IWorkingSet workingSet) {
+        File compositePropertiesFile = CorePlugin.getInstance().getStateLocation().append("workspace-composites").append(workingSet.getName()).toFile();
+        BuildConfiguration buildConfig = loadBuildConfigurationForComposite(compositePropertiesFile);
+        IAdaptable[] projectList = loadCompositeProjects(workingSet);
+        CompositePropertiesReader compositeReader = CompositeProperties.getCompositeReaderForFile(compositePropertiesFile);
+        boolean projectAsCompositeRoot = compositeReader.getProjectAsCompositeRoot();
+        File rootProject = compositeReader.getRootProject();
+        return new DefaultCompositeConfiguration(canonicalize(compositePropertiesFile), projectList, buildConfig, projectAsCompositeRoot, rootProject);
+    }
+
+    private IAdaptable[] loadCompositeProjects(IWorkingSet workingSet) {
+        IAdaptable[] projects = workingSet.getElements();
+        //TODO (kuzniarz) implement load mechanism that reads external gradle projects from properties file. Needs a save mechanism first...
+        return projects;
+    }
+
+    @Override
+    public void saveCompositeConfiguration(CompositeConfiguration compConf) {
+        try {
+            FileOutputStream out = new FileOutputStream(compConf.getCompositeDir());
+            Properties prop = CompositeProperties.forCompositeConfiguration(compConf).build().toProperties();
+            prop.store(out, "");
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
@@ -305,4 +349,5 @@ public class DefaultConfigurationManager implements ConfigurationManager {
         IPath projectPath = new Path(projectDir.getPath());
         return RelativePathUtils.getRelativePath(projectPath, rootProjectPath).toPortableString();
     }
+
 }

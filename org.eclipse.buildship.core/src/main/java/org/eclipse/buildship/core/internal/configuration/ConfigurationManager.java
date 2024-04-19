@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.ui.IWorkingSet;
 
 import org.eclipse.buildship.core.GradleDistribution;
 
@@ -49,7 +50,11 @@ public interface ConfigurationManager {
 
     void deleteProjectConfiguration(IProject project);
 
-    RunConfiguration loadRunConfiguration(ILaunchConfiguration configuration);
+    CompositeConfiguration loadCompositeConfiguration(IWorkingSet workingSet);
+
+    void saveCompositeConfiguration(CompositeConfiguration compConf);
+
+    RunConfiguration loadRunConfiguration(ILaunchConfiguration launchConfiguration);
 
     TestRunConfiguration loadTestRunConfiguration(ILaunchConfiguration configuration);
 
