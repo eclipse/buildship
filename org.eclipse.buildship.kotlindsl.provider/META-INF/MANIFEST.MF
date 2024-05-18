@@ -12,6 +12,7 @@ Require-Bundle: org.eclipse.core.contenttype,
  org.eclipse.tm4e.registry,
  org.eclipse.jdt.launching,
  org.eclipse.swt,
- org.eclipse.ui.genericeditor
+ org.eclipse.ui.genericeditor,
+ org.eclipse.compare
 Export-Package: org.eclipse.buildship.kotlindsl.provider
 

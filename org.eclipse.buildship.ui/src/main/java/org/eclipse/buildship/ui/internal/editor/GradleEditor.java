@@ -10,8 +10,11 @@
 package org.eclipse.buildship.ui.internal.editor;
 
 import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.editors.text.ForwardingDocumentProvider;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 
 /**
  * Editor definition for Gradle build scripts.
@@ -19,10 +22,18 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
  * @author Christophe Moine
  */
 public final class GradleEditor extends TextEditor {
+
+    private static final IDocumentProvider DOCUMENT_PROVIDER = new ForwardingDocumentProvider(GradleEditorConstants.PARTITIONING, new GradleDocumentSetupParticipant(),
+            new TextFileDocumentProvider());
+
     @Override
     protected void initializeEditor() {
         super.initializeEditor();
         setSourceViewerConfiguration(new GradleTextViewerConfiguration());
+
+        // This ensures that the document is set up correctly when it is opened from the History
+        // View.
+        setDocumentProvider(DOCUMENT_PROVIDER);
     }
 
     @Override

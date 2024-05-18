@@ -675,4 +675,27 @@
           </adapt>
        </definition>
     </extension>
+    <extension
+          point="org.eclipse.compare.contentViewers">
+       <viewer
+             class="org.eclipse.buildship.ui.internal.compare.GradleViewerCreator"
+             id="org.eclipse.buildship.ui.compare.viewer">
+       </viewer>
+       <contentTypeBinding
+             contentTypeId="org.eclipse.buildship.core.files.gradlebuildscript"
+             contentViewerId="org.eclipse.buildship.ui.compare.viewer">
+       </contentTypeBinding>
+    </extension>
+    <extension
+          point="org.eclipse.compare.contentMergeViewers">
+       <viewer
+             class="org.eclipse.buildship.ui.internal.compare.GradleMergeViewerCreator"
+             id="org.eclipse.buildship.ui.compare.mergeviewer"
+             label="Gradle Build Script Compare">
+       </viewer>
+       <contentTypeBinding
+             contentMergeViewerId="org.eclipse.buildship.ui.compare.mergeviewer"
+             contentTypeId="org.eclipse.buildship.core.files.gradlebuildscript">
+       </contentTypeBinding>
+    </extension>
 </plugin>
