@@ -42,5 +42,19 @@
             label="Kotlin DSL language server">
       </server>
    </extension>
+   <extension
+         point="org.eclipse.compare.contentViewers">
+      <contentTypeBinding
+            contentTypeId="org.eclipse.buildship.kotlindsl.content"
+            contentViewerId="org.eclipse.ui.genericeditor.compareViewer">
+      </contentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentMergeViewers">
+      <contentTypeBinding
+            contentMergeViewerId="org.eclipse.ui.genericeditor.compareViewer"
+            contentTypeId="org.eclipse.buildship.kotlindsl.content">
+      </contentTypeBinding>
+   </extension>
 
 </plugin>

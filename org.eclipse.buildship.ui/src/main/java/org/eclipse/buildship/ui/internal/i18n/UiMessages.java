@@ -19,6 +19,7 @@ public final class UiMessages extends NLS {
     private static final String BUNDLE_NAME = "org.eclipse.buildship.ui.internal.i18n.UiMessages"; //$NON-NLS-1$
 
     public static String Title_Select_0;
+    public static String Title_Gradle_Build_Script_Compare;
 
     public static String Button_Label_Browse;
 
