@@ -9,31 +9,31 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.util.progress;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.ProgressListener;
-import org.gradle.tooling.events.problems.BaseProblemDescriptor;
 import org.gradle.tooling.events.problems.FileLocation;
 import org.gradle.tooling.events.problems.LineInFileLocation;
-import org.gradle.tooling.events.problems.ProblemAggregation;
-import org.gradle.tooling.events.problems.ProblemAggregationDescriptor;
-import org.gradle.tooling.events.problems.ProblemDescriptor;
+import org.gradle.tooling.events.problems.Location;
+import org.gradle.tooling.events.problems.OffsetInFileLocation;
+import org.gradle.tooling.events.problems.ProblemAggregationEvent;
 import org.gradle.tooling.events.problems.ProblemEvent;
-import org.gradle.tooling.events.problems.Solution;
+import org.gradle.tooling.events.problems.SingleProblemEvent;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
-import org.eclipse.buildship.core.internal.util.gradle.Pair;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 public class ProblemsReportingProgressListener implements ProgressListener {
@@ -48,16 +48,10 @@ public class ProblemsReportingProgressListener implements ProgressListener {
     public void statusChanged(ProgressEvent event) {
         if (event instanceof ProblemEvent) {
             ProblemEvent problemEvent = (ProblemEvent) event;
-            BaseProblemDescriptor eventDescriptor = problemEvent.getDescriptor();
             try {
-                if (eventDescriptor instanceof ProblemDescriptor) {
-                    reportProblem((ProblemDescriptor) eventDescriptor);
-                } else if (eventDescriptor instanceof ProblemAggregationDescriptor) {
-                    for (ProblemAggregation aggregation : ((ProblemAggregationDescriptor) eventDescriptor).getAggregations()) {
-                        for (ProblemDescriptor descriptor : aggregation.getProblemDescriptors()) {
-                            reportProblem(descriptor);
-                        }
-                    }
+                if (problemEvent instanceof SingleProblemEvent) {
+                    reportProblem((SingleProblemEvent) problemEvent);
+                } else if (problemEvent instanceof ProblemAggregationEvent) {
                 }
             } catch (Exception e) {
                 CorePlugin.logger().warn("Cannot report problem " + problemEvent, e);
@@ -65,52 +59,106 @@ public class ProblemsReportingProgressListener implements ProgressListener {
         }
     }
 
-    private void reportProblem(ProblemDescriptor descriptor) {
-        Optional<Pair<IResource,Integer>> location = resourceAndFileNumberOfFirstFileLocation(descriptor);
-        if (location.isPresent()) {
-            GradleErrorMarker.createMarker(
-                toMarkerSeverity(descriptor.getSeverity()),
-                location.get().getFirst(), this.gradleBuild,
-                descriptor.getLabel().getLabel(),
-                null, // TODO (donat) Gradle 8.7 descriptor.getException().getException(),
-                location.get().getSecond(),
-                toPath(descriptor.getCategory()),
-                descriptor.getSolutions().stream().map(Solution::getSolution).collect(Collectors.toList()),
-                descriptor.getDocumentationLink().getUrl()
-            );
-        } else {
-            GradleErrorMarker.createMarker(
-                toMarkerSeverity(descriptor.getSeverity()),
-                ResourcesPlugin.getWorkspace().getRoot(),
-                this.gradleBuild,
-                descriptor.getLabel().getLabel(),
-                null, // TODO (donat) Gradle 8.7 descriptor.getException().getException(),
-                -1,
-                toPath(descriptor.getCategory()),
-                descriptor.getSolutions().stream().map(Solution::getSolution).collect(Collectors.toList()),
-                descriptor.getDocumentationLink().getUrl()
-            );
+    private void reportProblem(SingleProblemEvent event) {
+        List<Location> locations = event.getLocations();
+
+        // 1/4 offset in file location
+        Optional<OffsetInFileLocation> offsetInFileLocation = locations.stream().filter(OffsetInFileLocation.class::isInstance).map(OffsetInFileLocation.class::cast).findFirst();
+        if (offsetInFileLocation.isPresent()) {
+            IResource resource = toResource(offsetInFileLocation.get());
+
+            GradleErrorMarker.createProblemMarker(
+                    toMarkerSeverity(event.getDefinition().getSeverity()),
+                    resource,
+                    this.gradleBuild,
+                    markerMessage(event),
+                    stacktraceStringFor(event.getFailure().getFailure()),
+                    marker -> {
+                        OffsetInFileLocation location = offsetInFileLocation.get();
+                        int startOffset = location.getOffset();
+                        int endOffset =  location.getLength();
+                        try {
+                            marker.setAttribute(IMarker.CHAR_START, startOffset);
+                            marker.setAttribute(IMarker.CHAR_END, startOffset + endOffset);
+                        } catch (CoreException e) {
+                            throw new RuntimeException(e);
+                        }
+                    },
+                    new ProblemEventAdapter(event)
+                );
+            return;
         }
-    }
 
-    private static String toPath(org.gradle.tooling.events.problems.ProblemCategory problemCategory) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(problemCategory.getNamespace());
-        sb.append(':');
-        sb.append(problemCategory.getCategory());
-        for (String sc : problemCategory.getSubcategories()) {
-            sb.append(':');
-            sb.append(sc);
+        // 2/4 line in file location
+        Optional<LineInFileLocation> lineInFileLocation = locations.stream().filter(LineInFileLocation.class::isInstance).map(LineInFileLocation.class::cast).findFirst();
+        if (lineInFileLocation.isPresent()) {
+            IResource resource = toResource(lineInFileLocation.get());
+            GradleErrorMarker.createProblemMarker(
+                    toMarkerSeverity(event.getDefinition().getSeverity()),
+                    resource,
+                    this.gradleBuild,
+                    markerMessage(event),
+                    stacktraceStringFor(event.getFailure().getFailure()),
+                    marker -> {
+                        Integer lineNumber = lineNumberOf(lineInFileLocation.get());
+                        if (lineNumber >= 0) {
+                            try {
+                                marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+                            } catch (CoreException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    },
+                    new ProblemEventAdapter(event)
+                );
+            return;
         }
-        return sb.toString();
+
+        // 3/4 file location
+        Optional<FileLocation> fileLocation = locations.stream().filter(FileLocation.class::isInstance).map(FileLocation.class::cast).findFirst();
+        if (fileLocation.isPresent()) {
+            IResource resource = toResource(fileLocation.get());
+            GradleErrorMarker.createProblemMarker(
+                    toMarkerSeverity(event.getDefinition().getSeverity()),
+                    resource,
+                    this.gradleBuild,
+                    markerMessage(event),
+                    stacktraceStringFor(event.getFailure().getFailure()),
+                    m -> {},
+                    new ProblemEventAdapter(event)
+                );
+            return;
+        }
+
+        // 4/4 no location
+        GradleErrorMarker.createProblemMarker(
+            toMarkerSeverity(event.getDefinition().getSeverity()),
+            ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(this.gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath())),
+            this.gradleBuild,
+            markerMessage(event),
+            stacktraceStringFor(event.getFailure().getFailure()),
+            m -> {},
+            new ProblemEventAdapter(event)
+        );
     }
 
-    public Optional<FileLocation> firstFileLocation(ProblemDescriptor descriptor) {
-        return descriptor.getLocations().stream().filter(FileLocation.class::isInstance).map(FileLocation.class::cast).findFirst();
+    private static String markerMessage(SingleProblemEvent problem ) {
+        String result = problem.getDetails().getDetails();
+        if (result == null) {
+            result = problem.getContextualLabel().getContextualLabel();
+        }
+        if (result == null) {
+            result = problem.getDefinition().getId().getDisplayName();
+        }
+
+        return result == null ? "" : result;
     }
 
-    public Optional<Pair<IResource, Integer>> resourceAndFileNumberOfFirstFileLocation(ProblemDescriptor descriptor) {
-        return firstFileLocation(descriptor).map(location -> new Pair<>(toResource(location), lineNumberOf(location)));
+    private static String stacktraceStringFor(Failure failure) {
+        if (failure == null) {
+            return null;
+        }
+        return failure.getDescription();
     }
 
     private static IResource toResource(FileLocation location) {
