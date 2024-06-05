@@ -138,8 +138,7 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
                 def problems = gradleInternal.services.get(Problems)
 
                 problems.forNamespace("buildscript").reporting {
-                    it.label("Problem label")
-                        .category('deprecation', 'plugin')
+                    it.id("Problem label", 'deprecation')
                         .severity(Severity.WARNING)
                         .solution("Please use 'standard-plugin-2' instead of this plugin")
             }
@@ -152,7 +151,7 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
         then:
         numOfGradleErrorMarkers == 1
         gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == 'Problem label'
-        gradleErrorMarkers[0].getAttribute(GradleErrorMarker.ATTRIBUTE_PROBLEM_CATEGORY) == 'buildscript:deprecation:plugin'
+        gradleErrorMarkers[0].getAttribute(GradleErrorMarker.ATTRIBUTE_ID) == 'deprecation'
 
     }
 }
