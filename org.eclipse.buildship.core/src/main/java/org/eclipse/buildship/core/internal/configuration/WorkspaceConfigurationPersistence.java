@@ -73,7 +73,7 @@ final class WorkspaceConfigurationPersistence {
         boolean showConsoleView = preferences.getBoolean(SHOW_CONSOLE_VIEW, true);
         boolean showExecutionsView = preferences.getBoolean(SHOW_EXECUTIONS_VIEW, true);
         boolean moduleSupport = preferences.getBoolean(EXPERIMENTAL_ENABLE_MODULE_SUPPORT, false);
-        boolean problemsApiSupport = preferences.getBoolean(PROBLEMS_API_SUPPORT, true);
+        boolean problemsApiSupport = preferences.getBoolean(PROBLEMS_API_SUPPORT, false);
         return new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSyncEnabled, arguments, jvmArguments, showConsoleView, showExecutionsView, moduleSupport, problemsApiSupport);
     }
 
