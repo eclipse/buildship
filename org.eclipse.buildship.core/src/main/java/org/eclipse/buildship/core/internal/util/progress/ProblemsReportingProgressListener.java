@@ -10,7 +10,7 @@
 package org.eclipse.buildship.core.internal.util.progress;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.ProgressEvent;
@@ -22,6 +22,8 @@ import org.gradle.tooling.events.problems.OffsetInFileLocation;
 import org.gradle.tooling.events.problems.ProblemAggregationEvent;
 import org.gradle.tooling.events.problems.ProblemEvent;
 import org.gradle.tooling.events.problems.SingleProblemEvent;
+
+import com.google.common.base.Strings;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -61,85 +63,58 @@ public class ProblemsReportingProgressListener implements ProgressListener {
 
     private void reportProblem(SingleProblemEvent event) {
         List<Location> locations = event.getLocations();
-
-        // 1/4 offset in file location
-        Optional<OffsetInFileLocation> offsetInFileLocation = locations.stream().filter(OffsetInFileLocation.class::isInstance).map(OffsetInFileLocation.class::cast).findFirst();
-        if (offsetInFileLocation.isPresent()) {
-            IResource resource = toResource(offsetInFileLocation.get());
-
-            GradleErrorMarker.createProblemMarker(
-                    toMarkerSeverity(event.getDefinition().getSeverity()),
-                    resource,
-                    this.gradleBuild,
-                    markerMessage(event),
-                    stacktraceStringFor(event.getFailure().getFailure()),
-                    marker -> {
-                        OffsetInFileLocation location = offsetInFileLocation.get();
-                        int startOffset = location.getOffset();
-                        int endOffset =  location.getLength();
-                        try {
-                            marker.setAttribute(IMarker.CHAR_START, startOffset);
-                            marker.setAttribute(IMarker.CHAR_END, startOffset + endOffset);
-                        } catch (CoreException e) {
-                            throw new RuntimeException(e);
-                        }
-                    },
-                    new ProblemEventAdapter(event)
-                );
-            return;
-        }
-
-        // 2/4 line in file location
-        Optional<LineInFileLocation> lineInFileLocation = locations.stream().filter(LineInFileLocation.class::isInstance).map(LineInFileLocation.class::cast).findFirst();
-        if (lineInFileLocation.isPresent()) {
-            IResource resource = toResource(lineInFileLocation.get());
-            GradleErrorMarker.createProblemMarker(
-                    toMarkerSeverity(event.getDefinition().getSeverity()),
-                    resource,
-                    this.gradleBuild,
-                    markerMessage(event),
-                    stacktraceStringFor(event.getFailure().getFailure()),
-                    marker -> {
-                        Integer lineNumber = lineNumberOf(lineInFileLocation.get());
-                        if (lineNumber >= 0) {
-                            try {
-                                marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-                            } catch (CoreException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    },
-                    new ProblemEventAdapter(event)
-                );
-            return;
-        }
-
-        // 3/4 file location
-        Optional<FileLocation> fileLocation = locations.stream().filter(FileLocation.class::isInstance).map(FileLocation.class::cast).findFirst();
-        if (fileLocation.isPresent()) {
-            IResource resource = toResource(fileLocation.get());
-            GradleErrorMarker.createProblemMarker(
-                    toMarkerSeverity(event.getDefinition().getSeverity()),
-                    resource,
-                    this.gradleBuild,
-                    markerMessage(event),
-                    stacktraceStringFor(event.getFailure().getFailure()),
-                    m -> {},
-                    new ProblemEventAdapter(event)
-                );
-            return;
-        }
-
-        // 4/4 no location
         GradleErrorMarker.createProblemMarker(
             toMarkerSeverity(event.getDefinition().getSeverity()),
-            ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(this.gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath())),
+            findMarkerResource(locations),
             this.gradleBuild,
             markerMessage(event),
             stacktraceStringFor(event.getFailure().getFailure()),
-            m -> {},
+            markerPositionConfiguration(locations),
             new ProblemEventAdapter(event)
         );
+    }
+
+    private IResource findMarkerResource(List<Location> locations) {
+        return locations.stream()
+                .filter(FileLocation.class::isInstance)
+                .map(FileLocation.class::cast).findFirst()
+                .map(fl -> toResource(fl))
+                .orElseGet(() -> ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(rootProjectPath())));
+    }
+
+    private String rootProjectPath() {
+        return ProblemsReportingProgressListener.this.gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath();
+    }
+
+    private Consumer<IMarker> markerPositionConfiguration(List<Location> locations) {
+        for (Location location : locations) {
+            if (location instanceof OffsetInFileLocation) {
+                return  marker -> {
+                    OffsetInFileLocation offsetLocation = ((OffsetInFileLocation) location);
+                    int startOffset = offsetLocation.getOffset();
+                    int endOffset =  offsetLocation.getLength();
+                    try {
+                        marker.setAttribute(IMarker.CHAR_START, startOffset);
+                        marker.setAttribute(IMarker.CHAR_END, startOffset + endOffset);
+                    } catch (CoreException e) {
+                        throw new RuntimeException(e);
+                    }
+                };
+            } else if (location instanceof LineInFileLocation) {
+                return marker -> {
+
+                    Integer lineNumber = lineNumberOf((FileLocation) location);
+                    if (lineNumber >= 0) {
+                        try {
+                            marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+                        } catch (CoreException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                };
+            }
+        }
+         return notUsed -> {};
     }
 
     private static String markerMessage(SingleProblemEvent problem ) {
@@ -151,7 +126,7 @@ public class ProblemsReportingProgressListener implements ProgressListener {
             result = problem.getDefinition().getId().getDisplayName();
         }
 
-        return result == null ? "" : result;
+        return Strings.nullToEmpty("");
     }
 
     private static String stacktraceStringFor(Failure failure) {
