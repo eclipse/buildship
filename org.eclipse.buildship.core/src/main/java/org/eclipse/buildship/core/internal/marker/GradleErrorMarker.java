@@ -31,7 +31,8 @@ public class GradleErrorMarker {
     public static final String ID = CorePlugin.PLUGIN_ID + ".errormarker";
     public static final String ATTRIBUTE_STACKTRACE = "stacktrace";
     public static final String ATTRIBUTE_ROOT_DIR = "rootdir";
-    public static final String ATTRIBUTE_ID = "problem.id";
+    public static final String ATTRIBUTE_FQID = "problem.id.fqid";
+    public static final String ATTRIBUTE_ID_DISPLAY_NAME = "problem.id.displayname";
     public static final String ATTRIBUTE_LABEL = "problem.label";
     public static final String ATTRIBUTE_DETAILS = "problem.details";
     public static final String ATTRIBUTE_SOLUTIONS = "problem.solutions";

@@ -117,7 +117,7 @@ public class ProblemsReportingProgressListener implements ProgressListener {
          return notUsed -> {};
     }
 
-    private static String markerMessage(SingleProblemEvent problem ) {
+    private static String markerMessage(SingleProblemEvent problem) {
         String result = problem.getDetails().getDetails();
         if (result == null) {
             result = problem.getContextualLabel().getContextualLabel();
@@ -126,7 +126,7 @@ public class ProblemsReportingProgressListener implements ProgressListener {
             result = problem.getDefinition().getId().getDisplayName();
         }
 
-        return Strings.nullToEmpty("");
+        return Strings.nullToEmpty(result);
     }
 
     private static String stacktraceStringFor(Failure failure) {
