@@ -10,10 +10,8 @@
 package org.eclipse.buildship.ui.internal.marker;
 
 import java.net.URL;
-import java.util.Optional;
 
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import org.eclipse.core.resources.IMarker;
