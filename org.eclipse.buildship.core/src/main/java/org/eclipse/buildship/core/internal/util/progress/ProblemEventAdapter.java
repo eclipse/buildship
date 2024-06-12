@@ -33,8 +33,8 @@ public class ProblemEventAdapter implements Consumer<IMarker> {
     @Override
     public void accept(IMarker marker) {
         try {
-            String idInfo = this.problem.getDefinition().getId().getDisplayName() + " (id: " + fqid() + ")";
-            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_ID, idInfo);
+            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_ID_DISPLAY_NAME, this.problem.getDefinition().getId().getDisplayName());
+            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_FQID, fqid());
             marker.setAttribute(GradleErrorMarker.ATTRIBUTE_LABEL, this.problem.getContextualLabel().getContextualLabel());
             marker.setAttribute(GradleErrorMarker.ATTRIBUTE_DETAILS, this.problem.getDetails().getDetails());
             List<Solution> solutions = this.problem.getSolutions();

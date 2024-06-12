@@ -247,7 +247,13 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected List<IMarker> getGradleErrorMarkers(IResource rootResource = workspace.root) {
-        rootResource.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List
+        // error markers created from Tooling API problem events are filtered
+        (rootResource.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List).findAll { IMarker m -> m.getAttribute(GradleErrorMarker.ATTRIBUTE_FQID, null) == null }
+    }
+
+    protected List<IMarker> getProblemsApiErrorMarkers(IResource rootResource = workspace.root) {
+        // error markers created from Tooling API problem events are filtered
+        (rootResource.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List).findAll { IMarker m -> m.getAttribute(GradleErrorMarker.ATTRIBUTE_FQID, null) != null }
     }
 
     protected List<IStatus> getPlatformLogErrors() {

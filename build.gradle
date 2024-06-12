@@ -133,7 +133,7 @@ subprojects {
                     languageVersion = JavaLanguageVersion.of(8)
                 }
             }
-        } else if (config.targetPlatform.eclipseVersion in ['417', '418', '419', '420', '21', '422', '423', '424'])) {
+        } else if (config.targetPlatform.eclipseVersion in ['417', '418', '419', '420', '21', '422', '423', '424']) {
             java {
                 toolchain {
                     languageVersion = JavaLanguageVersion.of(11)

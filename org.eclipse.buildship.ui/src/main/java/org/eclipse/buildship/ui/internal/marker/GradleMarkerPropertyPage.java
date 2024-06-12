@@ -10,8 +10,10 @@
 package org.eclipse.buildship.ui.internal.marker;
 
 import java.net.URL;
+import java.util.Optional;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import org.eclipse.core.resources.IMarker;
@@ -73,7 +75,7 @@ public class GradleMarkerPropertyPage extends PropertyPage {
         idLabel.setText("Problem:");
         GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.TOP).applyTo(idLabel);
         Label idValue = new Label(parent, SWT.NONE);
-        idValue.setText(marker.getAttribute(GradleErrorMarker.ATTRIBUTE_ID, ""));
+        idValue.setText(idDisplayName(marker.getAttribute(GradleErrorMarker.ATTRIBUTE_ID_DISPLAY_NAME, (String) null), marker.getAttribute(GradleErrorMarker.ATTRIBUTE_FQID, (String) null)));
         GridDataFactory.swtDefaults().span(2, 1).align(SWT.LEFT, SWT.TOP).applyTo(idValue);
 
         // documentation
@@ -147,6 +149,19 @@ public class GradleMarkerPropertyPage extends PropertyPage {
                 GradleMarkerPropertyPage.this.clipboard.setContents(data, dataTypes);
             }
         });
+    }
+
+    private static String idDisplayName(String displayName, String fqid) {
+        StringBuilder result = new StringBuilder();
+        if (displayName != null) {
+            result.append(displayName);
+        }
+        if (fqid != null) {
+            result.append(" (id: ");
+            result.append(fqid);
+            result.append(")");
+        }
+        return result.toString();
     }
 
     public static int countLines(String str) {

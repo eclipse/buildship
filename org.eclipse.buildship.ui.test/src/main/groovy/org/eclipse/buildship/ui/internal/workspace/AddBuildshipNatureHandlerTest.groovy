@@ -41,7 +41,7 @@ class AddBuildshipNatureHandlerTest extends WorkspaceSpecification {
     def "Uses configuration from workspace settings"() {
         setup:
         WorkspaceConfiguration originalWorkspaceConfig = configurationManager.loadWorkspaceConfiguration()
-        WorkspaceConfiguration config = new WorkspaceConfiguration(GradleDistribution.forVersion("3.0"), dir('custom-gradle-home'), null, false, false, false, [], [], false, false, false)
+        WorkspaceConfiguration config = new WorkspaceConfiguration(GradleDistribution.forVersion("3.0"), dir('custom-gradle-home'), null, false, false, false, [], [], false, false, false, false)
         configurationManager.saveWorkspaceConfiguration(config)
 
         IProject project = EclipseProjects.newProject('add-buildship-nature')
