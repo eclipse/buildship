@@ -595,7 +595,7 @@
     <extension
           point="org.eclipse.ui.propertyPages">
        <page
-             class="org.eclipse.buildship.ui.internal.marker.MarkersPropertyPage"
+             class="org.eclipse.buildship.ui.internal.marker.GradleMarkerPropertyPage"
              id="org.eclipse.buildship.ui.propertypages.markers"
              name="Gradle">
           <enabledWhen>

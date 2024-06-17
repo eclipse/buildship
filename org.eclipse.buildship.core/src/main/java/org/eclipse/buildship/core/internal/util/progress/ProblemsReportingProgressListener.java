@@ -9,31 +9,33 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.util.progress;
 
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.function.Consumer;
 
+import org.gradle.tooling.Failure;
 import org.gradle.tooling.events.ProgressEvent;
 import org.gradle.tooling.events.ProgressListener;
-import org.gradle.tooling.events.problems.BaseProblemDescriptor;
 import org.gradle.tooling.events.problems.FileLocation;
 import org.gradle.tooling.events.problems.LineInFileLocation;
-import org.gradle.tooling.events.problems.ProblemAggregation;
-import org.gradle.tooling.events.problems.ProblemAggregationDescriptor;
-import org.gradle.tooling.events.problems.ProblemDescriptor;
+import org.gradle.tooling.events.problems.Location;
+import org.gradle.tooling.events.problems.OffsetInFileLocation;
+import org.gradle.tooling.events.problems.ProblemAggregationEvent;
 import org.gradle.tooling.events.problems.ProblemEvent;
-import org.gradle.tooling.events.problems.Solution;
+import org.gradle.tooling.events.problems.SingleProblemEvent;
+
+import com.google.common.base.Strings;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import org.eclipse.buildship.core.internal.CorePlugin;
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
-import org.eclipse.buildship.core.internal.util.gradle.Pair;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
 public class ProblemsReportingProgressListener implements ProgressListener {
@@ -48,16 +50,10 @@ public class ProblemsReportingProgressListener implements ProgressListener {
     public void statusChanged(ProgressEvent event) {
         if (event instanceof ProblemEvent) {
             ProblemEvent problemEvent = (ProblemEvent) event;
-            BaseProblemDescriptor eventDescriptor = problemEvent.getDescriptor();
             try {
-                if (eventDescriptor instanceof ProblemDescriptor) {
-                    reportProblem((ProblemDescriptor) eventDescriptor);
-                } else if (eventDescriptor instanceof ProblemAggregationDescriptor) {
-                    for (ProblemAggregation aggregation : ((ProblemAggregationDescriptor) eventDescriptor).getAggregations()) {
-                        for (ProblemDescriptor descriptor : aggregation.getProblemDescriptors()) {
-                            reportProblem(descriptor);
-                        }
-                    }
+                if (problemEvent instanceof SingleProblemEvent) {
+                    reportProblem((SingleProblemEvent) problemEvent);
+                } else if (problemEvent instanceof ProblemAggregationEvent) {
                 }
             } catch (Exception e) {
                 CorePlugin.logger().warn("Cannot report problem " + problemEvent, e);
@@ -65,52 +61,79 @@ public class ProblemsReportingProgressListener implements ProgressListener {
         }
     }
 
-    private void reportProblem(ProblemDescriptor descriptor) {
-        Optional<Pair<IResource,Integer>> location = resourceAndFileNumberOfFirstFileLocation(descriptor);
-        if (location.isPresent()) {
-            GradleErrorMarker.createMarker(
-                toMarkerSeverity(descriptor.getSeverity()),
-                location.get().getFirst(), this.gradleBuild,
-                descriptor.getLabel().getLabel(),
-                null, // TODO (donat) Gradle 8.7 descriptor.getException().getException(),
-                location.get().getSecond(),
-                toPath(descriptor.getCategory()),
-                descriptor.getSolutions().stream().map(Solution::getSolution).collect(Collectors.toList()),
-                descriptor.getDocumentationLink().getUrl()
-            );
-        } else {
-            GradleErrorMarker.createMarker(
-                toMarkerSeverity(descriptor.getSeverity()),
-                ResourcesPlugin.getWorkspace().getRoot(),
-                this.gradleBuild,
-                descriptor.getLabel().getLabel(),
-                null, // TODO (donat) Gradle 8.7 descriptor.getException().getException(),
-                -1,
-                toPath(descriptor.getCategory()),
-                descriptor.getSolutions().stream().map(Solution::getSolution).collect(Collectors.toList()),
-                descriptor.getDocumentationLink().getUrl()
-            );
+    private void reportProblem(SingleProblemEvent event) {
+        List<Location> locations = event.getLocations();
+        GradleErrorMarker.createProblemMarker(
+            toMarkerSeverity(event.getDefinition().getSeverity()),
+            findMarkerResource(locations),
+            this.gradleBuild,
+            markerMessage(event),
+            stacktraceStringFor(event.getFailure().getFailure()),
+            markerPositionConfiguration(locations),
+            new ProblemEventAdapter(event)
+        );
+    }
+
+    private IResource findMarkerResource(List<Location> locations) {
+        return locations.stream()
+                .filter(FileLocation.class::isInstance)
+                .map(FileLocation.class::cast).findFirst()
+                .map(fl -> toResource(fl))
+                .orElseGet(() -> ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(rootProjectPath())));
+    }
+
+    private String rootProjectPath() {
+        return ProblemsReportingProgressListener.this.gradleBuild.getBuildConfig().getRootProjectDirectory().getAbsolutePath();
+    }
+
+    private Consumer<IMarker> markerPositionConfiguration(List<Location> locations) {
+        for (Location location : locations) {
+            if (location instanceof OffsetInFileLocation) {
+                return  marker -> {
+                    OffsetInFileLocation offsetLocation = ((OffsetInFileLocation) location);
+                    int startOffset = offsetLocation.getOffset();
+                    int endOffset =  offsetLocation.getLength();
+                    try {
+                        marker.setAttribute(IMarker.CHAR_START, startOffset);
+                        marker.setAttribute(IMarker.CHAR_END, startOffset + endOffset);
+                    } catch (CoreException e) {
+                        throw new RuntimeException(e);
+                    }
+                };
+            } else if (location instanceof LineInFileLocation) {
+                return marker -> {
+
+                    Integer lineNumber = lineNumberOf((FileLocation) location);
+                    if (lineNumber >= 0) {
+                        try {
+                            marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+                        } catch (CoreException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                };
+            }
         }
+         return notUsed -> {};
     }
 
-    private static String toPath(org.gradle.tooling.events.problems.ProblemCategory problemCategory) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(problemCategory.getNamespace());
-        sb.append(':');
-        sb.append(problemCategory.getCategory());
-        for (String sc : problemCategory.getSubcategories()) {
-            sb.append(':');
-            sb.append(sc);
+    private static String markerMessage(SingleProblemEvent problem) {
+        String result = problem.getDetails().getDetails();
+        if (result == null) {
+            result = problem.getContextualLabel().getContextualLabel();
         }
-        return sb.toString();
+        if (result == null) {
+            result = problem.getDefinition().getId().getDisplayName();
+        }
+
+        return Strings.nullToEmpty(result);
     }
 
-    public Optional<FileLocation> firstFileLocation(ProblemDescriptor descriptor) {
-        return descriptor.getLocations().stream().filter(FileLocation.class::isInstance).map(FileLocation.class::cast).findFirst();
-    }
-
-    public Optional<Pair<IResource, Integer>> resourceAndFileNumberOfFirstFileLocation(ProblemDescriptor descriptor) {
-        return firstFileLocation(descriptor).map(location -> new Pair<>(toResource(location), lineNumberOf(location)));
+    private static String stacktraceStringFor(Failure failure) {
+        if (failure == null) {
+            return null;
+        }
+        return failure.getDescription();
     }
 
     private static IResource toResource(FileLocation location) {

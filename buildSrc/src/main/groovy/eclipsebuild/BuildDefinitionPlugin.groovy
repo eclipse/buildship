@@ -264,7 +264,15 @@ class BuildDefinitionPlugin implements Plugin<Project> {
 
             onlyIf {
                 HashFunction sha512HashFunction = Hashing.sha512()
-                String hash = sha512HashFunction.hashString(config.targetPlatform.targetDefinition.text, StandardCharsets.UTF_8)
+                String manifests = project.rootProject.allprojects
+                        .findAll { p -> p.plugins.hasPlugin(ExistingJarBundlePlugin) }
+                        .toSorted { p1, p2 -> p1.name <=> p2.name }
+                        .collect { p -> p.file("META-INF/MANIFEST.MF").exists() ? p.file("META-INF/MANIFEST.MF").text : null }
+                        .findAll { it != null }
+                        .join("\n")
+                String targetDef = config.targetPlatform.targetDefinition.text
+                String hashInput = manifests + "\n" + targetDef
+                String hash = sha512HashFunction.hashString(hashInput, StandardCharsets.UTF_8)
                 File digestFile = new File(config.nonMavenizedTargetPlatformDir, 'digest')
                 boolean digestMatch = digestFile.exists() ? digestFile.text == hash : false
                 !digestMatch

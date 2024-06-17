@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.swtbot.eclipse.finder,
  junit-platform-suite-engine,
  org.apache.log4j,
  org.eclipse.jdt.launching,
- org.hamcrest.core;bundle-version="1.3.0",
+ org.hamcrest.core,
  org.eclipse.e4.ui.model.workbench;resolution:=optional
 Bundle-ClassPath: .,
  lib/ant-1.10.12.jar,

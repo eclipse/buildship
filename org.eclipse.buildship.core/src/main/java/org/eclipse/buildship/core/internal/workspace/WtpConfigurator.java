@@ -107,7 +107,7 @@ public class WtpConfigurator implements ProjectConfigurator {
                     markAsNonDeployed(javaProject, monitor);
                 }
             } catch (UnsupportedConfigurationException e) {
-                GradleErrorMarker.createError(javaProject.getProject(), gradleBuild, e.getMessage(), null, 0);
+                GradleErrorMarker.createError(javaProject.getProject(), gradleBuild, e.getMessage(), null);
             }
         }
     }
