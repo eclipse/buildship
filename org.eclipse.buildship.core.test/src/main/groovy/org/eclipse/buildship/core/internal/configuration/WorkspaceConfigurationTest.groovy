@@ -40,7 +40,7 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
         when:
         File gradleUserHomeDir = dir(gradleUserHome)
         File javaHomeDir = dir(javaHome)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, javaHomeDir, offlineMode, buildScansEnabled, autoSync, args, jvmArgs, showConsole, showExecutions, moduleSupportEnabled))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, javaHomeDir, offlineMode, buildScansEnabled, autoSync, args, jvmArgs, showConsole, showExecutions, moduleSupportEnabled, false))
         WorkspaceConfiguration updatedConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         then:
