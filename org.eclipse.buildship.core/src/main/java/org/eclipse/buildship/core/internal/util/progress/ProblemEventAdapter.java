@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.gradle.tooling.events.problems.ProblemContext;
+import org.gradle.tooling.events.problems.ProblemDefinition;
 import org.gradle.tooling.events.problems.ProblemGroup;
+import org.gradle.tooling.events.problems.ProblemId;
 import org.gradle.tooling.events.problems.SingleProblemEvent;
 import org.gradle.tooling.events.problems.Solution;
 
@@ -22,44 +25,128 @@ import org.eclipse.core.runtime.CoreException;
 
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker;
 
-public class ProblemEventAdapter implements Consumer<IMarker> {
+public abstract class ProblemEventAdapter implements Consumer<IMarker> {
 
-    private final SingleProblemEvent problem;
-
-    public ProblemEventAdapter(SingleProblemEvent problem) {
-        this.problem = problem;
+    public static Consumer<IMarker> adapterFor(SingleProblemEvent event) {
+        return new SingleProblemEventAdapter(event);
     }
 
+    public static Consumer<IMarker> adapterFor(ProblemDefinition definition, ProblemContext context) {
+        return new AggregationProblemEventAdapter(definition, context);
+    }
+
+
+    protected abstract ProblemId getId();
+
+    protected abstract String getContextualLabel();
+
+    protected abstract String getDetails();
+
+    protected abstract List<Solution> getSolutions();
+
+    protected abstract String getDocumentationUrl();
+
     @Override
-    public void accept(IMarker marker) {
+    public final void accept(IMarker marker) {
         try {
-            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_ID_DISPLAY_NAME, this.problem.getDefinition().getId().getDisplayName());
-            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_FQID, fqid());
-            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_LABEL, this.problem.getContextualLabel().getContextualLabel());
-            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_DETAILS, this.problem.getDetails().getDetails());
-            List<Solution> solutions = this.problem.getSolutions();
+            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_ID_DISPLAY_NAME, getId().getDisplayName());
+            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_FQID, fqid(getId()));
+            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_LABEL, getContextualLabel());
+            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_DETAILS, getDetails());
+            List<Solution> solutions = getSolutions();
             if (solutions != null) {
                 String solutionsString = solutions.stream().map(Solution::getSolution).collect(Collectors.joining(System.getProperty("line.separator")));
                 marker.setAttribute(GradleErrorMarker.ATTRIBUTE_SOLUTIONS, solutionsString);
             }
-            String documentationLink = this.problem.getDefinition().getDocumentationLink().getUrl();
+            String documentationLink = getDocumentationUrl();
             if (documentationLink != null) {
                 marker.setAttribute(GradleErrorMarker.ATTRIBUTE_DOCUMENTATION_LINK, documentationLink);
             }
         } catch (CoreException e) {
             throw new RuntimeException(e);
         }
+
     }
 
-    private String fqid() {
-        return groupFqid(this.problem.getDefinition().getId().getGroup()) + ":" + this.problem.getDefinition().getId().getName();
+    private static String fqid(ProblemId problemId) {
+        return groupFqid(problemId.getGroup()) + ":" + problemId.getName();
     }
 
-    private String groupFqid(ProblemGroup group) {
+    private static String groupFqid(ProblemGroup group) {
         if (group.getParent() == null) {
             return group.getName();
         } else {
             return groupFqid(group.getParent()) + ":" + group.getName();
         }
     }
+
+    private static class AggregationProblemEventAdapter extends ProblemEventAdapter {
+        private final ProblemDefinition definition;
+        private final ProblemContext context;
+
+        public AggregationProblemEventAdapter(ProblemDefinition definition, ProblemContext context) {
+            this.definition = definition;
+            this.context = context;
+        }
+
+        @Override
+        protected ProblemId getId() {
+            return this.definition.getId();
+        }
+
+        @Override
+        protected String getContextualLabel() {
+            return this.context.getDetails().getDetails();
+        }
+
+        @Override
+        protected String getDetails() {
+            return this.context.getDetails().getDetails();
+        }
+
+        @Override
+        protected List<Solution> getSolutions() {
+           return this.context.getSolutions();
+        }
+
+        @Override
+        protected String getDocumentationUrl() {
+            return this.definition.getDocumentationLink().getUrl();
+        }
+    }
+
+    private static class SingleProblemEventAdapter extends ProblemEventAdapter {
+
+        private final SingleProblemEvent problem;
+
+        public SingleProblemEventAdapter(SingleProblemEvent problem) {
+            this.problem = problem;
+        }
+
+        @Override
+        protected ProblemId getId() {
+            return this.problem.getDefinition().getId();
+        }
+
+        @Override
+        protected String getContextualLabel() {
+            return this.problem.getContextualLabel().getContextualLabel();
+        }
+
+        @Override
+        protected String getDetails() {
+            return this.problem.getDetails().getDetails();
+        }
+
+        @Override
+        protected List<Solution> getSolutions() {
+            return this.getSolutions();
+        }
+
+        @Override
+        protected String getDocumentationUrl() {
+            return this.problem.getDefinition().getDocumentationLink().getUrl();
+        }
+    }
+
 }

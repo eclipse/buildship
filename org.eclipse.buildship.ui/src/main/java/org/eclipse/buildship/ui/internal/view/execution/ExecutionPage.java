@@ -190,13 +190,15 @@ public final class ExecutionPage extends BasePage<FilteredTree> implements NodeS
                 this.activeItems.add(operationItem);
             }
         } else {
-            operationItem.setFinishEvent((FinishEvent) progressEvent);
-            this.removedItems.add(operationItem);
-            if (isJvmTestSuite(descriptor) && operationItem.getChildren().isEmpty()) {
-                // do not display test suite nodes that have no children (unwanted artifacts from Gradle)
-                OperationItem parentOperationItem = this.allItems.get(findFirstNonExcludedParent(descriptor));
-                parentOperationItem.removeChild(operationItem);
-                return;
+            if (progressEvent instanceof FinishEvent) {
+                operationItem.setFinishEvent((FinishEvent) progressEvent);
+                this.removedItems.add(operationItem);
+                if (isJvmTestSuite(descriptor) && operationItem.getChildren().isEmpty()) {
+                    // do not display test suite nodes that have no children (unwanted artifacts from Gradle)
+                    OperationItem parentOperationItem = this.allItems.get(findFirstNonExcludedParent(descriptor));
+                    parentOperationItem.removeChild(operationItem);
+                    return;
+                }
             }
         }
 

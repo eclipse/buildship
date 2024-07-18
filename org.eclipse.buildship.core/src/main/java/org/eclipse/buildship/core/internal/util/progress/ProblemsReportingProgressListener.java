@@ -19,10 +19,14 @@ import org.gradle.tooling.events.problems.FileLocation;
 import org.gradle.tooling.events.problems.LineInFileLocation;
 import org.gradle.tooling.events.problems.Location;
 import org.gradle.tooling.events.problems.OffsetInFileLocation;
+import org.gradle.tooling.events.problems.ProblemAggregation;
 import org.gradle.tooling.events.problems.ProblemAggregationEvent;
+import org.gradle.tooling.events.problems.ProblemContext;
+import org.gradle.tooling.events.problems.ProblemDefinition;
 import org.gradle.tooling.events.problems.ProblemEvent;
 import org.gradle.tooling.events.problems.SingleProblemEvent;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import org.eclipse.core.resources.IFile;
@@ -54,6 +58,7 @@ public class ProblemsReportingProgressListener implements ProgressListener {
                 if (problemEvent instanceof SingleProblemEvent) {
                     reportProblem((SingleProblemEvent) problemEvent);
                 } else if (problemEvent instanceof ProblemAggregationEvent) {
+                    reportProblem((ProblemAggregationEvent) problemEvent);
                 }
             } catch (Exception e) {
                 CorePlugin.logger().warn("Cannot report problem " + problemEvent, e);
@@ -70,8 +75,26 @@ public class ProblemsReportingProgressListener implements ProgressListener {
             markerMessage(event),
             stacktraceStringFor(event.getFailure().getFailure()),
             markerPositionConfiguration(locations),
-            new ProblemEventAdapter(event)
+            ProblemEventAdapter.adapterFor(event)
         );
+    }
+
+    private void reportProblem(ProblemAggregationEvent event) {
+        ProblemAggregation aggregation = event.getProblemAggregation();
+        ProblemDefinition definition = aggregation.getDefinition();
+        List<ProblemContext> contexts = aggregation.getProblemContext();
+        for (ProblemContext context : contexts) {
+            List<Location> locations = context.getLocations();
+            GradleErrorMarker.createProblemMarker(
+                toMarkerSeverity(definition.getSeverity()),
+                findMarkerResource(locations),
+                this.gradleBuild,
+                markerMessage(context.getDetails().getDetails(), context.getDetails().getDetails(), definition.getId().getDisplayName()),
+                stacktraceStringFor(context.getFailure().getFailure()),
+                markerPositionConfiguration(locations),
+                ProblemEventAdapter.adapterFor(definition, context)
+            );
+        }
     }
 
     private IResource findMarkerResource(List<Location> locations) {
@@ -79,7 +102,10 @@ public class ProblemsReportingProgressListener implements ProgressListener {
                 .filter(FileLocation.class::isInstance)
                 .map(FileLocation.class::cast).findFirst()
                 .map(fl -> toResource(fl))
-                .orElseGet(() -> ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(rootProjectPath())));
+                .orElseGet(() -> {
+                    IResource result = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(Path.fromOSString(rootProjectPath()));
+                    return result == null ? ResourcesPlugin.getWorkspace().getRoot() : result;
+                });
     }
 
     private String rootProjectPath() {
@@ -118,12 +144,24 @@ public class ProblemsReportingProgressListener implements ProgressListener {
     }
 
     private static String markerMessage(SingleProblemEvent problem) {
-        String result = problem.getDetails().getDetails();
+        String result = problem.getContextualLabel().getContextualLabel();
         if (result == null) {
-            result = problem.getContextualLabel().getContextualLabel();
+            result = problem.getDetails().getDetails();
         }
         if (result == null) {
             result = problem.getDefinition().getId().getDisplayName();
+        }
+
+        return Strings.nullToEmpty(result);
+    }
+
+    private static String markerMessage(String contextualLabel, String details, String definitionDisplayName) {
+        String result = contextualLabel;
+        if (result == null) {
+            result = details;
+        }
+        if (result == null) {
+            result = definitionDisplayName;
         }
 
         return Strings.nullToEmpty(result);
