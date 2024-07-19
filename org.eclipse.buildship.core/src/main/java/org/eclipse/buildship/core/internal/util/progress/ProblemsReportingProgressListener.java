@@ -26,7 +26,6 @@ import org.gradle.tooling.events.problems.ProblemDefinition;
 import org.gradle.tooling.events.problems.ProblemEvent;
 import org.gradle.tooling.events.problems.SingleProblemEvent;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
 import org.eclipse.core.resources.IFile;
