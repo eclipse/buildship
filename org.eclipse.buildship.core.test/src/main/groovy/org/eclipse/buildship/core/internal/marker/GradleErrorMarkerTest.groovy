@@ -128,7 +128,6 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
     }
 
 
-    @spock.lang.IgnoreRest // TODO delete
     def "Convers problem reports to error markers"() {
         setup:
         WorkspaceConfiguration w = CorePlugin.configurationManager().loadWorkspaceConfiguration()

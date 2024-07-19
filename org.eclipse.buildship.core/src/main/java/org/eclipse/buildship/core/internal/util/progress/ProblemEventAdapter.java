@@ -140,7 +140,7 @@ public abstract class ProblemEventAdapter implements Consumer<IMarker> {
 
         @Override
         protected List<Solution> getSolutions() {
-            return this.getSolutions();
+            return this.problem.getSolutions();
         }
 
         @Override
