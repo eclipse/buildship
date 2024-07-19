@@ -36,6 +36,7 @@ public class GradleErrorMarker {
     public static final String ATTRIBUTE_LABEL = "problem.label";
     public static final String ATTRIBUTE_DETAILS = "problem.details";
     public static final String ATTRIBUTE_SOLUTIONS = "problem.solutions";
+    public static final String ATTRIBUTE_ADDITIONAL_DATA = "problem.additionaldata";
     public static final String ATTRIBUTE_DOCUMENTATION_LINK = "problem.documentationlink";
 
     private GradleErrorMarker() {

@@ -10,6 +10,8 @@
 package org.eclipse.buildship.core.internal.util.progress;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,8 @@ public abstract class ProblemEventAdapter implements Consumer<IMarker> {
 
     protected abstract List<Solution> getSolutions();
 
+    protected abstract String getAdditionalData();
+
     protected abstract String getDocumentationUrl();
 
     @Override
@@ -58,6 +62,7 @@ public abstract class ProblemEventAdapter implements Consumer<IMarker> {
                 String solutionsString = solutions.stream().map(Solution::getSolution).collect(Collectors.joining(System.getProperty("line.separator")));
                 marker.setAttribute(GradleErrorMarker.ATTRIBUTE_SOLUTIONS, solutionsString);
             }
+            marker.setAttribute(GradleErrorMarker.ATTRIBUTE_ADDITIONAL_DATA, getAdditionalData());
             String documentationLink = getDocumentationUrl();
             if (documentationLink != null) {
                 marker.setAttribute(GradleErrorMarker.ATTRIBUTE_DOCUMENTATION_LINK, documentationLink);
@@ -110,6 +115,11 @@ public abstract class ProblemEventAdapter implements Consumer<IMarker> {
         }
 
         @Override
+        protected String getAdditionalData() {
+            return "";
+        }
+
+        @Override
         protected String getDocumentationUrl() {
             return this.definition.getDocumentationLink().getUrl();
         }
@@ -141,6 +151,24 @@ public abstract class ProblemEventAdapter implements Consumer<IMarker> {
         @Override
         protected List<Solution> getSolutions() {
             return this.problem.getSolutions();
+        }
+
+        @Override
+        protected String getAdditionalData() {
+            return mapToMultiLineString(this.problem.getAdditionalData().getAsMap());
+        }
+
+        private static String mapToMultiLineString (Map<String, Object> map) {
+            StringBuilder result = new StringBuilder();
+            String separator = "";
+            for (Entry<String, Object> entry : map.entrySet()) {
+                result.append(separator);
+                result.append(entry.getKey());
+                result.append(": ");
+                result.append(entry.getValue());
+                separator = "\n";
+            }
+            return result.toString();
         }
 
         @Override

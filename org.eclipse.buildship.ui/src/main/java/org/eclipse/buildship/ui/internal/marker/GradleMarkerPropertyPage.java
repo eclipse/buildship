@@ -125,6 +125,17 @@ public class GradleMarkerPropertyPage extends PropertyPage {
         solutionsAreaText.setText(solutions);
         new Label(parent, SWT.NONE); // span
 
+        // additional data
+        String additionalData = marker.getAttribute(GradleErrorMarker.ATTRIBUTE_ADDITIONAL_DATA, "");
+        Label additionalDataLabel = new Label(parent, SWT.READ_ONLY);
+        additionalDataLabel.setText("Additional data:");
+        GridDataFactory.swtDefaults().align(SWT.LEFT, SWT.TOP).applyTo(additionalDataLabel);
+
+        Text additionalDataText = new Text(parent, SWT.MULTI | SWT.READ_ONLY);
+        GridDataFactory.fillDefaults().span(1, 1).hint(100, 50).grab(true, false).applyTo(additionalDataText);
+        additionalDataText.setText(additionalData);
+        new Label(parent, SWT.NONE); // span
+
         // stacktrace
         String stacktrace = marker.getAttribute(GradleErrorMarker.ATTRIBUTE_STACKTRACE, "(no stacktrace provided)");
         Label stackTraceLabel = new Label(parent, SWT.NONE);
