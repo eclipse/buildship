@@ -33,14 +33,14 @@ class WorkspaceConfigurationTest extends WorkspaceSpecification {
     }
 
     @Rollup
-    def "Can save workpsace configuration"(GradleDistribution distribution, String gradleUserHome, String javaHome, boolean offlineMode, boolean buildScansEnabled, boolean autoSync, List args, List jvmArgs, boolean showConsole, boolean showExecutions, moduleSupportEnabled) {
+    def "Can save workspace configuration"(GradleDistribution distribution, String gradleUserHome, String javaHome, boolean offlineMode, boolean buildScansEnabled, boolean autoSync, List args, List jvmArgs, boolean showConsole, boolean showExecutions, moduleSupportEnabled) {
         setup:
         WorkspaceConfiguration orignalConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         when:
         File gradleUserHomeDir = dir(gradleUserHome)
         File javaHomeDir = dir(javaHome)
-        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, javaHomeDir, offlineMode, buildScansEnabled, autoSync, args, jvmArgs, showConsole, showExecutions, moduleSupportEnabled))
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(distribution, gradleUserHomeDir, javaHomeDir, offlineMode, buildScansEnabled, autoSync, args, jvmArgs, showConsole, showExecutions, moduleSupportEnabled, false))
         WorkspaceConfiguration updatedConfiguration = configurationManager.loadWorkspaceConfiguration()
 
         then:

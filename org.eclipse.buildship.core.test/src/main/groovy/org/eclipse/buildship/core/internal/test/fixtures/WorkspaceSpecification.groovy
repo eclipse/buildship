@@ -32,6 +32,7 @@ import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager
@@ -40,7 +41,6 @@ import org.eclipse.buildship.core.internal.marker.GradleErrorMarker
 import org.eclipse.buildship.core.internal.preferences.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.preferences.PersistentModel
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion
-import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.EclipseVmUtil
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
@@ -247,7 +247,11 @@ abstract class WorkspaceSpecification extends Specification {
     }
 
     protected List<IMarker> getGradleErrorMarkers(IResource rootResource = workspace.root) {
-        rootResource.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List
+        (rootResource.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List).findAll { IMarker m -> m.getAttribute(GradleErrorMarker.ATTRIBUTE_FQID, null) == null }
+    }
+
+    protected List<IMarker> getProblemsApiErrorMarkers(IResource rootResource = workspace.root) {
+        (rootResource.findMarkers(GradleErrorMarker.ID, false, IResource.DEPTH_INFINITE) as List).findAll { IMarker m -> m.getAttribute(GradleErrorMarker.ATTRIBUTE_FQID, null) != null }
     }
 
     protected List<IStatus> getPlatformLogErrors() {

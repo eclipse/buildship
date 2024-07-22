@@ -15,6 +15,8 @@ import org.eclipse.core.resources.IMarker
 import org.eclipse.core.runtime.IStatus
 
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.CorePlugin
+import org.eclipse.buildship.core.internal.configuration.WorkspaceConfiguration
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
@@ -128,6 +130,8 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
 
     def "Convers problem reports to error markers"() {
         setup:
+        WorkspaceConfiguration w = CorePlugin.configurationManager().loadWorkspaceConfiguration()
+        configurationManager.saveWorkspaceConfiguration(new WorkspaceConfiguration(w.gradleDistribution, w.gradleUserHome, w.javaHome, w.offline, w.buildScansEnabled, w.autoSync, w.arguments, w.jvmArguments, w.showConsoleView, w.showExecutionsView, w.experimentalModuleSupportEnabled , true))
         File projectDir = dir('error-marker-test') {
             file 'build.gradle', '''
                 import org.gradle.api.internal.GradleInternal
@@ -138,21 +142,24 @@ class GradleErrorMarkerTest extends ProjectSynchronizationSpecification {
                 def problems = gradleInternal.services.get(Problems)
 
                 problems.forNamespace("buildscript").reporting {
-                    it.label("Problem label")
-                        .category('deprecation', 'plugin')
+                    it.id("id", 'My problem')
+                        .details("Problem details")
                         .severity(Severity.WARNING)
                         .solution("Please use 'standard-plugin-2' instead of this plugin")
-            }
+                }
             '''
         }
 
         when:
-        tryImportAndWait(projectDir)
+        importAndWait(projectDir)
 
         then:
-        numOfGradleErrorMarkers == 1
-        gradleErrorMarkers[0].getAttribute(IMarker.MESSAGE) == 'Problem label'
-        gradleErrorMarkers[0].getAttribute(GradleErrorMarker.ATTRIBUTE_PROBLEM_CATEGORY) == 'buildscript:deprecation:plugin'
+        problemsApiErrorMarkers.size() == 1
+        problemsApiErrorMarkers[0].getAttribute(IMarker.MESSAGE) == 'Problem details'
+        problemsApiErrorMarkers[0].getAttribute(GradleErrorMarker.ATTRIBUTE_FQID) == 'generic:id'
+
+        cleanup:
+        CorePlugin.configurationManager().saveWorkspaceConfiguration(w)
 
     }
 }
