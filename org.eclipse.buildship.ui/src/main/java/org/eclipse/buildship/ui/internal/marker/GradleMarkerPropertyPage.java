@@ -12,7 +12,6 @@ package org.eclipse.buildship.ui.internal.marker;
 import java.net.URL;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.jface.dialogs.Dialog;
@@ -174,6 +173,6 @@ public class GradleMarkerPropertyPage extends PropertyPage {
     }
 
     public static int countLines(String str) {
-        return Lists.newArrayList(Splitter.on(System.lineSeparator()).split(str)).size();
+        return Splitter.on(System.lineSeparator()).splitToList(str).size();
     }
 }
