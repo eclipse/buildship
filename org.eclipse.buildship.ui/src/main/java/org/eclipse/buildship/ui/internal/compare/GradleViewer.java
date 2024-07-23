@@ -11,6 +11,9 @@ package org.eclipse.buildship.ui.internal.compare;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import com.google.common.io.CharStreams;
 
 import org.eclipse.compare.IEncodedStreamContentAccessor;
 import org.eclipse.compare.IStreamContentAccessor;
@@ -85,7 +88,8 @@ public final class GradleViewer extends Viewer {
                 charset = ResourcesPlugin.getEncoding();
             }
 
-            Document document = new Document(new String(contents.readAllBytes(), charset));
+            InputStreamReader reader = new InputStreamReader(contents, charset);
+            Document document = new Document(CharStreams.toString(reader));
             new GradleDocumentSetupParticipant().setup(document);
             this.sourceViewer.setDocument(document);
         } catch (CoreException | IOException e) {
