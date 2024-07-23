@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Gradle Inc.
+ * Copyright (c) 2023 Gradle Inc. and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -58,11 +58,8 @@ public final class GradleWorkspaceCompositePreferencePage extends PropertyPage {
         this.workspaceCompositeNameText = new Text(workspaceCompositeNameComposite, SWT.BORDER);
         this.workspaceCompositeNameText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
-<<<<<<< HEAD
-        this.gradleProjectCheckboxtreeComposite = new GradleProjectGroup(this.gradleWorkspaceCompositeSettingsComposite);
-=======
         this.gradleProjectCheckboxtreeComposite = new GradleProjectGroup(this.gradleWorkspaceCompositeSettingsComposite, true);
->>>>>>> kuzniarz-workspace-composites-rebased
+
         GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(3, SWT.DEFAULT).applyTo(this.gradleProjectCheckboxtreeComposite);
 
         return this.gradleWorkspaceCompositeSettingsComposite;
@@ -70,10 +67,6 @@ public final class GradleWorkspaceCompositePreferencePage extends PropertyPage {
 
     @Override
     public boolean performOk() {
-<<<<<<< HEAD
        return true;
-=======
-        return true;
->>>>>>> kuzniarz-workspace-composites-rebased
     }
 }

@@ -99,7 +99,7 @@ public class DefaultConfigurationManager implements ConfigurationManager {
     }
 
     public BuildConfiguration loadBuildConfigurationForComposite(File fileDir) {
-        DefaultBuildConfigurationProperties buildConfigProperties = this.buildConfigurationPersistence.readCompositeBuildProperties(fileDir);
+        BuildConfigurationProperties buildConfigProperties = this.buildConfigurationPersistence.readCompositeBuildProperties(fileDir);
         return new DefaultBuildConfiguration(buildConfigProperties, loadWorkspaceConfiguration());
     }
 
