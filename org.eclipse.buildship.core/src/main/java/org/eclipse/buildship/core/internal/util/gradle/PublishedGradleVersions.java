@@ -37,6 +37,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import org.eclipse.buildship.core.internal.CorePlugin;
+
 /**
  * Provides information about the Gradle versions available from services.gradle.org. The version information can optionally be cached on the local file system.
  *
@@ -220,10 +222,10 @@ public final class PublishedGradleVersions {
     private static File getCacheFile() {
         // ensures compliance with XDG base spec: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
         String xdgCache = System.getenv("XDG_CACHE_HOME");
-        if (xdgCache == null) {
-            xdgCache = System.getProperty("user.home") + "/.cache/";
+        if (xdgCache != null) {
+            return new File(xdgCache, "tooling/gradle/versions.json");
         }
-        return new File(xdgCache, "tooling/gradle/versions.json");
+        return CorePlugin.getInstance().getStateLocation().append("gradle").append("versions.json").toFile();
     }
 
     /**
