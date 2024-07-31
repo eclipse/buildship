@@ -75,7 +75,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         project.description.buildSpec.find { it.builderName == 'customBuildCommand' }.arguments == ['buildCommandKey' : "buildCommandValue"]
 
         where:
-        distribution << getSupportedGradleDistributions('>=2.9')
+        distribution << getSupportedGradleDistributions('>=3.0')
     }
 
     def "The Gradle settings file is written"() {
@@ -200,7 +200,7 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         targetCompatibility == JavaCore.VERSION_1_3
 
         where:
-        distribution << getSupportedGradleDistributions('>=2.11')
+        distribution << getSupportedGradleDistributions('>=3.0')
     }
 
     @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
@@ -229,72 +229,6 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         sourceCompatibility == JavaCore.VERSION_1_2
         targetCompatibility == JavaCore.VERSION_1_2
     }
-
-    @Unroll
-    @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Source settings match current Java version for #distribution.version"(GradleDistribution distribution) {
-        setup:
-        prepareJavaProject('sample-project')
-        def projectDir = dir('sample-project') {
-            file 'build.gradle', """
-                apply plugin: 'java'
-                sourceCompatibility = 1.2
-                targetCompatibility = 1.3
-            """
-            dir 'src/main/java'
-        }
-
-        when:
-        importAndWait(projectDir, distribution)
-        IJavaProject javaProject = findJavaProject('sample-project')
-        String sourceCompliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)
-        String sourceCompatibility = javaProject.getOption(JavaCore.COMPILER_SOURCE, true)
-        String targetCompatibility = javaProject.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true)
-        String currentJavaVersion = JavaVersionUtil.adaptVersionToEclipseNamingConversions(JavaVersion.current())
-
-        then:
-        assert sourceCompliance == currentJavaVersion
-        assert sourceCompatibility == currentJavaVersion
-        assert targetCompatibility == currentJavaVersion
-
-        where:
-        distribution << getSupportedGradleDistributions('<2.10')
-    }
-
-    @Unroll
-    @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Source folders are not updated for #distribution.version"(GradleDistribution distribution) {
-        setup:
-        prepareJavaProject('sample-project')
-        def projectDir = dir('sample-project') {
-            file 'build.gradle', '''
-                apply plugin: 'java'
-
-                sourceSets {
-                    main {
-                        java {
-                            exclude 'excludePattern'
-                            include 'includePattern'
-                        }
-                    }
-                }
-            '''
-            dir 'src/main/java'
-        }
-
-        when:
-        importAndWait(projectDir, distribution)
-        IJavaProject javaProject = findJavaProject('sample-project')
-        IClasspathEntry sourceDir = javaProject.rawClasspath.find { it.entryKind == IClasspathEntry.CPE_SOURCE && it.path.toPortableString() == '/sample-project/src/main/java' }
-
-        then:
-        sourceDir.exclusionPatterns.length == 0
-        sourceDir.inclusionPatterns.length == 0
-
-        where:
-        distribution << getSupportedGradleDistributions('<3.0')
-    }
-
 
     @Unroll
     def "Source folders are updated for #distribution.version"(GradleDistribution distribution) {
@@ -364,35 +298,6 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
         containers.size() == 2
         containers[0].path.segment(0) == JavaRuntime.JRE_CONTAINER
         containers[1].path == GradleClasspathContainer.CONTAINER_PATH
-    }
-
-    @Unroll
-    @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Custom classpath containers are not updated for #distribution.version"(GradleDistribution distribution) {
-        setup:
-        prepareProject('sample-project')
-        def projectDir = dir('sample-project') {
-            file 'build.gradle', """
-                apply plugin: 'java'
-                apply plugin: 'eclipse'
-                eclipse {
-                    classpath {
-                        containers 'custom.container', 'second.container'
-                    }
-                }
-            """
-            dir 'src/main/java'
-        }
-
-        when:
-        importAndWait(projectDir, distribution)
-        List containers = findJavaProject('sample-project').rawClasspath.findAll { it.entryKind == IClasspathEntry.CPE_CONTAINER }.collect { it.path.segment(0) }
-
-        then:
-        containers == [JavaRuntime.JRE_CONTAINER] + GradleClasspathContainer.CONTAINER_PATH.toPortableString()
-
-        where:
-        distribution << getSupportedGradleDistributions('<3.0')
     }
 
     @Unroll
@@ -472,64 +377,6 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
         where:
         distribution <<  getSupportedGradleDistributions('>=3.0')
-    }
-
-    @Unroll
-    @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Custom access rules are not updated for #distribution.version"(GradleDistribution distribution) {
-        setup:
-        prepareProject('sample-project')
-        def projectDir = dir('sample-project') {
-            dir('api')
-            dir('src/main/java')
-
-            file 'settings.gradle', 'include "api"'
-
-            file 'build.gradle', """
-                import org.gradle.plugins.ide.eclipse.model.AccessRule
-
-                allprojects {
-                    apply plugin: 'java'
-                    apply plugin: 'eclipse'
-                    ${jcenterRepositoryBlock}
-                }
-
-                dependencies {
-                    compile 'com.google.guava:guava:18.0'
-                    compile project(':api')
-                }
-
-                eclipse {
-                    classpath {
-                        containers 'containerPath'
-
-                        file {
-                            whenMerged { classpath ->
-                                def container = classpath.entries.find { it.path == 'containerPath' }
-                                def project = classpath.entries.find { it.path == '/api' }
-                                def library = classpath.entries.find { it.path.endsWith 'guava-18.0.jar' }
-                                container.accessRules.add(new AccessRule('0', 'container-pattern'))
-                                project.accessRules.add(new AccessRule('1', 'project-pattern'))
-                                library.accessRules.add(new AccessRule('2', 'library-pattern'))
-                            }
-                        }
-                    }
-                }
-            """
-           }
-
-           when:
-           importAndWait(projectDir, distribution)
-           IJavaProject project = findJavaProject('sample-project')
-           IClasspathEntry projectDep = project.getResolvedClasspath(true).find { it.path.toPortableString() == '/api' }
-           IClasspathEntry libraryDep = project.getResolvedClasspath(true).find { it.path.toPortableString().endsWith 'guava-18.0.jar' }
-
-           then:
-           assertNoAccessRules(projectDep)
-           assertNoAccessRules(libraryDep)
-
-           where:
-           distribution << getSupportedGradleDistributions('<3.0')
     }
 
     @Unroll
@@ -627,41 +474,6 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
     }
 
     @Unroll
-    @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Custom source folder output location is not updated for #distribution.version"(GradleDistribution distribution) {
-        setup:
-        prepareProject('sample-project')
-        def projectDir = dir('sample-project') {
-            dir 'src/main/java'
-            file 'build.gradle', """
-                apply plugin: 'java'
-                apply plugin: 'eclipse'
-                eclipse {
-                    classpath {
-                        file {
-                            whenMerged { classpath ->
-                                def src = classpath.entries.find { it.path == 'src/main/java' }
-                                src.output = 'target/classes'
-                            }
-                        }
-                    }
-                }
-            """
-        }
-
-        when:
-        importAndWait(projectDir, distribution)
-        IClasspathEntry sourceDir = findJavaProject('sample-project').rawClasspath.find { it.path.toPortableString() == '/sample-project/src/main/java' }
-        String outputLocation = sourceDir.outputLocation?.toPortableString()
-
-        then:
-        !outputLocation
-
-        where:
-        distribution << getSupportedGradleDistributions('<3.0')
-    }
-
-    @Unroll
     def "Classpath attributes are updated for #distribution.version"() {
         setup:
 
@@ -724,63 +536,6 @@ abstract class SingleProjectSynchronizationSpecification extends ProjectSynchron
 
            where:
            distribution << getSupportedGradleDistributions('>=3.0')
-    }
-
-    @Unroll
-    @IgnoreIf({ JavaVersion.current().isJava9Compatible() })
-    def "Classpath attributes are not updated for #distribution.version"(GradleDistribution distribution) {
-        setup:
-        prepareProject('sample-project')
-        def projectDir = dir('sample-project') {
-            dir 'src/main/java'
-            file 'settings.gradle', 'include "api"'
-            file 'build.gradle', """
-                allprojects {
-                    apply plugin: 'java'
-                    apply plugin: 'eclipse'
-                    ${jcenterRepositoryBlock}
-                }
-
-                dependencies {
-                    compile 'com.google.guava:guava:18.0'
-                    compile project(':api')
-                }
-
-                eclipse {
-                    classpath {
-                        downloadSources = false
-                        downloadJavadoc = true
-
-                        file {
-                            whenMerged { classpath ->
-                                def source = classpath.entries.find { it.path == 'src/main/java' }
-                                def container = classpath.entries.find { it.path == 'containerPath' }
-                                def project = classpath.entries.find { it.path == '/api' }
-                                def library = classpath.entries.find { it.path.endsWith 'guava-18.0.jar' }
-                                source.entryAttributes.sourceKey = 'sourceValue'
-                                project.entryAttributes.projectKey = 'projectValue'
-                                library.entryAttributes.libraryKey = 'libraryValue'
-                            }
-                        }
-                    }
-                }
-            """
-           }
-
-           when:
-           importAndWait(projectDir, distribution)
-           IJavaProject project = findJavaProject('sample-project')
-           IClasspathEntry source = project.rawClasspath.find { it.path.toPortableString() == '/sample-project/src/main/java' }
-           IClasspathEntry projectDep = project.getResolvedClasspath(true).find { it.path.toPortableString() == '/api' }
-           IClasspathEntry libraryDep = project.getResolvedClasspath(true).find { it.path.toPortableString().endsWith 'guava-18.0.jar' }
-
-           then:
-           assertNoClasspathAttributes(source)
-           assertNoClasspathAttributes(projectDep)
-           assertNoClasspathAttributes(libraryDep)
-
-           where:
-           distribution << getSupportedGradleDistributions('<3.0')
     }
 
     def "Custom java runtime name"() {

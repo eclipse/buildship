@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.eclipse.buildship.oomph.internal.test.fixtures
 
-import org.junit.Rule
 import spock.lang.AutoCleanup
 import spock.lang.Specification
 import spock.lang.TempDir
@@ -33,6 +32,7 @@ import org.eclipse.debug.core.ILaunchManager
 import org.eclipse.jdt.core.IJavaProject
 import org.eclipse.jdt.core.JavaCore
 
+import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.CorePlugin
 import org.eclipse.buildship.core.internal.configuration.BuildConfiguration
 import org.eclipse.buildship.core.internal.configuration.ConfigurationManager
@@ -40,7 +40,6 @@ import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate
 import org.eclipse.buildship.core.internal.marker.GradleErrorMarker
 import org.eclipse.buildship.core.internal.preferences.DefaultPersistentModel
 import org.eclipse.buildship.core.internal.preferences.PersistentModel
-import org.eclipse.buildship.core.GradleDistribution
 import org.eclipse.buildship.core.internal.workspace.EclipseVmUtil
 import org.eclipse.buildship.core.internal.workspace.PersistentModelBuilder
 import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations
@@ -272,7 +271,7 @@ abstract class WorkspaceSpecification extends Specification {
         }
     }
 
-    protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern = '>=1.2') {
+    protected static List<GradleDistribution> getSupportedGradleDistributions(String versionPattern = '>=3.0') {
         GradleVersionParameterization.Default.INSTANCE.getGradleDistributions(versionPattern)
     }
 
