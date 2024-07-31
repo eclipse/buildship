@@ -127,7 +127,7 @@ public abstract class GradleVersionParameterization {
         Preconditions.checkNotNull(gradleVersionPattern);
 
         Predicate<GradleVersion> versionConstraint = GradleVersionConstraints.toPredicate(gradleVersionPattern);
-        Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=2.6");
+        Predicate<GradleVersion> toolingApiConstraint = GradleVersionConstraints.toPredicate(">=3.0");
         Set<String> unsupportedVersions = CompatibilityChecker.compatibilityMap.get(JavaVersion.current().getMajorVersion());
         Predicate<GradleVersion> javaVersionConstraint = (ignoreJavaConstraint || unsupportedVersions == null || unsupportedVersions.size() == 0) ? Predicates.alwaysTrue() : GradleVersionConstraints.toPredicate("!=" + unsupportedVersions.stream().collect(Collectors.joining(" !=")));
         @SuppressWarnings("unchecked")

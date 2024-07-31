@@ -9,8 +9,6 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.workspace
 
-import org.eclipse.buildship.core.internal.CompatibilityChecker
-import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
 import org.gradle.api.JavaVersion
 import org.junit.jupiter.api.Assertions;
 import spock.lang.Ignore
@@ -18,6 +16,8 @@ import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 import org.eclipse.buildship.core.GradleDistribution
+import org.eclipse.buildship.core.internal.CompatibilityChecker
+import org.eclipse.buildship.core.internal.operation.ToolingApiStatus
 import org.eclipse.buildship.core.internal.test.fixtures.ProjectSynchronizationSpecification
 
 class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecification {
@@ -151,7 +151,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
         System.setProperty(CompatibilityChecker.BYPASS_COMPATIBILITY_CHECK_KEY, "false")
 
         where:
-        distribution << getSupportedGradleDistributions('>=2.6', true)
+        distribution << getSupportedGradleDistributions('>=3.0', true)
     }
 
     @Unroll
@@ -170,7 +170,7 @@ class ImportingProjectCrossVersionTest extends ProjectSynchronizationSpecificati
         }
 
         where:
-        distribution << getSupportedGradleDistributions('>=2.6', true)
+        distribution << getSupportedGradleDistributions('>=3.0', true)
     }
 
     @Unroll
