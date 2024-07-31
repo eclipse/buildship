@@ -55,7 +55,7 @@ public class CompatibilityChecker {
                 BuildEnvironment environment = gradleBuild.withConnection(connection -> connection.getModel(BuildEnvironment.class), monitor);
                 gradleVersion = environment.getGradle().getGradleVersion();
             } catch (Exception e) {
-                if (e.getMessage().contains(UNSUPPORTED_BUILD_ENVIRONMENT_MESSAGE)) {
+                if (hasUnsupportedBuildEnvironmentMessage(e)) {
                     return ToolingApiStatus.from("Project synchronization", new UnsupportedJavaVersionException(String.format("The current build uses Java %s which is not supported. Please consult the Gradle documentation to find the compatible combinations: https://docs.gradle.org/current/userguide/compatibility.html.", javaVersion)));
                 }
                 return ToolingApiStatus.from("Project synchronization", e);
@@ -70,6 +70,21 @@ public class CompatibilityChecker {
             }
         }
         return new Status(IStatus.OK, CorePlugin.PLUGIN_ID, "tooling API compatibility check passed");
+    }
+
+    private static boolean hasUnsupportedBuildEnvironmentMessage(Exception e) {
+        Set<Throwable> seen = new HashSet<>();
+        Throwable current = e;
+        while (current != null) {
+            if (current.getMessage().contains(UNSUPPORTED_BUILD_ENVIRONMENT_MESSAGE)) {
+                return true;
+            }
+            if (!seen.add(current)) {
+                break;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 
     private static Map<String, Set<String>> loadCompatibilityMap() throws GradlePluginsRuntimeException {
