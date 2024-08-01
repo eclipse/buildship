@@ -32,6 +32,7 @@ public abstract class GradleVersionProvider {
 
     public static final String ALL = "all";
     public static final String LATEST = "latest";
+    public static final String PARTIAL = "partial";
 
     private static final Logger LOG = LoggerFactory.getLogger(GradleVersionProvider.class);
 
@@ -60,6 +61,8 @@ public abstract class GradleVersionProvider {
             configuredGradleVersions = ImmutableSet.<GradleVersion> builder().add(GradleVersion.current()).addAll(this.releasedVersions.getAll()).build();
         } else if (pattern.equals(LATEST)) {
             configuredGradleVersions = ImmutableSet.<GradleVersion> builder().add(GradleVersion.current()).add(this.releasedVersions.getLatest()).build();
+        } else if (pattern.equals(PARTIAL)) {
+            configuredGradleVersions = ImmutableSet.<GradleVersion> builder().add(GradleVersion.current()).addAll(this.releasedVersions.getPartial()).build();
         } else if (pattern.matches("^\\d.*$")) {
             configuredGradleVersions = FluentIterable.from(Splitter.on(',').split(pattern)).transform(new Function<String, GradleVersion>() {
 

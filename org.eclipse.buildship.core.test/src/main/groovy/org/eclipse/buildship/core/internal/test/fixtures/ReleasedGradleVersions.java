@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.buildship.core.internal.test.fixtures;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import com.google.common.base.Function;
@@ -17,6 +18,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
 import org.eclipse.buildship.core.internal.util.gradle.GradleVersion;
@@ -38,6 +41,23 @@ public abstract class ReleasedGradleVersions {
 
     public ImmutableList<GradleVersion> getAll() {
         return this.versions;
+    }
+
+    public ImmutableList<GradleVersion> getPartial() {
+        Builder<GradleVersion> result = ImmutableSet.builder();
+        Iterator<GradleVersion> iterator = Lists.reverse(getAll()).iterator();
+        GradleVersion version = iterator.next();
+        result.add(version);
+        while (iterator.hasNext()) {
+            GradleVersion nextVersion = iterator.next();
+            if (version.getVersion().charAt(0) != nextVersion.getVersion().charAt(0)) {
+               result.add(version);
+               result.add(nextVersion);
+            }
+            version = nextVersion;
+        }
+        result.add(version);
+        return ImmutableList.copyOf(result.build());
     }
 
     public GradleVersion getLatest() {

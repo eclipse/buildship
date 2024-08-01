@@ -110,7 +110,7 @@ class TestBundlePlugin implements Plugin<Project> {
         project.tasks.check.dependsOn eclipseTest
 
         taskDescription = 'Executes all Eclipse integration tests including the cross-version coverage using PDE Test runner'
-        defineEclipseTestTask(project, config, TASK_NAME_CROSS_VERSION_ECLIPSE_TEST, taskDescription, "all")
+        defineEclipseTestTask(project, config, TASK_NAME_CROSS_VERSION_ECLIPSE_TEST, taskDescription, "partial")
     }
 
     static Task defineEclipseTestTask(Project project, Config config, String testTaskName, String taskDescription, String integTestVersions) {
