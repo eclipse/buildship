@@ -2,7 +2,9 @@ apply plugin: eclipsebuild.UpdateSitePlugin
 apply plugin: 'org.hidetake.ssh'
 
 buildscript {
-    repositories { jcenter() }
+    repositories {
+        gradlePluginPortal()
+    }
     dependencies {
         classpath 'org.hidetake:gradle-ssh-plugin:2.10.1'
     }
