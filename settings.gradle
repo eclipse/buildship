@@ -1,14 +1,17 @@
 // publish build scans from CI builds
 plugins {
-    id "com.gradle.enterprise" version "3.10"
+    id "com.gradle.develocity" version "3.17.6"
+    id 'com.gradle.common-custom-user-data-gradle-plugin' version '2.0.2'
 }
 
-gradleEnterprise {
+
+def isCI = System.getenv('CI') != null
+
+develocity {
     server = "https://ge.gradle.org"
     buildScan {
-        boolean ci = System.getenv('CI') as boolean
-        publishAlwaysIf(ci)
-        uploadInBackground = !ci
+        publishing.onlyIf { isCI }
+        uploadInBackground = !isCI
     }
 }
 
