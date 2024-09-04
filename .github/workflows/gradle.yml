@@ -29,6 +29,6 @@ jobs:
         with:
           develocity-access-key: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       - name: Build with Gradle
-        run: ./gradlew build -x eclipseTest -Pbuild.invoker=ci
+        run: ./gradlew build -x eclipseTest '-Pbuild.invoker=ci'
 
 
