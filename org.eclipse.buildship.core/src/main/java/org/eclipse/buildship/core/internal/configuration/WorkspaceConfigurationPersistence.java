@@ -45,6 +45,7 @@ final class WorkspaceConfigurationPersistence {
     private static final String SHOW_EXECUTIONS_VIEW = "show.executions.view";
     private static final String EXPERIMENTAL_ENABLE_MODULE_SUPPORT = "experimental.module.support";
     private static final String PROBLEMS_API_SUPPORT = "problems.api.support";
+    private static final String LSP_JAR_PATH = "lsp.jar.path";
 
     public WorkspaceConfiguration readWorkspaceConfig() {
         IEclipsePreferences preferences = getPreferences();
@@ -74,7 +75,8 @@ final class WorkspaceConfigurationPersistence {
         boolean showExecutionsView = preferences.getBoolean(SHOW_EXECUTIONS_VIEW, true);
         boolean moduleSupport = preferences.getBoolean(EXPERIMENTAL_ENABLE_MODULE_SUPPORT, false);
         boolean problemsApiSupport = preferences.getBoolean(PROBLEMS_API_SUPPORT, false);
-        return new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSyncEnabled, arguments, jvmArguments, showConsoleView, showExecutionsView, moduleSupport, problemsApiSupport);
+        String lspJarPath = preferences.get(LSP_JAR_PATH, "");
+        return new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSyncEnabled, arguments, jvmArguments, showConsoleView, showExecutionsView, moduleSupport, problemsApiSupport, lspJarPath);
     }
 
     public void saveWorkspaceConfiguration(WorkspaceConfiguration config) {
@@ -100,6 +102,7 @@ final class WorkspaceConfigurationPersistence {
         preferences.putBoolean(SHOW_EXECUTIONS_VIEW, config.isShowExecutionsView());
         preferences.putBoolean(EXPERIMENTAL_ENABLE_MODULE_SUPPORT, config.isExperimentalModuleSupportEnabled());
         preferences.putBoolean(PROBLEMS_API_SUPPORT, config.isProblemsApiSupportEnabled());
+        preferences.put(LSP_JAR_PATH, config.getLspJarPath());
         try {
             preferences.flush();
         } catch (BackingStoreException e) {

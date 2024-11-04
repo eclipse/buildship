@@ -1,14 +1,12 @@
 # Eclipse Buildship: Gradle integration for the Eclipse IDE <a href="https://builds.gradle.org/viewType.html?buildTypeId=Tooling_Buildship_Checkpoint_Full_Test_Coverage_Phase_33"><img src="https://builds.gradle.org/guestAuth/app/rest/builds/buildType:(id:Tooling_Buildship_Checkpoint_Full_Test_Coverage_Phase_33)/statusIcon"/></a>
 
-Buildship is a set of Eclipse Plug-ins that provide a deep integration of Gradle into the Eclipse IDE. Buildship is hosted
-on [eclipse.org](https://projects.eclipse.org/projects/tools.buildship).
-
+> [!TIP]
+> We have preview of Declarative Gradle support. See [here](/docs/user/DeclarativeGradle.md) how to set it up.
 
 ## Requirements
 
 Buildship can be used with Eclipse IDE 4.2.x or newer. Older versions of Eclipse the IDE might work but have not been tested explicitly. Depending
 on the version of Gradle that Buildship interacts with, certain features of Buildship may not be available.
-
 
 ## Documentation
 
@@ -16,16 +14,14 @@ All documentation of Buildship for users and developers is hosted on [GitHub](ht
 
 More specifically, you can find
 
- * [User documentation](docs/user/README.md) (plugin installation, current functionality)
- * [Developer documentation](docs/development/README.md) (development environment setup)
- * [Build documentation](docs/pluginbuild/README.md) (building Eclipse projects with Gradle)
- * [Outline of upcoming stories](docs/stories/README.md)
-
+- [User documentation](docs/user/README.md) (plugin installation, current functionality)
+- [Developer documentation](docs/development/README.md) (development environment setup)
+- [Build documentation](docs/pluginbuild/README.md) (building Eclipse projects with Gradle)
+- [Outline of upcoming stories](docs/stories/README.md)
 
 ## Discussions &amp; News
 
 We are very interested in feedback from the Gradle and Eclipse communities. All things Buildship are discussed on the [Gradle Forums](http://discuss.gradle.org/c/help-discuss/buildship).
-
 
 ## Issue Tracking
 

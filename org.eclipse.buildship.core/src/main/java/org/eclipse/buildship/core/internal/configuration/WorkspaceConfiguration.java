@@ -36,12 +36,13 @@ public final class WorkspaceConfiguration {
     private final boolean showExecutionsView;
     private final boolean experimentalModuleSupportEnabled;
     private final boolean problemsApiSupportEnabled;
+    private final String lspJarPath;
 
     public WorkspaceConfiguration(GradleDistribution gradleDistribution, File gradleUserHome,
                                   File javaHome, boolean gradleIsOffline, boolean buildScansEnabled,
                                   boolean autoSync, List<String> arguments,
                                   List<String> jvmArguments, boolean showConsoleView,
-                                  boolean showExecutionsView, boolean experimentalModuleSupportEnabled, boolean problemApiSupportEnabled) {
+                                  boolean showExecutionsView, boolean experimentalModuleSupportEnabled, boolean problemApiSupportEnabled, String lspJarPath) {
         this.gradleDistribution = gradleDistribution;
         this.gradleUserHome = gradleUserHome;
         this.javaHome = javaHome;
@@ -54,6 +55,7 @@ public final class WorkspaceConfiguration {
         this.showExecutionsView = showExecutionsView;
         this.experimentalModuleSupportEnabled = experimentalModuleSupportEnabled;
         this.problemsApiSupportEnabled = problemApiSupportEnabled;
+        this.lspJarPath = lspJarPath;
     }
 
     public GradleDistribution getGradleDistribution() {
@@ -107,6 +109,10 @@ public final class WorkspaceConfiguration {
         return this.problemsApiSupportEnabled;
     }
 
+    public String getLspJarPath() {
+        return this.lspJarPath;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof WorkspaceConfiguration) {
@@ -122,7 +128,8 @@ public final class WorkspaceConfiguration {
                     && Objects.equal(this.showConsoleView, other.showConsoleView)
                     && Objects.equal(this.showExecutionsView, other.showExecutionsView)
                     && Objects.equal(this.experimentalModuleSupportEnabled, other.experimentalModuleSupportEnabled)
-                    && Objects.equal(this.problemsApiSupportEnabled, other.problemsApiSupportEnabled);
+                    && Objects.equal(this.problemsApiSupportEnabled, other.problemsApiSupportEnabled
+                    && Objects.equal(this.lspJarPath, other.lspJarPath));
         }
         return false;
     }

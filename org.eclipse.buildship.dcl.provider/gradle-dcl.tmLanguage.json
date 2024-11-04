@@ -1,0 +1,193 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Declarative Gradle",
+  "scopeName": "source.gradle.dcl",
+  "patterns": [
+    {
+      "include": "#block"
+    },
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#constant"
+    },
+    {
+      "include": "#function"
+    },
+    {
+      "include": "#assignment"
+    }
+  ],
+  "repository": {
+    "comment": {
+      "patterns": [
+        {
+          "match": "//.*$",
+          "name": "comment.line.double-slash.gradle-dcl"
+        },
+        {
+          "begin": "/\\*",
+          "end": "\\*/",
+          "name": "comment.block.gradle-dcl"
+        }
+      ]
+    },
+    "escape": {
+      "patterns": [
+        {
+          "match": "\\\\(t|r|n|f|b|\\\"|\\\\)",
+          "name": "constant.character.escape.gradle-dcl"
+        }
+      ]
+    },
+    "numeric": {
+      "patterns": [
+        {
+          "match": "\\b([0-9]+)\\b",
+          "name": "constant.numeric.gradle-dcl"
+        }
+      ]
+    },
+    "character": {
+      "patterns": [
+        {
+          "match": "'\\\\?.'",
+          "name": "string.quoted.single.gradle-dcl",
+          "captures": {
+            "0": {
+              "patterns": [
+                {
+                  "include": "#escape",
+                  "name": "constant.character.escape.gradle-dcl"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "string": {
+      "$comment": [
+        ""
+      ],
+      "patterns": [
+        {
+          "name": "string.quoted.triple.gradle-dcl",
+          "begin": "\"\"\"",
+          "end": "\"\"\"",
+          "patterns": [
+            {
+              "include": "#escape"
+            }
+          ]
+        },
+        {
+          "match": "\".*\"",
+          "name": "string.quoted.double.gradle-dcl",
+          "captures": {
+            "0": {
+              "patterns": [
+                {
+                  "include": "#escape"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "boolean": {
+      "patterns": [
+        {
+          "match": "\\b(true|false)\\b",
+          "name": "constant.language.gradle-dcl"
+        }
+      ]
+    },
+    "constant": {
+      "patterns": [
+        {
+          "include": "#numeric"
+        },
+        {
+          "include": "#character"
+        },
+        {
+          "include": "#string"
+        },
+        {
+          "include": "#boolean"
+        }
+      ]
+    },
+    "function": {
+      "patterns": [
+        {
+          "name": "support.function",
+          "begin": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
+          "beginCaptures": {
+            "1": {
+              "name": "entity.name.function.gradle-dcl"
+            }
+          },
+          "end": "\\)",
+          "patterns": [
+            {
+              "include": "#constant"
+            },
+            {
+              "include": "#function"
+            },
+            {
+              "match": "[a-zA-Z][a-zA-Z0-9]*",
+              "name": "variable.parameter.gradle-dcl"
+            },
+            {
+              "match": ",",
+              "name": "punctuation.separator.gradle-dcl"
+            }
+          ]
+        }
+      ]
+    },
+    "assignment": {
+      "name": "keyword.operator.assignment.gradle-dcl",
+      "match": "\\b([a-zA-Z][a-zA-Z0-9_]*)\\s*=\\s*([0-9]+|\\S+)",
+      "captures": {
+        "1": {
+          "name": "variable.name.gradle-dcl"
+        },
+        "2": {
+          "patterns": [
+            {
+              "include": "#constant"
+            },
+            {
+              "include": "#function"
+            }
+          ]
+        }
+      }
+    },
+    "block": {
+      "patterns": [
+        {
+          "name": "entity.gradle-dcl",
+          "begin": "\\b([a-zA-Z][a-zA-Z0-9]*)?\\s*\\{",
+          "beginCaptures": {
+            "1": {
+              "name": "entity.name.tag.gradle-dcl"
+            }
+          },
+          "end": "\\}",
+          "patterns": [
+            {
+              "include": "$base"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

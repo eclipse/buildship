@@ -15,6 +15,9 @@
    <feature id="org.eclipse.buildship.kotlindsl">
       <category name="BuildshipExtrasIncubating"/>
    </feature>
+   <feature url="features/org.eclipse.buildship.dcl_0.0.0.jar" id="org.eclipse.buildship.dcl" version="0.0.0">
+      <category name="BuildshipExtrasIncubating"/>
+   </feature>
    <category-def name="Buildship" label="Buildship: Eclipse Plug-ins for Gradle"/>
    <category-def name="BuildshipExtras" label="Buildship Extras"/>
    <category-def name="BuildshipExtrasIncubating" label="Buildship Extras - Incubating"/>

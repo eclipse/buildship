@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Provider
+Bundle-SymbolicName: org.eclipse.buildship.dcl.provider;singleton:=true
+Bundle-Version: 3.1.10.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.contenttype,
+ org.eclipse.ui,
+ org.eclipse.ui.genericeditor,
+ org.eclipse.tm4e.registry,
+ org.eclipse.tm4e.languageconfiguration,
+ org.eclipse.lsp4e,
+ org.eclipse.jdt.launching,
+ org.eclipse.buildship.core
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Automatic-Module-Name: org.eclipse.buildship.dcl.provider

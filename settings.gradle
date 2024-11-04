@@ -40,6 +40,8 @@ if (properties['latest'] == 'true') {
     include ':org.eclipse.buildship.gradleprop.feature'
     include ':org.eclipse.buildship.kotlindsl.provider'
     include ':org.eclipse.buildship.kotlindsl.feature'
+    include ':org.eclipse.buildship.dcl.feature'
+    include ':org.eclipse.buildship.dcl.provider'
     include ':org.eclipse.buildship.gradleprop.test'
 }
 
