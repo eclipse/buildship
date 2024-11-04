@@ -43,6 +43,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
     private GradleProjectSettingsComposite gradleProjectSettingsComposite;
     private boolean experimentalModuleSupportEnabled;
     private boolean problemsApiSupportEnabled;
+    private String lspJarPath;
 
 
     public GradleWorkbenchPreferencePage() {
@@ -78,6 +79,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().setSelection(config.isShowExecutionsView());
         this.experimentalModuleSupportEnabled = config.isExperimentalModuleSupportEnabled();
         this.problemsApiSupportEnabled = config.isProblemsApiSupportEnabled();
+        this.lspJarPath = config.getLspJarPath();
     }
 
     private void addListeners() {
@@ -101,7 +103,7 @@ public final class GradleWorkbenchPreferencePage extends PreferencePage implemen
         List<String> jvmArguments = this.gradleProjectSettingsComposite.getAdvancedOptionsGroup().getJvmArguments();
         boolean showConsoleView = this.gradleProjectSettingsComposite.getShowConsoleViewCheckbox().getSelection();
         boolean showExecutionsView = this.gradleProjectSettingsComposite.getShowExecutionsViewCheckbox().getSelection();
-        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView, this.experimentalModuleSupportEnabled, this.problemsApiSupportEnabled);
+        WorkspaceConfiguration workspaceConfig = new WorkspaceConfiguration(distribution, gradleUserHome, javaHome, offlineMode, buildScansEnabled, autoSync, arguments, jvmArguments, showConsoleView, showExecutionsView, this.experimentalModuleSupportEnabled, this.problemsApiSupportEnabled, this.lspJarPath);
         CorePlugin.configurationManager().saveWorkspaceConfiguration(workspaceConfig);
         return super.performOk();
     }

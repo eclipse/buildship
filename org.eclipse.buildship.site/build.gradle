@@ -46,9 +46,10 @@ dependencies {
     if (findProperty('latest') == 'true') {
         localPlugin project(':org.eclipse.buildship.gradleprop.provider')
         localFeature project(':org.eclipse.buildship.gradleprop.feature')
-
         localPlugin project(':org.eclipse.buildship.kotlindsl.provider')
         localFeature project(':org.eclipse.buildship.kotlindsl.feature')
+        localPlugin project(':org.eclipse.buildship.dcl.provider')
+        localFeature project(':org.eclipse.buildship.dcl.feature')
     }
     if (findProperty('include.experimental.features') == 'true') {
         localPlugin project(':org.eclipse.buildship.kotlin')

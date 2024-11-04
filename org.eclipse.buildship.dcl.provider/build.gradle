@@ -1,0 +1,11 @@
+apply plugin: eclipsebuild.BundlePlugin
+
+dependencies {
+	api withEclipseBundle("org.eclipse.swt.${ECLIPSE_WS}.${ECLIPSE_OS}.${ECLIPSE_ARCH}")
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17) // TODO all Gradle plugins should use Java 17 for Eclipse 4.25+
+    }
+}

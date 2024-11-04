@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="org.eclipse.buildship.dcl.provider">
+      <category name="Declarative DCL support"/>
+   </bundle>
+   <category-def name="Declarative Gradle" label="Features for Declarative Gradle support"/>
+</site>

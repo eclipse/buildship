@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-patterns="*.gradle.dcl"
+            id="org.eclipse.buildship.dcl.content"
+            name="Declarative Gradle"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.tm4e.registry.grammars">
+      <grammar
+            path="gradle-dcl.tmLanguage.json"
+            scopeName="source.gradle.dcl">
+      </grammar>
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.buildship.dcl.content"
+            scopeName="source.gradle.dcl">
+      </scopeNameContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.tm4e.languageconfiguration.languageConfigurations">
+      <languageConfiguration
+            contentTypeId="org.eclipse.buildship.dcl.content"
+            path="language-configuration.json">
+      </languageConfiguration>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editorContentTypeBinding
+            contentTypeId="org.eclipse.buildship.dcl.content"
+            editorId="org.eclipse.ui.genericeditor.GenericEditor">
+      </editorContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.lsp4e.languageServer">
+      <server
+            class="org.eclipse.buildship.dcl.provider.DeclarativeGradleConnectionProvider"
+            id="org.eclipse.buildship.dcl.provider.server"
+            label="Declarative Gradle Language Server">
+      </server>
+      <contentTypeMapping
+            contentType="org.eclipse.buildship.dcl.content"
+            id="org.eclipse.buildship.dcl.provider.server">
+      </contentTypeMapping>
+   </extension>
+</plugin>

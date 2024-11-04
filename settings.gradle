@@ -1,6 +1,6 @@
 // publish build scans from CI builds
 plugins {
-    id "com.gradle.develocity" version "3.17.6"
+    id "com.gradle.develocity" version "3.18.1"
     id 'com.gradle.common-custom-user-data-gradle-plugin' version '2.0.2'
 }
 
@@ -8,9 +8,16 @@ plugins {
 def isCI = System.getenv('CI') != null
 
 develocity {
-    server = "https://ge.gradle.org"
+    server = "https://develocity-staging.eclipse.org"
     buildScan {
-        publishing.onlyIf { isCI }
+        publishing.onlyIf { true }
+        obfuscation {
+            username { name -> isCI ? 'ci' : 'local' }
+            ipAddresses { addresses -> addresses.collect { address -> "0.0.0.0" } }
+            externalProcessName { processName -> "non-build-process" }
+            hostname { host -> isCI ? 'ci' : 'local' }
+
+        }
         uploadInBackground = !isCI
     }
 }
@@ -33,6 +40,8 @@ if (properties['latest'] == 'true') {
     include ':org.eclipse.buildship.gradleprop.feature'
     include ':org.eclipse.buildship.kotlindsl.provider'
     include ':org.eclipse.buildship.kotlindsl.feature'
+    include ':org.eclipse.buildship.dcl.feature'
+    include ':org.eclipse.buildship.dcl.provider'
     include ':org.eclipse.buildship.gradleprop.test'
 }
 
