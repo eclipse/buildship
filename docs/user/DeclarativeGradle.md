@@ -11,7 +11,7 @@ In order to install
 
 1. In the Help > Install New Software dialog, add the following update site: https://download.eclipse.org/buildship/updates/latest-snapshot/
 1. Install the "Buildship - Gradle Declarative editor support" under the "Buildship Extras - Incubating" category.
-1. Check out and build the [declarative-lsp](https://github.com/gradle/declarative-lsp) project by running `shadowJar`. The task should make a `lsp-all.jar` file under `build/libs`.
+1. Check out and build the [declarative-lsp](https://github.com/gradle/declarative-lsp) project by running `shadowJar`. The task should make a `lsp-all.jar` file under `lsp/build/libs`.
 1. Go to the "Settings > Gradle > Experimental features" menu, and select this `lsp-all.jar` file.
 1. Upon opening any `gradle.dcl` file, the LSP should turn on. Observe the console for any diagnostic messages.
 
