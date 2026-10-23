@@ -33,6 +33,7 @@ import org.eclipse.buildship.core.internal.console.ProcessStreams;
 import org.eclipse.buildship.core.internal.console.ProcessStreamsProvider;
 import org.eclipse.buildship.core.internal.util.progress.CancellationForwardingListener;
 import org.eclipse.buildship.core.internal.util.progress.DelegatingProgressListener;
+import org.eclipse.buildship.core.internal.util.progress.FileDownloadProgressListener;
 import org.eclipse.buildship.core.internal.util.progress.ProblemsReportingProgressListener;
 import org.eclipse.buildship.core.internal.workspace.InternalGradleBuild;
 
@@ -168,6 +169,7 @@ public final class GradleProgressAttributes {
             CancellationForwardingListener cancellationListener = new CancellationForwardingListener(this.monitor, this.tokenSource);
             progressListeners.add(cancellationListener);
             progressEventListeners.add(cancellationListener);
+            progressEventListeners.add(new FileDownloadProgressListener(this.monitor));
             if (CorePlugin.configurationManager().loadWorkspaceConfiguration().isProblemsApiSupportEnabled()) {
                 progressEventListeners.add(new ProblemsReportingProgressListener(this.gradleBuild));
             }
